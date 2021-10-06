@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QGraphicsView>
 
+#include "block_scene.h"
+
 class BlockGraphicsView : public QGraphicsView
 {
     Q_OBJECT

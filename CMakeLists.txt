@@ -19,6 +19,10 @@ set(PROJECT_SOURCES
         scenes/main_window.cpp
         scenes/main_window.h
         scenes/main_window.ui
+        block/block_scene.cpp
+        block/block_scene.h
+        block/test_block.cpp
+        block/test_block.h
         block/block_graphics_view.cpp
         block/block_graphics_view.h
 )

@@ -9,6 +9,7 @@ BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
     QGraphicsView(parent)
 {
     // Empty Constructor
+    setScene(new BlockScene(this));
 }
 
 void BlockGraphicsView::render(

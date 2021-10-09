@@ -54,7 +54,7 @@
   <customwidget>
    <class>BlockGraphicsView</class>
    <extends>QGraphicsView</extends>
-   <header>block/block_graphics_view.h</header>
+   <header>widgets/block_graphics_view.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -1,24 +1,24 @@
-#include "test_block.h"
+#include "base_block.h"
 
 #include <QPainter>
 #include <QWidget>
 
-TestBlock::TestBlock(QGraphicsItem* parent) :
+BaseBlock::BaseBlock(QGraphicsItem* parent) :
     QGraphicsObject(parent)
 {
     // Parent
 }
 
-void TestBlock::paint(
+void BaseBlock::paint(
         QPainter* painter,
         const QStyleOptionGraphicsItem *option,
         QWidget* widget)
 {
     painter->setBrush(Qt::gray);
-    painter->drawRect(widget->rect());
+    painter->drawRect(boundingRect());
 }
 
-QRectF TestBlock::boundingRect() const
+QRectF BaseBlock::boundingRect() const
 {
-    return QRectF(0, 0, 150, 150);
+    return QRectF(0, 0, 50, 50);
 }

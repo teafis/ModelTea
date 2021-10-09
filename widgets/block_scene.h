@@ -3,7 +3,7 @@
 
 #include <QGraphicsScene>
 
-#include "test_block.h"
+#include "blocks/base_block.h"
 
 class BlockScene : public QGraphicsScene
 {
@@ -13,7 +13,7 @@ public:
     BlockScene(QObject* parent = nullptr);
 
 protected:
-    TestBlock block;
+    BaseBlock block;
 };
 
 #endif // BLOCK_SCENE_H

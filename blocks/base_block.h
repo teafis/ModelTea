@@ -1,12 +1,12 @@
-#ifndef TEST_BLOCK_H
-#define TEST_BLOCK_H
+#ifndef BASE_BLOCK_H
+#define BASE_BLOCK_H
 
 #include <QGraphicsObject>
 
-class TestBlock : public QGraphicsObject
+class BaseBlock : public QGraphicsObject
 {
 public:
-    TestBlock(QGraphicsItem* parent = nullptr);
+    BaseBlock(QGraphicsItem* parent = nullptr);
 
     virtual void paint(
             QPainter* painter,
@@ -16,4 +16,4 @@ public:
     virtual QRectF boundingRect() const;
 };
 
-#endif // TEST_BLOCK_H
+#endif // BASE_BLOCK_H

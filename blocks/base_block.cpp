@@ -14,6 +14,14 @@ BaseBlock::BaseBlock(QGraphicsItem* parent) :
     // Empty Constructor
 }
 
+BaseBlock::BaseBlock(QObject* parent) :
+    num_inputs(0),
+    num_outputs(0),
+    name("TEMP")
+{
+    setParent(parent);
+}
+
 void BaseBlock::paint(
         QPainter* painter,
         const QStyleOptionGraphicsItem* option,

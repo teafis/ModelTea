@@ -17,8 +17,15 @@ BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
     // Set the scene
     setScene(new QGraphicsScene(this));
 
+    // Add a new block to the scene
+    blocks.append(new BaseBlock(this));
+    blocks.append(new BaseBlock(this));
+
     // Add a test block
-    scene()->addItem(&base_block);
+    for (const auto& block : blocks)
+    {
+        scene()->addItem(block);
+    }
     qInfo() << sceneRect() << ", " << visibleRegion().boundingRect();
 }
 
@@ -26,8 +33,6 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
 {
     Q_UNUSED(event);
     qInfo() << "Mouse Press";
-    base_block.setX(0.0);
-    base_block.setY(0.0);
 }
 
 void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
@@ -39,9 +44,13 @@ void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
 void BlockGraphicsView::mouseMoveEvent(QMouseEvent* event)
 {
     Q_UNUSED(event);
-    qInfo() << "Mouse Move: " << event->x() << ", " << event->y() << ", " << sceneRect() << ", " << visibleRegion().boundingRect();
-    base_block.setX(event->x() - event->x() % 10);
-    base_block.setY(event->y() - event->y() % 10);
+    qInfo() << "Mouse Move: " << event->pos() << ", " << sceneRect() << ", " << visibleRegion().boundingRect();
+
+    BaseBlock* selectedBlock = findBlockForMousePress(event->pos());
+    if (selectedBlock != nullptr)
+    {
+        selectedBlock->setPos(event->pos() - selectedBlock->boundingRect().center());
+    }
 }
 
 void BlockGraphicsView::resizeEvent(QResizeEvent* event)
@@ -58,4 +67,19 @@ void BlockGraphicsView::resizeEvent(QResizeEvent* event)
                     static_cast<double>(event->size().width())));
     setSceneRect(new_rect);
     qInfo() << "  " << sceneRect();
+}
+
+BaseBlock* BlockGraphicsView::findBlockForMousePress(const QPoint& pos)
+{
+    BaseBlock* selected = nullptr;
+    for (BaseBlock *const block : blocks)
+    {
+        QRectF boundingRect = block->sceneBoundingRect();
+        if (boundingRect.contains(pos))
+        {
+            selected = block;
+            break;
+        }
+    }
+    return selected;
 }

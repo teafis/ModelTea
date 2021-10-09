@@ -6,6 +6,11 @@
 
 #include "blocks/base_block.h"
 
+#include <vector>
+#include <QVector>
+
+#include <QPoint>
+
 class BlockGraphicsView : public QGraphicsView
 {
     Q_OBJECT
@@ -23,7 +28,10 @@ public:
     virtual void resizeEvent(QResizeEvent* event) override;
 
 protected:
-    BaseBlock base_block;
+    BaseBlock* findBlockForMousePress(const QPoint& pos);
+
+protected:
+    QVector<BaseBlock*> blocks;
 };
 
 #endif // BLOCKGRAPHICSWIDGET_H

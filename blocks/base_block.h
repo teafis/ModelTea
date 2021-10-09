@@ -11,6 +11,8 @@ class BaseBlock : public QGraphicsObject
 public:
     BaseBlock(QGraphicsItem* parent = nullptr);
 
+    BaseBlock(QObject* parent = nullptr);
+
     virtual void paint(
             QPainter* painter,
             const QStyleOptionGraphicsItem* option,

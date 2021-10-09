@@ -3,22 +3,37 @@
 #include <QPainter>
 #include <QWidget>
 
+#include <QDebug>
+
 BaseBlock::BaseBlock(QGraphicsItem* parent) :
-    QGraphicsObject(parent)
+    QGraphicsObject(parent),
+    num_inputs(0),
+    num_outputs(0),
+    name("TEMP")
 {
-    // Parent
+    // Empty Constructor
 }
 
 void BaseBlock::paint(
         QPainter* painter,
-        const QStyleOptionGraphicsItem *option,
+        const QStyleOptionGraphicsItem* option,
         QWidget* widget)
 {
+    Q_UNUSED(option);
+    Q_UNUSED(widget);
+
+    painter->setPen(QPen(Qt::black));
     painter->setBrush(Qt::gray);
     painter->drawRect(boundingRect());
+
+    qInfo() << x() << ", " << y();
 }
 
 QRectF BaseBlock::boundingRect() const
 {
-    return QRectF(0, 0, 50, 50);
+    return QRectF(
+                0,
+                0,
+                50,
+                50);
 }

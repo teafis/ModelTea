@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QGraphicsView>
 
-#include "block_scene.h"
+#include "blocks/base_block.h"
 
 class BlockGraphicsView : public QGraphicsView
 {
@@ -13,11 +13,15 @@ class BlockGraphicsView : public QGraphicsView
 public:
     BlockGraphicsView(QWidget* parent = nullptr);
 
-    virtual void render(
-            QPainter *painter,
-            const QRectF &target = QRectF(),
-            const QRect &source = QRect(),
-            Qt::AspectRatioMode aspectRatioMode = Qt::KeepAspectRatio);
+public:
+    virtual void mousePressEvent(QMouseEvent* event) override;
+
+    virtual void mouseReleaseEvent(QMouseEvent* event) override;
+
+    virtual void mouseMoveEvent(QMouseEvent* event) override;
+
+protected:
+    BaseBlock base_block;
 };
 
 #endif // BLOCKGRAPHICSWIDGET_H

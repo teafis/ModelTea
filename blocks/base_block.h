@@ -3,6 +3,9 @@
 
 #include <QGraphicsObject>
 
+#include <string>
+#include <cstddef>
+
 class BaseBlock : public QGraphicsObject
 {
 public:
@@ -10,10 +13,15 @@ public:
 
     virtual void paint(
             QPainter* painter,
-            const QStyleOptionGraphicsItem *option,
+            const QStyleOptionGraphicsItem* option,
             QWidget* widget = nullptr);
 
     virtual QRectF boundingRect() const;
+
+protected:
+    size_t num_inputs;
+    size_t num_outputs;
+    std::string name;
 };
 
 #endif // BASE_BLOCK_H

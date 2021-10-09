@@ -19,8 +19,6 @@ set(PROJECT_SOURCES
         scenes/main_window.cpp
         scenes/main_window.h
         scenes/main_window.ui
-        widgets/block_scene.cpp
-        widgets/block_scene.h
         widgets/block_graphics_view.cpp
         widgets/block_graphics_view.h
         blocks/base_block.cpp

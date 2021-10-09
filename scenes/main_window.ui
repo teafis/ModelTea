@@ -6,49 +6,43 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>631</width>
+    <height>309</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="BlockGraphicsView" name="block_graphics">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>10</y>
-      <width>511</width>
-      <height>321</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="update_button">
-    <property name="geometry">
-     <rect>
-      <x>560</x>
-      <y>20</y>
-      <width>80</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Update Scene</string>
-    </property>
-   </widget>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="BlockGraphicsView" name="block_graphics"/>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>20</height>
+     <width>631</width>
+     <height>22</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionExit"/>
+   </widget>
+   <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -60,34 +54,18 @@
  <resources/>
  <connections>
   <connection>
-   <sender>update_button</sender>
-   <signal>clicked()</signal>
-   <receiver>block_graphics</receiver>
-   <slot>update()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>599</x>
-     <y>50</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>275</x>
-     <y>190</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>update_button</sender>
-   <signal>clicked()</signal>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>button_press_listener()</slot>
+   <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>599</x>
-     <y>50</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>399</x>
-     <y>299</y>
+     <x>315</x>
+     <y>154</y>
     </hint>
    </hints>
   </connection>

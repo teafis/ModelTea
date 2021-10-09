@@ -5,20 +5,36 @@
 
 #include <QDebug>
 
+#include <QTextStream>
+
+#include <QMouseEvent>
+
 BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
     QGraphicsView(parent)
 {
-    // Empty Constructor
-    setScene(new BlockScene(this));
+    // Set the scene
+    setScene(new QGraphicsScene(this));
+
+    // Add a test block
+    scene()->addItem(&base_block);
 }
 
-void BlockGraphicsView::render(
-        QPainter *painter,
-        const QRectF &target,
-        const QRect &source,
-        Qt::AspectRatioMode aspectRatioMode)
+void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
 {
-    qDebug() << "Rendering!";
-    painter->setBrush(QBrush(Qt::blue));
-    painter->drawRect(target);
+    Q_UNUSED(event);
+    qInfo() << "Mouse Press";
+}
+
+void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
+{
+    Q_UNUSED(event);
+    qInfo() << "Mouse Release";
+}
+
+void BlockGraphicsView::mouseMoveEvent(QMouseEvent* event)
+{
+    Q_UNUSED(event);
+    qInfo() << "Mouse Move: " << event->x() << ", " << event->y();
+    base_block.setX(event->x() - event->x() % 10);
+    base_block.setY(event->y() - event->y() % 10);
 }

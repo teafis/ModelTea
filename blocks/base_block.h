@@ -9,8 +9,6 @@
 class BaseBlock : public QGraphicsObject
 {
 public:
-    BaseBlock(QGraphicsItem* parent = nullptr);
-
     BaseBlock(QObject* parent = nullptr);
 
     virtual void paint(
@@ -21,8 +19,15 @@ public:
     virtual QRectF boundingRect() const;
 
 protected:
-    size_t num_inputs;
-    size_t num_outputs;
+    void drawIOPorts(
+            QPainter* painter,
+            bool is_input);
+
+    QRectF blockRect() const;
+
+protected:
+    int num_inputs;
+    int num_outputs;
     std::string name;
 };
 

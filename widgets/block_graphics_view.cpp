@@ -26,36 +26,32 @@ BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
     {
         scene()->addItem(block);
     }
-    qInfo() << sceneRect() << ", " << visibleRegion().boundingRect();
 }
 
 void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
 {
-    Q_UNUSED(event);
-    qInfo() << "Mouse Press";
+    mouseDragState.setState(
+                event,
+                findBlockForMousePress(event->pos()));
 }
 
 void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
 {
     Q_UNUSED(event);
-    qInfo() << "Mouse Release";
+    mouseDragState.reset();
 }
 
 void BlockGraphicsView::mouseMoveEvent(QMouseEvent* event)
 {
-    Q_UNUSED(event);
-    qInfo() << "Mouse Move: " << event->pos() << ", " << sceneRect() << ", " << visibleRegion().boundingRect();
-
-    BaseBlock* selectedBlock = findBlockForMousePress(event->pos());
-    if (selectedBlock != nullptr)
+    if (mouseDragState.hasBlock())
     {
-        selectedBlock->setPos(event->pos() - selectedBlock->boundingRect().center());
+        mouseDragState.getBlock()->setPos(
+                    event->pos() - mouseDragState.getBlock()->boundingRect().center() + mouseDragState.getOffset());
     }
 }
 
 void BlockGraphicsView::resizeEvent(QResizeEvent* event)
 {
-    qInfo() << "Resize: " << event->size();
     QRectF new_rect = sceneRect();
     new_rect.setHeight(
                 std::max(
@@ -66,7 +62,6 @@ void BlockGraphicsView::resizeEvent(QResizeEvent* event)
                     sceneRect().width(),
                     static_cast<double>(event->size().width())));
     setSceneRect(new_rect);
-    qInfo() << "  " << sceneRect();
 }
 
 BaseBlock* BlockGraphicsView::findBlockForMousePress(const QPoint& pos)

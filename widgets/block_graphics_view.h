@@ -5,6 +5,7 @@
 #include <QGraphicsView>
 
 #include "blocks/base_block.h"
+#include "state/block_drag_state.h"
 
 #include <vector>
 #include <QVector>
@@ -32,6 +33,7 @@ protected:
 
 protected:
     QVector<BaseBlock*> blocks;
+    BlockDragState mouseDragState;
 };
 
 #endif // BLOCKGRAPHICSWIDGET_H

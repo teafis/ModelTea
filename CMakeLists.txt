@@ -21,6 +21,8 @@ set(PROJECT_SOURCES
         scenes/main_window.ui
         widgets/block_graphics_view.cpp
         widgets/block_graphics_view.h
+        widgets/state/block_drag_state.cpp
+        widgets/state/block_drag_state.h
         blocks/base_block.cpp
         blocks/base_block.h
 )

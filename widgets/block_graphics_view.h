@@ -20,6 +20,8 @@ public:
 
     virtual void mouseMoveEvent(QMouseEvent* event) override;
 
+    virtual void resizeEvent(QResizeEvent* event) override;
+
 protected:
     BaseBlock base_block;
 };

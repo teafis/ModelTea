@@ -35,12 +35,24 @@
     </property>
     <addaction name="actionExit"/>
    </widget>
+   <widget class="QMenu" name="menuBlocks">
+    <property name="title">
+     <string>Blocks</string>
+    </property>
+    <addaction name="actionAdd_Block"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuBlocks"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionAdd_Block">
+   <property name="text">
+    <string>Add Block</string>
    </property>
   </action>
  </widget>
@@ -49,6 +61,9 @@
    <class>BlockGraphicsView</class>
    <extends>QGraphicsView</extends>
    <header>widgets/block_graphics_view.h</header>
+   <slots>
+    <slot>addTestBlock()</slot>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -58,6 +73,22 @@
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
    <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>315</x>
+     <y>154</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAdd_Block</sender>
+   <signal>triggered()</signal>
+   <receiver>block_graphics</receiver>
+   <slot>addTestBlock()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>

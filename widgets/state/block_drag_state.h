@@ -2,7 +2,6 @@
 #define BLOCKDRAGSTATE_H
 
 #include <QPointF>
-#include <QMouseEvent>
 
 #include "blocks/base_block.h"
 
@@ -19,7 +18,9 @@ public:
 
     bool hasBlock() const;
 
-    void setState(QMouseEvent* event, BaseBlock* inBlock);
+    void setState(
+            const QPointF& inOffset,
+            BaseBlock* inBlock);
 
 protected:
     BaseBlock* block;

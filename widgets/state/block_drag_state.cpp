@@ -26,11 +26,10 @@ bool BlockDragState::hasBlock() const
     return block != nullptr;
 }
 
-void BlockDragState::setState(QMouseEvent* event, BaseBlock* inBlock)
+void BlockDragState::setState(
+        const QPointF& inOffset,
+        BaseBlock* inBlock)
 {
     block = inBlock;
-    if (hasBlock())
-    {
-        offset = block->sceneBoundingRect().center() - event->pos();
-    }
+    offset = inOffset;
 }

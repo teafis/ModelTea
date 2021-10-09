@@ -26,10 +26,11 @@ public:
 
     virtual void mouseMoveEvent(QMouseEvent* event) override;
 
-    virtual void resizeEvent(QResizeEvent* event) override;
+public slots:
+    void addTestBlock();
 
 protected:
-    BaseBlock* findBlockForMousePress(const QPoint& pos);
+    BaseBlock* findBlockForMousePress(const QPointF& pos);
 
 protected:
     QVector<BaseBlock*> blocks;

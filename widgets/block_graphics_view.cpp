@@ -16,23 +16,20 @@ BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
 {
     // Set the scene
     setScene(new QGraphicsScene(this));
-
-    // Add a new block to the scene
-    blocks.append(new BaseBlock(this));
-    blocks.append(new BaseBlock(this));
-
-    // Add a test block
-    for (const auto& block : blocks)
-    {
-        scene()->addItem(block);
-    }
+    scene()->setBackgroundBrush(Qt::white);
 }
 
 void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
 {
-    mouseDragState.setState(
-                event,
-                findBlockForMousePress(event->pos()));
+    const auto mappedPos = mapToScene(event->pos());
+    BaseBlock* block = findBlockForMousePress(mappedPos);
+
+    if (block != nullptr)
+    {
+        mouseDragState.setState(
+                    block->sceneBoundingRect().center() - mappedPos,
+                    block);
+    }
 }
 
 void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
@@ -46,30 +43,22 @@ void BlockGraphicsView::mouseMoveEvent(QMouseEvent* event)
     if (mouseDragState.hasBlock())
     {
         mouseDragState.getBlock()->setPos(
-                    event->pos() - mouseDragState.getBlock()->boundingRect().center() + mouseDragState.getOffset());
+                    mapToScene(event->pos()) - mouseDragState.getBlock()->boundingRect().center() + mouseDragState.getOffset());
     }
 }
 
-void BlockGraphicsView::resizeEvent(QResizeEvent* event)
+void BlockGraphicsView::addTestBlock()
 {
-    QRectF new_rect = sceneRect();
-    new_rect.setHeight(
-                std::max(
-                    sceneRect().height(),
-                    static_cast<double>(event->size().height())));
-    new_rect.setWidth(
-                std::max(
-                    sceneRect().width(),
-                    static_cast<double>(event->size().width())));
-    setSceneRect(new_rect);
+    blocks.append(new BaseBlock(this));
+    scene()->addItem(blocks.last());
 }
 
-BaseBlock* BlockGraphicsView::findBlockForMousePress(const QPoint& pos)
+BaseBlock* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
 {
     BaseBlock* selected = nullptr;
     for (BaseBlock *const block : blocks)
     {
-        QRectF boundingRect = block->sceneBoundingRect();
+        const QRectF boundingRect = block->sceneBoundingRect();
         if (boundingRect.contains(pos))
         {
             selected = block;

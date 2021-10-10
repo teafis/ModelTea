@@ -3,6 +3,8 @@
 
 #include <QGraphicsObject>
 
+#include "block_io_port.h"
+
 #include <string>
 #include <cstddef>
 
@@ -12,18 +14,27 @@ public:
     BaseBlock(QObject* parent = nullptr);
 
     virtual void paint(
-            QPainter* painter,
-            const QStyleOptionGraphicsItem* option,
-            QWidget* widget = nullptr);
+        QPainter* painter,
+        const QStyleOptionGraphicsItem* option,
+        QWidget* widget = nullptr);
 
     virtual QRectF boundingRect() const;
 
 protected:
+    QPointF getIOPortLocation(
+        const int number,
+        const int io_size,
+        const BlockIoPort::PortType type) const;
+
     void drawIOPorts(
-            QPainter* painter,
-            bool is_input);
+        QPainter* painter,
+        const QVector<BlockIoPort>& ports);
 
     QRectF blockRect() const;
+
+protected:
+    QVector<BlockIoPort> input_ports;
+    QVector<BlockIoPort> output_ports;
 
 protected:
     int num_inputs;

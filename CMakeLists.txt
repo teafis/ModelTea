@@ -27,6 +27,8 @@ set(PROJECT_SOURCES
         widgets/state/block_drag_state.h
         blocks/base_block.cpp
         blocks/base_block.h
+        blocks/block_io_port.cpp
+        blocks/block_io_port.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

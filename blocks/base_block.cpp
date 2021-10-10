@@ -7,6 +7,8 @@
 
 #include <algorithm>
 
+#include <stdexcept>
+
 const double PADDING_TB = 0;
 const double PADDING_LR = 30;
 const double BASE_SIZE = 50;
@@ -18,13 +20,37 @@ BaseBlock::BaseBlock(QObject* parent) :
     num_outputs(1),
     name("TEMP")
 {
+    // Set the provided parent to help with destruction
     setParent(parent);
+
+    // Set the locations for the IO ports
+    for (int i = 0; i < num_inputs; ++i)
+    {
+        input_ports.append(BlockIoPort(
+           i,
+           getIOPortLocation(
+               i,
+               num_inputs,
+               BlockIoPort::PortType::INPUT),
+           BlockIoPort::PortType::INPUT));
+    }
+
+    for (int i = 0; i < num_outputs; ++i)
+    {
+        output_ports.append(BlockIoPort(
+           i,
+           getIOPortLocation(
+               i,
+               num_outputs,
+               BlockIoPort::PortType::OUTPUT),
+           BlockIoPort::PortType::OUTPUT));
+    }
 }
 
 void BaseBlock::paint(
-        QPainter* painter,
-        const QStyleOptionGraphicsItem* option,
-        QWidget* widget)
+    QPainter* painter,
+    const QStyleOptionGraphicsItem* option,
+    QWidget* widget)
 {
     Q_UNUSED(option);
     Q_UNUSED(widget);
@@ -36,11 +62,11 @@ void BaseBlock::paint(
 
     // Draw the I/O ports
     drawIOPorts(
-                painter,
-                true);
+        painter,
+        input_ports);
     drawIOPorts(
-                painter,
-                false);
+        painter,
+        output_ports);
 
     // Draw the text label
     QFont font;
@@ -60,71 +86,108 @@ void BaseBlock::paint(
 
     // Draw the block name
     painter->drawText(
-                boundingRect().center() - QPointF(
-                    blockNameRect.width() / 2.0,
-                    blockNameRect.height() / 2.0),
-                blockName);
+        boundingRect().center() - QPointF(
+            blockNameRect.width() / 2.0,
+            blockNameRect.height() / 2.0),
+        blockName);
+}
+
+QPointF BaseBlock::getIOPortLocation(
+    const int number,
+    const int io_size,
+    const BlockIoPort::PortType type) const
+{
+    // Define the lambda used to track X values
+    const QRectF rect = boundingRect();
+    const double rect_width = rect.width();
+
+    // Define the X and Y offset values
+    const double init_x_offset = IO_RADIUS;
+    double x_loc = 0.0;
+
+    // Obtain the vector of points
+    switch (type)
+    {
+    case BlockIoPort::PortType::INPUT:
+        x_loc = init_x_offset;
+        break;
+    case BlockIoPort::PortType::OUTPUT:
+        x_loc = rect_width - init_x_offset;
+        break;
+    default:
+        throw std::runtime_error("unexpected port type provided");
+    }
+
+    // Ensure that there is at least one port
+    if (io_size <= 0)
+    {
+        throw std::runtime_error("no ports provided");
+    }
+
+    // Determine the resulting y location
+    double init_y_offset = rect.center().y() - HEIGHT_PER_IO * ((io_size - 1) / 2);
+    if (io_size % 2 == 0)
+    {
+        init_y_offset += -HEIGHT_PER_IO / 2;
+    }
+
+    // Add each line width value, and draw the resulting line
+    const double y_loc = init_y_offset + HEIGHT_PER_IO * number;
+
+    // Return the resulting location
+    return QPointF(
+        x_loc,
+        y_loc);
 }
 
 void BaseBlock::drawIOPorts(
-        QPainter* painter,
-        bool is_input)
+    QPainter* painter,
+    const QVector<BlockIoPort>& ports)
 {
-    const auto io_count = (is_input) ? num_inputs : num_outputs;
-
-    if (io_count > 0)
+    if (!ports.isEmpty())
     {
         // Define the lambda used to track X values
-        const QRectF rect = boundingRect();
-        const double rect_width = rect.width();
-        const auto x_update_fn = [&rect_width, &is_input](const double x)
+        const double rect_width = boundingRect().width();
+
+        const auto x_update_fn = [&rect_width](
+            const double x,
+            const BlockIoPort::PortType type)
         {
-            if (is_input)
+            switch (type)
             {
+            case BlockIoPort::PortType::INPUT:
                 return x;
-            }
-            else
-            {
+            case BlockIoPort::PortType::OUTPUT:
                 return rect_width - x;
+            default:
+                throw std::runtime_error("unexpected port type provided");
             }
         };
 
-        // Determien the pen width
+        // Determine the pen width
         const double pen_width = painter->pen().widthF();
 
-        // Define the X and Y offset values
-        const double init_x_offset = IO_RADIUS + pen_width;
-
-        double init_y_offset = rect.center().y() - HEIGHT_PER_IO * ((io_count - 1) / 2);
-        if (io_count % 2 == 0)
-        {
-            init_y_offset += -HEIGHT_PER_IO / 2;
-        }
-
-        // Determine the left/right values for the connecting line
-        const double line_x_a = 2 * IO_RADIUS + pen_width;
-        const double line_x_b = PADDING_LR / 2.0;
+        // Determine the new radius to account for the pen withd
+        const double IO_RADIUS_PEN = IO_RADIUS - pen_width;
 
         // Add each line width value, and draw the resulting line
-        for (int i = 0; i < io_count; ++i)
+        for (const BlockIoPort& port : ports)
         {
-            const double y_val = init_y_offset + HEIGHT_PER_IO * i;
-            const double x_val = x_update_fn(init_x_offset);
+            const QPointF& loc = port.get_location();
 
             painter->drawEllipse(
-                QPointF(
-                    x_val,
-                    y_val),
-                IO_RADIUS,
-                IO_RADIUS);
+                loc,
+                IO_RADIUS_PEN,
+                IO_RADIUS_PEN);
 
-            painter->drawLine(
-                QPointF(
-                    x_update_fn(line_x_a),
-                    y_val),
-                QPointF(
-                    x_update_fn(line_x_b),
-                    y_val));
+            QPointF a(
+                x_update_fn(2 * IO_RADIUS, port.get_type()),
+                loc.y());
+            QPointF b(
+                x_update_fn(PADDING_LR / 2.0, port.get_type()),
+                loc.y());
+
+            painter->drawLine(a, b);
         }
     }
 }

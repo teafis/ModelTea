@@ -16,9 +16,11 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
 set(PROJECT_SOURCES
         main.cpp
-        scenes/main_window.cpp
-        scenes/main_window.h
-        scenes/main_window.ui
+        windows/main_window.cpp
+        windows/main_window.h
+        windows/main_window.ui
+        windows/main_window_icon.cpp
+        windows/main_window_icon.h
         widgets/block_graphics_view.cpp
         widgets/block_graphics_view.h
         widgets/state/block_drag_state.cpp

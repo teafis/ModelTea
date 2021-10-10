@@ -1,4 +1,4 @@
-#include "scenes/main_window.h"
+#include "windows/main_window.h"
 
 #include <QApplication>
 

@@ -26,6 +26,9 @@ public:
 
     virtual void mouseMoveEvent(QMouseEvent* event) override;
 
+protected:
+    virtual QPoint snapMousePositionToGrid(const QPoint& input);
+
 public slots:
     void addTestBlock();
 

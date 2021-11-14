@@ -71,9 +71,14 @@ QPoint BlockGraphicsView::snapMousePositionToGrid(const QPoint& input)
 
 void BlockGraphicsView::addTestBlock()
 {
-    blocks.append(new BaseBlock(this));
-    scene()->addItem(blocks.last());
-    blocks.last()->setPos(mapToScene(QPoint(50, 50)));
+    // Initialze the block
+    BaseBlock* block = new BaseBlock(this);
+    block->updateLocations();
+    block->setPos(mapToScene(QPoint(50, 50)));
+
+    // Add the block to storage/tracking
+    blocks.append(block);
+    scene()->addItem(block);
 }
 
 BaseBlock* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)

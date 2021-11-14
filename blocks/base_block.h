@@ -18,6 +18,8 @@ public:
         const QStyleOptionGraphicsItem* option,
         QWidget* widget = nullptr);
 
+    virtual void updateLocations();
+
     virtual QRectF boundingRect() const;
 
 protected:

@@ -22,7 +22,10 @@ BaseBlock::BaseBlock(QObject* parent) :
 {
     // Set the provided parent to help with destruction
     setParent(parent);
+}
 
+void BaseBlock::updateLocations()
+{
     // Set the locations for the IO ports
     for (int i = 0; i < num_inputs; ++i)
     {

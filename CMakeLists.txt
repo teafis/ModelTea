@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(TeaSimLab VERSION 0.1 LANGUAGES CXX)
+project(TSim VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -32,36 +32,24 @@ set(PROJECT_SOURCES
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(TeaSimLab
+    qt_add_executable(TSim
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
-# Define target properties for Android with Qt 6 as:
-#    set_property(TARGET TeaSimLab APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 else()
-    if(ANDROID)
-        add_library(TeaSimLab SHARED
-            ${PROJECT_SOURCES}
-        )
-# Define properties for Android with Qt 5 after find_package() calls as:
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-    else()
-        add_executable(TeaSimLab
-            ${PROJECT_SOURCES}
-        )
-    endif()
+    add_executable(TSim
+        ${PROJECT_SOURCES}
+    )
 endif()
 
-target_link_libraries(TeaSimLab PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(TSim PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
-set_target_properties(TeaSimLab PROPERTIES
-    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
+set_target_properties(TSim PROPERTIES
+    MACOSX_BUNDLE_GUI_IDENTIFIER org.teafis.tsim
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(TeaSimLab)
+    qt_finalize_executable(TSim)
 endif()

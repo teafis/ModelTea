@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 #include "block_drag_state.h"
 
 BlockDragState::BlockDragState()

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 #ifndef BLOCKDRAGSTATE_H
 #define BLOCKDRAGSTATE_H
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 #include "windows/main_window.h"
 
 #include <QApplication>

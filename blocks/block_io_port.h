@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 #ifndef BLOCK_IO_PORT_H
 #define BLOCK_IO_PORT_H
 

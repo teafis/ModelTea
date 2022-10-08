@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+
 cmake_minimum_required(VERSION 3.5)
 
 project(TSim VERSION 0.1 LANGUAGES CXX)

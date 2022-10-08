@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 #ifndef BASE_BLOCK_H
 #define BASE_BLOCK_H
 

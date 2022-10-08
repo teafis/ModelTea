@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 #include "main_window.h"
 #include "./ui_main_window.h"
 
@@ -34,4 +36,3 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
-

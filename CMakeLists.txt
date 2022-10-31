@@ -33,6 +33,9 @@ set(PROJECT_SOURCES
         blocks/block_io_port.h
 )
 
+# Add library directories
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib/sim_math)
+
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(TSim
         MANUAL_FINALIZATION

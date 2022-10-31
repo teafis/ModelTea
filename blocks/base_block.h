@@ -10,6 +10,7 @@
 #include <string>
 #include <cstddef>
 
+
 class BaseBlock : public QGraphicsObject
 {
 public:
@@ -41,8 +42,8 @@ protected:
     QVector<BlockIoPort> output_ports;
 
 protected:
-    int num_inputs;
-    int num_outputs;
+    size_t num_inputs;
+    size_t num_outputs;
     std::string name;
 };
 

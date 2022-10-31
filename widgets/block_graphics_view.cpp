@@ -18,7 +18,7 @@ BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
 {
     // Set the scene
     setScene(new QGraphicsScene(this));
-    scene()->setBackgroundBrush(Qt::white);
+    scene()->setBackgroundBrush(QColor(163, 233, 255));
 }
 
 void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
@@ -49,13 +49,15 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
 
 void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
 {
-    Q_UNUSED(event);
-    mouseDragState.reset();
+    if ((event->buttons() & Qt::LeftButton) == Qt::LeftButton)
+    {
+        mouseDragState.reset();
+    }
 }
 
 void BlockGraphicsView::mouseMoveEvent(QMouseEvent* event)
 {
-    if (mouseDragState.hasBlock())
+    if ((event->buttons() & Qt::LeftButton) == Qt::LeftButton && mouseDragState.hasBlock())
     {
         const QPointF newBlockPos = mapToScene(event->pos()) - mouseDragState.getBlock()->boundingRect().center() + mouseDragState.getOffset();
         const QPoint newBlockPosInt = snapMousePositionToGrid(newBlockPos.toPoint());

@@ -17,6 +17,7 @@ const double BASE_SIZE = 50;
 const double HEIGHT_PER_IO = 50;
 const double IO_RADIUS = 5;
 
+
 BaseBlock::BaseBlock(QObject* parent) :
     num_inputs(1),
     num_outputs(1),
@@ -29,7 +30,7 @@ BaseBlock::BaseBlock(QObject* parent) :
 void BaseBlock::updateLocations()
 {
     // Set the locations for the IO ports
-    for (int i = 0; i < num_inputs; ++i)
+    for (size_t i = 0; i < num_inputs; ++i)
     {
         input_ports.append(BlockIoPort(
            i,
@@ -40,7 +41,7 @@ void BaseBlock::updateLocations()
            BlockIoPort::PortType::INPUT));
     }
 
-    for (int i = 0; i < num_outputs; ++i)
+    for (size_t i = 0; i < num_outputs; ++i)
     {
         output_ports.append(BlockIoPort(
            i,
@@ -199,11 +200,14 @@ void BaseBlock::drawIOPorts(
 
 QRectF BaseBlock::boundingRect() const
 {
+    const int num_inputs_i = static_cast<int>(num_inputs);
+    const int num_outputs_i = static_cast<int>(num_outputs);
+
     return QRectF(
         0,
         0,
         BASE_SIZE + PADDING_LR,
-        BASE_SIZE + PADDING_TB + HEIGHT_PER_IO * std::max({num_inputs - 1, num_outputs - 1, 0}));
+        BASE_SIZE + PADDING_TB + HEIGHT_PER_IO * std::max({num_inputs_i - 1, num_outputs_i - 1, 0}));
 }
 
 QRectF BaseBlock::blockRect() const

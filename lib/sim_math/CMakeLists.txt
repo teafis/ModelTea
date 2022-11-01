@@ -19,16 +19,17 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set(
     TEAFIS_MAPPING_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/sim_bus.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/sim_codegen_state.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/sim_constant.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/sim_gain.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/sim_integrator.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/sim_limiter.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/sim_logical_operation.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/sim_math_operation.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/sim_signal.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/sim_types.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/bus.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/codegen_state.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/data_types.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/signal.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/blocks/block_base.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/blocks/constant.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/blocks/delay.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/blocks/integrator.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/blocks/limiter.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/blocks/logical_operation.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/blocks/math_operation.hpp
 )
 
 # Define the library

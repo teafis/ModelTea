@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-#include "sim_types.hpp"
+#include <sim_math/data_types.hpp>
 
 namespace sim_math
 {

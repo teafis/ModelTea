@@ -1,5 +1,5 @@
-#ifndef TF_SIM_MATH_TYPES_H
-#define TF_SIM_MATH_TYPES_H
+#ifndef TF_SIM_MATH_DATA_TYPES_H
+#define TF_SIM_MATH_DATA_TYPES_H
 
 namespace sim_math
 {
@@ -15,4 +15,4 @@ enum class DataType
 
 }
 
-#endif // TF_SIM_MATH_TYPES_H
+#endif // TF_SIM_MATH_DATA_TYPES_H

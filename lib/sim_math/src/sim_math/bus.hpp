@@ -5,7 +5,7 @@
 #include <string>
 #include <memory>
 
-#include "sim_signal.hpp"
+#include <sim_math/signal.hpp>
 
 namespace sim_math
 {

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 #ifndef TF_SIM_MATH_DATA_TYPES_H
 #define TF_SIM_MATH_DATA_TYPES_H
 

@@ -22,7 +22,10 @@ set(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/bus.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/codegen_state.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/data_types.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/parameter.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/parameter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/signal.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/signal.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/blocks/block_base.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/blocks/constant.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/sim_math/blocks/delay.hpp

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 #ifndef TF_SIM_MATH_SIGNAL_H
 #define TF_SIM_MATH_SIGNAL_H
 
@@ -15,42 +17,38 @@ struct Signal
 
 struct DoubleSignal : Signal
 {
-    virtual DataType get_data_type() const override
-    {
-        return DataType::DOUBLE;
-    }
-
     double value = 0.0;
+
+    DoubleSignal(const double value);
+
+    virtual DataType get_data_type() const override;
 };
 
 struct Int32Signal : Signal
 {
-    virtual DataType get_data_type() const override
-    {
-        return DataType::INT32;
-    }
-
     int32_t value = 0;
+
+    Int32Signal(const int32_t value);
+
+    virtual DataType get_data_type() const override;
 };
 
 struct Int64Signal : Signal
 {
-    virtual DataType get_data_type() const override
-    {
-        return DataType::INT64;
-    }
-
     int64_t value = 0;
+
+    Int64Signal(const int64_t value);
+
+    virtual DataType get_data_type() const override;
 };
 
 struct BooleanSignal : Signal
 {
-    virtual DataType get_data_type() const override
-    {
-        return DataType::BOOLEAN;
-    }
+    bool value = false;
 
-    bool value = 0.0;
+    BooleanSignal(const bool value);
+
+    virtual DataType get_data_type() const override;
 };
 
 }

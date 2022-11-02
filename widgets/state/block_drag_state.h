@@ -14,7 +14,7 @@ public:
 
     void reset();
 
-    BaseBlock* getBlock() const;
+    BaseBlockObject* getBlock() const;
 
     const QPointF& getOffset() const;
 
@@ -22,10 +22,10 @@ public:
 
     void setState(
             const QPointF& inOffset,
-            BaseBlock* inBlock);
+            BaseBlockObject* inBlock);
 
 protected:
-    BaseBlock* block;
+    BaseBlockObject* block;
     QPointF offset;
 };
 

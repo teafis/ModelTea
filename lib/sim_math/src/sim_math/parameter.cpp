@@ -5,16 +5,23 @@
 using namespace sim_math;
 
 Parameter::Parameter(
+    const std::string& param_id,
     const std::string& name,
     const std::string& description,
     const DataType& data_type,
     const std::string& default_value) :
+    identifier(param_id),
     name(name),
     description(description),
     value(default_value),
     data_type(data_type)
 {
     // Empty Constructor
+}
+
+const std::string& Parameter::get_id() const
+{
+    return identifier;
 }
 
 const std::string& Parameter::get_name() const

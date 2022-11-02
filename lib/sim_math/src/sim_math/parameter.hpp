@@ -16,10 +16,13 @@ class Parameter
 {
 public:
     Parameter(
+        const std::string& param_id,
         const std::string& name,
         const std::string& description,
         const DataType& data_type,
         const std::string& default_value);
+
+    inline const std::string& get_id() const;
 
     inline const std::string& get_name() const;
 
@@ -33,10 +36,11 @@ protected:
     std::shared_ptr<Signal> parse_parameter(const std::string& s) const;
 
 private:
-    std::string name;
-    std::string description;
+    const std::string identifier;
+    const std::string name;
+    const std::string description;
     std::string value;
-    DataType data_type;
+    const DataType data_type;
 };
 
 }

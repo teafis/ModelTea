@@ -11,10 +11,10 @@
 #include <cstddef>
 
 
-class BaseBlock : public QGraphicsObject
+class BaseBlockObject : public QGraphicsObject
 {
 public:
-    BaseBlock(QObject* parent = nullptr);
+    BaseBlockObject(QObject* parent = nullptr);
 
     virtual void paint(
         QPainter* painter,

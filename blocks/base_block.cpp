@@ -18,7 +18,7 @@ const double HEIGHT_PER_IO = 50;
 const double IO_RADIUS = 5;
 
 
-BaseBlock::BaseBlock(QObject* parent) :
+BaseBlockObject::BaseBlockObject(QObject* parent) :
     num_inputs(1),
     num_outputs(1),
     name("TEMP")
@@ -27,7 +27,7 @@ BaseBlock::BaseBlock(QObject* parent) :
     setParent(parent);
 }
 
-void BaseBlock::updateLocations()
+void BaseBlockObject::updateLocations()
 {
     // Set the locations for the IO ports
     for (size_t i = 0; i < num_inputs; ++i)
@@ -53,7 +53,7 @@ void BaseBlock::updateLocations()
     }
 }
 
-void BaseBlock::paint(
+void BaseBlockObject::paint(
     QPainter* painter,
     const QStyleOptionGraphicsItem* option,
     QWidget* widget)
@@ -98,7 +98,7 @@ void BaseBlock::paint(
         blockName);
 }
 
-QPointF BaseBlock::getIOPortLocation(
+QPointF BaseBlockObject::getIOPortLocation(
     const int number,
     const int io_size,
     const BlockIoPort::PortType type) const
@@ -146,7 +146,7 @@ QPointF BaseBlock::getIOPortLocation(
         y_loc);
 }
 
-void BaseBlock::drawIOPorts(
+void BaseBlockObject::drawIOPorts(
     QPainter* painter,
     const QVector<BlockIoPort>& ports)
 {
@@ -198,7 +198,7 @@ void BaseBlock::drawIOPorts(
     }
 }
 
-QRectF BaseBlock::boundingRect() const
+QRectF BaseBlockObject::boundingRect() const
 {
     const int num_inputs_i = static_cast<int>(num_inputs);
     const int num_outputs_i = static_cast<int>(num_outputs);
@@ -210,7 +210,7 @@ QRectF BaseBlock::boundingRect() const
         BASE_SIZE + PADDING_TB + HEIGHT_PER_IO * std::max({num_inputs_i - 1, num_outputs_i - 1, 0}));
 }
 
-QRectF BaseBlock::blockRect() const
+QRectF BaseBlockObject::blockRect() const
 {
     const QRectF bounds = boundingRect();
     return QRectF(

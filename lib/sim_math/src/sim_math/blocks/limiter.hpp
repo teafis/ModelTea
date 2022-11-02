@@ -19,7 +19,7 @@
 namespace sim_math
 {
 
-class Limiter : public BlockBase
+class Limiter : public BaseBlock
 {
 public:
     size_t num_inputs() const

@@ -25,7 +25,7 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
 {
     // Determine if a block is under the mouse press event
     const auto mappedPos = mapToScene(event->pos());
-    BaseBlock* block = findBlockForMousePress(mappedPos);
+    BaseBlockObject* block = findBlockForMousePress(mappedPos);
 
     if (block != nullptr)
     {
@@ -76,7 +76,7 @@ QPoint BlockGraphicsView::snapMousePositionToGrid(const QPoint& input)
 void BlockGraphicsView::addTestBlock()
 {
     // Initialze the block
-    BaseBlock* block = new BaseBlock(this);
+    BaseBlockObject* block = new BaseBlockObject(this);
     block->updateLocations();
     block->setPos(mapToScene(QPoint(50, 50)));
 
@@ -85,10 +85,10 @@ void BlockGraphicsView::addTestBlock()
     scene()->addItem(block);
 }
 
-BaseBlock* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
+BaseBlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
 {
-    BaseBlock* selected = nullptr;
-    for (BaseBlock *const block : blocks)
+    BaseBlockObject* selected = nullptr;
+    for (BaseBlockObject* block : blocks)
     {
         const QRectF boundingRect = block->sceneBoundingRect();
         if (boundingRect.contains(pos))

@@ -35,10 +35,10 @@ public slots:
     void addTestBlock();
 
 protected:
-    BaseBlock* findBlockForMousePress(const QPointF& pos);
+    BaseBlockObject* findBlockForMousePress(const QPointF& pos);
 
 protected:
-    QVector<BaseBlock*> blocks;
+    QVector<BaseBlockObject*> blocks;
     BlockDragState mouseDragState;
 };
 

@@ -10,11 +10,12 @@
 
 #include <sim_math/data_types.hpp>
 #include <sim_math/codegen_state.hpp>
+#include <sim_math/parameter.hpp>
 
 namespace sim_math
 {
 
-class BlockBase
+class BaseBlock
 {
     virtual size_t num_inputs() const = 0;
 

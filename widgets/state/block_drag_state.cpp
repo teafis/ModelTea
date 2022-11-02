@@ -13,7 +13,7 @@ void BlockDragState::reset()
     offset = QPointF(0.0, 0.0);
 }
 
-BaseBlock* BlockDragState::getBlock() const
+BaseBlockObject* BlockDragState::getBlock() const
 {
     return block;
 }
@@ -30,7 +30,7 @@ bool BlockDragState::hasBlock() const
 
 void BlockDragState::setState(
         const QPointF& inOffset,
-        BaseBlock* inBlock)
+        BaseBlockObject* inBlock)
 {
     block = inBlock;
     offset = inOffset;

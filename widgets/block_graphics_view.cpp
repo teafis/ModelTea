@@ -13,6 +13,8 @@
 
 #include <algorithm>
 
+#include <sim_math/blocks/limiter.hpp>
+
 BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
     QGraphicsView(parent)
 {
@@ -76,7 +78,7 @@ QPoint BlockGraphicsView::snapMousePositionToGrid(const QPoint& input)
 void BlockGraphicsView::addTestBlock()
 {
     // Initialze the block
-    BaseBlockObject* block = new BaseBlockObject(this);
+    BaseBlockObject* block = new BaseBlockObject(std::make_shared<sim_math::Limiter>(), this);
     block->updateLocations();
     block->setPos(mapToScene(QPoint(50, 50)));
 

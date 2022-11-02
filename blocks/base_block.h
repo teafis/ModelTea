@@ -10,11 +10,17 @@
 #include <string>
 #include <cstddef>
 
+#include <memory>
+
+#include <sim_math/blocks/base_block.hpp>
+
 
 class BaseBlockObject : public QGraphicsObject
 {
 public:
-    BaseBlockObject(QObject* parent = nullptr);
+    BaseBlockObject(
+        const std::shared_ptr<sim_math::BaseBlock> block,
+        QObject* parent = nullptr);
 
     virtual void paint(
         QPainter* painter,
@@ -42,9 +48,7 @@ protected:
     QVector<BlockIoPort> output_ports;
 
 protected:
-    size_t num_inputs;
-    size_t num_outputs;
-    std::string name;
+    std::shared_ptr<sim_math::BaseBlock> block;
 };
 
 #endif // BASE_BLOCK_H

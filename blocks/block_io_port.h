@@ -22,7 +22,7 @@ public:
 
     const QPointF& get_location() const;
 
-    const void set_location(const QPointF& loc);
+    void set_location(const QPointF& loc);
 
     int get_number() const;
 

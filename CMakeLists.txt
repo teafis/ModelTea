@@ -48,6 +48,7 @@ else()
 endif()
 
 target_link_libraries(TSim PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(TSim PRIVATE TeaFIS-SimMath)
 
 set_target_properties(TSim PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER org.teafis.tsim

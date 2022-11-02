@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#ifndef SIM_MATH_BLOCK_BASE_HPP
-#define SIM_MATH_BLOCK_BASE_HPP
+#ifndef SIM_MATH_BASE_BLOCK_HPP
+#define SIM_MATH_BASE_BLOCK_HPP
 
 #include <cstdlib>
 
@@ -12,18 +12,25 @@
 #include <sim_math/codegen_state.hpp>
 #include <sim_math/parameter.hpp>
 
+#include <sim_math/signal.hpp>
+
 namespace sim_math
 {
 
 class BaseBlock
 {
+public:
+    virtual const std::string& get_name() const = 0;
+
     virtual size_t num_inputs() const = 0;
 
     virtual size_t num_outputs() const = 0;
 
-    virtual DataType get_output_port_type(const size_t port_num) const = 0;
+    virtual void set_input_port(
+        const size_t port_num,
+        const std::weak_ptr<const Signal> sig) = 0;
 
-    virtual DataType get_input_port_type(const size_t port_num) const = 0;
+    virtual std::shared_ptr<Signal> get_output_port(const size_t port_num) const = 0;
 
     virtual std::vector<std::shared_ptr<Parameter>> get_parameter_list() const = 0;
 
@@ -34,4 +41,4 @@ class BaseBlock
 
 }
 
-#endif // SIM_MATH_BLOCK_BASE_HPP
+#endif // SIM_MATH_BASE_BLOCK_HPP

@@ -11,6 +11,8 @@
 
 #include <stdexcept>
 
+#include <QGraphicsObject>
+
 const double PADDING_TB = 0;
 const double PADDING_LR = 30;
 const double BASE_SIZE = 50;
@@ -18,10 +20,10 @@ const double HEIGHT_PER_IO = 50;
 const double IO_RADIUS = 5;
 
 
-BaseBlockObject::BaseBlockObject(QObject* parent) :
-    num_inputs(1),
-    num_outputs(1),
-    name("TEMP")
+BaseBlockObject::BaseBlockObject(
+    const std::shared_ptr<sim_math::BaseBlock> block,
+    QObject* parent) :
+    block(block)
 {
     // Set the provided parent to help with destruction
     setParent(parent);
@@ -30,24 +32,24 @@ BaseBlockObject::BaseBlockObject(QObject* parent) :
 void BaseBlockObject::updateLocations()
 {
     // Set the locations for the IO ports
-    for (size_t i = 0; i < num_inputs; ++i)
+    for (size_t i = 0; i < block->num_inputs(); ++i)
     {
         input_ports.append(BlockIoPort(
            i,
            getIOPortLocation(
                i,
-               num_inputs,
+               block->num_inputs(),
                BlockIoPort::PortType::INPUT),
            BlockIoPort::PortType::INPUT));
     }
 
-    for (size_t i = 0; i < num_outputs; ++i)
+    for (size_t i = 0; i < block->num_outputs(); ++i)
     {
         output_ports.append(BlockIoPort(
            i,
            getIOPortLocation(
                i,
-               num_outputs,
+               block->num_outputs(),
                BlockIoPort::PortType::OUTPUT),
            BlockIoPort::PortType::OUTPUT));
     }
@@ -82,6 +84,7 @@ void BaseBlockObject::paint(
     const QFontMetrics font_metrics(font, painter->device());
 
     // Name For Block
+    const std::string name = block->get_name();
     const QString blockName = QString::fromStdString(
         name.substr(
             0,
@@ -200,8 +203,8 @@ void BaseBlockObject::drawIOPorts(
 
 QRectF BaseBlockObject::boundingRect() const
 {
-    const int num_inputs_i = static_cast<int>(num_inputs);
-    const int num_outputs_i = static_cast<int>(num_outputs);
+    const int num_inputs_i = static_cast<int>(block->num_inputs());
+    const int num_outputs_i = static_cast<int>(block->num_outputs());
 
     return QRectF(
         0,

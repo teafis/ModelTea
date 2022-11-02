@@ -18,7 +18,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set(
-    TEAFIS_MAPPING_SOURCES
+    TEAFIS_SIM_MATH_SOURCES
     src/sim_math/bus.hpp
     src/sim_math/codegen_state.hpp
     src/sim_math/data_types.hpp
@@ -27,6 +27,7 @@ set(
     src/sim_math/signal.hpp
     src/sim_math/signal.cpp
     src/sim_math/blocks/base_block.hpp
+    src/sim_math/blocks/block_exception.hpp
     src/sim_math/blocks/constant.hpp
     src/sim_math/blocks/delay.hpp
     src/sim_math/blocks/integrator.hpp
@@ -38,7 +39,7 @@ set(
 # Define the library
 add_library(
     TeaFIS-SimMath
-    ${TEAFIS_MAPPING_SOURCES}
+    ${TEAFIS_SIM_MATH_SOURCES}
 )
 
 # Include Directories

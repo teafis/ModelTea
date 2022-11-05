@@ -71,7 +71,7 @@ struct DataTypeSignal : EnumerationSignal
 
     virtual std::vector<std::string> get_options() const override;
 
-    virtual bool set_from_string(const std::string& s);
+    virtual bool set_from_string(const std::string& s) override;
 };
 
 }

@@ -20,13 +20,16 @@ public:
         const std::string& name,
         const std::string& description,
         const DataType& data_type,
-        const std::string& default_value);
+        const std::string& default_value,
+        const bool updates_on_change = false);
 
     inline const std::string& get_id() const;
 
     inline const std::string& get_name() const;
 
     inline const std::string& get_description() const;
+
+    void set_data_type(const DataType new_type);
 
     bool set_value(const std::string& new_value);
 
@@ -40,7 +43,8 @@ private:
     const std::string name;
     const std::string description;
     std::string value;
-    const DataType data_type;
+    DataType data_type;
+    const bool updates_on_change;
 };
 
 }

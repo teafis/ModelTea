@@ -20,6 +20,7 @@ struct BusSignal : Signal
     }
 
     // value - TODO
+    std::unordered_map<std::string, std::shared_ptr<Signal>> fields;
 };
 
 struct Bus

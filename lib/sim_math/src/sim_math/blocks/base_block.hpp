@@ -13,6 +13,9 @@
 #include <sim_math/parameter.hpp>
 
 #include <sim_math/signal.hpp>
+#include <sim_math/port_signal.hpp>
+
+#include <sim_math/compute_result.hpp>
 
 namespace sim_math
 {
@@ -26,17 +29,21 @@ public:
 
     virtual size_t num_outputs() const = 0;
 
-    virtual void set_input_port(
+    virtual std::unique_ptr<ComputeResult> set_input_port_signal(
         const size_t port_num,
         const std::weak_ptr<const Signal> sig) = 0;
 
-    virtual std::shared_ptr<Signal> get_output_port(const size_t port_num) const = 0;
+    virtual std::weak_ptr<const PortSignal> get_input_port(const size_t port_num) const = 0;
 
-    virtual std::vector<std::shared_ptr<Parameter>> get_parameter_list() const = 0;
+    virtual std::weak_ptr<const PortSignal> get_output_port(const size_t port_num) const = 0;
 
-    virtual bool check_types() const = 0;
+    virtual std::vector<std::weak_ptr<Parameter>> get_parameter_list() const = 0;
 
-    virtual bool emit_code(CodegenState& state) const = 0;
+    virtual std::unique_ptr<ComputeResult> compute_step() = 0;
+
+    virtual std::unique_ptr<ComputeResult> check_types() const = 0;
+
+    //virtual bool emit_code(CodegenState& state) const = 0;
 };
 
 }

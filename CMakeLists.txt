@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-only
 
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.18)
 
 project(TSim VERSION 0.1 LANGUAGES CXX)
 
@@ -35,6 +35,7 @@ set(PROJECT_SOURCES
 
 # Add library directories
 add_subdirectory(lib/sim_math)
+add_subdirectory(lib/tmdl)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(TSim
@@ -49,6 +50,7 @@ endif()
 
 target_link_libraries(TSim PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(TSim PRIVATE TeaFIS-SimMath)
+target_link_libraries(TSim PRIVATE TeaFIS-Model)
 
 set_target_properties(TSim PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER org.teafis.tsim

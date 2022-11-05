@@ -9,12 +9,14 @@ Parameter::Parameter(
     const std::string& name,
     const std::string& description,
     const DataType& data_type,
-    const std::string& default_value) :
+    const std::string& default_value,
+    const bool updates_on_change) :
     identifier(param_id),
     name(name),
     description(description),
     value(default_value),
-    data_type(data_type)
+    data_type(data_type),
+    updates_on_change(updates_on_change)
 {
     // Empty Constructor
 }
@@ -32,6 +34,11 @@ const std::string& Parameter::get_name() const
 const std::string& Parameter::get_description() const
 {
     return description;
+}
+
+void Parameter::set_data_type(const DataType new_type)
+{
+    data_type = new_type;
 }
 
 bool Parameter::set_value(const std::string& new_value)

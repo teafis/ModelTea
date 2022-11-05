@@ -31,6 +31,8 @@ public:
 
     virtual QRectF boundingRect() const;
 
+    bool blockRectContainsPoint(const QPointF& localCoords) const;
+
 protected:
     QPointF getIOPortLocation(
         const int number,

@@ -15,51 +15,68 @@
 
 #include <sim_math/blocks/limiter.hpp>
 
+// TODO - REMOVE!
+#include <iostream>
+
 BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
     QGraphicsView(parent)
 {
     // Set the scene
     setScene(new QGraphicsScene(this));
-    scene()->setBackgroundBrush(QColor(163, 233, 255));
+    setAlignment(Qt::AlignTop | Qt::AlignLeft);
 }
 
 void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
 {
     // Determine if a block is under the mouse press event
-    const auto mappedPos = mapToScene(event->pos());
-    BaseBlockObject* block = findBlockForMousePress(mappedPos);
-
-    if (block != nullptr)
+    if ((event->buttons() & Qt::LeftButton) == Qt::LeftButton)
     {
-        // Update the blocks to bring the clicked block to the foreground
-        const auto index = blocks.indexOf(block);
-        if (index >= 0)
+        const auto mappedPos = mapToScene(event->pos());
+        BaseBlockObject* block = findBlockForMousePress(mappedPos);
+
+        if (block == nullptr)
         {
-            blocks.remove(index);
-            blocks.insert(0, block);
+            return;
         }
 
-        scene()->removeItem(block);
-        scene()->addItem(block);
+        std::cout << "Mouse: (" << mappedPos.x() << ", " << mappedPos.y() << "), Block: (" << block->pos().x() << ", " << block->pos().y() << ")" << std::endl;
 
-        // Setup the drag state object
-        mouseDragState.setState(
-                    block->sceneBoundingRect().center() - mappedPos,
-                    block);
+        const auto* block_port = findBlockIOForMousePress(mappedPos, block);
+
+        if (block_port != nullptr)
+        {
+            std::cout << "HERE!" << std::endl;
+        }
+        else if (blockBodyContainsMouse(mappedPos, block))
+        {
+            // Update the blocks to bring the clicked block to the foreground
+            const auto index = blocks.indexOf(block);
+            if (index >= 0)
+            {
+                blocks.remove(index);
+                blocks.insert(0, block);
+            }
+
+            scene()->removeItem(block);
+            scene()->addItem(block);
+
+            // Setup the drag state object
+            mouseDragState.setState(
+                block->sceneBoundingRect().center() - mappedPos,
+                block);
+        }
     }
 }
 
 void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
 {
-    if ((event->buttons() & Qt::LeftButton) == Qt::LeftButton)
-    {
-        mouseDragState.reset();
-    }
+    (void)event;
+    mouseDragState.reset();
 }
 
 void BlockGraphicsView::mouseMoveEvent(QMouseEvent* event)
 {
-    if ((event->buttons() & Qt::LeftButton) == Qt::LeftButton && mouseDragState.hasBlock())
+    if (mouseDragState.hasBlock())
     {
         const QPointF newBlockPos = mapToScene(event->pos()) - mouseDragState.getBlock()->boundingRect().center() + mouseDragState.getOffset();
         const QPoint newBlockPosInt = snapMousePositionToGrid(newBlockPos.toPoint());
@@ -100,4 +117,17 @@ BaseBlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
         }
     }
     return selected;
+}
+
+BlockIoPort* BlockGraphicsView::findBlockIOForMousePress(const QPointF& pos, const BaseBlockObject* block)
+{
+    (void)pos;
+    (void)block;
+    return nullptr;
+}
+
+bool BlockGraphicsView::blockBodyContainsMouse(const QPointF& pos, const BaseBlockObject* block)
+{
+    if (block == nullptr) return false;
+    return block->blockRectContainsPoint(pos - block->pos());
 }

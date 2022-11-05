@@ -37,6 +37,10 @@ public slots:
 protected:
     BaseBlockObject* findBlockForMousePress(const QPointF& pos);
 
+    BlockIoPort* findBlockIOForMousePress(const QPointF& pos, const BaseBlockObject* block);
+
+    bool blockBodyContainsMouse(const QPointF& pos, const BaseBlockObject* block);
+
 protected:
     QVector<BaseBlockObject*> blocks;
     BlockDragState mouseDragState;

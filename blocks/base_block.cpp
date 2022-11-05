@@ -222,3 +222,8 @@ QRectF BaseBlockObject::blockRect() const
         bounds.width() - PADDING_LR,
         bounds.height() - PADDING_TB);
 }
+
+bool BaseBlockObject::blockRectContainsPoint(const QPointF& localCoords) const
+{
+    return blockRect().contains(localCoords);
+}

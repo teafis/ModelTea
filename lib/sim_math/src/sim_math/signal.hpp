@@ -7,6 +7,9 @@
 
 #include <sim_math/data_types.hpp>
 
+#include <string>
+#include <vector>
+
 namespace sim_math
 {
 
@@ -49,6 +52,26 @@ struct BooleanSignal : Signal
     BooleanSignal(const bool value);
 
     virtual DataType get_data_type() const override;
+};
+
+struct EnumerationSignal : Signal
+{
+    virtual std::vector<std::string> get_options() const = 0;
+
+    virtual bool set_from_string(const std::string& s) = 0;
+};
+
+struct DataTypeSignal : EnumerationSignal
+{
+    DataType value = DataType::DOUBLE;
+
+    DataTypeSignal(const DataType value);
+
+    virtual DataType get_data_type() const override;
+
+    virtual std::vector<std::string> get_options() const override;
+
+    virtual bool set_from_string(const std::string& s);
 };
 
 }

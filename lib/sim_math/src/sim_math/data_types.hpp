@@ -12,7 +12,8 @@ enum class DataType
     BOOLEAN,
     INT32,
     INT64,
-    BUS
+    BUS,
+    DATA_TYPE
 };
 
 }

@@ -66,6 +66,18 @@ std::shared_ptr<Signal> Parameter::parse_parameter(const std::string& s) const
             return std::make_shared<Int64Signal>(std::stol(s));
         case DataType::DOUBLE:
             return std::make_shared<DoubleSignal>(std::stod(s));
+        case DataType::DATA_TYPE:
+        {
+            const auto v = std::make_shared<DataTypeSignal>(DataType::DOUBLE);
+            if (v->set_from_string(s))
+            {
+                return v;
+            }
+            else
+            {
+                return nullptr;
+            }
+        }
         default:
             return nullptr;
         }

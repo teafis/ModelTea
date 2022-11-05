@@ -21,8 +21,8 @@ public:
     bool hasBlock() const;
 
     void setState(
-            const QPointF& inOffset,
-            BaseBlockObject* inBlock);
+        const QPointF& inOffset,
+        BaseBlockObject* inBlock);
 
 protected:
     BaseBlockObject* block;

@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+#include <tmdl/block_interface.hpp>
+
 #include <tmdl/parameter.hpp>
 #include <tmdl/value.hpp>
 
@@ -15,24 +17,26 @@
 namespace tmdl
 {
 
-class Block
+class Block : public BlockInterface
 {
 public:
-    size_t get_id() const;
-
     std::string get_name() const;
 
     std::string get_description() const;
 
     std::vector<Parameter*> get_parameters() const;
 
-    void reset_compute_state();
+    size_t get_num_inputs() const;
+
+    size_t get_num_outputs() const;
+
+    void set_input_value(const size_t port, std::unique_ptr<Value> value);
+
+    std::unique_ptr<Value> get_output_value(const size_t port) const;
+
+    void step();
 
     void reset();
-
-    void set_input_value(const size_t port_num, const Value* value) const;
-
-    const Value* get_output_value(const size_t port_num) const;
 };
 
 }

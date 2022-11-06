@@ -36,12 +36,14 @@ public:
             "maximum_limit",
             "Maximum Parameter Value",
             "Provides the maximum value allowed as an output",
-            DataType::DOUBLE);
+            DataType::DOUBLE,
+            "0");
         prm_minimum_value = std::make_shared<Parameter>(
             "minimum_limit",
             "Minimum Parameter Value",
             "Provides the minimum value allowed as an output",
-            DataType::DOUBLE);
+            DataType::DOUBLE,
+            "0");
 
         input_max_val = std::make_shared<PortSignal>("max");
         input_min_val = std::make_shared<PortSignal>("min");
@@ -87,16 +89,16 @@ public:
             switch (sp->get_data_type())
             {
             case DataType::BOOLEAN:
-                output_parameter = std::make_shared<BooleanSignal>();
+                output_parameter = std::make_shared<BooleanSignal>(false);
                 break;
             case DataType::DOUBLE:
-                output_parameter = std::make_shared<DoubleSignal>();
+                output_parameter = std::make_shared<DoubleSignal>(0.0);
                 break;
             case DataType::INT32:
-                output_parameter = std::make_shared<Int32Signal>();
+                output_parameter = std::make_shared<Int32Signal>(0);
                 break;
             case DataType::INT64:
-                output_parameter = std::make_shared<Int64Signal>();
+                output_parameter = std::make_shared<Int64Signal>(0);
                 break;
             default:
                 return std::make_unique<ComputeError>("incompatible signal type provided");

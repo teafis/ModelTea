@@ -13,7 +13,9 @@
 
 #include <algorithm>
 
-#include <sim_math/blocks/limiter.hpp>
+#include <tmdl/stdlib/stdlib.hpp>
+
+static const tmdl::stdlib::StandardLibrary BLOCK_LIBRARY;
 
 // TODO - REMOVE!
 #include <iostream>
@@ -95,7 +97,7 @@ QPoint BlockGraphicsView::snapMousePositionToGrid(const QPoint& input)
 void BlockGraphicsView::addTestBlock()
 {
     // Initialze the block
-    BaseBlockObject* block = new BaseBlockObject(std::make_shared<sim_math::Limiter>(), this);
+    BaseBlockObject* block = new BaseBlockObject(BLOCK_LIBRARY.create_block_from_name("limiter"), this);
     block->updateLocations();
     block->setPos(mapToScene(QPoint(50, 50)));
 

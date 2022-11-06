@@ -21,7 +21,7 @@ const double IO_RADIUS = 5;
 
 
 BaseBlockObject::BaseBlockObject(
-    const std::shared_ptr<sim_math::BaseBlock> block,
+    const std::shared_ptr<tmdl::Block> block,
     QObject* parent) :
     block(block)
 {
@@ -32,24 +32,24 @@ BaseBlockObject::BaseBlockObject(
 void BaseBlockObject::updateLocations()
 {
     // Set the locations for the IO ports
-    for (size_t i = 0; i < block->num_inputs(); ++i)
+    for (size_t i = 0; i < block->get_num_inputs(); ++i)
     {
         input_ports.append(BlockIoPort(
            i,
            getIOPortLocation(
                i,
-               block->num_inputs(),
+               block->get_num_inputs(),
                BlockIoPort::PortType::INPUT),
            BlockIoPort::PortType::INPUT));
     }
 
-    for (size_t i = 0; i < block->num_outputs(); ++i)
+    for (size_t i = 0; i < block->get_num_outputs(); ++i)
     {
         output_ports.append(BlockIoPort(
            i,
            getIOPortLocation(
                i,
-               block->num_outputs(),
+               block->get_num_outputs(),
                BlockIoPort::PortType::OUTPUT),
            BlockIoPort::PortType::OUTPUT));
     }
@@ -203,8 +203,8 @@ void BaseBlockObject::drawIOPorts(
 
 QRectF BaseBlockObject::boundingRect() const
 {
-    const int num_inputs_i = static_cast<int>(block->num_inputs());
-    const int num_outputs_i = static_cast<int>(block->num_outputs());
+    const int num_inputs_i = static_cast<int>(block->get_num_inputs());
+    const int num_outputs_i = static_cast<int>(block->get_num_outputs());
 
     return QRectF(
         0,

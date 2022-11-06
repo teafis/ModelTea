@@ -12,14 +12,14 @@
 
 #include <memory>
 
-#include <sim_math/blocks/base_block.hpp>
+#include <tmdl/block.hpp>
 
 
 class BaseBlockObject : public QGraphicsObject
 {
 public:
     BaseBlockObject(
-        const std::shared_ptr<sim_math::BaseBlock> block,
+        const std::shared_ptr<tmdl::Block> block,
         QObject* parent = nullptr);
 
     virtual void paint(
@@ -50,7 +50,7 @@ protected:
     QVector<BlockIoPort> output_ports;
 
 protected:
-    std::shared_ptr<sim_math::BaseBlock> block;
+    std::shared_ptr<tmdl::Block> block;
 };
 
 #endif // BASE_BLOCK_H

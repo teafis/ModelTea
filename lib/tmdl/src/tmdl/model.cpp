@@ -4,6 +4,8 @@
 
 using namespace tmdl;
 
+/* ==================== MODEL ==================== */
+
 void Model::add_block(std::unique_ptr<BlockInterface> block)
 {
     const size_t new_id = get_next_id();
@@ -103,7 +105,7 @@ size_t Model::get_num_outputs() const
     return output_ids.size();
 }
 
-std::unique_ptr<BlockExecutionInterface> Model::get_execution_interface() const
+std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface() const
 {
     // Check that all inputs are connected
     for (const auto& b : blocks)
@@ -145,7 +147,10 @@ std::unique_ptr<BlockExecutionInterface> Model::get_execution_interface() const
     std::vector<size_t> remaining_id_values;
     for (const auto& it : blocks)
     {
-        if (std::find(input_ids.begin(), input_ids.end(), it.first) == input_ids.end())
+        const bool is_input = std::find(input_ids.begin(), input_ids.end(), it.first) != input_ids.end();
+        const bool is_output = std::find(output_ids.begin(), output_ids.end(), it.first) != output_ids.end();
+
+        if (!is_input && !is_output)
         {
             remaining_id_values.push_back(it.first);
         }
@@ -216,12 +221,22 @@ std::unique_ptr<BlockExecutionInterface> Model::get_execution_interface() const
         }
     }
 
+    // Add remaining output ID values
+    for (const size_t i : output_ids)
+    {
+        order_values.push_back(i);
+    }
+
     // Construct the interface order value
-    std::vector<std::unique_ptr<BlockExecutionInterface>> interface_order;
+    std::vector<std::shared_ptr<BlockExecutionInterface>> interface_order;
     for (const auto& b_id : order_values)
     {
-        interface_order.push_back(get_block(b_id)->get_execution_interface());
+        std::shared_ptr<BlockExecutionInterface> block = get_block(b_id)->get_execution_interface();
+        interface_order.push_back(block);
     }
+
+    // Create the executor
+    return std::make_shared<Model::ModelExecutor>(this, interface_order);
 }
 
 size_t Model::get_next_id() const
@@ -245,9 +260,69 @@ BlockInterface* Model::get_block(const size_t id) const
     return it->second.get();
 }
 
+/* ==================== MODEL EXECUTOR ==================== */
+
+Model::ModelExecutor::ModelExecutor(
+    const Model* parent,
+    const std::vector<std::shared_ptr<BlockExecutionInterface>>& blocks) :
+    BlockExecutionInterface(parent),
+    blocks(blocks)
+{
+    // Add input ports and output ports
+    for (const auto& b : blocks)
+    {
+        const auto input_test = std::dynamic_pointer_cast<InputPort::Executor>(b);
+        const auto output_test = std::dynamic_pointer_cast<OutputPort::Executor>(b);
+
+        if (input_test != nullptr)
+        {
+            input_blocks.push_back(input_test);
+        }
+
+        if (output_test != nullptr)
+        {
+            output_blocks.push_back(output_test);
+        }
+    }
+
+    // Check numbers for each
+    if (input_blocks.size() != get_num_inputs())
+    {
+        throw ModelException("number of input ports does not match input block count");
+    }
+
+    if (output_blocks.size() != get_num_outputs())
+    {
+        throw ModelException("number of output ports does not match input block count");
+    }
+}
+
+void Model::ModelExecutor::set_input_value(
+    const size_t port,
+    std::shared_ptr<const Value> value)
+{
+    if (port < input_blocks.size())
+    {
+        input_blocks[port]->set_value(value);
+    }
+}
+
+std::shared_ptr<const Value> Model::ModelExecutor::get_output_value(const size_t port) const
+{
+    if (port < output_blocks.size())
+    {
+        return output_blocks[port]->get_value();
+    }
+    else
+    {
+        throw ModelException("requested port exceeds model size");
+    }
+}
+
 void Model::ModelExecutor::step()
 {
-    for (auto& b : blocks)
+    // Step each block (already in execution order)
+    for (const auto& b : blocks)
     {
         b->step();
     }
@@ -255,7 +330,7 @@ void Model::ModelExecutor::step()
 
 void Model::ModelExecutor::reset()
 {
-    for (auto& b : blocks)
+    for (const auto& b : blocks)
     {
         b->reset();
     }

@@ -35,13 +35,15 @@ public:
 
     size_t get_num_inputs() const override;
 
-    std::unique_ptr<BlockExecutionInterface> get_execution_interface() const override;
+    std::shared_ptr<BlockExecutionInterface> get_execution_interface() const override;
 
 public:
     class ModelExecutor : public BlockExecutionInterface
     {
     public:
-        ModelExecutor(const Model* parent);
+        ModelExecutor(
+            const Model* parent,
+            const std::vector<std::shared_ptr<BlockExecutionInterface>>& blocks);
 
         void set_input_value(
             const size_t port,
@@ -54,9 +56,9 @@ public:
         void reset() override;
 
     protected:
-        std::vector<std::shared_ptr<const Value>> input_values;
-        std::vector<std::shared_ptr<const Value>> output_values;
-        std::vector<std::unique_ptr<BlockExecutionInterface>> blocks;
+        std::vector<std::shared_ptr<InputPort::Executor>> input_blocks;
+        std::vector<std::shared_ptr<OutputPort::Executor>> output_blocks;
+        std::vector<std::shared_ptr<BlockExecutionInterface>> blocks;
     };
 
 protected:

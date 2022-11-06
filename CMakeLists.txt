@@ -10,7 +10,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
@@ -33,19 +33,19 @@ set(PROJECT_SOURCESS
     blocks/block_io_port.h
 )
 
-# Add library directories
-add_subdirectory(lib/tmdl)
-
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(TSim
         MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
+        ${PROJECT_SOURCESS}
     )
 else()
     add_executable(TSim
-        ${PROJECT_SOURCES}
+        ${PROJECT_SOURCESS}
     )
 endif()
+
+# Add library directories
+add_subdirectory(lib/tmdl)
 
 target_link_libraries(TSim PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(TSim PRIVATE TeaFIS-Model)

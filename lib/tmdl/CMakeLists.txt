@@ -1,6 +1,6 @@
 ﻿# SPDX-License-Identifier: GPL-3.0-only
 
-cmake_minimum_required (VERSION 3.18)
+cmake_minimum_required(VERSION 3.18)
 
 set(VCPKG_FEATURE_FLAGS "versions")
 
@@ -24,13 +24,15 @@ set(
     src/tmdl/connection.hpp
     src/tmdl/io_ports.hpp
     src/tmdl/io_ports.cpp
+    src/tmdl/library.hpp
     src/tmdl/model.hpp
     src/tmdl/model.cpp
-    src/tmdl/model_executor.cpp
     src/tmdl/model_exception.hpp
     src/tmdl/parameter.hpp
     src/tmdl/value.hpp
     src/tmdl/value.cpp
+    src/tmdl/stdlib/stdlib.hpp
+    src/tmdl/stdlib/limiter.hpp
 )
 
 # Define the library

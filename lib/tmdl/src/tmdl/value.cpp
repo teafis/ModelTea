@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <tmdl/value.hpp>
+#include <tmdl/model_exception.hpp>
 
 using namespace tmdl;
 
@@ -22,6 +23,16 @@ std::unique_ptr<Value> DoubleValue::clone() const
     return std::make_unique<DoubleValue>(*this);
 }
 
+void DoubleValue::copy_from(const Value* other)
+{
+    const DoubleValue* dst = dynamic_cast<const DoubleValue*>(other);
+    if (dst == nullptr)
+    {
+        throw ModelException("cannot copy from provided value");
+    }
+    value = dst->value;
+}
+
 /* ========== BOOLEAN VALUE ========== */
 
 BooleanValue::BooleanValue(const bool value) : value(value)
@@ -37,6 +48,16 @@ DataType BooleanValue::get_data_type() const
 std::unique_ptr<Value> BooleanValue::clone() const
 {
     return std::make_unique<BooleanValue>(*this);
+}
+
+void BooleanValue::copy_from(const Value* other)
+{
+    const BooleanValue* dst = dynamic_cast<const BooleanValue*>(other);
+    if (dst == nullptr)
+    {
+        throw ModelException("cannot copy from provided value");
+    }
+    value = dst->value;
 }
 
 /* ========== UINT32 VALUE ========== */
@@ -56,6 +77,16 @@ std::unique_ptr<Value> UInt32Value::clone() const
     return std::make_unique<UInt32Value>(value);
 }
 
+void UInt32Value::copy_from(const Value* other)
+{
+    const UInt32Value* dst = dynamic_cast<const UInt32Value*>(other);
+    if (dst == nullptr)
+    {
+        throw ModelException("cannot copy from provided value");
+    }
+    value = dst->value;
+}
+
 /* ========== INT32 VALUE ========== */
 
 Int32Value::Int32Value(const int32_t value) : value(value)
@@ -71,6 +102,16 @@ DataType Int32Value::get_data_type() const
 std::unique_ptr<Value> Int32Value::clone() const
 {
     return std::make_unique<Int32Value>(*this);
+}
+
+void Int32Value::copy_from(const Value* other)
+{
+    const Int32Value* dst = dynamic_cast<const Int32Value*>(other);
+    if (dst == nullptr)
+    {
+        throw ModelException("cannot copy from provided value");
+    }
+    value = dst->value;
 }
 
 /* ========== UTILITY VALUES ========== */

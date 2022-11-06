@@ -17,13 +17,13 @@ public:
 
     virtual size_t get_num_outputs() const override;
 
-    virtual std::unique_ptr<BlockExecutionInterface> get_execution_interface() const override;
+    virtual std::shared_ptr<BlockExecutionInterface> get_execution_interface() const override;
 
 public:
-    class InputPortExecutor : public BlockExecutionInterface
+    class Executor : public BlockExecutionInterface
     {
     public:
-        InputPortExecutor(const InputPort* parent);
+        Executor(const InputPort* parent);
 
         void set_value(std::shared_ptr<const Value> value);
 
@@ -45,13 +45,13 @@ public:
 
     virtual size_t get_num_outputs() const override;
 
-    virtual std::unique_ptr<BlockExecutionInterface> get_execution_interface() const override;
+    virtual std::shared_ptr<BlockExecutionInterface> get_execution_interface() const override;
 
 public:
-    class OutputPortExecutor : public BlockExecutionInterface
+    class Executor : public BlockExecutionInterface
     {
     public:
-        OutputPortExecutor(const OutputPort* parent);
+        Executor(const OutputPort* parent);
 
         virtual void set_input_value(
             const size_t port,

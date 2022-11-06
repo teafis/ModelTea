@@ -26,6 +26,8 @@ public:
     virtual DataType get_data_type() const = 0;
 
     virtual std::unique_ptr<Value> clone() const = 0;
+
+    virtual void copy_from(const Value* other) = 0;
 };
 
 class DoubleValue : public Value
@@ -36,6 +38,8 @@ public:
     DataType get_data_type() const override;
 
     std::unique_ptr<Value> clone() const override;
+
+    void copy_from(const Value* other) override;
 
 public:
     double value;
@@ -50,6 +54,8 @@ public:
 
     std::unique_ptr<Value> clone() const override;
 
+    void copy_from(const Value* other) override;
+
 public:
     bool value;
 };
@@ -63,6 +69,8 @@ public:
 
     std::unique_ptr<Value> clone() const override;
 
+    void copy_from(const Value* other) override;
+
 public:
     uint32_t value;
 };
@@ -75,6 +83,8 @@ public:
     DataType get_data_type() const override;
 
     std::unique_ptr<Value> clone() const override;
+
+    void copy_from(const Value* other) override;
 
 public:
     int32_t value;

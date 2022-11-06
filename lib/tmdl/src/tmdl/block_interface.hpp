@@ -35,7 +35,7 @@ public:
 
     virtual size_t get_num_outputs() const = 0;
 
-    virtual std::unique_ptr<BlockExecutionInterface> get_execution_interface() const = 0;
+    virtual std::shared_ptr<BlockExecutionInterface> get_execution_interface() const = 0;
 };
 
 class BlockExecutionInterface

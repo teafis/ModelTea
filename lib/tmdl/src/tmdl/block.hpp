@@ -17,7 +17,7 @@
 namespace tmdl
 {
 
-class BlockBase : public BlockInterface
+class Block : public BlockInterface
 {
 public:
     virtual std::string get_name() const = 0;

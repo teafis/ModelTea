@@ -1,5 +1,5 @@
 ﻿# SPDX-License-Identifier: GPL-3.0-only
-# CMakeList.txt : CMake project for TeaFIS MapGenerator
+
 cmake_minimum_required (VERSION 3.18)
 
 set(VCPKG_FEATURE_FLAGS "versions")
@@ -18,14 +18,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set(
-    TEAFIS_SIM_MATH_SOURCES
+    TEAFIS_MODEL_SOURCES
     src/tmdl/block.hpp
     src/tmdl/block_interface.hpp
     src/tmdl/connection.hpp
     src/tmdl/io_ports.hpp
+    src/tmdl/io_ports.cpp
     src/tmdl/model.hpp
-    src/tmdl/model_exception.hpp
     src/tmdl/model.cpp
+    src/tmdl/model_executor.cpp
+    src/tmdl/model_exception.hpp
     src/tmdl/parameter.hpp
     src/tmdl/value.hpp
     src/tmdl/value.cpp
@@ -34,7 +36,7 @@ set(
 # Define the library
 add_library(
     TeaFIS-Model
-    ${TEAFIS_SIM_MATH_SOURCES}
+    ${TEAFIS_MODEL_SOURCES}
 )
 
 # Include Directories

@@ -13,102 +13,56 @@ namespace tmdl
 class InputPort : public BlockInterface
 {
 public:
-    virtual size_t get_num_inputs() const override
-    {
-        return 0;
-    }
+    virtual size_t get_num_inputs() const override;
 
-    virtual size_t get_num_outputs() const override
-    {
-        return 1;
-    }
+    virtual size_t get_num_outputs() const override;
 
-    virtual void set_input_value(const size_t port, std::unique_ptr<Value> value) override
-    {
-        if (port == 0)
-        {
-            this->value = std::move(value);
-        }
-        else
-        {
-            throw ModelException("unable to set input value");
-        }
-    }
+    virtual std::unique_ptr<BlockExecutionInterface> get_execution_interface() const override;
 
-    virtual std::unique_ptr<Value> get_output_value(const size_t port) const override
+public:
+    class InputPortExecutor : public BlockExecutionInterface
     {
-        if (port == 0)
-        {
-            return value->clone();
-        }
-        else
-        {
-            return nullptr;
-        }
-    }
+    public:
+        InputPortExecutor(const InputPort* parent);
 
-    virtual void step() override
-    {
-        // Empty Block
-    }
+        void set_value(std::shared_ptr<const Value> value);
 
-    virtual void reset() override
-    {
-        // Empty Block
-    }
+        virtual void set_input_value(
+            const size_t,
+            std::shared_ptr<const Value>) override;
 
-protected:
-    std::unique_ptr<Value> value;
+        virtual std::shared_ptr<const Value> get_output_value(const size_t port) const override;
+
+    protected:
+        std::shared_ptr<const Value> _value;
+    };
 };
 
 class OutputPort : public BlockInterface
 {
 public:
-    virtual size_t get_num_inputs() const override
-    {
-        return 1;
-    }
+    virtual size_t get_num_inputs() const override;
 
-    virtual size_t get_num_outputs() const override
-    {
-        return 0;
-    }
+    virtual size_t get_num_outputs() const override;
 
-    virtual void set_input_value(const size_t port, std::unique_ptr<Value> value) override
-    {
-        if (port == 0)
-        {
-            this->value = std::move(value);
-        }
-        else
-        {
-            throw ModelException("unable to set input port value");
-        }
-    }
-
-    virtual std::unique_ptr<Value> get_output_value(const size_t) const override
-    {
-        throw ModelException("No output value for OutputPort");
-    }
-
-    virtual void step() override
-    {
-        // Empty Block
-    }
-
-    virtual void reset() override
-    {
-        // Empty Block
-    }
+    virtual std::unique_ptr<BlockExecutionInterface> get_execution_interface() const override;
 
 public:
-    const std::unique_ptr<Value>& get_value() const
+    class OutputPortExecutor : public BlockExecutionInterface
     {
-        return value;
-    }
+    public:
+        OutputPortExecutor(const OutputPort* parent);
 
-protected:
-    std::unique_ptr<Value> value;
+        virtual void set_input_value(
+            const size_t port,
+            const std::shared_ptr<const Value> value) override;
+
+        virtual std::shared_ptr<const Value> get_output_value(const size_t) const override;
+        std::shared_ptr<const Value> get_value() const;
+
+    protected:
+        std::shared_ptr<const Value> _value;
+    };
 };
 
 }

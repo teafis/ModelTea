@@ -16,25 +16,24 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
-set(PROJECT_SOURCES
-        main.cpp
-        windows/main_window.cpp
-        windows/main_window.h
-        windows/main_window.ui
-        windows/main_window_icon.cpp
-        windows/main_window_icon.h
-        widgets/block_graphics_view.cpp
-        widgets/block_graphics_view.h
-        widgets/state/block_drag_state.cpp
-        widgets/state/block_drag_state.h
-        blocks/base_block.cpp
-        blocks/base_block.h
-        blocks/block_io_port.cpp
-        blocks/block_io_port.h
+set(PROJECT_SOURCESS
+    main.cpp
+    windows/main_window.cpp
+    windows/main_window.h
+    windows/main_window.ui
+    windows/main_window_icon.cpp
+    windows/main_window_icon.h
+    widgets/block_graphics_view.cpp
+    widgets/block_graphics_view.h
+    widgets/state/block_drag_state.cpp
+    widgets/state/block_drag_state.h
+    blocks/base_block.cpp
+    blocks/base_block.h
+    blocks/block_io_port.cpp
+    blocks/block_io_port.h
 )
 
 # Add library directories
-add_subdirectory(lib/sim_math)
 add_subdirectory(lib/tmdl)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -49,7 +48,6 @@ else()
 endif()
 
 target_link_libraries(TSim PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-target_link_libraries(TSim PRIVATE TeaFIS-SimMath)
 target_link_libraries(TSim PRIVATE TeaFIS-Model)
 
 set_target_properties(TSim PROPERTIES

@@ -5,6 +5,7 @@
 
 #include <string>
 
+#include <tmdl/model_exception.hpp>
 #include <tmdl/value.hpp>
 
 

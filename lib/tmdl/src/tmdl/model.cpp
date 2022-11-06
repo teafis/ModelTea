@@ -18,8 +18,6 @@ void Model::add_block(std::unique_ptr<BlockInterface> block)
     }
 
     blocks.insert({new_id, std::move(block)});
-
-    execution_order.reset();
 }
 
 void Model::remove_block(const size_t id)
@@ -59,9 +57,6 @@ void Model::remove_block(const size_t id)
             ++conn_it;
         }
     }
-
-    // Reset execution order
-    execution_order.reset();
 }
 
 void Model::add_connection(const Connection connection)
@@ -73,7 +68,6 @@ void Model::add_connection(const Connection connection)
         connection.get_to_port() < to_block->get_num_inputs())
     {
         connections.push_back(connection);
-        execution_order.reset();
     }
     else
     {
@@ -97,7 +91,6 @@ void Model::remove_connection(const size_t to_block, const size_t to_port)
     }
 
     connections.erase(it);
-    execution_order.reset();
 }
 
 size_t Model::get_num_inputs() const
@@ -110,88 +103,7 @@ size_t Model::get_num_outputs() const
     return output_ids.size();
 }
 
-void Model::set_input_value(
-    const size_t port,
-    std::unique_ptr<Value> value)
-{
-    if (port < input_ids.size())
-    {
-        const size_t id = input_ids[port];
-        const auto it = blocks.find(id);
-
-        if (it == blocks.end())
-        {
-            throw ModelException("unable to find input port parameter");
-        }
-
-        it->second->set_input_value(0, std::move(value));
-    }
-}
-
-std::unique_ptr<Value> Model::get_output_value(const size_t port) const
-{
-    if (port < output_ids.size())
-    {
-        const size_t id = output_ids[port];
-        const auto it = blocks.find(id);
-
-        if (it == blocks.end())
-        {
-            throw ModelException("output port ID does not exist");
-        }
-
-        return it->second->get_output_value(0);
-    }
-    else
-    {
-        throw ModelException("requested port exceeds model size");
-    }
-}
-
-void Model::step()
-{
-    if (!execution_order.has_value())
-    {
-        compile_execution_order();
-    }
-
-    for (const auto id : execution_order.value())
-    {
-        const auto& block = get_block(id);
-
-        for (size_t port = 0; port < block->get_num_inputs(); ++port)
-        {
-            const auto c_it = std::find_if(
-                connections.begin(),
-                connections.end(),
-                [id, port](const Connection& c)
-            {
-                return c.get_to_id() == id && c.get_to_port() == port;
-            });
-
-            if (c_it == connections.end())
-            {
-                throw ModelException("unable to set input port parameters for block");
-            }
-
-            block->set_input_value(
-                port,
-                get_block(c_it->get_from_id())->get_output_value(c_it->get_from_port()));
-        }
-
-        block->step();
-    }
-}
-
-void Model::reset()
-{
-    for (const auto& b : blocks)
-    {
-        b.second->reset();
-    }
-}
-
-void Model::compile_execution_order()
+std::unique_ptr<BlockExecutionInterface> Model::get_execution_interface() const
 {
     // Check that all inputs are connected
     for (const auto& b : blocks)
@@ -246,11 +158,14 @@ void Model::compile_execution_order()
 
         for (size_t i = 0; i < remaining_id_values.size(); ++i)
         {
+            // Extract identifiers
             const size_t id = remaining_id_values[i];
             const BlockInterface* block = get_block(id);
 
+            // Search for each port to see if it is complete
             for (size_t port = 0; block->get_num_inputs(); ++port)
             {
+                // Find the corresponding connection
                 const auto conn_it = std::find_if(
                     connections.begin(),
                     connections.end(),
@@ -264,6 +179,14 @@ void Model::compile_execution_order()
                     throw ModelException("cannot compute execution order for incomplete input ports");
                 }
 
+                // Skip if the input port is a delayed input, but after the connection
+                // to ensure that we check that all blocks are connected
+                if (block->is_delayed_input(port))
+                {
+                    continue;
+                }
+
+                // Check if the from block is already in the execution order
                 const auto from_it = std::find(
                     order_values.begin(),
                     order_values.end(),
@@ -293,7 +216,12 @@ void Model::compile_execution_order()
         }
     }
 
-    execution_order = order_values;
+    // Construct the interface order value
+    std::vector<std::unique_ptr<BlockExecutionInterface>> interface_order;
+    for (const auto& b_id : order_values)
+    {
+        interface_order.push_back(get_block(b_id)->get_execution_interface());
+    }
 }
 
 size_t Model::get_next_id() const
@@ -315,4 +243,20 @@ BlockInterface* Model::get_block(const size_t id) const
         throw ModelException("unable to find block with given id");
     }
     return it->second.get();
+}
+
+void Model::ModelExecutor::step()
+{
+    for (auto& b : blocks)
+    {
+        b->step();
+    }
+}
+
+void Model::ModelExecutor::reset()
+{
+    for (auto& b : blocks)
+    {
+        b->reset();
+    }
 }

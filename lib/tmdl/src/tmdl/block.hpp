@@ -17,26 +17,14 @@
 namespace tmdl
 {
 
-class Block : public BlockInterface
+class BlockBase : public BlockInterface
 {
 public:
-    std::string get_name() const;
+    virtual std::string get_name() const = 0;
 
-    std::string get_description() const;
+    virtual std::string get_description() const = 0;
 
-    std::vector<Parameter*> get_parameters() const;
-
-    size_t get_num_inputs() const;
-
-    size_t get_num_outputs() const;
-
-    void set_input_value(const size_t port, std::unique_ptr<Value> value);
-
-    std::unique_ptr<Value> get_output_value(const size_t port) const;
-
-    void step();
-
-    void reset();
+    virtual std::vector<Parameter*> get_parameters() const = 0;
 };
 
 }

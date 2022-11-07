@@ -10,6 +10,7 @@
 #include <algorithm>
 
 #include <stdexcept>
+#include <QString>
 
 #include <QGraphicsObject>
 
@@ -84,7 +85,7 @@ void BaseBlockObject::paint(
     const QFontMetrics font_metrics(font, painter->device());
 
     // Name For Block
-    const std::string name = block->get_name();
+    const std::string name = QString(block->get_name().c_str()).toUpper().toStdString();
     const QString blockName = QString::fromStdString(
         name.substr(
             0,
@@ -99,6 +100,9 @@ void BaseBlockObject::paint(
             blockNameRect.width() / 2.0,
             blockNameRect.height() / 2.0),
         blockName);
+    painter->drawText(
+        boundingRect().center(),
+        QString("%1").arg(block->get_id()));
 }
 
 QPointF BaseBlockObject::getIOPortLocation(

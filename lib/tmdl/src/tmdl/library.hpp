@@ -16,7 +16,7 @@ class LibraryBase
 public:
     virtual std::vector<std::string> get_block_names() const = 0;
 
-    virtual std::unique_ptr<Block> create_block_from_name(const std::string& name) const = 0;
+    virtual std::shared_ptr<Block> create_block_from_name(const std::string& name) const = 0;
 };
 
 }

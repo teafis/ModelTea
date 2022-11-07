@@ -22,7 +22,7 @@ namespace tmdl
 class Model : public BlockInterface
 {
 public:
-    void add_block(std::unique_ptr<BlockInterface> block);
+    void add_block(const std::shared_ptr<BlockInterface> block);
 
     void remove_block(const size_t id);
 
@@ -67,7 +67,7 @@ protected:
     BlockInterface* get_block(const size_t id) const;
 
 protected:
-    std::unordered_map<size_t, std::unique_ptr<BlockInterface>> blocks;
+    std::unordered_map<size_t, std::shared_ptr<BlockInterface>> blocks;
     std::vector<Connection> connections;
     std::vector<size_t> input_ids;
     std::vector<size_t> output_ids;

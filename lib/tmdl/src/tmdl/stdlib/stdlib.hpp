@@ -25,11 +25,11 @@ public:
         };
     }
 
-    std::unique_ptr<Block> create_block_from_name(const std::string& name) const override
+    std::shared_ptr<Block> create_block_from_name(const std::string& name) const override
     {
         if (name == "limiter")
         {
-            return std::make_unique<Limiter>();
+            return std::make_shared<Limiter>();
         }
         else
         {

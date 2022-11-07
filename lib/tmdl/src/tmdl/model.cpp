@@ -6,7 +6,7 @@ using namespace tmdl;
 
 /* ==================== MODEL ==================== */
 
-void Model::add_block(std::unique_ptr<BlockInterface> block)
+void Model::add_block(const std::shared_ptr<BlockInterface> block)
 {
     const size_t new_id = get_next_id();
 
@@ -19,6 +19,7 @@ void Model::add_block(std::unique_ptr<BlockInterface> block)
         output_ids.push_back(new_id);
     }
 
+    block->set_id(new_id);
     blocks.insert({new_id, std::move(block)});
 }
 

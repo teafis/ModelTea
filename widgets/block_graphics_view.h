@@ -14,6 +14,8 @@
 
 #include <QPoint>
 
+#include <tmdl/model.hpp>
+
 class BlockGraphicsView : public QGraphicsView
 {
     Q_OBJECT
@@ -44,6 +46,7 @@ protected:
 protected:
     QVector<BaseBlockObject*> blocks;
     BlockDragState mouseDragState;
+    tmdl::Model model;
 };
 
 #endif // BLOCKGRAPHICSWIDGET_H

@@ -15,10 +15,10 @@
 #include <tmdl/block.hpp>
 
 
-class BaseBlockObject : public QGraphicsObject
+class BlockObject : public QGraphicsObject
 {
 public:
-    BaseBlockObject(
+    BlockObject(
         const std::shared_ptr<tmdl::Block> block,
         QObject* parent = nullptr);
 

@@ -34,7 +34,7 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
     if ((event->buttons() & Qt::LeftButton) == Qt::LeftButton)
     {
         const auto mappedPos = mapToScene(event->pos());
-        BaseBlockObject* block = findBlockForMousePress(mappedPos);
+        BlockObject* block = findBlockForMousePress(mappedPos);
 
         if (block == nullptr)
         {
@@ -101,7 +101,7 @@ void BlockGraphicsView::addTestBlock()
     model.add_block(tmp);
 
     // Create the block object
-    BaseBlockObject* block_obj = new BaseBlockObject(tmp, this);
+    BlockObject* block_obj = new BlockObject(tmp, this);
     block_obj->updateLocations();
     block_obj->setPos(mapToScene(QPoint(50, 50)));
 
@@ -110,10 +110,10 @@ void BlockGraphicsView::addTestBlock()
     scene()->addItem(block_obj);
 }
 
-BaseBlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
+BlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
 {
-    BaseBlockObject* selected = nullptr;
-    for (BaseBlockObject* block : blocks)
+    BlockObject* selected = nullptr;
+    for (BlockObject* block : blocks)
     {
         const QRectF boundingRect = block->sceneBoundingRect();
         if (boundingRect.contains(pos))
@@ -125,14 +125,14 @@ BaseBlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
     return selected;
 }
 
-BlockIoPort* BlockGraphicsView::findBlockIOForMousePress(const QPointF& pos, const BaseBlockObject* block)
+BlockIoPort* BlockGraphicsView::findBlockIOForMousePress(const QPointF& pos, const BlockObject* block)
 {
     (void)pos;
     (void)block;
     return nullptr;
 }
 
-bool BlockGraphicsView::blockBodyContainsMouse(const QPointF& pos, const BaseBlockObject* block)
+bool BlockGraphicsView::blockBodyContainsMouse(const QPointF& pos, const BlockObject* block)
 {
     if (block == nullptr) return false;
     return block->blockRectContainsPoint(pos - block->pos());

@@ -6,7 +6,7 @@
 #include <QWidget>
 #include <QGraphicsView>
 
-#include "blocks/base_block.h"
+#include "blocks/block_object.h"
 #include "state/block_drag_state.h"
 
 #include <vector>
@@ -37,14 +37,14 @@ public slots:
     void addTestBlock();
 
 protected:
-    BaseBlockObject* findBlockForMousePress(const QPointF& pos);
+    BlockObject* findBlockForMousePress(const QPointF& pos);
 
-    BlockIoPort* findBlockIOForMousePress(const QPointF& pos, const BaseBlockObject* block);
+    BlockIoPort* findBlockIOForMousePress(const QPointF& pos, const BlockObject* block);
 
-    bool blockBodyContainsMouse(const QPointF& pos, const BaseBlockObject* block);
+    bool blockBodyContainsMouse(const QPointF& pos, const BlockObject* block);
 
 protected:
-    QVector<BaseBlockObject*> blocks;
+    QVector<BlockObject*> blocks;
     BlockDragState mouseDragState;
     tmdl::Model model;
 };

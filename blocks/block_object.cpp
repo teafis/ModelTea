@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "base_block.h"
+#include "block_object.h"
 
 #include <QPainter>
 #include <QWidget>
@@ -21,7 +21,7 @@ const double HEIGHT_PER_IO = 50;
 const double IO_RADIUS = 5;
 
 
-BaseBlockObject::BaseBlockObject(
+BlockObject::BlockObject(
     const std::shared_ptr<tmdl::Block> block,
     QObject* parent) :
     block(block)
@@ -30,7 +30,7 @@ BaseBlockObject::BaseBlockObject(
     setParent(parent);
 }
 
-void BaseBlockObject::updateLocations()
+void BlockObject::updateLocations()
 {
     // Set the locations for the IO ports
     for (size_t i = 0; i < block->get_num_inputs(); ++i)
@@ -56,7 +56,7 @@ void BaseBlockObject::updateLocations()
     }
 }
 
-void BaseBlockObject::paint(
+void BlockObject::paint(
     QPainter* painter,
     const QStyleOptionGraphicsItem* option,
     QWidget* widget)
@@ -105,7 +105,7 @@ void BaseBlockObject::paint(
         QString("%1").arg(block->get_id()));
 }
 
-QPointF BaseBlockObject::getIOPortLocation(
+QPointF BlockObject::getIOPortLocation(
     const int number,
     const int io_size,
     const BlockIoPort::PortType type) const
@@ -153,7 +153,7 @@ QPointF BaseBlockObject::getIOPortLocation(
         y_loc);
 }
 
-void BaseBlockObject::drawIOPorts(
+void BlockObject::drawIOPorts(
     QPainter* painter,
     const QVector<BlockIoPort>& ports)
 {
@@ -205,7 +205,7 @@ void BaseBlockObject::drawIOPorts(
     }
 }
 
-QRectF BaseBlockObject::boundingRect() const
+QRectF BlockObject::boundingRect() const
 {
     const int num_inputs_i = static_cast<int>(block->get_num_inputs());
     const int num_outputs_i = static_cast<int>(block->get_num_outputs());
@@ -217,7 +217,7 @@ QRectF BaseBlockObject::boundingRect() const
         BASE_SIZE + PADDING_TB + HEIGHT_PER_IO * std::max({num_inputs_i - 1, num_outputs_i - 1, 0}));
 }
 
-QRectF BaseBlockObject::blockRect() const
+QRectF BlockObject::blockRect() const
 {
     const QRectF bounds = boundingRect();
     return QRectF(
@@ -227,7 +227,7 @@ QRectF BaseBlockObject::blockRect() const
         bounds.height() - PADDING_TB);
 }
 
-bool BaseBlockObject::blockRectContainsPoint(const QPointF& localCoords) const
+bool BlockObject::blockRectContainsPoint(const QPointF& localCoords) const
 {
     return blockRect().contains(localCoords);
 }

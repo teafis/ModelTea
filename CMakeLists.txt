@@ -27,8 +27,8 @@ set(PROJECT_SOURCESS
     widgets/block_graphics_view.h
     widgets/state/block_drag_state.cpp
     widgets/state/block_drag_state.h
-    blocks/base_block.cpp
-    blocks/base_block.h
+    blocks/block_object.cpp
+    blocks/block_object.h
     blocks/block_io_port.cpp
     blocks/block_io_port.h
 )

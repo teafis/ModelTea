@@ -5,7 +5,7 @@
 
 #include <QPointF>
 
-#include "blocks/base_block.h"
+#include "blocks/block_object.h"
 
 class BlockDragState
 {
@@ -14,7 +14,7 @@ public:
 
     void reset();
 
-    BaseBlockObject* getBlock() const;
+    BlockObject* getBlock() const;
 
     const QPointF& getOffset() const;
 
@@ -22,10 +22,10 @@ public:
 
     void setState(
         const QPointF& inOffset,
-        BaseBlockObject* inBlock);
+        BlockObject* inBlock);
 
 protected:
-    BaseBlockObject* block;
+    BlockObject* block;
     QPointF offset;
 };
 

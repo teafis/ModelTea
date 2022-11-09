@@ -51,8 +51,20 @@ void Model::remove_block(const size_t id)
     auto conn_it = connections.begin();
     while (conn_it != connections.end())
     {
-        if (conn_it->contains_id(id))
+        if ((*conn_it)->contains_id(id))
         {
+            if (const auto fid = (*conn_it)->get_from_id(); fid != id)
+            {
+                auto blk = get_block(fid);
+                blk->set_output_port((*conn_it)->get_from_port(), nullptr);
+            }
+
+            if (const auto tid = (*conn_it)->get_to_id(); tid != id)
+            {
+                auto blk = get_block(tid);
+                blk->set_input_port((*conn_it)->get_to_port(), nullptr);
+            }
+
             conn_it = connections.erase(conn_it);
         }
         else
@@ -64,13 +76,22 @@ void Model::remove_block(const size_t id)
 
 void Model::add_connection(const Connection connection)
 {
-    const BlockInterface* from_block = get_block(connection.get_from_id());
-    const BlockInterface* to_block = get_block(connection.get_to_id());
+    BlockInterface* from_block = get_block(connection.get_from_id());
+    BlockInterface* to_block = get_block(connection.get_to_id());
 
     if (connection.get_from_port() < from_block->get_num_outputs() &&
         connection.get_to_port() < to_block->get_num_inputs())
     {
-        connections.push_back(connection);
+        connections.push_back(std::make_unique<Connection>(connection));
+        auto& c = connections.back();
+
+        from_block->set_output_port(
+            connection.get_from_port(),
+            &c->get_value());
+
+        to_block->set_input_port(
+            c->get_to_port(),
+            &c->get_value());
     }
     else
     {
@@ -300,7 +321,7 @@ Model::ModelExecutor::ModelExecutor(
 
 void Model::ModelExecutor::set_input_value(
     const size_t port,
-    std::shared_ptr<const Value> value)
+    const void* value)
 {
     if (port < input_blocks.size())
     {
@@ -308,11 +329,11 @@ void Model::ModelExecutor::set_input_value(
     }
 }
 
-std::shared_ptr<const Value> Model::ModelExecutor::get_output_value(const size_t port) const
+const void* Model::ModelExecutor::get_output_value(const size_t port) const
 {
     if (port < output_blocks.size())
     {
-        return output_blocks[port]->get_value();
+        return output_blocks[port]->get_valu();
     }
     else
     {

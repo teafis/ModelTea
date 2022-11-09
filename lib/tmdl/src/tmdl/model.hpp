@@ -26,7 +26,7 @@ public:
 
     void remove_block(const size_t id);
 
-    void add_connection(const Connection connection);
+    void add_connection(Connection connection);
 
     void remove_connection(const size_t to_block, const size_t to_port);
 
@@ -45,20 +45,14 @@ public:
             const Model* parent,
             const std::vector<std::shared_ptr<BlockExecutionInterface>>& blocks);
 
-        void set_input_value(
-            const size_t port,
-            const std::shared_ptr<const Value> value) override;
-
-        std::shared_ptr<const Value> get_output_value(const size_t port) const override;
-
         void step() override;
 
         void reset() override;
 
     protected:
-        std::vector<std::shared_ptr<InputPort::Executor>> input_blocks;
-        std::vector<std::shared_ptr<OutputPort::Executor>> output_blocks;
-        std::vector<std::shared_ptr<BlockExecutionInterface>> blocks;
+        std::vector<PortValue*> input_blocks;
+        std::vector<const PortValue*> output_blocks;
+        std::vector<BlockExecutionInterface*> blocks;
     };
 
 protected:
@@ -68,7 +62,7 @@ protected:
 
 protected:
     std::unordered_map<size_t, std::shared_ptr<BlockInterface>> blocks;
-    std::vector<Connection> connections;
+    std::vector<std::unique_ptr<Connection>> connections;
     std::vector<size_t> input_ids;
     std::vector<size_t> output_ids;
 };

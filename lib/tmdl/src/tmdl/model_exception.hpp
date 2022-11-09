@@ -12,14 +12,14 @@ namespace tmdl
 class ModelException
 {
 public:
-    ModelException(const std::string& msg) : msg(msg)
+    ModelException(const std::string& msg) : _msg(msg)
     {
         // Empty Constructor
     }
 
     const std::string& what() const
     {
-        return msg;
+        return _msg;
     }
 
     virtual ~ModelException()
@@ -28,7 +28,28 @@ public:
     }
 
 protected:
-    std::string msg;
+    std::string _msg;
+};
+
+class ExecutionException : public ModelException
+{
+public:
+    ExecutionException(
+        const std::string& msg,
+        const size_t id) :
+        ModelException(msg),
+        _id(id)
+    {
+        // Empty Constructor
+    }
+
+    size_t get_id() const
+    {
+        return _id;
+    }
+
+protected:
+    size_t _id;
 };
 
 }

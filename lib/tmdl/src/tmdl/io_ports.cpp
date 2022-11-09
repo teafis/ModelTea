@@ -26,19 +26,19 @@ InputPort::Executor::Executor(const InputPort* parent) : BlockExecutionInterface
     // Empty Constructor
 }
 
-void InputPort::Executor::set_value(std::shared_ptr<const Value> value)
+void InputPort::Executor::set_value(const void* value)
 {
     _value = value;
 }
 
 void InputPort::Executor::set_input_value(
     const size_t,
-    std::shared_ptr<const Value>)
+    const void*)
 {
     throw ModelException("unable to set input value");
 }
 
-std::shared_ptr<const Value> InputPort::Executor::get_output_value(const size_t port) const
+const void* InputPort::Executor::get_output_value(const size_t port) const
 {
     if (port == 0)
     {
@@ -67,18 +67,20 @@ std::shared_ptr<BlockExecutionInterface> OutputPort::get_execution_interface() c
     return std::make_shared<Executor>(this);
 }
 
+template <typename T>
 OutputPort::Executor::Executor(const OutputPort* parent) : BlockExecutionInterface(parent)
 {
     // Empty Constructor
 }
 
-void OutputPort::Executor::set_input_value(
+template <typename T>
+void OutputPort::Executor<T>::set_input_value(
     const size_t port,
-    const std::shared_ptr<const Value> value)
+    const void* value)
 {
     if (port == 0)
     {
-        _value = value;
+        _port = value;
     }
     else
     {
@@ -86,12 +88,14 @@ void OutputPort::Executor::set_input_value(
     }
 }
 
-std::shared_ptr<const Value> OutputPort::Executor::get_output_value(const size_t) const
+template <typename T>
+const void* OutputPort::Executor<T>::get_output_value(const size_t) const
 {
     throw ModelException("No output value for OutputPort");
 }
 
-std::shared_ptr<const Value> OutputPort::Executor::get_value() const
+template <typename T>
+const T OutputPort::Executor<T>::get_value() const
 {
-    return _value;
+    return *reinterpret_cast<const T*>(_port->ptr);
 }

@@ -45,7 +45,15 @@ public:
 
     virtual size_t get_num_outputs() const = 0;
 
-    virtual std::shared_ptr<BlockExecutionInterface> get_execution_interface() const = 0;
+    virtual void set_input_port(
+        const size_t port,
+        const PortValue* value) = 0;
+
+    virtual void set_output_port(
+        const size_t port,
+        PortValue* value) = 0;
+
+    virtual BlockExecutionInterface* get_executor() const = 0;
 
 protected:
     size_t _id = 0;
@@ -59,16 +67,6 @@ public:
         // Empty Constructor
     }
 
-    virtual size_t get_num_inputs() const
-    {
-        return parent->get_num_inputs();
-    }
-
-    virtual size_t get_num_outputs() const
-    {
-        return parent->get_num_outputs();
-    }
-
     virtual void step()
     {
         // Empty Step
@@ -79,11 +77,7 @@ public:
         // Empty Reset
     }
 
-    virtual void set_input_value(
-        const size_t port,
-        const std::shared_ptr<const Value> value) = 0;
-
-    virtual std::shared_ptr<const Value> get_output_value(const size_t port) const = 0;
+    virtual const void* get_output_value() const = 0;
 
 protected:
     const BlockInterface* parent;

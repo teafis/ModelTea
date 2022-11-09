@@ -53,8 +53,9 @@ public:
         value = new_value;
     }
 
-    std::unique_ptr<Value> get_current_value(const std::string& s) const
+    PortValue* get_current_value(const std::string& s) const
     {
+        /*
         try
         {
             switch (data_type)
@@ -83,6 +84,8 @@ public:
         {
             return nullptr;
         }
+        */
+        return nullptr;
     }
 
 protected:

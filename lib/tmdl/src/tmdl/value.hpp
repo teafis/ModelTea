@@ -13,6 +13,7 @@ namespace tmdl
 
 enum class DataType
 {
+    UNKNOWN,
     DATA_TYPE,
     DOUBLE,
     BOOLEAN,
@@ -20,77 +21,11 @@ enum class DataType
     UINT32
 };
 
-class Value
+struct PortValue
 {
-public:
-    virtual DataType get_data_type() const = 0;
-
-    virtual std::unique_ptr<Value> clone() const = 0;
-
-    virtual void copy_from(const Value* other) = 0;
+    DataType dtype = DataType::UNKNOWN;
+    void* ptr = nullptr;
 };
-
-class DoubleValue : public Value
-{
-public:
-    DoubleValue(const double value = 0.0);
-
-    DataType get_data_type() const override;
-
-    std::unique_ptr<Value> clone() const override;
-
-    void copy_from(const Value* other) override;
-
-public:
-    double value;
-};
-
-class BooleanValue : public Value
-{
-public:
-    BooleanValue(const bool value = false);
-
-    DataType get_data_type() const override;
-
-    std::unique_ptr<Value> clone() const override;
-
-    void copy_from(const Value* other) override;
-
-public:
-    bool value;
-};
-
-class UInt32Value : public Value
-{
-public:
-    UInt32Value(const uint32_t value = 0.0);
-
-    DataType get_data_type() const override;
-
-    std::unique_ptr<Value> clone() const override;
-
-    void copy_from(const Value* other) override;
-
-public:
-    uint32_t value;
-};
-
-class Int32Value : public Value
-{
-public:
-    Int32Value(const int32_t value = 0.0);
-
-    DataType get_data_type() const override;
-
-    std::unique_ptr<Value> clone() const override;
-
-    void copy_from(const Value* other) override;
-
-public:
-    int32_t value;
-};
-
-std::unique_ptr<Value> make_value_for_type(const DataType dt);
 
 }
 

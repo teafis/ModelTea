@@ -18,6 +18,11 @@ namespace stdlib
 class StandardLibrary : public LibraryBase
 {
 public:
+    std::string get_library_name() const override
+    {
+        return "stdlib";
+    }
+
     std::vector<std::string> get_block_names() const override
     {
         return {

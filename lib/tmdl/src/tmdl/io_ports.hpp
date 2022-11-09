@@ -17,24 +17,28 @@ public:
 
     virtual size_t get_num_outputs() const override;
 
-    virtual std::shared_ptr<BlockExecutionInterface> get_execution_interface() const override;
+    virtual void set_input_port(
+        const size_t port,
+        const PortValue* value) override;
+
+    virtual const PortValue* get_output_port(const size_t port) const override;
+
+    virtual BlockExecutionInterface* get_executor() const override;
 
 public:
+    template <typename T>
     class Executor : public BlockExecutionInterface
     {
     public:
         Executor(const InputPort* parent);
 
-        void set_value(std::shared_ptr<const Value> value);
-
-        virtual void set_input_value(
-            const size_t,
-            std::shared_ptr<const Value>) override;
-
-        virtual std::shared_ptr<const Value> get_output_value(const size_t port) const override;
+        void set_value(const PortValue* value)
+        {
+            _port = value;
+        }
 
     protected:
-        std::shared_ptr<const Value> _value;
+        const PortValue* _port;
     };
 };
 
@@ -45,23 +49,22 @@ public:
 
     virtual size_t get_num_outputs() const override;
 
-    virtual std::shared_ptr<BlockExecutionInterface> get_execution_interface() const override;
+    virtual BlockExecutionInterface* get_executor() const override;
 
 public:
+    template <typename T>
     class Executor : public BlockExecutionInterface
     {
     public:
         Executor(const OutputPort* parent);
 
-        virtual void set_input_value(
-            const size_t port,
-            const std::shared_ptr<const Value> value) override;
-
-        virtual std::shared_ptr<const Value> get_output_value(const size_t) const override;
-        std::shared_ptr<const Value> get_value() const;
+        const T get_value() const
+        {
+            return *reinterpret_cast<const T*>(_port->ptr);
+        }
 
     protected:
-        std::shared_ptr<const Value> _value;
+        const PortValue* _port;
     };
 };
 

@@ -13,59 +13,47 @@ namespace tmdl
 class InputPort : public BlockInterface
 {
 public:
-    virtual size_t get_num_inputs() const override;
+    size_t get_num_inputs() const override;
 
-    virtual size_t get_num_outputs() const override;
+    size_t get_num_outputs() const override;
 
-    virtual void set_input_port(
+    void set_input_port(
         const size_t port,
         const PortValue* value) override;
 
-    virtual const PortValue* get_output_port(const size_t port) const override;
+    const PortValue* get_output_port(const size_t port) const override;
 
-    virtual BlockExecutionInterface* get_executor() const override;
+    //BlockExecutionInterface* get_executor() const override;
 
 public:
-    template <typename T>
-    class Executor : public BlockExecutionInterface
-    {
-    public:
-        Executor(const InputPort* parent);
+    void set_input_value(const PortValue* value);
 
-        void set_value(const PortValue* value)
-        {
-            _port = value;
-        }
-
-    protected:
-        const PortValue* _port;
-    };
+protected:
+    PortValue _port;
+    std::unique_ptr<BlockExecutionInterface> _executor;
 };
 
 class OutputPort : public BlockInterface
 {
 public:
-    virtual size_t get_num_inputs() const override;
+    size_t get_num_inputs() const override;
 
-    virtual size_t get_num_outputs() const override;
+    size_t get_num_outputs() const override;
 
-    virtual BlockExecutionInterface* get_executor() const override;
+    void set_input_port(
+        const size_t port,
+        const PortValue* value) override;
+
+    const PortValue* get_output_port(const size_t port) const override;
+
+    //BlockExecutionInterface* get_executor() const override;
 
 public:
-    template <typename T>
-    class Executor : public BlockExecutionInterface
-    {
-    public:
-        Executor(const OutputPort* parent);
+    const PortValue* get_output_value() const;
 
-        const T get_value() const
-        {
-            return *reinterpret_cast<const T*>(_port->ptr);
-        }
-
-    protected:
-        const PortValue* _port;
-    };
+protected:
+    const PortValue* _port;
+    std::unique_ptr<BlockExecutionInterface> _executor;
 };
 
 }

@@ -38,22 +38,11 @@ public:
         return to_port;
     }
 
-    const PortValue& get_value() const
-    {
-        return _value;
-    }
-
-    PortValue& get_value()
-    {
-        return _value;
-    }
-
 protected:
     size_t from_id;
     size_t from_port;
     size_t to_id;
     size_t to_port;
-    PortValue _value;
 };
 
 }

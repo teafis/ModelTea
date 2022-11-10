@@ -29,6 +29,8 @@ public:
         _id = id;
     }
 
+    virtual bool update_block() = 0; // return true if the block updated anything that affects other blocks
+
     virtual size_t get_num_inputs() const = 0;
 
     virtual bool is_delayed_input(const size_t port) const
@@ -49,11 +51,9 @@ public:
         const size_t port,
         const PortValue* value) = 0;
 
-    virtual void set_output_port(
-        const size_t port,
-        PortValue* value) = 0;
+    virtual const PortValue* get_output_port(const size_t port) const = 0;
 
-    virtual BlockExecutionInterface* get_executor() const = 0;
+    //virtual BlockExecutionInterface* get_executor() const = 0;
 
 protected:
     size_t _id = 0;
@@ -62,11 +62,6 @@ protected:
 class BlockExecutionInterface
 {
 public:
-    BlockExecutionInterface(const BlockInterface* parent) : parent(parent)
-    {
-        // Empty Constructor
-    }
-
     virtual void step()
     {
         // Empty Step
@@ -76,8 +71,6 @@ public:
     {
         // Empty Reset
     }
-
-    virtual const void* get_output_value() const = 0;
 
 protected:
     const BlockInterface* parent;

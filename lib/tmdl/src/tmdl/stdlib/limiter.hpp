@@ -40,10 +40,12 @@ public:
         return 1;
     }
 
+    /*
     std::shared_ptr<BlockExecutionInterface> get_execution_interface() const override
     {
         return nullptr;
     }
+    */
 };
 
 }

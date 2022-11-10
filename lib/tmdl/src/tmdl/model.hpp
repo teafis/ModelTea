@@ -35,25 +35,26 @@ public:
 
     size_t get_num_inputs() const override;
 
-    std::shared_ptr<BlockExecutionInterface> get_execution_interface() const override;
-
-public:
-    class ModelExecutor : public BlockExecutionInterface
+    bool update_block() override
     {
-    public:
-        ModelExecutor(
-            const Model* parent,
-            const std::vector<std::shared_ptr<BlockExecutionInterface>>& blocks);
+        return false;
+    }
 
-        void step() override;
+    void set_input_port(
+        const size_t port,
+        const PortValue* value) override
+    {
+        (void)port;
+        (void)value;
+    }
 
-        void reset() override;
+    const PortValue* get_output_port(const size_t port) const override
+    {
+        (void)port;
+        return nullptr;
+    }
 
-    protected:
-        std::vector<PortValue*> input_blocks;
-        std::vector<const PortValue*> output_blocks;
-        std::vector<BlockExecutionInterface*> blocks;
-    };
+    //std::shared_ptr<BlockExecutionInterface> get_execution_interface() const override;
 
 protected:
     size_t get_next_id() const;
@@ -62,7 +63,7 @@ protected:
 
 protected:
     std::unordered_map<size_t, std::shared_ptr<BlockInterface>> blocks;
-    std::vector<std::unique_ptr<Connection>> connections;
+    std::vector<Connection> connections;
     std::vector<size_t> input_ids;
     std::vector<size_t> output_ids;
 };

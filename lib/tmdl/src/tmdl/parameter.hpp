@@ -13,7 +13,7 @@ namespace tmdl
 {
 
 class Parameter
-{
+{    
 public:
     Parameter(
         const std::string& id,
@@ -53,7 +53,7 @@ public:
         value = new_value;
     }
 
-    PortValue* get_current_value(const std::string& s) const
+    PortValue* get_current_value(const std::string&) const
     {
         /*
         try

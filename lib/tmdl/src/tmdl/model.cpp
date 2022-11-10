@@ -51,18 +51,12 @@ void Model::remove_block(const size_t id)
     auto conn_it = connections.begin();
     while (conn_it != connections.end())
     {
-        if ((*conn_it)->contains_id(id))
+        if (conn_it->contains_id(id))
         {
-            if (const auto fid = (*conn_it)->get_from_id(); fid != id)
-            {
-                auto blk = get_block(fid);
-                blk->set_output_port((*conn_it)->get_from_port(), nullptr);
-            }
-
-            if (const auto tid = (*conn_it)->get_to_id(); tid != id)
+            if (const auto tid = conn_it->get_to_id(); tid != id)
             {
                 auto blk = get_block(tid);
-                blk->set_input_port((*conn_it)->get_to_port(), nullptr);
+                blk->set_input_port(conn_it->get_to_port(), nullptr);
             }
 
             conn_it = connections.erase(conn_it);
@@ -76,22 +70,16 @@ void Model::remove_block(const size_t id)
 
 void Model::add_connection(const Connection connection)
 {
-    BlockInterface* from_block = get_block(connection.get_from_id());
+    const BlockInterface* from_block = get_block(connection.get_from_id());
     BlockInterface* to_block = get_block(connection.get_to_id());
 
     if (connection.get_from_port() < from_block->get_num_outputs() &&
         connection.get_to_port() < to_block->get_num_inputs())
     {
-        connections.push_back(std::make_unique<Connection>(connection));
-        auto& c = connections.back();
-
-        from_block->set_output_port(
-            connection.get_from_port(),
-            &c->get_value());
-
+        connections.push_back(connection);
         to_block->set_input_port(
-            c->get_to_port(),
-            &c->get_value());
+            connection.get_to_port(),
+            from_block->get_output_port(connection.get_from_port()));
     }
     else
     {
@@ -114,6 +102,7 @@ void Model::remove_connection(const size_t to_block, const size_t to_port)
         throw ModelException("connection not found to be able to remove");
     }
 
+    get_block(it->get_to_id())->set_input_port(it->get_to_port(), nullptr);
     connections.erase(it);
 }
 
@@ -127,6 +116,7 @@ size_t Model::get_num_outputs() const
     return output_ids.size();
 }
 
+/*
 std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface() const
 {
     // Check that all inputs are connected
@@ -260,6 +250,7 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface() const
     // Create the executor
     return std::make_shared<Model::ModelExecutor>(this, interface_order);
 }
+*/
 
 size_t Model::get_next_id() const
 {
@@ -284,6 +275,7 @@ BlockInterface* Model::get_block(const size_t id) const
 
 /* ==================== MODEL EXECUTOR ==================== */
 
+/*
 Model::ModelExecutor::ModelExecutor(
     const Model* parent,
     const std::vector<std::shared_ptr<BlockExecutionInterface>>& blocks) :
@@ -357,3 +349,4 @@ void Model::ModelExecutor::reset()
         b->reset();
     }
 }
+*/

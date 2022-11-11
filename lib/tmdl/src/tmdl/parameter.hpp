@@ -12,6 +12,27 @@
 namespace tmdl
 {
 
+struct ParameterValue
+{
+    enum class Type
+    {
+        UNKNOWN = 0,
+        BOOLEAN,
+        DOUBLE,
+        INT32,
+        UINT32
+    };
+
+    union {
+        bool tf;
+        double f64;
+        int32_t i32;
+        uint32_t u32;
+    } value{};
+
+    Type dtype = Type::UNKNOWN;
+};
+
 class Parameter
 {    
 public:
@@ -53,39 +74,48 @@ public:
         value = new_value;
     }
 
-    PortValue* get_current_value(const std::string&) const
+    ParameterValue get_current_value(const std::string& s) const
     {
-        /*
+        ParameterValue data_value{};
+
         try
         {
             switch (data_type)
             {
             case DataType::BOOLEAN:
-                return std::make_unique<BooleanValue>(std::stoi(s) != 0);
+                data_value.dtype = ParameterValue::Type::BOOLEAN;
+                data_value.value.tf = std::stoi(s) != 0;
+                break;
             case DataType::INT32:
-                return std::make_unique<Int32Value>(std::stoi(s));
+                data_value.dtype = ParameterValue::Type::INT32;
+                data_value.value.i32 = std::stoi(s);
+                break;
             case DataType::UINT32:
-                return std::make_unique<UInt32Value>(std::stoul(s));
+                data_value.dtype = ParameterValue::Type::UINT32;
+                data_value.value.u32 = std::stoul(s);
+                break;
             case DataType::DOUBLE:
-                return std::make_unique<DoubleValue>(std::stod(s));
+                data_value.dtype = ParameterValue::Type::DOUBLE;
+                data_value.value.f64 = std::stod(s);
+                break;
             case DataType::DATA_TYPE:
             {
-                return nullptr;
+                throw ModelException("not implemented");
             }
             default:
-                return nullptr;
+                throw ModelException("unknown parse parameter type provided");
             }
         }
         catch (const std::invalid_argument&)
         {
-            return nullptr;
+            throw ModelException("error parsing parameter - invalid argument");
         }
         catch (const std::out_of_range&)
         {
-            return nullptr;
+            throw ModelException("error parsing parameter - out of range");
         }
-        */
-        return nullptr;
+
+        return data_value;
     }
 
 protected:

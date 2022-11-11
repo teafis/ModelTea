@@ -26,15 +26,7 @@ struct PortValue
     DataType dtype = DataType::UNKNOWN;
     void* ptr = nullptr;
 
-    bool operator==(const PortValue& other) const
-    {
-        return dtype == other.dtype && ptr == other.ptr;
-    }
-
-    bool operator!=(const PortValue& other) const
-    {
-        return !(*this == other);
-    }
+    bool operator==(const PortValue& other) const = default;
 };
 
 }

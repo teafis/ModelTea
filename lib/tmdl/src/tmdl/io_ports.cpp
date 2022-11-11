@@ -9,13 +9,27 @@ class PassthroughExecutor : public BlockExecutionInterface
 public:
     PassthroughExecutor(
         const PortValue* input_port,
-        const PortValue* output_port)
+        PortValue* output_port) :
+        _input(input_port),
+        _output(output_port)
     {
         if (input_port == nullptr || output_port == nullptr || *input_port != *output_port)
         {
             throw ModelException("Invalid input/output ports provided");
         }
     }
+
+    void step() override
+    {
+        if (_input->dtype != _output->dtype)
+        {
+            throw ModelException("passthrough datatype change at inopportune moment");
+        }
+    }
+
+protected:
+    const PortValue* _input;
+    PortValue* _output;
 };
 
 /* ========== INPUT PORT ========== */

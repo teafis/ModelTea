@@ -62,6 +62,11 @@ protected:
 class BlockExecutionInterface
 {
 public:
+    virtual void init()
+    {
+        // Empty Init
+    }
+
     virtual void step()
     {
         // Empty Step
@@ -70,6 +75,11 @@ public:
     virtual void reset()
     {
         // Empty Reset
+    }
+
+    virtual void close()
+    {
+        // Empty Close
     }
 
 protected:

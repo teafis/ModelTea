@@ -36,13 +36,13 @@ public:
 
     const PortValue* get_output_port(const size_t port) const override;
 
-    BlockExecutionInterface* get_execution_interface() const override;
+    std::shared_ptr<BlockExecutionInterface> get_execution_interface() const override;
 
 protected:
-    std::shared_ptr<const PortValue*> in_port_value;
+    const PortValue* in_port_value;
 
     std::unique_ptr<PortValue> output_port;
-    std::shared_ptr<BlockExecutionInterface> executor;
+    std::unique_ptr<ValueBox> output_port_value;
 };
 
 }

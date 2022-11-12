@@ -35,43 +35,15 @@ public:
 
     size_t get_num_inputs() const override;
 
-    bool update_block() override
-    {
-        bool any_updated = true;
-        bool model_updated = false;
-        while (any_updated)
-        {
-            any_updated = false;
-
-            for (auto& blk : blocks)
-            {
-                any_updated |= blk.second->update_block();
-            }
-
-            if (any_updated)
-            {
-                model_updated = true;
-            }
-        }
-
-        return model_updated;
-    }
+    bool update_block() override;
 
     void set_input_port(
         const size_t port,
-        const PortValue* value) override
-    {
-        (void)port;
-        (void)value;
-    }
+        const PortValue* value) override;
 
-    const PortValue* get_output_port(const size_t port) const override
-    {
-        (void)port;
-        return nullptr;
-    }
+    const PortValue* get_output_port(const size_t port) const override;
 
-    BlockExecutionInterface* get_execution_interface() const override;
+    std::shared_ptr<BlockExecutionInterface> get_execution_interface() const override;
 
 protected:
     size_t get_next_id() const;

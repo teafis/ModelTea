@@ -4,6 +4,54 @@
 
 using namespace tmdl;
 
+/* ==================== MODEL EXECUTOR ==================== */
+
+class ModelExecutor : public BlockExecutionInterface
+{
+public:
+    ModelExecutor(const std::vector<std::shared_ptr<BlockExecutionInterface>>& blocks) :
+        blocks(blocks)
+    {
+        // Empty Constructor?
+    }
+
+    void init() override
+    {
+        for (const auto& b : blocks)
+        {
+            b->init();
+        }
+    }
+
+    void step() override
+    {
+        for (const auto& b : blocks)
+        {
+            b->step();
+        }
+    }
+
+    void reset() override
+    {
+        for (const auto& b : blocks)
+        {
+            b->reset();
+        }
+    }
+
+    void close() override
+    {
+        for (const auto& b : blocks)
+        {
+            b->close();
+        }
+    }
+
+protected:
+    std::vector<std::shared_ptr<BlockExecutionInterface>> blocks;
+};
+
+
 /* ==================== MODEL ==================== */
 
 void Model::add_block(const std::shared_ptr<BlockInterface> block)
@@ -116,7 +164,77 @@ size_t Model::get_num_outputs() const
     return output_ids.size();
 }
 
-BlockExecutionInterface* Model::get_execution_interface() const
+bool Model::update_block()
+{
+    bool any_updated = true;
+    bool model_updated = false;
+    size_t update_count = 0;
+    const size_t UPDATE_LIMIT = blocks.size() * 2;
+    while (any_updated)
+    {
+        any_updated = false;
+
+        for (auto& blk : blocks)
+        {
+            any_updated |= blk.second->update_block();
+        }
+
+        if (any_updated)
+        {
+            model_updated = true;
+        }
+
+        if (update_count > UPDATE_LIMIT)
+        {
+            throw ModelException("update limit exceeded for model block");
+        }
+
+        update_count += 1;
+    }
+
+    return model_updated;
+}
+
+void Model::set_input_port(
+    const size_t port,
+    const PortValue* value)
+{
+    if (port < get_num_inputs())
+    {
+        auto* blk = dynamic_cast<InputPort*>(get_block(input_ids[port]));
+        if (blk == nullptr)
+        {
+            throw ModelException("invalid block found for input port");
+        }
+
+        blk->set_input_value(value);
+    }
+    else
+    {
+        throw ModelException("model input port count exceeded");
+    }
+}
+
+const PortValue* Model::get_output_port(const size_t port) const
+{
+
+    if (port < get_num_outputs())
+    {
+        auto* blk = dynamic_cast<OutputPort*>(get_block(output_ids[port]));
+        if (blk == nullptr)
+        {
+            throw ModelException("invalid block found for input port");
+        }
+
+        return blk->get_output_value();
+    }
+    else
+    {
+        throw ModelException("model input port count exceeded");
+    }
+}
+
+std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface() const
 {
     // Check that all inputs are connected
     for (const auto& b : blocks)
@@ -247,7 +365,7 @@ BlockExecutionInterface* Model::get_execution_interface() const
     }
 
     // Create the executor
-    return std::make_shared<Model::ModelExecutor>(this, interface_order);
+    return std::make_shared<ModelExecutor>(interface_order);
 }
 
 size_t Model::get_next_id() const
@@ -270,81 +388,3 @@ BlockInterface* Model::get_block(const size_t id) const
     }
     return it->second.get();
 }
-
-/* ==================== MODEL EXECUTOR ==================== */
-
-/*
-Model::ModelExecutor::ModelExecutor(
-    const Model* parent,
-    const std::vector<std::shared_ptr<BlockExecutionInterface>>& blocks) :
-    BlockExecutionInterface(parent),
-    blocks(blocks)
-{
-    // Add input ports and output ports
-    for (const auto& b : blocks)
-    {
-        const auto input_test = std::dynamic_pointer_cast<InputPort::Executor>(b);
-        const auto output_test = std::dynamic_pointer_cast<OutputPort::Executor>(b);
-
-        if (input_test != nullptr)
-        {
-            input_blocks.push_back(input_test);
-        }
-
-        if (output_test != nullptr)
-        {
-            output_blocks.push_back(output_test);
-        }
-    }
-
-    // Check numbers for each
-    if (input_blocks.size() != get_num_inputs())
-    {
-        throw ModelException("number of input ports does not match input block count");
-    }
-
-    if (output_blocks.size() != get_num_outputs())
-    {
-        throw ModelException("number of output ports does not match input block count");
-    }
-}
-
-void Model::ModelExecutor::set_input_value(
-    const size_t port,
-    const void* value)
-{
-    if (port < input_blocks.size())
-    {
-        input_blocks[port]->set_value(value);
-    }
-}
-
-const void* Model::ModelExecutor::get_output_value(const size_t port) const
-{
-    if (port < output_blocks.size())
-    {
-        return output_blocks[port]->get_valu();
-    }
-    else
-    {
-        throw ModelException("requested port exceeds model size");
-    }
-}
-
-void Model::ModelExecutor::step()
-{
-    // Step each block (already in execution order)
-    for (const auto& b : blocks)
-    {
-        b->step();
-    }
-}
-
-void Model::ModelExecutor::reset()
-{
-    for (const auto& b : blocks)
-    {
-        b->reset();
-    }
-}
-*/

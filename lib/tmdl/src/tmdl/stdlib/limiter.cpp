@@ -9,14 +9,16 @@ class LimiterExecutor : public BlockExecutionInterface
 {
 public:
     LimiterExecutor(
-        const PortValue* input_port,
+        const T* ptr_input,
         const T val_min,
-        const T val_max) :
-        _input_port(input_port),
+        const T val_max,
+        T* ptr_output) :
+        _ptr_input(ptr_input),
+        _ptr_output(ptr_output),
         _val_min(val_min),
         _val_max(val_max)
     {
-        if (input_port == nullptr)
+        if (ptr_input == nullptr || ptr_output == nullptr)
         {
             throw ModelException("input pointers cannot be null");
         }
@@ -26,39 +28,35 @@ public:
         }
     }
 
-    const T* get_output_value()
-    {
-        return &_val_output;
-    }
-
 public:
     void step() override
     {
-        const T current = *reinterpret_cast<const T*>(_input_port->ptr);
+        const T current = *_ptr_input;
         if (current < _val_min)
         {
-            _val_output = _val_min;
+            *_ptr_output = _val_min;
         }
         else if (current > _val_max)
         {
-            _val_output = _val_max;
+            *_ptr_output = _val_max;
         }
         else
         {
-            _val_output = current;
+            *_ptr_output = current;
         }
     }
 
 protected:
-    const PortValue* _input_port;
-    T _val_output;
+    const T* _ptr_input;
+    T* _ptr_output;
     const T _val_min;
     const T _val_max;
 };
 
 Limiter::Limiter()
 {
-    in_port_value = std::make_shared<const PortValue*>(nullptr);
+    in_port_value = nullptr;
+    output_port_value = nullptr;
     output_port = std::make_unique<PortValue>(
     PortValue {
         .dtype = DataType::UNKNOWN,
@@ -93,10 +91,8 @@ size_t Limiter::get_num_outputs() const
 
 bool Limiter::update_block()
 {
-    if (*in_port_value == nullptr)
+    if (in_port_value == nullptr)
     {
-        executor = nullptr;
-
         if (output_port->dtype != DataType::UNKNOWN)
         {
             output_port->dtype = DataType::UNKNOWN;
@@ -108,29 +104,28 @@ bool Limiter::update_block()
             return false;
         }
     }
-    else if ((*in_port_value)->dtype != output_port->dtype)
+    else if (in_port_value->dtype != output_port->dtype)
     {
-        output_port->dtype = (*in_port_value)->dtype;
+        output_port->dtype = in_port_value->dtype;
+
+        output_port_value = nullptr;
+        output_port->ptr = nullptr;
 
         switch (output_port->dtype)
         {
         case DataType::DOUBLE:
-        {
-            auto ptr = std::make_shared<LimiterExecutor<double>>(*in_port_value, -10.0, 10.0);
-            output_port->ptr = reinterpret_cast<const void*>(ptr->get_output_value());
-            executor = ptr;
+            output_port_value = std::make_unique<ValueBoxType<double>>(0.0);
             break;
-        }
         case DataType::INT32:
-        {
-            auto ptr = std::make_shared<LimiterExecutor<int32_t>>(*in_port_value, -10, 10);
-            output_port->ptr = reinterpret_cast<const void*>(ptr->get_output_value());
-            executor = ptr;
+            output_port_value = std::make_unique<ValueBoxType<int32_t>>(0);
+            break;
+        default:
             break;
         }
-        default:
-            output_port->ptr = nullptr;
-            executor = nullptr;
+
+        if (output_port_value != nullptr)
+        {
+            output_port->ptr = reinterpret_cast<const void*>(output_port_value.get());
         }
 
         return true;
@@ -147,7 +142,7 @@ void Limiter::set_input_port(
 {
     if (port < get_num_inputs())
     {
-        *in_port_value = value;
+        in_port_value = value;
     }
     else
     {
@@ -167,7 +162,22 @@ const PortValue* Limiter::get_output_port(const size_t port) const
     }
 }
 
-BlockExecutionInterface* Limiter::get_execution_interface() const
+std::shared_ptr<BlockExecutionInterface> Limiter::get_execution_interface() const
 {
-    return executor.get();
+    if (in_port_value == nullptr || output_port_value == nullptr)
+    {
+        throw ModelException("cannot execute with incomplete input parameters");
+    }
+
+    switch (in_port_value->dtype)
+    {
+    case DataType::DOUBLE:
+        return std::make_shared<LimiterExecutor<double>>(
+            reinterpret_cast<const double*>(in_port_value->ptr),
+            -10.0,
+            10.0,
+            reinterpret_cast<double*>(output_port_value->get_ptr_val()));
+    default:
+        return nullptr;
+    }
 }

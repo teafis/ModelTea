@@ -63,18 +63,36 @@ const PortValue* InputPort::get_output_port(const size_t port) const
     }
 }
 
-void InputPort::set_input_value(const PortValue* value)
+bool InputPort::update_block()
 {
-    if (value == nullptr)
+    if (_input_port == nullptr)
     {
-        _port.dtype = DataType::UNKNOWN;
-        _port.ptr = nullptr;
+        if (_port.dtype != DataType::UNKNOWN)
+        {
+            _port.dtype = DataType::UNKNOWN;
+            _port.ptr = nullptr;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else if (_port != *_input_port)
+    {
+        _port.dtype = _input_port->dtype;
+        _port.ptr = _input_port->ptr;
+        return true;
     }
     else
     {
-        _port.dtype = value->dtype;
-        _port.ptr = value->ptr;
+        return false;
     }
+}
+
+void InputPort::set_input_value(const PortValue* value)
+{
+    _input_port = value;
 }
 
 /*
@@ -113,6 +131,11 @@ void OutputPort::set_input_port(
 const PortValue* OutputPort::get_output_port(const size_t /* port */) const
 {
     throw ModelException("cannot get input port value");
+}
+
+bool OutputPort::update_block()
+{
+    return false;
 }
 
 /*

@@ -116,8 +116,7 @@ size_t Model::get_num_outputs() const
     return output_ids.size();
 }
 
-/*
-std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface() const
+BlockExecutionInterface* Model::get_execution_interface() const
 {
     // Check that all inputs are connected
     for (const auto& b : blocks)
@@ -250,7 +249,6 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface() const
     // Create the executor
     return std::make_shared<Model::ModelExecutor>(this, interface_order);
 }
-*/
 
 size_t Model::get_next_id() const
 {

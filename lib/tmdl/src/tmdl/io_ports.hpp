@@ -23,12 +23,15 @@ public:
 
     const PortValue* get_output_port(const size_t port) const override;
 
+    bool update_block() override;
+
     //BlockExecutionInterface* get_executor() const override;
 
 public:
     void set_input_value(const PortValue* value);
 
 protected:
+    const PortValue* _input_port;
     PortValue _port;
     std::unique_ptr<BlockExecutionInterface> _executor;
 };
@@ -45,6 +48,8 @@ public:
         const PortValue* value) override;
 
     const PortValue* get_output_port(const size_t port) const override;
+
+    bool update_block() override;
 
     //BlockExecutionInterface* get_executor() const override;
 

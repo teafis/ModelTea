@@ -34,8 +34,7 @@ public:
     {
         if (name == "limiter")
         {
-            //return std::make_shared<Limiter>();
-            return nullptr;
+            return std::make_shared<Limiter>();
         }
         else
         {

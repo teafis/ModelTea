@@ -4,6 +4,7 @@
 #define TF_MODEL_STDLIB_LIMITER_HPP
 
 #include <tmdl/block.hpp>
+#include <array>
 
 
 namespace tmdl
@@ -15,37 +16,33 @@ namespace stdlib
 class Limiter : public Block
 {
 public:
-    std::string get_name() const override
-    {
-        return "limiter";
-    }
+    Limiter();
 
-    std::string get_description() const override
-    {
-        return "Limits input values by the provided parameters";
-    }
+    std::string get_name() const override;
 
-    std::vector<Parameter*> get_parameters() const override
-    {
-        return {};
-    }
+    std::string get_description() const override;
 
-    size_t get_num_inputs() const override
-    {
-        return 1;
-    }
+    std::vector<Parameter*> get_parameters() const override;
 
-    size_t get_num_outputs() const override
-    {
-        return 1;
-    }
+    size_t get_num_inputs() const override;
 
-    /*
-    std::shared_ptr<BlockExecutionInterface> get_execution_interface() const override
-    {
-        return nullptr;
-    }
-    */
+    size_t get_num_outputs() const override;
+
+    bool update_block() override;
+
+    void set_input_port(
+        const size_t port,
+        const PortValue* value) override;
+
+    const PortValue* get_output_port(const size_t port) const override;
+
+    BlockExecutionInterface* get_execution_interface() const override;
+
+protected:
+    std::shared_ptr<const PortValue*> in_port_value;
+
+    std::unique_ptr<PortValue> output_port;
+    std::shared_ptr<BlockExecutionInterface> executor;
 };
 
 }

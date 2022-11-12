@@ -53,7 +53,7 @@ public:
 
     virtual const PortValue* get_output_port(const size_t port) const = 0;
 
-    //virtual BlockExecutionInterface* get_executor() const = 0;
+    virtual BlockExecutionInterface* get_execution_interface() const = 0;
 
 protected:
     size_t _id = 0;
@@ -81,9 +81,6 @@ public:
     {
         // Empty Close
     }
-
-protected:
-    const BlockInterface* parent;
 };
 
 

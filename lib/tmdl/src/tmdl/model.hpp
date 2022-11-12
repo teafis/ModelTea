@@ -37,7 +37,24 @@ public:
 
     bool update_block() override
     {
-        return false;
+        bool any_updated = true;
+        bool model_updated = false;
+        while (any_updated)
+        {
+            any_updated = false;
+
+            for (auto& blk : blocks)
+            {
+                any_updated |= blk.second->update_block();
+            }
+
+            if (any_updated)
+            {
+                model_updated = true;
+            }
+        }
+
+        return model_updated;
     }
 
     void set_input_port(
@@ -54,7 +71,7 @@ public:
         return nullptr;
     }
 
-    //std::shared_ptr<BlockExecutionInterface> get_execution_interface() const override;
+    BlockExecutionInterface* get_execution_interface() const override;
 
 protected:
     size_t get_next_id() const;

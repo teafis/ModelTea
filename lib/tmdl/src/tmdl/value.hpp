@@ -24,7 +24,7 @@ enum class DataType
 struct PortValue
 {
     DataType dtype = DataType::UNKNOWN;
-    void* ptr = nullptr;
+    const void* ptr = nullptr;
 
     bool operator==(const PortValue& other) const = default;
 };

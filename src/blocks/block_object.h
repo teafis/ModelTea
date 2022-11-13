@@ -18,16 +18,12 @@
 class BlockObject : public QGraphicsObject
 {
 public:
-    BlockObject(
-        const std::shared_ptr<tmdl::Block> block,
-        QObject* parent = nullptr);
+    BlockObject(const std::shared_ptr<tmdl::Block> block);
 
     virtual void paint(
         QPainter* painter,
         const QStyleOptionGraphicsItem* option,
         QWidget* widget = nullptr);
-
-    virtual void updateLocations();
 
     virtual QRectF boundingRect() const;
 
@@ -38,6 +34,17 @@ public:
         return block.get();
     }
 
+    const BlockIoPort* get_port_for_pos(const QPointF& loc) const;
+
+signals:
+    void sceneLocationUpdated();
+
+protected slots:
+    void locUpdated()
+    {
+        emit sceneLocationUpdated();
+    }
+
 protected:
     QPointF getIOPortLocation(
         const int number,
@@ -46,13 +53,13 @@ protected:
 
     void drawIOPorts(
         QPainter* painter,
-        const QVector<BlockIoPort>& ports);
+        const std::vector<std::unique_ptr<BlockIoPort>>& ports);
 
     QRectF blockRect() const;
 
 protected:
-    QVector<BlockIoPort> input_ports;
-    QVector<BlockIoPort> output_ports;
+    std::vector<std::unique_ptr<BlockIoPort>> input_ports;
+    std::vector<std::unique_ptr<BlockIoPort>> output_ports;
 
 protected:
     std::shared_ptr<tmdl::Block> block;

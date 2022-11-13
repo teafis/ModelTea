@@ -27,10 +27,12 @@ set(PROJECT_SOURCESS
     src/widgets/block_graphics_view.h
     src/widgets/state/block_drag_state.cpp
     src/widgets/state/block_drag_state.h
+    src/widgets/state/port_drag_state.h
     src/blocks/block_object.cpp
     src/blocks/block_object.h
     src/blocks/block_io_port.cpp
     src/blocks/block_io_port.h
+    src/blocks/connecting_line.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

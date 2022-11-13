@@ -41,7 +41,6 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
         {
             std::cout << "Deselecting " << selectedBlock->get_block()->get_id() << std::endl;
             selectedBlock->setSelected(false);
-            //selectedBlock->update();
             selectedBlock = nullptr;
             this->update();
         }
@@ -53,8 +52,6 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
 
         selectedBlock = block;
         selectedBlock->setSelected(true);
-        //selectedBlock->update();
-        this->update();
 
         std::cout << "Selecting " << selectedBlock->get_block()->get_id() << '\n';
 
@@ -64,6 +61,7 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
 
         if (block_port != nullptr)
         {
+
             std::cout << "HERE!" << std::endl;
         }
         else if (blockBodyContainsMouse(mappedPos, block))
@@ -117,8 +115,8 @@ void BlockGraphicsView::addTestBlock()
     model.add_block(tmp);
 
     // Create the block object
-    BlockObject* block_obj = new BlockObject(tmp, this);
-    block_obj->updateLocations();
+    BlockObject* block_obj = new BlockObject(tmp);
+    block_obj->setParent(this);
     block_obj->setPos(mapToScene(QPoint(50, 50)));
 
     // Add the block to storage/tracking
@@ -141,15 +139,18 @@ BlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
     return selected;
 }
 
-BlockIoPort* BlockGraphicsView::findBlockIOForMousePress(const QPointF& pos, const BlockObject* block)
+const BlockIoPort* BlockGraphicsView::findBlockIOForMousePress(const QPointF& pos, const BlockObject* block)
 {
-    (void)pos;
-    (void)block;
-    return nullptr;
+    if (block == nullptr)
+    {
+        return nullptr;
+    }
+
+    return block->get_port_for_pos(pos);
 }
 
 bool BlockGraphicsView::blockBodyContainsMouse(const QPointF& pos, const BlockObject* block)
 {
     if (block == nullptr) return false;
-    return block->blockRectContainsPoint(pos - block->pos());
+    return block->blockRectContainsPoint(pos);
 }

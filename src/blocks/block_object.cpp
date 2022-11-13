@@ -14,6 +14,9 @@
 
 #include <QGraphicsObject>
 
+#include <cmath>
+
+
 const double PADDING_TB = 0;
 const double PADDING_LR = 30;
 const double BASE_SIZE = 50;
@@ -21,23 +24,17 @@ const double HEIGHT_PER_IO = 50;
 const double IO_RADIUS = 5;
 
 
-BlockObject::BlockObject(
-    const std::shared_ptr<tmdl::Block> block,
-    QObject* parent) :
+BlockObject::BlockObject(const std::shared_ptr<tmdl::Block> block) :
     block(block)
 {
     // Set the provided parent to help with destruction
-    setParent(parent);
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     //setFlag(QGraphicsItem::ItemIsMovable, true);
-}
 
-void BlockObject::updateLocations()
-{
     // Set the locations for the IO ports
     for (size_t i = 0; i < block->get_num_inputs(); ++i)
     {
-        input_ports.append(BlockIoPort(
+        input_ports.push_back(std::make_unique<BlockIoPort>(
            i,
            getIOPortLocation(
                i,
@@ -48,7 +45,7 @@ void BlockObject::updateLocations()
 
     for (size_t i = 0; i < block->get_num_outputs(); ++i)
     {
-        output_ports.append(BlockIoPort(
+        output_ports.push_back(std::make_unique<BlockIoPort>(
            i,
            getIOPortLocation(
                i,
@@ -56,6 +53,17 @@ void BlockObject::updateLocations()
                BlockIoPort::PortType::OUTPUT),
            BlockIoPort::PortType::OUTPUT));
     }
+
+    connect(
+        this,
+        &BlockObject::xChanged,
+        this,
+        &BlockObject::locUpdated);
+    connect(
+        this,
+        &BlockObject::yChanged,
+        this,
+        &BlockObject::locUpdated);
 }
 
 void BlockObject::paint(
@@ -166,9 +174,9 @@ QPointF BlockObject::getIOPortLocation(
 
 void BlockObject::drawIOPorts(
     QPainter* painter,
-    const QVector<BlockIoPort>& ports)
+    const std::vector<std::unique_ptr<BlockIoPort>>& ports)
 {
-    if (!ports.isEmpty())
+    if (!ports.empty())
     {
         // Define the lambda used to track X values
         const double rect_width = boundingRect().width();
@@ -195,9 +203,9 @@ void BlockObject::drawIOPorts(
         const double IO_RADIUS_PEN = IO_RADIUS - pen_width;
 
         // Add each line width value, and draw the resulting line
-        for (const BlockIoPort& port : ports)
+        for (const auto& port : ports)
         {
-            const QPointF& loc = port.get_location();
+            const QPointF& loc = port->get_location();
 
             painter->drawEllipse(
                 loc,
@@ -205,10 +213,10 @@ void BlockObject::drawIOPorts(
                 IO_RADIUS_PEN);
 
             QPointF a(
-                x_update_fn(2 * IO_RADIUS, port.get_type()),
+                x_update_fn(2 * IO_RADIUS, port->get_type()),
                 loc.y());
             QPointF b(
-                x_update_fn(PADDING_LR / 2.0, port.get_type()),
+                x_update_fn(PADDING_LR / 2.0, port->get_type()),
                 loc.y());
 
             painter->drawLine(a, b);
@@ -238,7 +246,26 @@ QRectF BlockObject::blockRect() const
         bounds.height() - PADDING_TB);
 }
 
-bool BlockObject::blockRectContainsPoint(const QPointF& localCoords) const
+bool BlockObject::blockRectContainsPoint(const QPointF& loc) const
 {
-    return blockRect().contains(localCoords);
+    return blockRect().contains(loc - pos());
+}
+
+const BlockIoPort* BlockObject::get_port_for_pos(const QPointF& loc) const
+{
+    for (const auto& vec : { &input_ports, &output_ports })
+    {
+        for (const auto& port : *vec)
+        {
+            const auto loc_diff = (port->get_location() - (loc - pos()));
+            const double radius = std::sqrt(loc_diff.x() * loc_diff.x() + loc_diff.y() * loc_diff.y());
+
+            if (radius < IO_RADIUS)
+            {
+                return port.get();
+            }
+        }
+    }
+
+    return nullptr;
 }

@@ -39,7 +39,7 @@ public slots:
 protected:
     BlockObject* findBlockForMousePress(const QPointF& pos);
 
-    BlockIoPort* findBlockIOForMousePress(const QPointF& pos, const BlockObject* block);
+    const BlockIoPort* findBlockIOForMousePress(const QPointF& pos, const BlockObject* block);
 
     bool blockBodyContainsMouse(const QPointF& pos, const BlockObject* block);
 

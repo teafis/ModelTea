@@ -17,20 +17,20 @@ find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
 set(PROJECT_SOURCESS
-    main.cpp
-    windows/main_window.cpp
-    windows/main_window.h
-    windows/main_window.ui
-    windows/main_window_icon.cpp
-    windows/main_window_icon.h
-    widgets/block_graphics_view.cpp
-    widgets/block_graphics_view.h
-    widgets/state/block_drag_state.cpp
-    widgets/state/block_drag_state.h
-    blocks/block_object.cpp
-    blocks/block_object.h
-    blocks/block_io_port.cpp
-    blocks/block_io_port.h
+    src/main.cpp
+    src/windows/main_window.cpp
+    src/windows/main_window.h
+    src/windows/main_window.ui
+    src/windows/main_window_icon.cpp
+    src/windows/main_window_icon.h
+    src/widgets/block_graphics_view.cpp
+    src/widgets/block_graphics_view.h
+    src/widgets/state/block_drag_state.cpp
+    src/widgets/state/block_drag_state.h
+    src/blocks/block_object.cpp
+    src/blocks/block_object.h
+    src/blocks/block_io_port.cpp
+    src/blocks/block_io_port.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -46,6 +46,8 @@ endif()
 
 # Add library directories
 add_subdirectory(lib/tmdl)
+
+target_include_directories(TSim PRIVATE src/)
 
 target_link_libraries(TSim PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(TSim PRIVATE TeaFIS-Model)

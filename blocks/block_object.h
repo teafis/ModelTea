@@ -33,6 +33,11 @@ public:
 
     bool blockRectContainsPoint(const QPointF& localCoords) const;
 
+    const tmdl::Block* get_block() const
+    {
+        return block.get();
+    }
+
 protected:
     QPointF getIOPortLocation(
         const int number,

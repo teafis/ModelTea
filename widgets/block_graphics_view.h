@@ -46,6 +46,7 @@ protected:
 protected:
     QVector<BlockObject*> blocks;
     BlockDragState mouseDragState;
+    BlockObject* selectedBlock;
     tmdl::Model model;
 };
 

@@ -21,7 +21,8 @@ static const tmdl::stdlib::StandardLibrary BLOCK_LIBRARY;
 #include <iostream>
 
 BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
-    QGraphicsView(parent)
+    QGraphicsView(parent),
+    selectedBlock(nullptr)
 {
     // Set the scene
     setScene(new QGraphicsScene(this));
@@ -36,10 +37,26 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
         const auto mappedPos = mapToScene(event->pos());
         BlockObject* block = findBlockForMousePress(mappedPos);
 
+        if (block != selectedBlock && selectedBlock != nullptr)
+        {
+            std::cout << "Deselecting " << selectedBlock->get_block()->get_id() << std::endl;
+            selectedBlock->setSelected(false);
+            //selectedBlock->update();
+            selectedBlock = nullptr;
+            this->update();
+        }
+
         if (block == nullptr)
         {
             return;
         }
+
+        selectedBlock = block;
+        selectedBlock->setSelected(true);
+        //selectedBlock->update();
+        this->update();
+
+        std::cout << "Selecting " << selectedBlock->get_block()->get_id() << '\n';
 
         std::cout << "Mouse: (" << mappedPos.x() << ", " << mappedPos.y() << "), Block: (" << block->pos().x() << ", " << block->pos().y() << ")" << std::endl;
 
@@ -82,7 +99,6 @@ void BlockGraphicsView::mouseMoveEvent(QMouseEvent* event)
     {
         const QPointF newBlockPos = mapToScene(event->pos()) - mouseDragState.getBlock()->boundingRect().center() + mouseDragState.getOffset();
         const QPoint newBlockPosInt = snapMousePositionToGrid(newBlockPos.toPoint());
-        qDebug() << newBlockPosInt;
         mouseDragState.getBlock()->setPos(newBlockPosInt);
     }
 }

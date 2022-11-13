@@ -28,6 +28,8 @@ BlockObject::BlockObject(
 {
     // Set the provided parent to help with destruction
     setParent(parent);
+    setFlag(QGraphicsItem::ItemIsSelectable, true);
+    //setFlag(QGraphicsItem::ItemIsMovable, true);
 }
 
 void BlockObject::updateLocations()
@@ -65,9 +67,18 @@ void BlockObject::paint(
     Q_UNUSED(widget);
 
     // Draw the block itself
-    painter->setPen(QPen(Qt::black, 1));
+    if (isSelected())
+    {
+        painter->setPen(QPen(Qt::blue, 2));
+    }
+    else
+    {
+        painter->setPen(QPen(Qt::black, 1));
+    }
     painter->setBrush(Qt::white);
     painter->drawRect(blockRect());
+
+    painter->setPen(QPen(Qt::black, 1));
 
     // Draw the I/O ports
     drawIOPorts(

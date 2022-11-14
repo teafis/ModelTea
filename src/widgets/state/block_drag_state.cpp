@@ -2,15 +2,12 @@
 
 #include "block_drag_state.h"
 
-BlockDragState::BlockDragState()
+BlockDragState::BlockDragState(
+    BlockObject* inBlock,
+    const QPointF& inOffset)
 {
-    reset();
-}
-
-void BlockDragState::reset()
-{
-    block = nullptr;
-    offset = QPointF(0.0, 0.0);
+    block = inBlock;
+    offset = inOffset;
 }
 
 BlockObject* BlockDragState::getBlock() const
@@ -21,17 +18,4 @@ BlockObject* BlockDragState::getBlock() const
 const QPointF& BlockDragState::getOffset() const
 {
     return offset;
-}
-
-bool BlockDragState::hasBlock() const
-{
-    return block != nullptr;
-}
-
-void BlockDragState::setState(
-        const QPointF& inOffset,
-        BlockObject* inBlock)
-{
-    block = inBlock;
-    offset = inOffset;
 }

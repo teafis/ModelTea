@@ -1,17 +1,23 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#ifndef PORT_DRAG_STATE_H
-#define PORT_DRAG_STATE_H
+#ifndef BLOCK_PORT_DRAG_STATE_H
+#define BLOCK_PORT_DRAG_STATE_H
 
 #include "blocks/block_object.h"
+#include "mouse_state_base.h"
 
 #include <optional>
 
 
-class PortDragState
+class PortDragState : public MouseStateBase
 {
 public:
-    void add_port(const BlockObject::PortInformation port)
+    PortDragState(const BlockObject::PortInformation& port)
+    {
+        add_port(port);
+    }
+
+    void add_port(const BlockObject::PortInformation& port)
     {
         switch (port.type)
         {
@@ -57,4 +63,4 @@ protected:
     std::optional<BlockObject::PortInformation> port_input;
 };
 
-#endif // PORT_DRAG_STATE_H
+#endif // BLOCK_PORT_DRAG_STATE_H

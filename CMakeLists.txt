@@ -18,13 +18,17 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
 set(PROJECT_SOURCESS
     src/main.cpp
-    src/windows/main_window.cpp
     src/windows/main_window.h
+    src/windows/main_window.cpp
     src/windows/main_window.ui
+    src/windows/parameter_dialog.h
+    src/windows/parameter_dialog.cpp
+    src/windows/parameter_dialog.ui
     src/windows/main_window_icon.cpp
     src/windows/main_window_icon.h
     src/widgets/block_graphics_view.cpp
     src/widgets/block_graphics_view.h
+    src/widgets/state/mouse_state_base.h
     src/widgets/state/block_drag_state.cpp
     src/widgets/state/block_drag_state.h
     src/widgets/state/port_drag_state.h

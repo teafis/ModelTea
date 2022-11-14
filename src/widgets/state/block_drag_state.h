@@ -1,32 +1,27 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#ifndef BLOCKDRAGSTATE_H
-#define BLOCKDRAGSTATE_H
+#ifndef BLOCK_MOUSE_DRAG_STATE_H
+#define BLOCK_MOUSE_DRAG_STATE_H
 
 #include <QPointF>
 
 #include "blocks/block_object.h"
+#include "mouse_state_base.h"
 
-class BlockDragState
+class BlockDragState : public MouseStateBase
 {
 public:
-    BlockDragState();
-
-    void reset();
+    BlockDragState(
+        BlockObject* inBlock,
+        const QPointF& inOffset);
 
     BlockObject* getBlock() const;
 
     const QPointF& getOffset() const;
-
-    bool hasBlock() const;
-
-    void setState(
-        const QPointF& inOffset,
-        BlockObject* inBlock);
 
 protected:
     BlockObject* block;
     QPointF offset;
 };
 
-#endif // BLOCKDRAGSTATE_H
+#endif // BLOCK_MOUSE_DRAG_STATE_H

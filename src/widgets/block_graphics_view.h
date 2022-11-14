@@ -7,11 +7,9 @@
 #include <QGraphicsView>
 
 #include "blocks/block_object.h"
-#include "state/block_drag_state.h"
-#include "state/port_drag_state.h"
+#include "state/mouse_state_base.h"
 
-#include <vector>
-#include <QVector>
+#include <memory>
 
 #include <QPoint>
 
@@ -31,6 +29,8 @@ public:
 
     virtual void mouseMoveEvent(QMouseEvent* event) override;
 
+    virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
+
 protected:
     virtual QPoint snapMousePositionToGrid(const QPoint& input);
 
@@ -46,8 +46,7 @@ protected:
     bool blockBodyContainsMouse(const QPointF& pos, const BlockObject* block);
 
 protected:
-    BlockDragState mouseDragState;
-    PortDragState portDragState;
+    std::unique_ptr<MouseStateBase> mouseState;
     BlockObject* selectedBlock;
     tmdl::Model model;
 };

@@ -70,13 +70,6 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
         else if (blockBodyContainsMouse(mappedPos, block))
         {
             // Update the blocks to bring the clicked block to the foreground
-            const auto index = blocks.indexOf(block);
-            if (index >= 0)
-            {
-                blocks.remove(index);
-                blocks.insert(0, block);
-            }
-
             scene()->removeItem(block);
             scene()->addItem(block);
 
@@ -138,6 +131,17 @@ void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
                 conn_obj,
                 &ConnectorObject::blockLocationUpdated);
 
+            connect(
+                portDragState.get_output().block,
+                &BlockObject::destroyed,
+                conn_obj,
+                &ConnectorObject::deleteLater);
+            connect(
+                portDragState.get_input().block,
+                &BlockObject::destroyed,
+                conn_obj,
+                &ConnectorObject::deleteLater);
+
             scene()->addItem(conn_obj);
         }
     }
@@ -174,23 +178,32 @@ void BlockGraphicsView::addTestBlock()
     block_obj->setPos(mapToScene(QPoint(50, 50)));
 
     // Add the block to storage/tracking
-    blocks.append(block_obj);
     scene()->addItem(block_obj);
+}
+
+void BlockGraphicsView::removeSelectedBlock()
+{
+    if (selectedBlock != nullptr)
+    {
+        model.remove_block(selectedBlock->get_block()->get_id());
+        scene()->removeItem(selectedBlock);
+        selectedBlock->deleteLater();
+        selectedBlock = nullptr;
+    }
 }
 
 BlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
 {
-    BlockObject* selected = nullptr;
-    for (BlockObject* block : blocks)
+    for (auto itm : scene()->items())
     {
-        const QRectF boundingRect = block->sceneBoundingRect();
-        if (boundingRect.contains(pos))
+        BlockObject* blk = dynamic_cast<BlockObject*>(itm);
+        if (blk != nullptr && blk->sceneBoundingRect().contains(pos))
         {
-            selected = block;
-            break;
+            return blk;
         }
     }
-    return selected;
+
+    return nullptr;
 }
 
 std::optional<BlockObject::PortInformation> BlockGraphicsView::findBlockIOForMousePress(const QPointF& pos, const BlockObject* block)

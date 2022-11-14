@@ -39,7 +39,11 @@ public:
         painter->setPen(QPen(Qt::black, 3.0));
         painter->setBrush(Qt::transparent);
 
-        painter->drawLine(loc_from - pos(), loc_to - pos());
+        const auto halfway = (loc_from + loc_to) / 2.0;
+
+        painter->drawLine(loc_from, QPointF(halfway.x(), loc_from.y()));
+        painter->drawLine(loc_to, QPointF(halfway.x(), loc_to.y()));
+        painter->drawLine(QPointF(halfway.x(), loc_from.y()), QPointF(halfway.x(), loc_to.y()));
     }
 
     virtual QRectF boundingRect() const override
@@ -52,8 +56,13 @@ public slots:
     {
         loc_to = to_block->mapToScene(to_block->getInputPortLocation(to_port));
         loc_from = from_block->mapToScene(from_block->getOutputPortLocation(from_port));
+
         setVisible(false);
         setPos(std::min(loc_from.x(), loc_to.x()), std::min(loc_from.y(), loc_to.y()));
+
+        loc_from = mapFromScene(loc_from);
+        loc_to = mapFromScene(loc_to);
+
         update();
         setVisible(true);
     }

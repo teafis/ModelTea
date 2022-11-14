@@ -36,6 +36,7 @@ protected:
 
 public slots:
     void addTestBlock();
+    void removeSelectedBlock();
 
 protected:
     BlockObject* findBlockForMousePress(const QPointF& pos);
@@ -45,7 +46,6 @@ protected:
     bool blockBodyContainsMouse(const QPointF& pos, const BlockObject* block);
 
 protected:
-    QVector<BlockObject*> blocks;
     BlockDragState mouseDragState;
     PortDragState portDragState;
     BlockObject* selectedBlock;

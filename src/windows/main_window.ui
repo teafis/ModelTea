@@ -45,6 +45,7 @@
      <string>Blocks</string>
     </property>
     <addaction name="actionAdd_Block"/>
+    <addaction name="actionRemove_Block"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -87,6 +88,11 @@
     <string>About</string>
    </property>
   </action>
+  <action name="actionRemove_Block">
+   <property name="text">
+    <string>Remove Selected Block</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -95,6 +101,7 @@
    <header>widgets/block_graphics_view.h</header>
    <slots>
     <slot>addTestBlock()</slot>
+    <slot>removeSelectedBlock()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -121,6 +128,22 @@
    <signal>triggered()</signal>
    <receiver>block_graphics</receiver>
    <slot>addTestBlock()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>315</x>
+     <y>154</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionRemove_Block</sender>
+   <signal>triggered()</signal>
+   <receiver>block_graphics</receiver>
+   <slot>removeSelectedBlock()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>

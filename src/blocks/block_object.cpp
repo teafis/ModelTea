@@ -29,31 +29,8 @@ BlockObject::BlockObject(const std::shared_ptr<tmdl::Block> block) :
 {
     // Set the provided parent to help with destruction
     setFlag(QGraphicsItem::ItemIsSelectable, true);
-    //setFlag(QGraphicsItem::ItemIsMovable, true);
 
-    // Set the locations for the IO ports
-    for (size_t i = 0; i < block->get_num_inputs(); ++i)
-    {
-        input_ports.push_back(std::make_unique<BlockIoPort>(
-           i,
-           getIOPortLocation(
-               i,
-               block->get_num_inputs(),
-               BlockIoPort::PortType::INPUT),
-           BlockIoPort::PortType::INPUT));
-    }
-
-    for (size_t i = 0; i < block->get_num_outputs(); ++i)
-    {
-        output_ports.push_back(std::make_unique<BlockIoPort>(
-           i,
-           getIOPortLocation(
-               i,
-               block->get_num_outputs(),
-               BlockIoPort::PortType::OUTPUT),
-           BlockIoPort::PortType::OUTPUT));
-    }
-
+    // Connect position update values
     connect(
         this,
         &BlockObject::xChanged,
@@ -64,6 +41,11 @@ BlockObject::BlockObject(const std::shared_ptr<tmdl::Block> block) :
         &BlockObject::yChanged,
         this,
         &BlockObject::locUpdated);
+}
+
+void BlockObject::locUpdated()
+{
+    emit sceneLocationUpdated();
 }
 
 void BlockObject::paint(
@@ -91,10 +73,10 @@ void BlockObject::paint(
     // Draw the I/O ports
     drawIOPorts(
         painter,
-        input_ports);
+        PortType::INPUT);
     drawIOPorts(
         painter,
-        output_ports);
+        PortType::OUTPUT);
 
     // Draw the text label
     QFont font;
@@ -126,8 +108,7 @@ void BlockObject::paint(
 
 QPointF BlockObject::getIOPortLocation(
     const int number,
-    const int io_size,
-    const BlockIoPort::PortType type) const
+    const PortType type) const
 {
     // Define the lambda used to track X values
     const QRectF rect = boundingRect();
@@ -140,18 +121,21 @@ QPointF BlockObject::getIOPortLocation(
     // Obtain the vector of points
     switch (type)
     {
-    case BlockIoPort::PortType::INPUT:
+    case PortType::INPUT:
         x_loc = init_x_offset;
         break;
-    case BlockIoPort::PortType::OUTPUT:
+    case PortType::OUTPUT:
         x_loc = rect_width - init_x_offset;
         break;
     default:
         throw std::runtime_error("unexpected port type provided");
     }
 
+    // Define the I/O size
+    const size_t io_size = getNumPortsForType(type);
+
     // Ensure that there is at least one port
-    if (io_size <= 0)
+    if (io_size == 0)
     {
         throw std::runtime_error("no ports provided");
     }
@@ -174,22 +158,22 @@ QPointF BlockObject::getIOPortLocation(
 
 void BlockObject::drawIOPorts(
     QPainter* painter,
-    const std::vector<std::unique_ptr<BlockIoPort>>& ports)
+    const PortType type)
 {
-    if (!ports.empty())
+    const size_t num_ports = getNumPortsForType(type);
+
+    if (num_ports > 0)
     {
         // Define the lambda used to track X values
         const double rect_width = boundingRect().width();
 
-        const auto x_update_fn = [&rect_width](
-            const double x,
-            const BlockIoPort::PortType type)
+        const auto x_update_fn = [rect_width,type](const double x)
         {
             switch (type)
             {
-            case BlockIoPort::PortType::INPUT:
+            case PortType::INPUT:
                 return x;
-            case BlockIoPort::PortType::OUTPUT:
+            case PortType::OUTPUT:
                 return rect_width - x;
             default:
                 throw std::runtime_error("unexpected port type provided");
@@ -203,9 +187,11 @@ void BlockObject::drawIOPorts(
         const double IO_RADIUS_PEN = IO_RADIUS - pen_width;
 
         // Add each line width value, and draw the resulting line
-        for (const auto& port : ports)
+        for (size_t i = 0; i < num_ports; ++i)
         {
-            const QPointF& loc = port->get_location();
+            const QPointF& loc = getIOPortLocation(
+                i,
+                type);
 
             painter->drawEllipse(
                 loc,
@@ -213,10 +199,10 @@ void BlockObject::drawIOPorts(
                 IO_RADIUS_PEN);
 
             QPointF a(
-                x_update_fn(2 * IO_RADIUS, port->get_type()),
+                x_update_fn(2 * IO_RADIUS),
                 loc.y());
             QPointF b(
-                x_update_fn(PADDING_LR / 2.0, port->get_type()),
+                x_update_fn(PADDING_LR / 2.0),
                 loc.y());
 
             painter->drawLine(a, b);
@@ -251,21 +237,74 @@ bool BlockObject::blockRectContainsPoint(const QPointF& loc) const
     return blockRect().contains(loc - pos());
 }
 
-const BlockIoPort* BlockObject::get_port_for_pos(const QPointF& loc) const
+const tmdl::Block* BlockObject::get_block() const
 {
-    for (const auto& vec : { &input_ports, &output_ports })
+    return block.get();
+}
+
+const QPointF BlockObject::getInputPortLocation(const size_t port_num) const
+{
+    if (port_num < block->get_num_inputs())
     {
-        for (const auto& port : *vec)
+        return getIOPortLocation(
+            port_num,
+            PortType::INPUT);
+    }
+    else
+    {
+        throw 1;
+    }
+}
+
+const QPointF BlockObject::getOutputPortLocation(const size_t port_num) const
+{
+    if (port_num < block->get_num_outputs())
+    {
+        return getIOPortLocation(
+            port_num,
+            PortType::OUTPUT);
+    }
+    else
+    {
+        throw 1;
+    }
+}
+
+size_t BlockObject::getNumPortsForType(const PortType type) const
+{
+    switch (type)
+    {
+    case PortType::INPUT:
+        return block->get_num_inputs();
+    case PortType::OUTPUT:
+        return block->get_num_outputs();
+    default:
+        throw std::runtime_error("unknown port type provided");
+    }
+}
+
+std::optional<BlockObject::PortInformation> BlockObject::get_port_for_pos(const QPointF& loc) const
+{
+    for (const auto& t : { PortType::INPUT, PortType::OUTPUT })
+    {
+        const size_t num_ports = getNumPortsForType(t);
+
+        for (size_t i = 0; i < num_ports; ++i)
         {
-            const auto loc_diff = (port->get_location() - (loc - pos()));
+            const auto loc_diff = (getIOPortLocation(i, t) - (loc - pos()));
             const double radius = std::sqrt(loc_diff.x() * loc_diff.x() + loc_diff.y() * loc_diff.y());
 
             if (radius < IO_RADIUS)
             {
-                return port.get();
+                return PortInformation
+                {
+                    .block = this,
+                    .type = t,
+                    .port_count = i
+                };
             }
         }
     }
 
-    return nullptr;
+    return std::nullopt;
 }

@@ -15,6 +15,9 @@
 
 #include <tmdl/stdlib/stdlib.hpp>
 
+#include "blocks/connector_object.h"
+
+
 static const tmdl::stdlib::StandardLibrary BLOCK_LIBRARY;
 
 // TODO - REMOVE!
@@ -57,12 +60,12 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
 
         std::cout << "Mouse: (" << mappedPos.x() << ", " << mappedPos.y() << "), Block: (" << block->pos().x() << ", " << block->pos().y() << ")" << std::endl;
 
-        const auto* block_port = findBlockIOForMousePress(mappedPos, block);
+        const auto block_port = findBlockIOForMousePress(mappedPos, block);
 
-        if (block_port != nullptr)
+        if (block_port)
         {
-
-            std::cout << "HERE!" << std::endl;
+            portDragState.reset();
+            portDragState.add_port(block_port.value());
         }
         else if (blockBodyContainsMouse(mappedPos, block))
         {
@@ -89,6 +92,57 @@ void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
 {
     (void)event;
     mouseDragState.reset();
+
+    if (portDragState.is_partial())
+    {
+        std::cout << "Partial Value!" << std::endl;
+
+        const auto mappedPos = mapToScene(event->pos());
+        BlockObject* block = findBlockForMousePress(mappedPos);
+        const auto block_port = findBlockIOForMousePress(mappedPos, block);
+
+        if (block_port)
+        {
+            portDragState.add_port(block_port.value());
+        }
+
+        if (portDragState.is_complete())
+        {
+            std::cout << "Adding connecting line!" << std::endl;
+
+            const tmdl::Connection conn(
+                portDragState.get_output().block->get_block()->get_id(),
+                portDragState.get_output().port_count,
+                portDragState.get_input().block->get_block()->get_id(),
+                portDragState.get_input().port_count);
+
+            model.add_connection(conn);
+
+            ConnectorObject* conn_obj = new ConnectorObject(
+                portDragState.get_output().block,
+                portDragState.get_output().port_count,
+                portDragState.get_input().block,
+                portDragState.get_input().port_count);
+            conn_obj->setParent(this);
+            conn_obj->blockLocationUpdated();
+
+            connect(
+                portDragState.get_output().block,
+                &BlockObject::sceneLocationUpdated,
+                conn_obj,
+                &ConnectorObject::blockLocationUpdated);
+
+            connect(
+                portDragState.get_input().block,
+                &BlockObject::sceneLocationUpdated,
+                conn_obj,
+                &ConnectorObject::blockLocationUpdated);
+
+            scene()->addItem(conn_obj);
+        }
+    }
+
+    portDragState.reset();
 }
 
 void BlockGraphicsView::mouseMoveEvent(QMouseEvent* event)
@@ -139,11 +193,11 @@ BlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
     return selected;
 }
 
-const BlockIoPort* BlockGraphicsView::findBlockIOForMousePress(const QPointF& pos, const BlockObject* block)
+std::optional<BlockObject::PortInformation> BlockGraphicsView::findBlockIOForMousePress(const QPointF& pos, const BlockObject* block)
 {
     if (block == nullptr)
     {
-        return nullptr;
+        return std::nullopt;
     }
 
     return block->get_port_for_pos(pos);

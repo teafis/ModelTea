@@ -8,6 +8,7 @@
 
 #include "blocks/block_object.h"
 #include "state/block_drag_state.h"
+#include "state/port_drag_state.h"
 
 #include <vector>
 #include <QVector>
@@ -39,13 +40,14 @@ public slots:
 protected:
     BlockObject* findBlockForMousePress(const QPointF& pos);
 
-    const BlockIoPort* findBlockIOForMousePress(const QPointF& pos, const BlockObject* block);
+    std::optional<BlockObject::PortInformation> findBlockIOForMousePress(const QPointF& pos, const BlockObject* block);
 
     bool blockBodyContainsMouse(const QPointF& pos, const BlockObject* block);
 
 protected:
     QVector<BlockObject*> blocks;
     BlockDragState mouseDragState;
+    PortDragState portDragState;
     BlockObject* selectedBlock;
     tmdl::Model model;
 };

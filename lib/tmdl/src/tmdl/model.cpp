@@ -118,6 +118,12 @@ void Model::remove_block(const size_t id)
 
 void Model::add_connection(const Connection connection)
 {
+    auto duplicate_it = std::find(connections.begin(), connections.end(), connection);
+    if (duplicate_it != connections.end())
+    {
+        throw ModelException("cannot add a duplicate connection value");
+    }
+
     const BlockInterface* from_block = get_block(connection.get_from_id());
     BlockInterface* to_block = get_block(connection.get_to_id());
 

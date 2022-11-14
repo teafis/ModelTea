@@ -30,9 +30,7 @@ set(PROJECT_SOURCESS
     src/widgets/state/port_drag_state.h
     src/blocks/block_object.cpp
     src/blocks/block_object.h
-    src/blocks/block_io_port.cpp
-    src/blocks/block_io_port.h
-    src/blocks/connecting_line.h
+    src/blocks/connector_object.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

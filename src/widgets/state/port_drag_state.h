@@ -3,24 +3,22 @@
 #ifndef PORT_DRAG_STATE_H
 #define PORT_DRAG_STATE_H
 
-#include "blocks/block_io_port.h"
+#include "blocks/block_object.h"
+
+#include <optional>
+
 
 class PortDragState
 {
 public:
-    void add_port(const BlockIoPort* port)
+    void add_port(const BlockObject::PortInformation port)
     {
-        if (port == nullptr)
+        switch (port.type)
         {
-            return;
-        }
-
-        switch (port->get_type())
-        {
-        case BlockIoPort::PortType::INPUT:
+        case BlockObject::PortType::INPUT:
             port_input = port;
             break;
-        case BlockIoPort::PortType::OUTPUT:
+        case BlockObject::PortType::OUTPUT:
             port_output = port;
             break;
         default:
@@ -28,24 +26,35 @@ public:
         }
     }
 
-    bool complete_state() const
+    bool is_partial() const
     {
-        return port_output != nullptr && port_input != nullptr;
+        return port_output || port_input;
     }
 
-    const BlockIoPort* get_output() const
+    bool is_complete() const
     {
-        return port_output;
+        return port_output && port_input;
     }
 
-    const BlockIoPort* get_input() const
+    const BlockObject::PortInformation& get_output() const
     {
-        return port_input;
+        return port_output.value();
+    }
+
+    const BlockObject::PortInformation& get_input() const
+    {
+        return port_input.value();
+    }
+
+    void reset()
+    {
+        port_output = std::nullopt;
+        port_input = std::nullopt;
     }
 
 protected:
-    const BlockIoPort* port_output;
-    const BlockIoPort* port_input;
+    std::optional<BlockObject::PortInformation> port_output;
+    std::optional<BlockObject::PortInformation> port_input;
 };
 
 #endif // PORT_DRAG_STATE_H

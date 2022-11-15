@@ -36,14 +36,21 @@ protected:
 
 public slots:
     void addTestBlock();
+
     void removeSelectedBlock();
+
+    void parameterDialogClosed(int);
 
 protected:
     BlockObject* findBlockForMousePress(const QPointF& pos);
 
-    std::optional<BlockObject::PortInformation> findBlockIOForMousePress(const QPointF& pos, const BlockObject* block);
+    std::optional<BlockObject::PortInformation> findBlockIOForMousePress(
+        const QPointF& pos,
+        const BlockObject* block);
 
-    bool blockBodyContainsMouse(const QPointF& pos, const BlockObject* block);
+    bool blockBodyContainsMouse(
+        const QPointF& pos,
+        const BlockObject* block);
 
 protected:
     std::unique_ptr<MouseStateBase> mouseState;

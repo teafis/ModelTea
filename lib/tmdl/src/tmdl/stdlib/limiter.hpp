@@ -43,6 +43,10 @@ protected:
 
     std::unique_ptr<PortValue> output_port;
     std::unique_ptr<ValueBox> output_port_value;
+
+    std::unique_ptr<Parameter> dynamicLimiter;
+    std::unique_ptr<Parameter> prmMaxValue;
+    std::unique_ptr<Parameter> prmMinValue;
 };
 
 }

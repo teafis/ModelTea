@@ -124,6 +124,15 @@ void Model::add_connection(const Connection connection)
         throw ModelException("cannot add a duplicate connection value");
     }
 
+    auto conflict_it = std::find_if(connections.begin(), connections.end(), [&connection](const Connection& c)
+    {
+        return c.get_to_id() == connection.get_to_id() && c.get_to_port() == connection.get_to_port();
+    });
+    if (conflict_it != connections.end())
+    {
+        throw ModelException("cannot add a connection with the same to block and port");
+    }
+
     const BlockInterface* from_block = get_block(connection.get_from_id());
     BlockInterface* to_block = get_block(connection.get_to_id());
 

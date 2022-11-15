@@ -19,6 +19,12 @@ public:
     explicit ParameterDialog(BlockObject* block, QWidget *parent = nullptr);
     ~ParameterDialog();
 
+protected:
+    void reloadParameters();
+
+protected slots:
+    void updateForParameters();
+
 private:
     Ui::ParameterDialog *ui;
     BlockObject* block;

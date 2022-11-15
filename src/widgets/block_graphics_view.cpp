@@ -25,8 +25,6 @@
 
 static const tmdl::stdlib::StandardLibrary BLOCK_LIBRARY;
 
-// TODO - REMOVE!
-#include <iostream>
 
 BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
     QGraphicsView(parent),
@@ -47,10 +45,9 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
 
         if (block != selectedBlock && selectedBlock != nullptr)
         {
-            std::cout << "Deselecting " << selectedBlock->get_block()->get_id() << std::endl;
             selectedBlock->setSelected(false);
             selectedBlock = nullptr;
-            this->update();
+            update();
         }
 
         if (block == nullptr)
@@ -60,10 +57,6 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
 
         selectedBlock = block;
         selectedBlock->setSelected(true);
-
-        std::cout << "Selecting " << selectedBlock->get_block()->get_id() << '\n';
-
-        std::cout << "Mouse: (" << mappedPos.x() << ", " << mappedPos.y() << "), Block: (" << block->pos().x() << ", " << block->pos().y() << ")" << std::endl;
 
         const auto block_port = findBlockIOForMousePress(mappedPos, block);
 
@@ -89,7 +82,8 @@ void BlockGraphicsView::mouseMoveEvent(QMouseEvent* event)
 {
     if (const auto* mouseDragState = dynamic_cast<BlockDragState*>(mouseState.get()); mouseDragState != nullptr)
     {
-        const QPointF newBlockPos = mapToScene(event->pos()) - mouseDragState->getBlock()->boundingRect().center() + mouseDragState->getOffset();
+        const QPointF newBlockPos = mapToScene(
+            event->pos()) - mouseDragState->getBlock()->boundingRect().center() + mouseDragState->getOffset();
         const QPoint newBlockPosInt = snapMousePositionToGrid(newBlockPos.toPoint());
         mouseDragState->getBlock()->setPos(newBlockPosInt);
     }
@@ -99,8 +93,6 @@ void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
 {
     if (auto* portDragState = dynamic_cast<PortDragState*>(mouseState.get()); portDragState != nullptr)
     {
-        std::cout << "Partial Value!" << std::endl;
-
         const auto mappedPos = mapToScene(event->pos());
         BlockObject* block = findBlockForMousePress(mappedPos);
         const auto block_port = findBlockIOForMousePress(mappedPos, block);
@@ -112,8 +104,6 @@ void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
 
         if (portDragState->is_complete())
         {
-            std::cout << "Adding connecting line!" << std::endl;
-
             const tmdl::Connection conn(
                 portDragState->get_output().block->get_block()->get_id(),
                 portDragState->get_output().port_count,
@@ -170,9 +160,43 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
         if (block != nullptr)
         {
             ParameterDialog* dialog = new ParameterDialog(block, this);
+
+            connect(
+                dialog,
+                &QDialog::finished,
+                this,
+                &BlockGraphicsView::parameterDialogClosed);
+
             dialog->show();
         }
     }
+}
+
+void BlockGraphicsView::parameterDialogClosed(int)
+{
+    for (auto ptr : scene()->items())
+    {
+        if (auto c = dynamic_cast<ConnectorObject*>(ptr); c != nullptr)
+        {
+            if (!c->isValidConnection())
+            {
+                model.remove_connection(
+                    c->get_to_block()->get_block()->get_id(),
+                    c->get_to_port());
+                c->deleteLater();
+            }
+        }
+    }
+
+    for (auto ptr : scene()->items())
+    {
+        if (auto b = dynamic_cast<BlockObject*>(ptr); b != nullptr)
+        {
+            emit b->sceneLocationUpdated();
+        }
+    }
+
+    update();
 }
 
 QPoint BlockGraphicsView::snapMousePositionToGrid(const QPoint& input)
@@ -222,7 +246,9 @@ BlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
     return nullptr;
 }
 
-std::optional<BlockObject::PortInformation> BlockGraphicsView::findBlockIOForMousePress(const QPointF& pos, const BlockObject* block)
+std::optional<BlockObject::PortInformation> BlockGraphicsView::findBlockIOForMousePress(
+    const QPointF& pos,
+    const BlockObject* block)
 {
     if (block == nullptr)
     {
@@ -232,7 +258,9 @@ std::optional<BlockObject::PortInformation> BlockGraphicsView::findBlockIOForMou
     return block->get_port_for_pos(pos);
 }
 
-bool BlockGraphicsView::blockBodyContainsMouse(const QPointF& pos, const BlockObject* block)
+bool BlockGraphicsView::blockBodyContainsMouse(
+    const QPointF& pos,
+    const BlockObject* block)
 {
     if (block == nullptr) return false;
     return block->blockRectContainsPoint(pos);

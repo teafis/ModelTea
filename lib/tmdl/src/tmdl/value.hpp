@@ -14,7 +14,7 @@ namespace tmdl
 enum class DataType
 {
     UNKNOWN,
-    DATA_TYPE,
+    SINGLE,
     DOUBLE,
     BOOLEAN,
     INT32,

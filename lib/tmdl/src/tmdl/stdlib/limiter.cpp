@@ -59,11 +59,31 @@ Limiter::Limiter()
 {
     in_port_value = nullptr;
     output_port_value = nullptr;
+
     output_port = std::make_unique<PortValue>(
     PortValue {
         .dtype = DataType::UNKNOWN,
         .ptr = nullptr
     });
+
+    // Setup parameters
+    dynamicLimiter = std::make_unique<Parameter>(
+        "dynamic_limiter",
+        "Use Dynamic Limits",
+        ParameterValue::Type::BOOLEAN,
+        "0");
+
+    prmMaxValue = std::make_unique<Parameter>(
+        "max_value",
+        "Maximum Value",
+        ParameterValue::Type::DOUBLE,
+        "0");
+
+    prmMinValue = std::make_unique<Parameter>(
+        "min_value",
+        "Minimum Value",
+        ParameterValue::Type::DOUBLE,
+        "0");
 }
 
 std::string Limiter::get_name() const
@@ -78,12 +98,32 @@ std::string Limiter::get_description() const
 
 std::vector<Parameter*> Limiter::get_parameters() const
 {
-    return {};
+    if (dynamicLimiter->get_current_value().value.tf)
+    {
+        return {
+            dynamicLimiter.get()
+        };
+    }
+    else
+    {
+        return {
+            dynamicLimiter.get(),
+            prmMinValue.get(),
+            prmMaxValue.get()
+        };
+    }
 }
 
 size_t Limiter::get_num_inputs() const
 {
-    return 1;
+    if (dynamicLimiter->get_current_value().value.tf)
+    {
+        return 3;
+    }
+    else
+    {
+        return 1;
+    }
 }
 
 size_t Limiter::get_num_outputs() const

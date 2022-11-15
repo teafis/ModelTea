@@ -18,16 +18,20 @@ struct ParameterValue
     {
         UNKNOWN = 0,
         BOOLEAN,
+        SINGLE,
         DOUBLE,
         INT32,
-        UINT32
+        UINT32,
+        DATA_TYPE
     };
 
     union {
         bool tf;
+        float f32;
         double f64;
         int32_t i32;
         uint32_t u32;
+        DataType dtype;
     } value{};
 
     Type dtype = Type::UNKNOWN;
@@ -39,7 +43,7 @@ public:
     Parameter(
         const std::string& id,
         const std::string& name,
-        const DataType data_type,
+        const ParameterValue::Type data_type,
         const std::string& value) :
         id(id),
         name(name),
@@ -59,22 +63,34 @@ public:
         return name;
     }
 
-    DataType get_data_type() const
+    ParameterValue::Type get_data_type() const
     {
         return data_type;
     }
 
-    void set_data_type(const DataType new_type)
+    void set_data_type(const ParameterValue::Type new_type)
     {
         data_type = new_type;
     }
 
     void set_value(const std::string& new_value)
     {
+        get_value_for_string(new_value);
         value = new_value;
     }
 
-    ParameterValue get_current_value(const std::string& s) const
+    ParameterValue get_current_value() const
+    {
+        return get_value_for_string(value);
+    }
+
+    std::string get_current_value_string() const
+    {
+        return value;
+    }
+
+protected:
+    ParameterValue get_value_for_string(const std::string& s) const
     {
         ParameterValue data_value{};
 
@@ -82,23 +98,27 @@ public:
         {
             switch (data_type)
             {
-            case DataType::BOOLEAN:
+            case ParameterValue::Type::BOOLEAN:
                 data_value.dtype = ParameterValue::Type::BOOLEAN;
                 data_value.value.tf = std::stoi(s) != 0;
                 break;
-            case DataType::INT32:
+            case ParameterValue::Type::INT32:
                 data_value.dtype = ParameterValue::Type::INT32;
                 data_value.value.i32 = std::stoi(s);
                 break;
-            case DataType::UINT32:
+            case ParameterValue::Type::UINT32:
                 data_value.dtype = ParameterValue::Type::UINT32;
                 data_value.value.u32 = std::stoul(s);
                 break;
-            case DataType::DOUBLE:
+            case ParameterValue::Type::SINGLE:
+                data_value.dtype = ParameterValue::Type::SINGLE;
+                data_value.value.f32 = std::stof(s);
+                break;
+            case ParameterValue::Type::DOUBLE:
                 data_value.dtype = ParameterValue::Type::DOUBLE;
                 data_value.value.f64 = std::stod(s);
                 break;
-            case DataType::DATA_TYPE:
+            case ParameterValue::Type::DATA_TYPE:
             {
                 throw ModelException("not implemented");
             }
@@ -123,7 +143,7 @@ protected:
     const std::string name;
 
     std::string value;
-    DataType data_type;
+    ParameterValue::Type data_type;
 };
 
 }

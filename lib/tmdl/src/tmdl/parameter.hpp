@@ -8,12 +8,15 @@
 #include <tmdl/model_exception.hpp>
 #include <tmdl/value.hpp>
 
+#include <sstream>
+#include <iomanip>
+
 
 namespace tmdl
 {
 
 struct ParameterValue
-{
+{    
     enum class Type
     {
         UNKNOWN = 0,
@@ -35,6 +38,34 @@ struct ParameterValue
     } value{};
 
     Type dtype = Type::UNKNOWN;
+
+    std::string to_string() const
+    {
+        std::ostringstream oss;
+
+        switch (dtype)
+        {
+        case Type::BOOLEAN:
+            oss << (value.tf ? 1 : 0);
+            break;
+        case Type::SINGLE:
+            oss << std::setprecision(20) << value.f32;
+            break;
+        case Type::DOUBLE:
+            oss << std::setprecision(20) << value.f64;
+            break;
+        case Type::INT32:
+            oss << value.i32;
+            break;
+        case Type::UINT32:
+            oss << value.u32;
+            break;
+        default:
+            throw ModelException("unsupported type");
+        }
+
+        return oss.str();
+    }
 };
 
 class Parameter
@@ -43,12 +74,12 @@ public:
     Parameter(
         const std::string& id,
         const std::string& name,
-        const ParameterValue::Type data_type,
+        const ParameterValue::Type dtype,
         const std::string& value) :
         id(id),
         name(name),
         value(value),
-        data_type(data_type)
+        data_type(dtype)
     {
         // Empty Constructor
     }
@@ -75,8 +106,8 @@ public:
 
     void set_value(const std::string& new_value)
     {
-        get_value_for_string(new_value);
-        value = new_value;
+        const auto prm = get_value_for_string(new_value);
+        value = prm.to_string();
     }
 
     ParameterValue get_current_value() const

@@ -12,13 +12,13 @@ ParameterBooleanWidget::ParameterBooleanWidget(
 {
     ui->setupUi(this);
 
-    if (parameter->get_data_type() != tmdl::ParameterValue::Type::BOOLEAN)
+    if (parameter->get_value().dtype != tmdl::ParameterValue::Type::BOOLEAN)
     {
         throw std::runtime_error("parameter must be a boolean type");
     }
 
     ui->lblName->setText(parameter->get_name().c_str());
-    ui->chkSelection->setChecked(parameter->get_current_value().value.tf);
+    ui->chkSelection->setChecked(parameter->get_value().value.tf);
 
     connect(
         ui->chkSelection,
@@ -29,16 +29,8 @@ ParameterBooleanWidget::ParameterBooleanWidget(
 
 void ParameterBooleanWidget::checkedStateChange(int state)
 {
-    if (state == Qt::CheckState::Checked)
-    {
-        parameter->set_value("1");
-    }
-    else if (state == Qt::CheckState::Unchecked)
-    {
-        parameter->set_value("0");
-    }
-
-    ui->chkSelection->setChecked(parameter->get_current_value().value.tf);
+    parameter->get_value().value.tf = state == Qt::CheckState::Checked;
+    ui->chkSelection->setChecked(parameter->get_value().value.tf);
 
     emit parameterUpdated();
 }

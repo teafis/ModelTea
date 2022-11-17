@@ -39,8 +39,6 @@ public slots:
 
     void removeSelectedBlock();
 
-    void parameterDialogClosed(int);
-
 protected:
     BlockObject* findBlockForMousePress(const QPointF& pos);
 

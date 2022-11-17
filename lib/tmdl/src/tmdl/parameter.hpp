@@ -28,16 +28,18 @@ struct ParameterValue
         DATA_TYPE
     };
 
-    union {
+    union Value {
         bool tf;
         float f32;
         double f64;
         int32_t i32;
         uint32_t u32;
         DataType dtype;
-    } value{};
+    };
 
     Type dtype = Type::UNKNOWN;
+
+    Value value{};
 
     std::string to_string() const
     {
@@ -66,87 +68,142 @@ struct ParameterValue
 
         return oss.str();
     }
-};
 
-class Parameter
-{    
-public:
-    Parameter(
-        const std::string& id,
-        const std::string& name,
-        const ParameterValue::Type dtype,
-        const std::string& value) :
-        id(id),
-        name(name),
-        value(value),
-        data_type(dtype)
+    void convert(const Type t)
     {
-        // Empty Constructor
+        if (t == dtype)
+        {
+            return;
+        }
+
+        switch (t)
+        {
+        case Type::BOOLEAN:
+        {
+            switch (dtype)
+            {
+            case Type::SINGLE:
+                value.tf = value.f32 != 0;
+                break;
+            case Type::DOUBLE:
+                value.tf = value.f64 != 0;
+                break;
+            case Type::INT32:
+                value.tf = value.i32 != 0;
+                break;
+            case Type::UINT32:
+                value.tf = value.u32 != 0;
+                break;
+            default:
+                value.tf = false;
+            }
+            break;
+        }
+        case Type::SINGLE:
+        {
+            switch (dtype)
+            {
+            case Type::DOUBLE:
+                value.f32 = static_cast<float>(value.f64);
+                break;
+            case Type::INT32:
+                value.f32 = static_cast<float>(value.i32);
+                break;
+            case Type::UINT32:
+                value.f32 = static_cast<float>(value.u32);
+                break;
+            default:
+                value.f32 = 0.0f;
+            }
+            break;
+        }
+        case Type::DOUBLE:
+        {
+            switch (dtype)
+            {
+            case Type::SINGLE:
+                value.f64 = static_cast<double>(value.f32);
+                break;
+            case Type::INT32:
+                value.f64 = static_cast<double>(value.i32);
+                break;
+            case Type::UINT32:
+                value.f64 = static_cast<double>(value.u32);
+                break;
+            default:
+                value.f64 = 0.0;
+            }
+            break;
+        }
+        case Type::INT32:
+        {
+            switch (dtype)
+            {
+            case Type::SINGLE:
+                value.i32 = static_cast<int32_t>(value.f32);
+                break;
+            case Type::DOUBLE:
+                value.i32 = static_cast<int32_t>(value.f64);
+                break;
+            case Type::UINT32:
+                value.i32 = static_cast<int32_t>(value.u32);
+                break;
+            default:
+                value.i32 = 0;
+            }
+            break;
+        }
+        case Type::UINT32:
+        {
+            switch (dtype)
+            {
+            case Type::SINGLE:
+                value.u32 = static_cast<uint32_t>(value.f32);
+                break;
+            case Type::DOUBLE:
+                value.u32 = static_cast<uint32_t>(value.f64);
+                break;
+            case Type::INT32:
+                value.u32 = static_cast<uint32_t>(value.i32);
+                break;
+            default:
+                value.u32 = 0;
+            }
+            break;
+        }
+        case Type::DATA_TYPE:
+            value.dtype = DataType::UNKNOWN;
+            break;
+
+        default:
+            value = Value{};
+        }
+
+        dtype = t;
     }
 
-    std::string get_id() const
-    {
-        return id;
-    }
-
-    std::string get_name() const
-    {
-        return name;
-    }
-
-    ParameterValue::Type get_data_type() const
-    {
-        return data_type;
-    }
-
-    void set_data_type(const ParameterValue::Type new_type)
-    {
-        data_type = new_type;
-    }
-
-    void set_value(const std::string& new_value)
-    {
-        const auto prm = get_value_for_string(new_value);
-        value = prm.to_string();
-    }
-
-    ParameterValue get_current_value() const
-    {
-        return get_value_for_string(value);
-    }
-
-    std::string get_current_value_string() const
-    {
-        return value;
-    }
-
-protected:
-    ParameterValue get_value_for_string(const std::string& s) const
+    static ParameterValue from_string(const std::string& s, const Type t)
     {
         ParameterValue data_value{};
+        data_value.dtype = t;
 
         try
         {
-            switch (data_type)
+            switch (data_value.dtype)
             {
             case ParameterValue::Type::BOOLEAN:
-                data_value.dtype = ParameterValue::Type::BOOLEAN;
                 data_value.value.tf = std::stoi(s) != 0;
                 break;
             case ParameterValue::Type::INT32:
-                data_value.dtype = ParameterValue::Type::INT32;
                 data_value.value.i32 = std::stoi(s);
                 break;
             case ParameterValue::Type::UINT32:
-                data_value.dtype = ParameterValue::Type::UINT32;
                 data_value.value.u32 = std::stoul(s);
                 break;
             case ParameterValue::Type::SINGLE:
-                data_value.dtype = ParameterValue::Type::SINGLE;
                 data_value.value.f32 = std::stof(s);
                 break;
             case ParameterValue::Type::DOUBLE:
-                data_value.dtype = ParameterValue::Type::DOUBLE;
                 data_value.value.f64 = std::stod(s);
                 break;
             case ParameterValue::Type::DATA_TYPE:
@@ -168,13 +225,47 @@ protected:
 
         return data_value;
     }
+};
+
+class Parameter
+{    
+public:
+    Parameter(
+        const std::string& id,
+        const std::string& name,
+        const ParameterValue value) :
+        id(id),
+        name(name),
+        value(value)
+    {
+        // Empty Constructor
+    }
+
+    std::string get_id() const
+    {
+        return id;
+    }
+
+    std::string get_name() const
+    {
+        return name;
+    }
+
+    ParameterValue& get_value()
+    {
+        return value;
+    }
+
+    const ParameterValue& get_value() const
+    {
+        return value;
+    }
 
 protected:
     const std::string id;
     const std::string name;
 
-    std::string value;
-    ParameterValue::Type data_type;
+    ParameterValue value;
 };
 
 }

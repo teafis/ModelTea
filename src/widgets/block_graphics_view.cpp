@@ -150,6 +150,8 @@ void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
     mouseState = nullptr;
 }
 
+#include <iostream>
+
 void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
 {
     if ((event->buttons() & Qt::LeftButton) == Qt::LeftButton)
@@ -160,43 +162,33 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
         if (block != nullptr)
         {
             ParameterDialog* dialog = new ParameterDialog(block, this);
+            dialog->exec();
 
-            connect(
-                dialog,
-                &QDialog::finished,
-                this,
-                &BlockGraphicsView::parameterDialogClosed);
-
-            dialog->show();
-        }
-    }
-}
-
-void BlockGraphicsView::parameterDialogClosed(int)
-{
-    for (auto ptr : scene()->items())
-    {
-        if (auto c = dynamic_cast<ConnectorObject*>(ptr); c != nullptr)
-        {
-            if (!c->isValidConnection())
+            for (auto ptr : scene()->items())
             {
-                model.remove_connection(
-                    c->get_to_block()->get_block()->get_id(),
-                    c->get_to_port());
-                c->deleteLater();
+                if (auto c = dynamic_cast<ConnectorObject*>(ptr); c != nullptr)
+                {
+                    if (!c->isValidConnection())
+                    {
+                        model.remove_connection(
+                            c->get_to_block()->get_block()->get_id(),
+                            c->get_to_port());
+                        c->deleteLater();
+                    }
+                }
             }
+
+            for (auto ptr : scene()->items())
+            {
+                if (auto b = dynamic_cast<BlockObject*>(ptr); b != nullptr)
+                {
+                    emit b->sceneLocationUpdated();
+                }
+            }
+
+            update();
         }
     }
-
-    for (auto ptr : scene()->items())
-    {
-        if (auto b = dynamic_cast<BlockObject*>(ptr); b != nullptr)
-        {
-            emit b->sceneLocationUpdated();
-        }
-    }
-
-    update();
 }
 
 QPoint BlockGraphicsView::snapMousePositionToGrid(const QPoint& input)

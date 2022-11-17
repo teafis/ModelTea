@@ -32,7 +32,7 @@ void ParameterDialog::reloadParameters()
 
     for (auto prm : block->get_block()->get_parameters())
     {
-        switch (prm->get_data_type())
+        switch (prm->get_value().dtype)
         {
         case tmdl::ParameterValue::Type::BOOLEAN:
         {

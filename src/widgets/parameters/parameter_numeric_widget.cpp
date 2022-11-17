@@ -3,6 +3,9 @@
 #include "parameter_numeric_widget.h"
 #include "ui_parameter_numeric_widget.h"
 
+#include <QMessageBox>
+
+
 ParameterNumericWidget::ParameterNumericWidget(
     tmdl::Parameter* parameter,
     QWidget *parent) :
@@ -12,13 +15,8 @@ ParameterNumericWidget::ParameterNumericWidget(
 {
     ui->setupUi(this);
 
-    if (parameter->get_data_type() != tmdl::ParameterValue::Type::DOUBLE)
-    {
-        throw std::runtime_error("parameter must be a boolean type");
-    }
-
     ui->lblName->setText(parameter->get_name().c_str());
-    ui->textEntry->setText(parameter->get_current_value_string().c_str());
+    ui->textEntry->setText(parameter->get_value().to_string().c_str());
 
     connect(
         ui->textEntry,
@@ -29,7 +27,24 @@ ParameterNumericWidget::ParameterNumericWidget(
 
 void ParameterNumericWidget::textChanged()
 {
-    parameter->set_value(ui->textEntry->text().toStdString());
+    try
+    {
+        const auto value = tmdl::ParameterValue::from_string(
+            ui->textEntry->text().toStdString(),
+            parameter->get_value().dtype);
+
+        parameter->get_value() = value;
+    }
+    catch (const tmdl::ModelException& ex)
+    {
+        auto* msg = new QMessageBox(this);
+        msg->setText(ex.what().c_str());
+        msg->setWindowTitle("Parameter Error");
+        msg->exec();
+        return;
+    }
+
+    ui->textEntry->text() = parameter->get_value().to_string().c_str();
     emit parameterUpdated();
 }
 

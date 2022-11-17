@@ -12,8 +12,8 @@ class LimiterExecutor : public BlockExecutionInterface
 public:
     LimiterExecutor(
         const T* ptr_input,
-        const T val_min,
-        const T val_max,
+        const T* val_min,
+        const T* val_max,
         T* ptr_output) :
         _ptr_input(ptr_input),
         _ptr_output(ptr_output),
@@ -34,13 +34,13 @@ public:
     void step() override
     {
         const T current = *_ptr_input;
-        if (current < _val_min)
+        if (current < *_val_min)
         {
-            *_ptr_output = _val_min;
+            *_ptr_output = *_val_min;
         }
-        else if (current > _val_max)
+        else if (current > *_val_max)
         {
-            *_ptr_output = _val_max;
+            *_ptr_output = *_val_max;
         }
         else
         {
@@ -51,8 +51,8 @@ public:
 protected:
     const T* _ptr_input;
     T* _ptr_output;
-    const T _val_min;
-    const T _val_max;
+    const T* _val_min;
+    const T* _val_max;
 };
 
 Limiter::Limiter()
@@ -70,20 +70,30 @@ Limiter::Limiter()
     dynamicLimiter = std::make_unique<Parameter>(
         "dynamic_limiter",
         "Use Dynamic Limits",
-        ParameterValue::Type::BOOLEAN,
-        "0");
+        ParameterValue
+        {
+            .dtype = ParameterValue::Type::BOOLEAN,
+            .value = ParameterValue::Value
+            {
+                .tf = false
+            }
+        });
 
     prmMaxValue = std::make_unique<Parameter>(
         "max_value",
         "Maximum Value",
-        ParameterValue::Type::DOUBLE,
-        "0");
+        ParameterValue {
+            .dtype = ParameterValue::Type::DOUBLE
+        });
 
     prmMinValue = std::make_unique<Parameter>(
         "min_value",
         "Minimum Value",
-        ParameterValue::Type::DOUBLE,
-        "0");
+        ParameterValue {
+            .dtype = ParameterValue::Type::DOUBLE
+        });
+
+    Limiter::update_block();
 }
 
 std::string Limiter::get_name() const
@@ -98,7 +108,7 @@ std::string Limiter::get_description() const
 
 std::vector<Parameter*> Limiter::get_parameters() const
 {
-    if (dynamicLimiter->get_current_value().value.tf)
+    if (dynamicLimiter->get_value().value.tf)
     {
         return {
             dynamicLimiter.get()
@@ -116,7 +126,7 @@ std::vector<Parameter*> Limiter::get_parameters() const
 
 size_t Limiter::get_num_inputs() const
 {
-    if (dynamicLimiter->get_current_value().value.tf)
+    if (dynamicLimiter->get_value().value.tf)
     {
         return 3;
     }
@@ -153,17 +163,24 @@ bool Limiter::update_block()
         output_port_value = nullptr;
         output_port->ptr = nullptr;
 
+        ParameterValue::Type newPrmType = ParameterValue::Type::DOUBLE;
+
         switch (output_port->dtype)
         {
         case DataType::DOUBLE:
+            newPrmType = ParameterValue::Type::DOUBLE;
             output_port_value = std::make_unique<ValueBoxType<double>>(0.0);
             break;
         case DataType::INT32:
+            newPrmType = ParameterValue::Type::INT32;
             output_port_value = std::make_unique<ValueBoxType<int32_t>>(0);
             break;
         default:
             break;
         }
+
+        prmMinValue->get_value().convert(newPrmType);
+        prmMaxValue->get_value().convert(newPrmType);
 
         if (output_port_value != nullptr)
         {
@@ -216,8 +233,8 @@ std::shared_ptr<BlockExecutionInterface> Limiter::get_execution_interface() cons
     case DataType::DOUBLE:
         return std::make_shared<LimiterExecutor<double>>(
             reinterpret_cast<const double*>(in_port_value->ptr),
-            -10.0,
-            10.0,
+            &prmMinValue->get_value().value.f64,
+            &prmMaxValue->get_value().value.f64,
             reinterpret_cast<double*>(output_port_value->get_ptr_val()));
     default:
         return nullptr;

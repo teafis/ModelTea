@@ -19,7 +19,7 @@ public:
         }
     }
 
-    void step() override
+    void step(const SimState&) override
     {
         if (_input->dtype != _output->dtype)
         {

@@ -46,6 +46,8 @@
     </property>
     <addaction name="actionAdd_Block"/>
     <addaction name="actionRemove_Block"/>
+    <addaction name="actionAdd_SIN"/>
+    <addaction name="actionAdd_Clock"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -58,6 +60,17 @@
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
@@ -93,6 +106,16 @@
     <string>Remove Selected Block</string>
    </property>
   </action>
+  <action name="actionAdd_SIN">
+   <property name="text">
+    <string>Add SIN</string>
+   </property>
+  </action>
+  <action name="actionAdd_Clock">
+   <property name="text">
+    <string>Add Clock</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -102,6 +125,8 @@
    <slots>
     <slot>addTestBlock()</slot>
     <slot>removeSelectedBlock()</slot>
+    <slot>addSinBlock()</slot>
+    <slot>addClockBlock()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -152,6 +177,38 @@
     <hint type="destinationlabel">
      <x>315</x>
      <y>154</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAdd_SIN</sender>
+   <signal>triggered()</signal>
+   <receiver>block_graphics</receiver>
+   <slot>addSinBlock()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>315</x>
+     <y>159</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAdd_Clock</sender>
+   <signal>triggered()</signal>
+   <receiver>block_graphics</receiver>
+   <slot>addClockBlock()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>315</x>
+     <y>159</y>
     </hint>
    </hints>
   </connection>

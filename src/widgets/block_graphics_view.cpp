@@ -213,6 +213,36 @@ void BlockGraphicsView::addTestBlock()
     scene()->addItem(block_obj);
 }
 
+void BlockGraphicsView::addClockBlock()
+{
+    // Initialze the block
+    const auto tmp = BLOCK_LIBRARY.create_block_from_name("clock");
+    model.add_block(tmp);
+
+    // Create the block object
+    BlockObject* block_obj = new BlockObject(tmp);
+    block_obj->setParent(this);
+    block_obj->setPos(mapToScene(QPoint(50, 50)));
+
+    // Add the block to storage/tracking
+    scene()->addItem(block_obj);
+}
+
+void BlockGraphicsView::addSinBlock()
+{
+    // Initialze the block
+    const auto tmp = BLOCK_LIBRARY.create_block_from_name("sin");
+    model.add_block(tmp);
+
+    // Create the block object
+    BlockObject* block_obj = new BlockObject(tmp);
+    block_obj->setParent(this);
+    block_obj->setPos(mapToScene(QPoint(50, 50)));
+
+    // Add the block to storage/tracking
+    scene()->addItem(block_obj);
+}
+
 void BlockGraphicsView::removeSelectedBlock()
 {
     if (selectedBlock != nullptr)

@@ -8,6 +8,7 @@
 #include <memory>
 
 #include <tmdl/model_exception.hpp>
+#include <tmdl/sim_state.hpp>
 #include <tmdl/value.hpp>
 
 
@@ -67,7 +68,7 @@ public:
         // Empty Init
     }
 
-    virtual void step()
+    virtual void step(const SimState&)
     {
         // Empty Step
     }

@@ -7,10 +7,7 @@
 #include <array>
 
 
-namespace tmdl
-{
-
-namespace stdlib
+namespace tmdl::stdlib
 {
 
 class Limiter : public Block
@@ -48,8 +45,6 @@ protected:
     std::unique_ptr<Parameter> prmMaxValue;
     std::unique_ptr<Parameter> prmMinValue;
 };
-
-}
 
 }
 

@@ -31,7 +31,7 @@ public:
     }
 
 public:
-    void step() override
+    void step(const SimState&) override
     {
         const T current = *_ptr_input;
         if (current < *_val_min)
@@ -82,16 +82,12 @@ Limiter::Limiter()
     prmMaxValue = std::make_unique<Parameter>(
         "max_value",
         "Maximum Value",
-        ParameterValue {
-            .dtype = ParameterValue::Type::DOUBLE
-        });
+        ParameterValue{});
 
     prmMinValue = std::make_unique<Parameter>(
         "min_value",
         "Minimum Value",
-        ParameterValue {
-            .dtype = ParameterValue::Type::DOUBLE
-        });
+        ParameterValue{});
 
     Limiter::update_block();
 }
@@ -163,7 +159,7 @@ bool Limiter::update_block()
         output_port_value = nullptr;
         output_port->ptr = nullptr;
 
-        ParameterValue::Type newPrmType = ParameterValue::Type::DOUBLE;
+        ParameterValue::Type newPrmType = ParameterValue::Type::UNKNOWN;
 
         switch (output_port->dtype)
         {
@@ -185,9 +181,12 @@ bool Limiter::update_block()
         if (output_port_value != nullptr)
         {
             output_port->ptr = reinterpret_cast<const void*>(output_port_value.get());
+            return true;
         }
-
-        return true;
+        else
+        {
+            return false;
+        }
     }
     else
     {
@@ -236,7 +235,25 @@ std::shared_ptr<BlockExecutionInterface> Limiter::get_execution_interface() cons
             &prmMinValue->get_value().value.f64,
             &prmMaxValue->get_value().value.f64,
             reinterpret_cast<double*>(output_port_value->get_ptr_val()));
+    case DataType::SINGLE:
+        return std::make_shared<LimiterExecutor<float>>(
+            reinterpret_cast<const float*>(in_port_value->ptr),
+            &prmMinValue->get_value().value.f32,
+            &prmMaxValue->get_value().value.f32,
+            reinterpret_cast<float*>(output_port_value->get_ptr_val()));
+    case DataType::INT32:
+        return std::make_shared<LimiterExecutor<int32_t>>(
+            reinterpret_cast<const int32_t*>(in_port_value->ptr),
+            &prmMinValue->get_value().value.i32,
+            &prmMaxValue->get_value().value.i32,
+            reinterpret_cast<int32_t*>(output_port_value->get_ptr_val()));
+    case DataType::UINT32:
+        return std::make_shared<LimiterExecutor<uint32_t>>(
+            reinterpret_cast<const uint32_t*>(in_port_value->ptr),
+            &prmMinValue->get_value().value.u32,
+            &prmMaxValue->get_value().value.u32,
+            reinterpret_cast<uint32_t*>(output_port_value->get_ptr_val()));
     default:
-        return nullptr;
+        throw ModelException("unable to generate limitor executor");
     }
 }

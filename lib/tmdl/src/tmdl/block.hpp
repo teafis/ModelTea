@@ -24,7 +24,10 @@ public:
 
     virtual std::string get_description() const = 0;
 
-    virtual std::vector<Parameter*> get_parameters() const = 0;
+    virtual std::vector<Parameter*> get_parameters() const
+    {
+        return {};
+    }
 };
 
 }

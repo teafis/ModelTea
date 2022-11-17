@@ -37,6 +37,10 @@ protected:
 public slots:
     void addTestBlock();
 
+    void addClockBlock();
+
+    void addSinBlock();
+
     void removeSelectedBlock();
 
 protected:

@@ -23,11 +23,11 @@ public:
         }
     }
 
-    void step() override
+    void step(const SimState& state) override
     {
         for (const auto& b : blocks)
         {
-            b->step();
+            b->step(state);
         }
     }
 

@@ -5,6 +5,7 @@
 
 #include <tmdl/library.hpp>
 #include <tmdl/stdlib/limiter.hpp>
+#include <tmdl/stdlib/trig.hpp>
 
 #include <tmdl/model_exception.hpp>
 
@@ -35,6 +36,14 @@ public:
         if (name == "limiter")
         {
             return std::make_shared<Limiter>();
+        }
+        else if (name == "cos")
+        {
+            return std::make_shared<TrigCos>();
+        }
+        else if (name == "sin")
+        {
+            return std::make_shared<TrigSin>();
         }
         else
         {

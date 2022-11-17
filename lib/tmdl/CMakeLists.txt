@@ -29,11 +29,13 @@ set(
     src/tmdl/model.cpp
     src/tmdl/model_exception.hpp
     src/tmdl/parameter.hpp
+    src/tmdl/sim_state.hpp
     src/tmdl/value.hpp
     src/tmdl/value.cpp
     src/tmdl/stdlib/stdlib.hpp
     src/tmdl/stdlib/limiter.hpp
     src/tmdl/stdlib/limiter.cpp
+    src/tmdl/stdlib/trig.hpp
 )
 
 # Define the library

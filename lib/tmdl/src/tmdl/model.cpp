@@ -165,7 +165,12 @@ void Model::remove_connection(const size_t to_block, const size_t to_port)
         throw ModelException("connection not found to be able to remove");
     }
 
-    get_block(it->get_to_id())->set_input_port(it->get_to_port(), nullptr);
+    auto* blk = get_block(it->get_to_id());
+    if (it->get_to_port() < blk->get_num_inputs())
+    {
+        blk->set_input_port(it->get_to_port(), nullptr);
+    }
+
     connections.erase(it);
 }
 

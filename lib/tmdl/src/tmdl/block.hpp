@@ -8,10 +8,10 @@
 #include <string>
 #include <vector>
 
-#include <tmdl/block_interface.hpp>
+#include "block_interface.hpp"
 
-#include <tmdl/parameter.hpp>
-#include <tmdl/value.hpp>
+#include "parameter.hpp"
+#include "value.hpp"
 
 
 namespace tmdl
@@ -24,10 +24,7 @@ public:
 
     virtual std::string get_description() const = 0;
 
-    virtual std::vector<Parameter*> get_parameters() const
-    {
-        return {};
-    }
+    virtual std::vector<Parameter*> get_parameters() const;
 };
 
 }

@@ -13,7 +13,7 @@
 
 #include <algorithm>
 
-#include <tmdl/stdlib/stdlib.hpp>
+#include <tmdl/stdlib/tmdl_stdlib.hpp>
 
 #include "blocks/connector_object.h"
 

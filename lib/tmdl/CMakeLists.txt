@@ -19,24 +19,21 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set(
     TEAFIS_MODEL_SOURCES
-    src/tmdl/block.hpp
-    src/tmdl/block_interface.hpp
-    src/tmdl/connection.hpp
-    src/tmdl/io_ports.hpp
-    src/tmdl/io_ports.cpp
+    src/tmdl/block.hpp src/tmdl/block.cpp
+    src/tmdl/block_interface.hpp src/tmdl/block_interface.cpp
+    src/tmdl/connection.hpp src/tmdl/connection.cpp
+    src/tmdl/io_ports.hpp src/tmdl/io_ports.cpp
     src/tmdl/library.hpp
-    src/tmdl/model.hpp
-    src/tmdl/model.cpp
-    src/tmdl/model_exception.hpp
-    src/tmdl/parameter.hpp
+    src/tmdl/model.hpp src/tmdl/model.cpp
+    src/tmdl/model_exception.hpp src/tmdl/model_exception.cpp
+    src/tmdl/parameter.hpp src/tmdl/parameter.cpp
     src/tmdl/sim_state.hpp
     src/tmdl/value.hpp
     src/tmdl/value.cpp
-    src/tmdl/stdlib/stdlib.hpp
-    src/tmdl/stdlib/clock.hpp
-    src/tmdl/stdlib/limiter.hpp
-    src/tmdl/stdlib/limiter.cpp
-    src/tmdl/stdlib/trig.hpp
+    src/tmdl/stdlib/tmdl_stdlib.hpp src/tmdl/stdlib/tmdl_stdlib.cpp
+    src/tmdl/stdlib/clock.hpp src/tmdl/stdlib/clock.cpp
+    src/tmdl/stdlib/limiter.hpp src/tmdl/stdlib/limiter.cpp
+    src/tmdl/stdlib/trig.hpp src/tmdl/stdlib/trig.cpp
 )
 
 # Define the library

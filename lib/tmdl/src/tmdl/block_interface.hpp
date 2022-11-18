@@ -7,9 +7,9 @@
 
 #include <memory>
 
-#include <tmdl/model_exception.hpp>
-#include <tmdl/sim_state.hpp>
-#include <tmdl/value.hpp>
+#include "model_exception.hpp"
+#include "sim_state.hpp"
+#include "value.hpp"
 
 
 namespace tmdl
@@ -20,31 +20,15 @@ class BlockExecutionInterface;
 class BlockInterface
 {
 public:
-    size_t get_id() const
-    {
-        return _id;
-    }
+    size_t get_id() const;
 
-    void set_id(const size_t id)
-    {
-        _id = id;
-    }
+    void set_id(const size_t id);
 
     virtual bool update_block() = 0; // return true if the block updated anything that affects other blocks
 
     virtual size_t get_num_inputs() const = 0;
 
-    virtual bool is_delayed_input(const size_t port) const
-    {
-        if (port < get_num_inputs())
-        {
-            return false;
-        }
-        else
-        {
-            throw ModelException("port number exceeds input port count");
-        }
-    }
+    virtual bool is_delayed_input(const size_t port) const;
 
     virtual size_t get_num_outputs() const = 0;
 
@@ -63,25 +47,13 @@ protected:
 class BlockExecutionInterface
 {
 public:
-    virtual void init()
-    {
-        // Empty Init
-    }
+    virtual void init();
 
-    virtual void step(const SimState&)
-    {
-        // Empty Step
-    }
+    virtual void step(const SimState&);
 
-    virtual void reset()
-    {
-        // Empty Reset
-    }
+    virtual void reset();
 
-    virtual void close()
-    {
-        // Empty Close
-    }
+    virtual void close();
 };
 
 

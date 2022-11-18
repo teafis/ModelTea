@@ -5,6 +5,7 @@
 
 #include "widgets/parameters/parameter_boolean_widget.h"
 #include "widgets/parameters/parameter_numeric_widget.h"
+#include "widgets/parameters/parameter_unknown_widget.h"
 
 
 ParameterDialog::ParameterDialog(
@@ -37,7 +38,6 @@ void ParameterDialog::reloadParameters()
         case tmdl::ParameterValue::Type::BOOLEAN:
         {
             ParameterBooleanWidget* w = new ParameterBooleanWidget(prm, this);
-            w->setParent(this);
             ui->parameterItemLayout->addWidget(w);
             connect(
                 w,
@@ -52,7 +52,6 @@ void ParameterDialog::reloadParameters()
         case tmdl::ParameterValue::Type::UINT32:
         {
             ParameterNumericWidget* w = new ParameterNumericWidget(prm, this);
-            w->setParent(this);
             ui->parameterItemLayout->addWidget(w);
             connect(
                 w,
@@ -62,7 +61,8 @@ void ParameterDialog::reloadParameters()
             break;
         }
         default:
-            // Do nothing...
+            ParameterUnknownWidget* w = new ParameterUnknownWidget(prm, this);
+            ui->parameterItemLayout->addWidget(w);
             break;
         }
     }

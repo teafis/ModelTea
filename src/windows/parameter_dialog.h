@@ -16,7 +16,10 @@ class ParameterDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ParameterDialog(BlockObject* block, QWidget *parent = nullptr);
+    explicit ParameterDialog(
+        BlockObject* block,
+        QWidget *parent = nullptr);
+
     ~ParameterDialog();
 
 protected:

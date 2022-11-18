@@ -20,6 +20,7 @@ public:
     explicit ParameterNumericWidget(
         tmdl::Parameter* parameter,
         QWidget *parent = nullptr);
+
     ~ParameterNumericWidget();
 
 protected slots:

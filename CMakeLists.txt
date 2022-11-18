@@ -50,6 +50,12 @@ target_include_directories(TSim PRIVATE src/)
 target_link_libraries(TSim PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(TSim PRIVATE TeaFIS-Model)
 
+target_compile_options(TSim PRIVATE -fsanitize=address)
+target_link_options(TSim PRIVATE -fsanitize=address)
+
+target_compile_options(TSim PRIVATE -fsanitize=leak)
+target_link_options(TSim PRIVATE -fsanitize=leak)
+
 set_target_properties(TSim PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER org.teafis.tsim
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}

@@ -4,6 +4,7 @@
 #define TF_MODEL_STDLIB_HPP
 
 #include <tmdl/library.hpp>
+#include <tmdl/stdlib/clock.hpp>
 #include <tmdl/stdlib/limiter.hpp>
 #include <tmdl/stdlib/trig.hpp>
 
@@ -44,6 +45,10 @@ public:
         else if (name == "sin")
         {
             return std::make_shared<TrigSin>();
+        }
+        else if (name == "clock")
+        {
+            return std::make_shared<Clock>();
         }
         else
         {

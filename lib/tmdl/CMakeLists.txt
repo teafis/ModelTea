@@ -33,6 +33,7 @@ set(
     src/tmdl/value.hpp
     src/tmdl/value.cpp
     src/tmdl/stdlib/stdlib.hpp
+    src/tmdl/stdlib/clock.hpp
     src/tmdl/stdlib/limiter.hpp
     src/tmdl/stdlib/limiter.cpp
     src/tmdl/stdlib/trig.hpp

@@ -16,97 +16,32 @@ public:
         const BlockObject* from_block,
         const size_t from_port,
         const BlockObject* to_block,
-        const size_t to_port) :
-        from_block(from_block),
-        to_block(to_block),
-        from_port(from_port),
-        to_port(to_port)
-    {
-        if (from_block == nullptr || to_block == nullptr)
-        {
-            throw 1;
-        }
-    }
+        const size_t to_port);
 
     virtual void paint(
         QPainter* painter,
         const QStyleOptionGraphicsItem* option,
-        QWidget* widget = nullptr) override
-    {
-        (void)widget;
-        (void)option;
+        QWidget* widget = nullptr) override;
 
-        painter->setPen(QPen(Qt::black, 3.0));
-        painter->setBrush(Qt::transparent);
+    bool positionOnLine(const QPointF& localCoords) const;
 
-        const auto halfway = (loc_from + loc_to) / 2.0;
+    virtual QRectF boundingRect() const override;
 
-        painter->drawLine(loc_from, QPointF(halfway.x(), loc_from.y()));
-        painter->drawLine(loc_to, QPointF(halfway.x(), loc_to.y()));
-        painter->drawLine(QPointF(halfway.x(), loc_from.y()), QPointF(halfway.x(), loc_to.y()));
-    }
+    bool isValidConnection() const;
 
-    virtual QRectF boundingRect() const override
-    {
-        return QRectF(0.0, 0.0, std::abs(loc_from.x() - loc_to.x()), std::abs(loc_from.y() - loc_to.y()));
-    }
+    const BlockObject* get_from_block() const;
 
-    bool isValidConnection() const
-    {
-        if (from_port >= from_block->getNumPortsForType(BlockObject::PortType::OUTPUT))
-        {
-            return false;
-        }
-        else if (to_port >= to_block->getNumPortsForType(BlockObject::PortType::INPUT))
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
-    }
+    const BlockObject* get_to_block() const;
 
-    const BlockObject* get_from_block() const
-    {
-        return from_block;
-    }
+    size_t get_from_port() const;
 
-    const BlockObject* get_to_block() const
-    {
-        return to_block;
-    }
-
-    size_t get_from_port() const
-    {
-        return from_port;
-    }
-
-    size_t get_to_port() const
-    {
-        return to_port;
-    }
+    size_t get_to_port() const;
 
 public slots:
-    void blockLocationUpdated()
-    {
-        if (!isValidConnection())
-        {
-            return;
-        }
+    void blockLocationUpdated();
 
-        loc_to = to_block->mapToScene(to_block->getInputPortLocation(to_port));
-        loc_from = from_block->mapToScene(from_block->getOutputPortLocation(from_port));
-
-        setVisible(false);
-        setPos(std::min(loc_from.x(), loc_to.x()), std::min(loc_from.y(), loc_to.y()));
-
-        loc_from = mapFromScene(loc_from);
-        loc_to = mapFromScene(loc_to);
-
-        update();
-        setVisible(true);
-    }
+protected:
+    QVector<QPointF> getLinePoints() const;
 
 protected:
     const BlockObject* from_block;

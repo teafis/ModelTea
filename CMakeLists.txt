@@ -29,7 +29,7 @@ set(PROJECT_SOURCESS
     src/widgets/parameters/parameter_numeric_widget.h src/widgets/parameters/parameter_numeric_widget.cpp src/widgets/parameters/parameter_numeric_widget.ui
     src/widgets/parameters/parameter_unknown_widget.h src/widgets/parameters/parameter_unknown_widget.cpp src/widgets/parameters/parameter_unknown_widget.ui
     src/blocks/block_object.h src/blocks/block_object.cpp
-    src/blocks/connector_object.h
+    src/blocks/connector_object.h src/blocks/connector_object.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

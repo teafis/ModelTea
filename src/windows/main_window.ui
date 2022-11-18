@@ -55,8 +55,15 @@
     </property>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuModel">
+    <property name="title">
+     <string>Model</string>
+    </property>
+    <addaction name="actionUpdate"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuBlocks"/>
+   <addaction name="menuModel"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -116,6 +123,11 @@
     <string>Add Clock</string>
    </property>
   </action>
+  <action name="actionUpdate">
+   <property name="text">
+    <string>Update</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -127,6 +139,7 @@
     <slot>removeSelectedBlock()</slot>
     <slot>addSinBlock()</slot>
     <slot>addClockBlock()</slot>
+    <slot>updateModel()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -209,6 +222,22 @@
     <hint type="destinationlabel">
      <x>315</x>
      <y>159</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionUpdate</sender>
+   <signal>triggered()</signal>
+   <receiver>block_graphics</receiver>
+   <slot>updateModel()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>315</x>
+     <y>162</y>
     </hint>
    </hints>
   </connection>

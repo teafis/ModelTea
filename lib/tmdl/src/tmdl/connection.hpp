@@ -29,7 +29,7 @@ public:
 
     size_t get_to_port() const;
 
-    bool operator==(const Connection& other) const;
+    bool operator==(const Connection& other) const = default;
 
 protected:
     size_t from_id;

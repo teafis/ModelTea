@@ -2,6 +2,11 @@
 
 #include "trig.hpp"
 
+tmdl::stdlib::TrigFunction::TrigFunction()
+{
+    input_value = nullptr;
+    output_port = std::make_unique<PortValue>();
+}
 
 size_t tmdl::stdlib::TrigFunction::get_num_inputs() const
 {
@@ -17,10 +22,18 @@ bool tmdl::stdlib::TrigFunction::update_block()
 {
     if (input_value == nullptr)
     {
-        output_port_value = nullptr;
-        return false;
+        if (output_port->dtype != DataType::UNKNOWN)
+        {
+            output_port->dtype = DataType::UNKNOWN;
+            output_port->ptr = nullptr;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
-    else if (output_port == nullptr || input_value->dtype != output_port->dtype)
+    else if (input_value->dtype != output_port->dtype)
     {
         switch (input_value->dtype)
         {
@@ -38,19 +51,41 @@ bool tmdl::stdlib::TrigFunction::update_block()
         {
             output_port->dtype = input_value->dtype;
             output_port->ptr = output_port_value->get_ptr_val();
-            return true;
         }
         else
         {
             output_port->dtype = DataType::UNKNOWN;
             output_port->ptr = nullptr;
-            return false;
         }
+
+        return true;
     }
     else
     {
-        return true;
+        return false;
     }
+}
+
+std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::TrigFunction::has_error() const
+{
+    if (input_value == nullptr)
+    {
+        return std::make_unique<BlockError>(BlockError
+        {
+            .id = get_id(),
+            .message = "input port not set"
+        });
+    }
+    else if (output_port_value == nullptr)
+    {
+        return std::make_unique<BlockError>(BlockError
+        {
+            .id = get_id(),
+            .message = "output port value unable to be determined"
+        });
+    }
+
+    return nullptr;
 }
 
 void tmdl::stdlib::TrigFunction::set_input_port(

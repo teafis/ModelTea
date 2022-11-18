@@ -13,11 +13,15 @@ namespace tmdl::stdlib
 class TrigFunction : public LibraryBlock
 {
 public:
+    TrigFunction();
+
     size_t get_num_inputs() const override;
 
     size_t get_num_outputs() const override;
 
     bool update_block() override;
+
+    std::unique_ptr<const BlockError> has_error() const override;
 
     void set_input_port(
         const size_t port,

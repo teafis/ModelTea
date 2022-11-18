@@ -57,7 +57,7 @@ protected:
 
 Limiter::Limiter()
 {
-    in_port_value = nullptr;
+    input_port_value = nullptr;
     output_port_value = nullptr;
 
     output_port = std::make_unique<PortValue>(
@@ -139,7 +139,7 @@ size_t Limiter::get_num_outputs() const
 
 bool Limiter::update_block()
 {
-    if (in_port_value == nullptr)
+    if (input_port_value == nullptr)
     {
         if (output_port->dtype != DataType::UNKNOWN)
         {
@@ -152,16 +152,15 @@ bool Limiter::update_block()
             return false;
         }
     }
-    else if (in_port_value->dtype != output_port->dtype)
+    else if (input_port_value->dtype != output_port->dtype)
     {
-        output_port->dtype = in_port_value->dtype;
-
         output_port_value = nullptr;
         output_port->ptr = nullptr;
+        output_port->dtype = DataType::UNKNOWN;
 
         ParameterValue::Type newPrmType = ParameterValue::Type::UNKNOWN;
 
-        switch (output_port->dtype)
+        switch (input_port_value->dtype)
         {
         case DataType::DOUBLE:
             newPrmType = ParameterValue::Type::DOUBLE;
@@ -180,18 +179,49 @@ bool Limiter::update_block()
 
         if (output_port_value != nullptr)
         {
-            output_port->ptr = reinterpret_cast<const void*>(output_port_value.get());
-            return true;
+            output_port->dtype = input_port_value->dtype;
+            output_port->ptr = output_port_value->get_ptr_val();
         }
-        else
-        {
-            return false;
-        }
+
+        return true;
     }
     else
     {
         return false;
     }
+}
+
+std::unique_ptr<const BlockError> Limiter::has_error() const
+{
+    if (input_port_value == nullptr)
+    {
+        return std::make_unique<BlockError>(BlockError
+        {
+            .id = get_id(),
+            .message = "input port not set"
+        });
+    }
+    else if (output_port_value == nullptr)
+    {
+        return std::make_unique<BlockError>(BlockError
+        {
+            .id = get_id(),
+            .message = "invalid output value set"
+        });
+    }
+    else if (!dynamicLimiter->get_value().value.tf)
+    {
+        if (prmMaxValue == nullptr || prmMinValue == nullptr)
+        {
+            return std::make_unique<BlockError>(BlockError
+            {
+                .id = get_id(),
+                .message = "min or max value is not able to be set"
+            });
+        }
+    }
+
+    return nullptr;
 }
 
 void Limiter::set_input_port(
@@ -200,7 +230,7 @@ void Limiter::set_input_port(
 {
     if (port < get_num_inputs())
     {
-        in_port_value = value;
+        input_port_value = value;
     }
     else
     {
@@ -222,34 +252,34 @@ const PortValue* Limiter::get_output_port(const size_t port) const
 
 std::shared_ptr<BlockExecutionInterface> Limiter::get_execution_interface() const
 {
-    if (in_port_value == nullptr || output_port_value == nullptr)
+    if (input_port_value == nullptr || output_port_value == nullptr)
     {
         throw ModelException("cannot execute with incomplete input parameters");
     }
 
-    switch (in_port_value->dtype)
+    switch (input_port_value->dtype)
     {
     case DataType::DOUBLE:
         return std::make_shared<LimiterExecutor<double>>(
-            reinterpret_cast<const double*>(in_port_value->ptr),
+            reinterpret_cast<const double*>(input_port_value->ptr),
             &prmMinValue->get_value().value.f64,
             &prmMaxValue->get_value().value.f64,
             reinterpret_cast<double*>(output_port_value->get_ptr_val()));
     case DataType::SINGLE:
         return std::make_shared<LimiterExecutor<float>>(
-            reinterpret_cast<const float*>(in_port_value->ptr),
+            reinterpret_cast<const float*>(input_port_value->ptr),
             &prmMinValue->get_value().value.f32,
             &prmMaxValue->get_value().value.f32,
             reinterpret_cast<float*>(output_port_value->get_ptr_val()));
     case DataType::INT32:
         return std::make_shared<LimiterExecutor<int32_t>>(
-            reinterpret_cast<const int32_t*>(in_port_value->ptr),
+            reinterpret_cast<const int32_t*>(input_port_value->ptr),
             &prmMinValue->get_value().value.i32,
             &prmMaxValue->get_value().value.i32,
             reinterpret_cast<int32_t*>(output_port_value->get_ptr_val()));
     case DataType::UINT32:
         return std::make_shared<LimiterExecutor<uint32_t>>(
-            reinterpret_cast<const uint32_t*>(in_port_value->ptr),
+            reinterpret_cast<const uint32_t*>(input_port_value->ptr),
             &prmMinValue->get_value().value.u32,
             &prmMaxValue->get_value().value.u32,
             reinterpret_cast<uint32_t*>(output_port_value->get_ptr_val()));

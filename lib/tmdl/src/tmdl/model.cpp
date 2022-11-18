@@ -190,6 +190,7 @@ bool Model::update_block()
     bool model_updated = false;
     size_t update_count = 0;
     const size_t UPDATE_LIMIT = blocks.size() * 2;
+
     while (any_updated)
     {
         any_updated = false;
@@ -213,6 +214,20 @@ bool Model::update_block()
     }
 
     return model_updated;
+}
+
+std::unique_ptr<const BlockError> Model::has_error() const
+{
+    for (const auto& b : blocks)
+    {
+        auto blk_error = b.second->has_error();
+        if (blk_error != nullptr)
+        {
+            return blk_error;
+        }
+    }
+
+    return nullptr;
 }
 
 void Model::set_input_port(

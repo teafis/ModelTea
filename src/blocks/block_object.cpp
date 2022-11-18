@@ -65,8 +65,21 @@ void BlockObject::paint(
     {
         painter->setPen(QPen(Qt::black, 1));
     }
-    painter->setBrush(Qt::white);
+
+    const auto err = block->has_error();
+
+    if (err != nullptr)
+    {
+        painter->setBrush(Qt::red);
+        qDebug() << static_cast<int>(err->id) << " - " << err->message.c_str();
+    }
+    else
+    {
+        painter->setBrush(Qt::white);
+    }
     painter->drawRect(blockRect());
+
+    painter->setBrush(Qt::white);
 
     painter->setPen(QPen(Qt::black, 1));
 

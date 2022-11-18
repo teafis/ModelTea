@@ -27,6 +27,8 @@ public:
 
     bool update_block() override;
 
+    std::unique_ptr<const BlockError> has_error() const override;
+
     void set_input_port(
         const size_t port,
         const PortValue* value) override;
@@ -36,7 +38,7 @@ public:
     std::shared_ptr<BlockExecutionInterface> get_execution_interface() const override;
 
 protected:
-    const PortValue* in_port_value;
+    const PortValue* input_port_value;
 
     std::unique_ptr<PortValue> output_port;
     std::unique_ptr<ValueBox> output_port_value;

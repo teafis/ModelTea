@@ -57,7 +57,12 @@ size_t tmdl::stdlib::Clock::get_num_outputs() const
 
 bool tmdl::stdlib::Clock::update_block()
 {
-    return true;
+    return false;
+}
+
+std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::Clock::has_error() const
+{
+    return nullptr;
 }
 
 void tmdl::stdlib::Clock::set_input_port(

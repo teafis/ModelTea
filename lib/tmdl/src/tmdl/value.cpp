@@ -4,3 +4,9 @@
 #include <tmdl/model_exception.hpp>
 
 using namespace tmdl;
+
+void tmdl::PortValue::clear()
+{
+    dtype = DataType::UNKNOWN;
+    ptr = nullptr;
+}

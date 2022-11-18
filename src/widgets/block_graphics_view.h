@@ -43,6 +43,8 @@ public slots:
 
     void removeSelectedBlock();
 
+    void updateModel();
+
 protected:
     BlockObject* findBlockForMousePress(const QPointF& pos);
 

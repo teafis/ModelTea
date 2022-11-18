@@ -37,6 +37,8 @@ public:
 
     bool update_block() override;
 
+    std::unique_ptr<const BlockError> has_error() const override;
+
     void set_input_port(
         const size_t port,
         const PortValue* value) override;

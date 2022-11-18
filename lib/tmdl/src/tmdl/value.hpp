@@ -26,6 +26,8 @@ struct PortValue
     DataType dtype = DataType::UNKNOWN;
     const void* ptr = nullptr;
 
+    void clear();
+
     bool operator==(const PortValue& other) const = default;
 };
 

@@ -6,6 +6,8 @@
 #include <cstdlib>
 
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "model_exception.hpp"
 #include "sim_state.hpp"
@@ -17,6 +19,12 @@ namespace tmdl
 
 class BlockExecutionInterface;
 
+struct BlockError
+{
+    size_t id;
+    std::string message;
+};
+
 class BlockInterface
 {
 public:
@@ -25,6 +33,8 @@ public:
     void set_id(const size_t id);
 
     virtual bool update_block() = 0; // return true if the block updated anything that affects other blocks
+
+    virtual std::unique_ptr<const BlockError> has_error() const = 0; // Return null if no error
 
     virtual size_t get_num_inputs() const = 0;
 

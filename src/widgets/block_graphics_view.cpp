@@ -254,6 +254,21 @@ void BlockGraphicsView::removeSelectedBlock()
     }
 }
 
+void BlockGraphicsView::updateModel()
+{
+    if (model.update_block())
+    {
+        for (auto* item : scene()->items())
+        {
+            auto* block = dynamic_cast<BlockObject*>(item);
+            if (block != nullptr)
+            {
+                block->update();
+            }
+        }
+    }
+}
+
 BlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
 {
     for (auto itm : scene()->items())

@@ -24,7 +24,7 @@ const double HEIGHT_PER_IO = 50;
 const double IO_RADIUS = 5;
 
 
-BlockObject::BlockObject(const std::shared_ptr<tmdl::Block> block) :
+BlockObject::BlockObject(const std::shared_ptr<tmdl::LibraryBlock> block) :
     block(block)
 {
     // Set the provided parent to help with destruction
@@ -237,7 +237,7 @@ bool BlockObject::blockRectContainsPoint(const QPointF& loc) const
     return blockRect().contains(loc - pos());
 }
 
-const tmdl::Block* BlockObject::get_block() const
+const tmdl::LibraryBlock* BlockObject::get_block() const
 {
     return block.get();
 }

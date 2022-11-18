@@ -9,7 +9,7 @@
 #include <vector>
 #include <unordered_map>
 
-#include <tmdl/block.hpp>
+#include <tmdl/library.hpp>
 #include <tmdl/block_interface.hpp>
 #include <tmdl/connection.hpp>
 #include <tmdl/io_ports.hpp>

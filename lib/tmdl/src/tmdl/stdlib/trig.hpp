@@ -3,14 +3,14 @@
 #ifndef TF_MODEL_STDLIB_TRIG_HPP
 #define TF_MODEL_STDLIB_TRIG_HPP
 
-#include <tmdl/block.hpp>
+#include <tmdl/library.hpp>
 
 #include <cmath>
 
 namespace tmdl::stdlib
 {
 
-class TrigFunction : public Block
+class TrigFunction : public LibraryBlock
 {
 public:
     size_t get_num_inputs() const override;

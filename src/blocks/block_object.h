@@ -10,7 +10,7 @@
 #include <optional>
 #include <string>
 
-#include <tmdl/block.hpp>
+#include <tmdl/library.hpp>
 
 
 class BlockObject : public QGraphicsObject
@@ -18,7 +18,7 @@ class BlockObject : public QGraphicsObject
     Q_OBJECT
 
 public:
-    BlockObject(const std::shared_ptr<tmdl::Block> block);
+    BlockObject(const std::shared_ptr<tmdl::LibraryBlock> block);
 
     virtual void paint(
         QPainter* painter,
@@ -29,7 +29,7 @@ public:
 
     bool blockRectContainsPoint(const QPointF& localCoords) const;
 
-    const tmdl::Block* get_block() const;
+    const tmdl::LibraryBlock* get_block() const;
 
     const QPointF getInputPortLocation(const size_t port_num) const;
 
@@ -71,7 +71,7 @@ protected:
     QRectF blockRect() const;
 
 protected:
-    std::shared_ptr<tmdl::Block> block;
+    std::shared_ptr<tmdl::LibraryBlock> block;
 };
 
 #endif // BASE_BLOCK_H

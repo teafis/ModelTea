@@ -3,14 +3,14 @@
 #ifndef TF_MODEL_STDLIB_LIMITER_HPP
 #define TF_MODEL_STDLIB_LIMITER_HPP
 
-#include <tmdl/block.hpp>
+#include <tmdl/library.hpp>
 #include <array>
 
 
 namespace tmdl::stdlib
 {
 
-class Limiter : public Block
+class Limiter : public LibraryBlock
 {
 public:
     Limiter();

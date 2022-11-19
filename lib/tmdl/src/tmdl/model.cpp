@@ -331,8 +331,15 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface() const
             const size_t id = remaining_id_values[i];
             const BlockInterface* block = get_block(id);
 
+            // Add the index if there are no input ports
+            if (block->get_num_inputs() == 0)
+            {
+                index = i;
+                break;
+            }
+
             // Search for each port to see if it is complete
-            for (size_t port = 0; block->get_num_inputs(); ++port)
+            for (size_t port = 0; port < block->get_num_inputs(); ++port)
             {
                 // Find the corresponding connection
                 const auto conn_it = std::find_if(
@@ -348,8 +355,8 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface() const
                     throw ModelException("cannot compute execution order for incomplete input ports");
                 }
 
-                // Skip if the input port is a delayed input, but after the connection
-                // to ensure that we check that all blocks are connected
+                // Skip if the input port is a delayed input, but after need to check
+                // connections to ensure that all blocks are connected
                 if (block->is_delayed_input(port))
                 {
                     continue;

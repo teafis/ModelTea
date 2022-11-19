@@ -45,6 +45,8 @@ public slots:
 
     void updateModel();
 
+    void generateExecutor();
+
 protected:
     BlockObject* findBlockForMousePress(const QPointF& pos);
 

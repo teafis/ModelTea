@@ -269,6 +269,11 @@ void BlockGraphicsView::updateModel()
     }
 }
 
+void BlockGraphicsView::generateExecutor()
+{
+    model.get_execution_interface();
+}
+
 BlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
 {
     for (auto itm : scene()->items())

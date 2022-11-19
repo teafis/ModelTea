@@ -60,11 +60,24 @@
      <string>Model</string>
     </property>
     <addaction name="actionUpdate"/>
+    <addaction name="actionBuild_Executor"/>
+   </widget>
+   <widget class="QMenu" name="menuShow_Plot">
+    <property name="title">
+     <string>Show Plot</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuStep">
+    <property name="title">
+     <string>Step</string>
+    </property>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuBlocks"/>
    <addaction name="menuModel"/>
    <addaction name="menuHelp"/>
+   <addaction name="menuShow_Plot"/>
+   <addaction name="menuStep"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -128,6 +141,11 @@
     <string>Update</string>
    </property>
   </action>
+  <action name="actionBuild_Executor">
+   <property name="text">
+    <string>Build Executor</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -140,6 +158,7 @@
     <slot>addSinBlock()</slot>
     <slot>addClockBlock()</slot>
     <slot>updateModel()</slot>
+    <slot>generateExecutor()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -230,6 +249,22 @@
    <signal>triggered()</signal>
    <receiver>block_graphics</receiver>
    <slot>updateModel()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>315</x>
+     <y>162</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionBuild_Executor</sender>
+   <signal>triggered()</signal>
+   <receiver>block_graphics</receiver>
+   <slot>generateExecutor()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>

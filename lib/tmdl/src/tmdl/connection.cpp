@@ -39,14 +39,3 @@ size_t tmdl::Connection::get_to_port() const
 {
     return to_port;
 }
-
-/*
-bool tmdl::Connection::operator==(const Connection& other) const
-{
-    return
-        from_id == other.from_id &&
-        from_port == other.from_port &&
-        to_id == other.to_id &&
-        to_port == other.to_port;
-}
-*/

@@ -20,11 +20,11 @@ public:
         _val_min(val_min),
         _val_max(val_max)
     {
-        if (ptr_input == nullptr || ptr_output == nullptr)
+        if (ptr_input == nullptr || ptr_output == nullptr || val_min == nullptr || val_max == nullptr)
         {
             throw ModelException("input pointers cannot be null");
         }
-        else if (val_max < val_min)
+        else if (*val_max < *val_min)
         {
             throw ModelException("maximum value must be above the minimum value");
         }

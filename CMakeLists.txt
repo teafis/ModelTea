@@ -13,12 +13,13 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets Charts REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Charts REQUIRED)
 
 set(PROJECT_SOURCESS
     src/main.cpp
     src/windows/main_window.h src/windows/main_window.cpp src/windows/main_window.ui
+    src/windows/plot_window.h src/windows/plot_window.cpp src/windows/plot_window.ui
     src/windows/parameter_dialog.h src/windows/parameter_dialog.cpp src/windows/parameter_dialog.ui
     src/windows/main_window_icon.h src/windows/main_window_icon.cpp
     src/widgets/block_graphics_view.h src/widgets/block_graphics_view.cpp
@@ -56,6 +57,8 @@ target_link_options(TSim PRIVATE -fsanitize=address)
 
 target_compile_options(TSim PRIVATE -fsanitize=leak)
 target_link_options(TSim PRIVATE -fsanitize=leak)
+
+target_link_libraries(TSim PRIVATE Qt::Widgets Qt::Charts)
 
 set_target_properties(TSim PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER org.teafis.tsim

@@ -358,39 +358,44 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
     // Construct the variable list values
     VariableManager variables;
 
-    for (const auto& c : connections.get_connections())
+    for (const auto& bv : blocks)
     {
-        const VariableIdentifier vid {
-            .block_id = c.get_from_id(),
-            .output_port_num = c.get_from_port()
-        };
+        const auto blk = bv.second;
 
-        const PortValue pv = get_block(vid.block_id)->get_output_port(vid.output_port_num);
-
-        std::shared_ptr<ValueBox> value;
-
-        switch (pv.dtype)
+        for (size_t i = 0; i < blk->get_num_outputs(); ++i)
         {
-        case DataType::BOOLEAN:
-            value = std::make_shared<ValueBoxType<bool>>(false);
-            break;
-        case DataType::SINGLE:
-            value = std::make_shared<ValueBoxType<float>>(false);
-            break;
-        case DataType::DOUBLE:
-            value = std::make_shared<ValueBoxType<double>>(false);
-            break;
-        case DataType::INT32:
-            value = std::make_shared<ValueBoxType<int32_t>>(false);
-            break;
-        case DataType::UINT32:
-            value = std::make_shared<ValueBoxType<uint32_t>>(false);
-            break;
-        default:
-            throw ModelException("unable to construct value for type");
-        }
+            const VariableIdentifier vid {
+                .block_id = blk->get_id(),
+                .output_port_num = i
+            };
 
-        variables.add_variable(vid, value);
+            const PortValue pv = get_block(vid.block_id)->get_output_port(vid.output_port_num);
+
+            std::shared_ptr<ValueBox> value;
+
+            switch (pv.dtype)
+            {
+            case DataType::BOOLEAN:
+                value = std::make_shared<ValueBoxType<bool>>(false);
+                break;
+            case DataType::SINGLE:
+                value = std::make_shared<ValueBoxType<float>>(0.0f);
+                break;
+            case DataType::DOUBLE:
+                value = std::make_shared<ValueBoxType<double>>(0.0);
+                break;
+            case DataType::INT32:
+                value = std::make_shared<ValueBoxType<int32_t>>(0);
+                break;
+            case DataType::UINT32:
+                value = std::make_shared<ValueBoxType<uint32_t>>(0);
+                break;
+            default:
+                throw ModelException("unable to construct value for type");
+            }
+
+            variables.add_variable(vid, value);
+        }
     }
 
     // Construct the interface order value

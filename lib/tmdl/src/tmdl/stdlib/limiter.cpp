@@ -130,6 +130,30 @@ bool Limiter::update_block()
 {
     if (input_port.dtype != output_port.dtype)
     {
+        ParameterValue::Type new_dtype = ParameterValue::Type::UNKNOWN;
+
+        switch (input_port.dtype)
+        {
+        case DataType::DOUBLE:
+            new_dtype = ParameterValue::Type::DOUBLE;
+            break;
+        case DataType::SINGLE:
+            new_dtype = ParameterValue::Type::SINGLE;
+            break;
+        case DataType::UINT32:
+            new_dtype = ParameterValue::Type::UINT32;
+            break;
+        case DataType::INT32:
+            new_dtype = ParameterValue::Type::INT32;
+            break;
+        default:
+            break;
+        }
+
+        prmMaxValue->get_value().convert(new_dtype);
+        prmMinValue->get_value().convert(new_dtype);
+
+
         output_port = input_port;
         return true;
     }
@@ -168,13 +192,16 @@ std::unique_ptr<const BlockError> Limiter::has_error() const
     }
     else
     {
-        if (prmMaxValue == nullptr || prmMinValue == nullptr)
+        for (const auto& p : get_parameters())
         {
-            return std::make_unique<BlockError>(BlockError
+            if (p->get_value().dtype == ParameterValue::Type::UNKNOWN)
             {
-                .id = get_id(),
-                .message = "min or max value is not able to be set"
-            });
+                return std::make_unique<BlockError>(BlockError
+                {
+                    .id = get_id(),
+                    .message = "min or max value is not able to be set"
+                });
+            }
         }
     }
 

@@ -61,12 +61,16 @@
     <addaction name="actionModelBuildExecutor"/>
    </widget>
    <widget class="QMenu" name="menuSim">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="title">
      <string>Sim</string>
     </property>
     <addaction name="actionSimStep"/>
     <addaction name="actionSimReset"/>
     <addaction name="actionSimShowPlot"/>
+    <addaction name="actionSimClear"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuBlocks"/>
@@ -161,6 +165,11 @@
     <string>Block Library</string>
    </property>
   </action>
+  <action name="actionSimClear">
+   <property name="text">
+    <string>Clear</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -175,6 +184,7 @@
     <slot>updateModel()</slot>
     <slot>generateExecutor()</slot>
     <slot>showLibrary()</slot>
+    <slot>clearExecutor()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -213,10 +223,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionBlockRemove</sender>
+   <sender>actionModelBuildExecutor</sender>
    <signal>triggered()</signal>
-   <receiver>block_graphics</receiver>
-   <slot>removeSelectedBlock()</slot>
+   <receiver>MainWindow</receiver>
+   <slot>update_model_pressed()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -260,8 +270,41 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionSimClear</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>clear_sim_pressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>181</x>
+     <y>76</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>315</x>
+     <y>154</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSimClear</sender>
+   <signal>triggered()</signal>
+   <receiver>block_graphics</receiver>
+   <slot>clearExecutor()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>315</x>
+     <y>162</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
-  <slot>button_press_listener()</slot>
+  <slot>update_model_pressed()</slot>
+  <slot>clear_sim_pressed()</slot>
  </slots>
 </ui>

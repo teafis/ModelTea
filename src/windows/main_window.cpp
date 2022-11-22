@@ -27,9 +27,18 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 }
 
-void MainWindow::button_press_listener()
+void MainWindow::update_model_pressed()
 {
-    qDebug() << "Button Pressed!";
+    ui->menuModel->setEnabled(false);
+    ui->menuSim->setEnabled(true);
+    ui->menuBlocks->setEnabled(false);
+}
+
+void MainWindow::clear_sim_pressed()
+{
+    ui->menuModel->setEnabled(true);
+    ui->menuSim->setEnabled(false);
+    ui->menuBlocks->setEnabled(true);
 }
 
 MainWindow::~MainWindow()

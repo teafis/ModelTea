@@ -35,17 +35,13 @@ protected:
     virtual QPoint snapMousePositionToGrid(const QPoint& input);
 
 public slots:
-    void addTestBlock();
-
-    void addClockBlock();
-
-    void addSinBlock();
-
     void removeSelectedBlock();
 
     void updateModel();
 
     void generateExecutor();
+
+    void clearExecutor();
 
     void showLibrary();
 
@@ -68,6 +64,7 @@ protected:
     tmdl::Model model;
 
     std::shared_ptr<tmdl::LibraryBase> library;
+    std::shared_ptr<tmdl::BlockExecutionInterface> executor;
 };
 
 #endif // BLOCKGRAPHICSWIDGET_H

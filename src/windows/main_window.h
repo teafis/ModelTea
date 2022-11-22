@@ -18,7 +18,9 @@ public:
     ~MainWindow();
 
 public slots:
-    void button_press_listener();
+    void update_model_pressed();
+
+    void clear_sim_pressed();
 
 private:
     Ui::MainWindow *ui;

@@ -8,6 +8,7 @@
 #include <QDebug>
 
 #include <QTextStream>
+#include <QMessageBox>
 
 #include <QMouseEvent>
 
@@ -38,6 +39,11 @@ BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
 
 void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
 {
+    if (executor != nullptr)
+    {
+        return;
+    }
+
     // Determine if a block is under the mouse press event
     if ((event->buttons() & Qt::LeftButton) == Qt::LeftButton)
     {
@@ -81,6 +87,11 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
 
 void BlockGraphicsView::mouseMoveEvent(QMouseEvent* event)
 {
+    if (executor != nullptr)
+    {
+        return;
+    }
+
     if (const auto* mouseDragState = dynamic_cast<BlockDragState*>(mouseState.get()); mouseDragState != nullptr)
     {
         const QPointF newBlockPos = mapToScene(
@@ -92,6 +103,11 @@ void BlockGraphicsView::mouseMoveEvent(QMouseEvent* event)
 
 void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
 {
+    if (executor != nullptr)
+    {
+        return;
+    }
+
     if (auto* portDragState = dynamic_cast<PortDragState*>(mouseState.get()); portDragState != nullptr)
     {
         const auto mappedPos = mapToScene(event->pos());
@@ -151,10 +167,13 @@ void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
     mouseState = nullptr;
 }
 
-#include <iostream>
-
 void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
 {
+    if (executor != nullptr)
+    {
+        return;
+    }
+
     if ((event->buttons() & Qt::LeftButton) == Qt::LeftButton)
     {
         const auto mappedPos = mapToScene(event->pos());
@@ -199,53 +218,13 @@ QPoint BlockGraphicsView::snapMousePositionToGrid(const QPoint& input)
         input.y() % 10);
 }
 
-void BlockGraphicsView::addTestBlock()
-{
-    // Initialze the block
-    const auto tmp = library->create_block_from_name("limiter");
-    model.add_block(tmp);
-
-    // Create the block object
-    BlockObject* block_obj = new BlockObject(tmp);
-    block_obj->setParent(this);
-    block_obj->setPos(mapToScene(QPoint(50, 50)));
-
-    // Add the block to storage/tracking
-    scene()->addItem(block_obj);
-}
-
-void BlockGraphicsView::addClockBlock()
-{
-    // Initialze the block
-    const auto tmp = library->create_block_from_name("clock");
-    model.add_block(tmp);
-
-    // Create the block object
-    BlockObject* block_obj = new BlockObject(tmp);
-    block_obj->setParent(this);
-    block_obj->setPos(mapToScene(QPoint(50, 50)));
-
-    // Add the block to storage/tracking
-    scene()->addItem(block_obj);
-}
-
-void BlockGraphicsView::addSinBlock()
-{
-    // Initialze the block
-    const auto tmp = library->create_block_from_name("sin");
-    model.add_block(tmp);
-
-    // Create the block object
-    BlockObject* block_obj = new BlockObject(tmp);
-    block_obj->setParent(this);
-    block_obj->setPos(mapToScene(QPoint(50, 50)));
-
-    // Add the block to storage/tracking
-    scene()->addItem(block_obj);
-}
-
 void BlockGraphicsView::removeSelectedBlock()
 {
+    if (executor != nullptr)
+    {
+        return;
+    }
+
     if (selectedBlock != nullptr)
     {
         model.remove_block(selectedBlock->get_block()->get_id());
@@ -257,6 +236,11 @@ void BlockGraphicsView::removeSelectedBlock()
 
 void BlockGraphicsView::updateModel()
 {
+    if (executor != nullptr)
+    {
+        return;
+    }
+
     if (model.update_block())
     {
         for (auto* item : scene()->items())
@@ -275,9 +259,36 @@ void BlockGraphicsView::generateExecutor()
     tmdl::ConnectionManager connections;
     tmdl::VariableManager manager;
 
-    model.get_execution_interface(
+    try
+    {
+    executor = model.get_execution_interface(
         connections,
         manager);
+    }
+    catch (const tmdl::ModelException& ex)
+    {
+        auto* msg = new QMessageBox(this);
+        msg->setText(ex.what().c_str());
+        msg->setWindowTitle("Parameter Error");
+        msg->exec();
+
+        executor = nullptr;
+        return;
+    }
+
+    for (auto* c : children())
+    {
+        auto* dialog = dynamic_cast<BlockLibrary*>(c);
+        if (dialog != nullptr)
+        {
+            dialog->close();
+        }
+    }
+}
+
+void BlockGraphicsView::clearExecutor()
+{
+    executor = nullptr;
 }
 
 void BlockGraphicsView::showLibrary()
@@ -296,6 +307,11 @@ void BlockGraphicsView::showLibrary()
 
 void BlockGraphicsView::addBlock(QString s)
 {
+    if (executor != nullptr)
+    {
+        return;
+    }
+
     // Initialze the block
     const auto tmp = library->create_block_from_name(s.toStdString());
     model.add_block(tmp);

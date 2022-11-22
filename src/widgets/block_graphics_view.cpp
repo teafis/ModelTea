@@ -21,9 +21,7 @@
 #include "state/port_drag_state.h"
 
 #include "windows/parameter_dialog.h"
-
-
-static const tmdl::stdlib::StandardLibrary BLOCK_LIBRARY;
+#include "windows/block_library.h"
 
 
 BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
@@ -33,6 +31,9 @@ BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
     // Set the scene
     setScene(new QGraphicsScene(this));
     setAlignment(Qt::AlignTop | Qt::AlignLeft);
+
+    // Set the library
+    library = std::make_shared<tmdl::stdlib::StandardLibrary>();
 }
 
 void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
@@ -201,7 +202,7 @@ QPoint BlockGraphicsView::snapMousePositionToGrid(const QPoint& input)
 void BlockGraphicsView::addTestBlock()
 {
     // Initialze the block
-    const auto tmp = BLOCK_LIBRARY.create_block_from_name("limiter");
+    const auto tmp = library->create_block_from_name("limiter");
     model.add_block(tmp);
 
     // Create the block object
@@ -216,7 +217,7 @@ void BlockGraphicsView::addTestBlock()
 void BlockGraphicsView::addClockBlock()
 {
     // Initialze the block
-    const auto tmp = BLOCK_LIBRARY.create_block_from_name("clock");
+    const auto tmp = library->create_block_from_name("clock");
     model.add_block(tmp);
 
     // Create the block object
@@ -231,7 +232,7 @@ void BlockGraphicsView::addClockBlock()
 void BlockGraphicsView::addSinBlock()
 {
     // Initialze the block
-    const auto tmp = BLOCK_LIBRARY.create_block_from_name("sin");
+    const auto tmp = library->create_block_from_name("sin");
     model.add_block(tmp);
 
     // Create the block object
@@ -271,7 +272,41 @@ void BlockGraphicsView::updateModel()
 
 void BlockGraphicsView::generateExecutor()
 {
-    model.get_execution_interface();
+    tmdl::ConnectionManager connections;
+    tmdl::VariableManager manager;
+
+    model.get_execution_interface(
+        connections,
+        manager);
+}
+
+void BlockGraphicsView::showLibrary()
+{
+    BlockLibrary* lib = new BlockLibrary(this);
+    lib->set_library(library);
+
+    connect(
+        lib,
+        &BlockLibrary::blockSelected,
+        this,
+        &BlockGraphicsView::addBlock);
+
+    lib->show();
+}
+
+void BlockGraphicsView::addBlock(QString s)
+{
+    // Initialze the block
+    const auto tmp = library->create_block_from_name(s.toStdString());
+    model.add_block(tmp);
+
+    // Create the block object
+    BlockObject* block_obj = new BlockObject(tmp);
+    block_obj->setParent(this);
+    block_obj->setPos(mapToScene(QPoint(50, 50)));
+
+    // Add the block to storage/tracking
+    scene()->addItem(block_obj);
 }
 
 BlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)

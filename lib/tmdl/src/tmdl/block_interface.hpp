@@ -9,9 +9,11 @@
 #include <string>
 #include <vector>
 
-#include "model_exception.hpp"
 #include "sim_state.hpp"
 #include "value.hpp"
+
+#include "connection_manager.hpp"
+#include "variable_manager.hpp"
 
 
 namespace tmdl
@@ -44,11 +46,13 @@ public:
 
     virtual void set_input_port(
         const size_t port,
-        const PortValue* value) = 0;
+        const PortValue value) = 0;
 
-    virtual const PortValue* get_output_port(const size_t port) const = 0;
+    virtual PortValue get_output_port(const size_t port) const = 0;
 
-    virtual std::shared_ptr<BlockExecutionInterface> get_execution_interface() const = 0;
+    virtual std::shared_ptr<BlockExecutionInterface> get_execution_interface(
+        const ConnectionManager& connections,
+        const VariableManager& manager) const = 0;
 
 protected:
     size_t _id = 0;

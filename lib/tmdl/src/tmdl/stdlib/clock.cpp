@@ -6,8 +6,8 @@ class ClockExecutor : public tmdl::BlockExecutionInterface
 {
 public:
     ClockExecutor(
-        double* ptr_output) :
-        _ptr_output(ptr_output)
+        std::shared_ptr<tmdl::ValueBoxType<double>> ptr_output) :
+        output_value(ptr_output)
     {
         if (ptr_output == nullptr)
         {
@@ -18,21 +18,20 @@ public:
 public:
     void step(const tmdl::SimState& s) override
     {
-        *_ptr_output = s.time;
+        output_value->value = s.time;
     }
 
 protected:
-    double* _ptr_output;
+    std::shared_ptr<tmdl::ValueBoxType<double>> output_value;
 };
 
 
 tmdl::stdlib::Clock::Clock()
 {
-    output_port_value = std::make_unique<ValueBoxType<double>>(0.0);
-
-    output_port = std::make_unique<PortValue>();
-    output_port->dtype = DataType::DOUBLE;
-    output_port->ptr = output_port_value->get_ptr_val();
+    output_port = PortValue
+    {
+        .dtype = DataType::DOUBLE
+    };
 }
 
 std::string tmdl::stdlib::Clock::get_name() const
@@ -67,16 +66,16 @@ std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::Clock::has_error() const
 
 void tmdl::stdlib::Clock::set_input_port(
     const size_t,
-    const PortValue*)
+    const PortValue)
 {
     throw ModelException("no input ports for clock");
 }
 
-const tmdl::PortValue* tmdl::stdlib::Clock::get_output_port(const size_t port) const
+tmdl::PortValue tmdl::stdlib::Clock::get_output_port(const size_t port) const
 {
     if (port == 0)
     {
-        return output_port.get();
+        return output_port;
     }
     else
     {
@@ -84,7 +83,16 @@ const tmdl::PortValue* tmdl::stdlib::Clock::get_output_port(const size_t port) c
     }
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Clock::get_execution_interface() const
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Clock::get_execution_interface(
+    const ConnectionManager& /* connections */,
+    const VariableManager& manager) const
 {
-    return std::make_shared<ClockExecutor>(reinterpret_cast<double*>(output_port_value->get_ptr_val()));
+    VariableIdentifier vid = {
+        .block_id = get_id(),
+        .output_port_num = 0
+    };
+
+    auto ptr = std::dynamic_pointer_cast<ValueBoxType<double>>(manager.get_ptr(vid));
+
+    return std::make_shared<ClockExecutor>(ptr);
 }

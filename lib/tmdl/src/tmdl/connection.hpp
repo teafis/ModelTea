@@ -5,8 +5,6 @@
 
 #include <cstdlib>
 
-#include "value.hpp"
-
 namespace tmdl
 {
 

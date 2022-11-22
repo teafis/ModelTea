@@ -3,7 +3,7 @@
 #ifndef TF_MODEL_STDLIB_CLOCK_HPP
 #define TF_MODEL_STDLIB_CLOCK_HPP
 
-#include <tmdl/library.hpp>
+#include "../library.hpp"
 
 namespace tmdl::stdlib
 {
@@ -27,15 +27,16 @@ public:
 
     void set_input_port(
         const size_t,
-        const PortValue*) override;
+        const PortValue) override;
 
-    const PortValue* get_output_port(const size_t port) const override;
+    PortValue get_output_port(const size_t port) const override;
 
-    std::shared_ptr<BlockExecutionInterface> get_execution_interface() const override;
+    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
+        const ConnectionManager& connections,
+        const VariableManager& manager) const override;
 
 protected:
-    std::unique_ptr<PortValue> output_port;
-    std::unique_ptr<ValueBox> output_port_value;
+    PortValue output_port;
 };
 
 }

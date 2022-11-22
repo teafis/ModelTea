@@ -11,7 +11,7 @@
 
 #include <tmdl/library.hpp>
 #include <tmdl/block_interface.hpp>
-#include <tmdl/connection.hpp>
+#include <tmdl/connection_manager.hpp>
 #include <tmdl/io_ports.hpp>
 #include <tmdl/model_exception.hpp>
 
@@ -41,11 +41,13 @@ public:
 
     void set_input_port(
         const size_t port,
-        const PortValue* value) override;
+        const PortValue value) override;
 
-    const PortValue* get_output_port(const size_t port) const override;
+    PortValue get_output_port(const size_t port) const override;
 
-    std::shared_ptr<BlockExecutionInterface> get_execution_interface() const override;
+    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
+        const ConnectionManager& connections,
+        const VariableManager& manager) const override;
 
 protected:
     size_t get_next_id() const;
@@ -54,7 +56,7 @@ protected:
 
 protected:
     std::unordered_map<size_t, std::shared_ptr<BlockInterface>> blocks;
-    std::vector<Connection> connections;
+    ConnectionManager connections;
     std::vector<size_t> input_ids;
     std::vector<size_t> output_ids;
 };

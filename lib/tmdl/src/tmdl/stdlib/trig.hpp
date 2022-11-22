@@ -25,15 +25,13 @@ public:
 
     void set_input_port(
         const size_t port,
-        const PortValue* value) override;
+        const PortValue value) override;
 
-    const PortValue* get_output_port(const size_t port) const override;
+    PortValue get_output_port(const size_t port) const override;
 
 protected:
-    const PortValue* input_value;
-
-    std::unique_ptr<PortValue> output_port;
-    std::unique_ptr<ValueBox> output_port_value;
+    PortValue input_port;
+    PortValue output_port;
 };
 
 class TrigSin : public TrigFunction
@@ -43,7 +41,9 @@ public:
 
     std::string get_description() const override;
 
-    std::shared_ptr<BlockExecutionInterface> get_execution_interface() const override;
+    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
+        const ConnectionManager& connections,
+        const VariableManager& manager) const override;
 };
 
 class TrigCos : public TrigFunction
@@ -53,7 +53,9 @@ public:
 
     std::string get_description() const override;
 
-    std::shared_ptr<BlockExecutionInterface> get_execution_interface() const override;
+    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
+        const ConnectionManager& connections,
+        const VariableManager& manager) const override;
 };
 
 }

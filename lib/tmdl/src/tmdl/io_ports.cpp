@@ -4,34 +4,6 @@
 
 using namespace tmdl;
 
-class PassthroughExecutor : public BlockExecutionInterface
-{
-public:
-    PassthroughExecutor(
-        const PortValue* input_port,
-        PortValue* output_port) :
-        _input(input_port),
-        _output(output_port)
-    {
-        if (input_port == nullptr || output_port == nullptr || *input_port != *output_port)
-        {
-            throw ModelException("Invalid input/output ports provided");
-        }
-    }
-
-    void step(const SimState&) override
-    {
-        if (_input->dtype != _output->dtype)
-        {
-            throw ModelException("passthrough datatype change at inopportune moment");
-        }
-    }
-
-protected:
-    const PortValue* _input;
-    PortValue* _output;
-};
-
 /* ========== INPUT PORT ========== */
 
 size_t InputPort::get_num_inputs() const
@@ -46,16 +18,16 @@ size_t InputPort::get_num_outputs() const
 
 void InputPort::set_input_port(
     const size_t,
-    const PortValue*)
+    const PortValue)
 {
     throw ModelException("cannot set input port value");
 }
 
-const PortValue* InputPort::get_output_port(const size_t port) const
+PortValue InputPort::get_output_port(const size_t port) const
 {
     if (port == 0)
     {
-        return &_port;
+        return _port;
     }
     else
     {
@@ -65,34 +37,7 @@ const PortValue* InputPort::get_output_port(const size_t port) const
 
 bool InputPort::update_block()
 {
-    if (_input_port == nullptr)
-    {
-        if (_port.dtype != DataType::UNKNOWN)
-        {
-            _port.dtype = DataType::UNKNOWN;
-            _port.ptr = nullptr;
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    else if (_port != *_input_port)
-    {
-        _port.dtype = _input_port->dtype;
-        _port.ptr = _input_port->ptr;
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-void InputPort::set_input_value(const PortValue* value)
-{
-    _input_port = value;
+    return false;
 }
 
 /*
@@ -101,6 +46,11 @@ BlockExecutionInterface* InputPort::get_executor() const
     return _executor.get();
 }
 */
+
+void InputPort::set_input_value(const PortValue value)
+{
+    _port = value;
+}
 
 /* ========== OUTPUT PORT ========== */
 
@@ -116,7 +66,7 @@ size_t OutputPort::get_num_outputs() const
 
 void OutputPort::set_input_port(
     const size_t port,
-    const PortValue* value)
+    const PortValue value)
 {
     if (port == 0)
     {
@@ -128,7 +78,7 @@ void OutputPort::set_input_port(
     }
 }
 
-const PortValue* OutputPort::get_output_port(const size_t /* port */) const
+PortValue OutputPort::get_output_port(const size_t /* port */) const
 {
     throw ModelException("cannot get input port value");
 }
@@ -145,7 +95,7 @@ BlockExecutionInterface* OutputPort::get_executor() const
 }
 */
 
-const PortValue* OutputPort::get_output_value() const
+PortValue OutputPort::get_output_value() const
 {
     return _port;
 }

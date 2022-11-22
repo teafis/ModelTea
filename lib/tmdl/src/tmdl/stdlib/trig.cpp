@@ -4,8 +4,8 @@
 
 tmdl::stdlib::TrigFunction::TrigFunction()
 {
-    input_value = nullptr;
-    output_port = std::make_unique<PortValue>();
+    input_port = PortValue{};
+    output_port = PortValue{};
 }
 
 size_t tmdl::stdlib::TrigFunction::get_num_inputs() const
@@ -20,44 +20,9 @@ size_t tmdl::stdlib::TrigFunction::get_num_outputs() const
 
 bool tmdl::stdlib::TrigFunction::update_block()
 {
-    if (input_value == nullptr)
+    if (input_port.dtype != output_port.dtype)
     {
-        if (output_port->dtype != DataType::UNKNOWN)
-        {
-            output_port->dtype = DataType::UNKNOWN;
-            output_port->ptr = nullptr;
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    else if (input_value->dtype != output_port->dtype)
-    {
-        switch (input_value->dtype)
-        {
-        case DataType::DOUBLE:
-            output_port_value = std::make_unique<ValueBoxType<double>>(0.0);
-            break;
-        case DataType::SINGLE:
-            output_port_value = std::make_unique<ValueBoxType<float>>(0.0);
-            break;
-        default:
-            output_port_value = nullptr;
-        }
-
-        if (output_port_value)
-        {
-            output_port->dtype = input_value->dtype;
-            output_port->ptr = output_port_value->get_ptr_val();
-        }
-        else
-        {
-            output_port->dtype = DataType::UNKNOWN;
-            output_port->ptr = nullptr;
-        }
-
+        output_port = input_port;
         return true;
     }
     else
@@ -68,20 +33,20 @@ bool tmdl::stdlib::TrigFunction::update_block()
 
 std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::TrigFunction::has_error() const
 {
-    if (input_value == nullptr)
+    if (input_port.dtype != output_port.dtype)
     {
         return std::make_unique<BlockError>(BlockError
         {
             .id = get_id(),
-            .message = "input port not set"
+            .message = "mismatch in input and output types"
         });
     }
-    else if (output_port_value == nullptr)
+    else if (input_port.dtype != DataType::DOUBLE && input_port.dtype != DataType::SINGLE)
     {
         return std::make_unique<BlockError>(BlockError
         {
             .id = get_id(),
-            .message = "output port value unable to be determined"
+            .message = "invalid input port type provided"
         });
     }
 
@@ -90,11 +55,11 @@ std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::TrigFunction::has_error() 
 
 void tmdl::stdlib::TrigFunction::set_input_port(
     const size_t port,
-    const PortValue* value)
+    const PortValue value)
 {
     if (port == 0)
     {
-        input_value = value;
+        input_port = value;
     }
     else
     {
@@ -102,11 +67,11 @@ void tmdl::stdlib::TrigFunction::set_input_port(
     }
 }
 
-const tmdl::PortValue* tmdl::stdlib::TrigFunction::get_output_port(const size_t port) const
+tmdl::PortValue tmdl::stdlib::TrigFunction::get_output_port(const size_t port) const
 {
     if (port == 0)
     {
-        return output_port.get();
+        return output_port;
     }
     else
     {
@@ -119,12 +84,12 @@ class TrigExecutor : public tmdl::BlockExecutionInterface
 {
 public:
     TrigExecutor(
-        const T* ptr_input,
-        T* ptr_output) :
-        _ptr_input(ptr_input),
-        _ptr_output(ptr_output)
+        std::shared_ptr<const tmdl::ValueBox> ptr_input,
+        std::shared_ptr<tmdl::ValueBox> ptr_output) :
+        _ptr_input(std::dynamic_pointer_cast<const tmdl::ValueBoxType<T>>(ptr_input)),
+        _ptr_output(std::dynamic_pointer_cast<tmdl::ValueBoxType<T>>(ptr_output))
     {
-        if (ptr_input == nullptr || ptr_output == nullptr)
+        if (_ptr_input == nullptr || _ptr_output == nullptr)
         {
             throw tmdl::ModelException("input pointers cannot be null");
         }
@@ -133,12 +98,12 @@ public:
 public:
     void step(const tmdl::SimState&) override
     {
-        *_ptr_output = FNC(*_ptr_input);
+        _ptr_output->value = FNC(_ptr_input->value);
     }
 
 protected:
-    const T* _ptr_input;
-    T* _ptr_output;
+    const std::shared_ptr<const tmdl::ValueBoxType<T>> _ptr_input;
+    std::shared_ptr<tmdl::ValueBoxType<T>> _ptr_output;
 };
 
 std::string tmdl::stdlib::TrigSin::get_name() const
@@ -151,23 +116,32 @@ std::string tmdl::stdlib::TrigSin::get_description() const
     return "computes the sin of the input parameter";
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::TrigSin::get_execution_interface() const
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::TrigSin::get_execution_interface(
+    const ConnectionManager& connections,
+    const VariableManager& manager) const
 {
-    if (input_value == nullptr || output_port_value == nullptr)
+    if (has_error() != nullptr)
     {
         throw ModelException("cannot execute with incomplete input parameters");
     }
 
-    switch (input_value->dtype)
+    const auto inputValue = manager.get_ptr(connections.get_connection_to(get_id(), 0));
+    const auto outputValue = manager.get_ptr(VariableIdentifier
+    {
+        .block_id = get_id(),
+        .output_port_num = 0
+    });
+
+    switch (input_port.dtype)
     {
     case DataType::DOUBLE:
         return std::make_shared<TrigExecutor<double, std::sin>>(
-            reinterpret_cast<const double*>(input_value->ptr),
-            reinterpret_cast<double*>(output_port_value->get_ptr_val()));
+            inputValue,
+            outputValue);
     case DataType::SINGLE:
         return std::make_shared<TrigExecutor<float, std::sin>>(
-            reinterpret_cast<const float*>(input_value->ptr),
-            reinterpret_cast<float*>(output_port_value->get_ptr_val()));
+            inputValue,
+            outputValue);
     default:
         throw ModelException("unable to generate limitor executor");
     }
@@ -183,23 +157,32 @@ std::string tmdl::stdlib::TrigCos::get_description() const
     return "computes the cos of the input parameter";
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::TrigCos::get_execution_interface() const
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::TrigCos::get_execution_interface(
+    const ConnectionManager& connections,
+    const VariableManager& manager) const
 {
-    if (input_value == nullptr || output_port_value == nullptr)
+    if (has_error() != nullptr)
     {
         throw ModelException("cannot execute with incomplete input parameters");
     }
 
-    switch (input_value->dtype)
+    const auto inputValue = manager.get_ptr(connections.get_connection_to(get_id(), 0));
+    const auto outputValue = manager.get_ptr(VariableIdentifier
+    {
+        .block_id = get_id(),
+        .output_port_num = 0
+    });
+
+    switch (input_port.dtype)
     {
     case DataType::DOUBLE:
         return std::make_shared<TrigExecutor<double, std::cos>>(
-            reinterpret_cast<const double*>(input_value->ptr),
-            reinterpret_cast<double*>(output_port_value->get_ptr_val()));
+            inputValue,
+            outputValue);
     case DataType::SINGLE:
         return std::make_shared<TrigExecutor<float, std::cos>>(
-            reinterpret_cast<const float*>(input_value->ptr),
-            reinterpret_cast<float*>(output_port_value->get_ptr_val()));
+            inputValue,
+            outputValue);
     default:
         throw ModelException("unable to generate limitor executor");
     }

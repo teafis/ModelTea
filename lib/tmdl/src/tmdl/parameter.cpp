@@ -187,6 +187,25 @@ tmdl::ParameterValue tmdl::ParameterValue::from_string(const std::string& s, con
     return data_value;
 }
 
+std::shared_ptr<tmdl::ValueBox> tmdl::ParameterValue::to_box() const
+{
+    switch (dtype)
+    {
+    case ParameterValue::Type::BOOLEAN:
+        return std::make_shared<ValueBoxType<bool>>(value.tf);
+    case ParameterValue::Type::INT32:
+        return std::make_shared<ValueBoxType<int32_t>>(value.i32);
+    case ParameterValue::Type::UINT32:
+        return std::make_shared<ValueBoxType<uint32_t>>(value.u32);
+    case ParameterValue::Type::SINGLE:
+        return std::make_shared<ValueBoxType<float>>(value.f32);
+    case ParameterValue::Type::DOUBLE:
+        return std::make_shared<ValueBoxType<double>>(value.f64);
+    default:
+        throw ModelException("unable to parse provided parameter into a boxed type");
+    }
+}
+
 tmdl::Parameter::Parameter(
     const std::string& id,
     const std::string& name,

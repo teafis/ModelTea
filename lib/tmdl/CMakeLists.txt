@@ -21,6 +21,7 @@ set(
     TEAFIS_MODEL_SOURCES
     src/tmdl/block_interface.hpp src/tmdl/block_interface.cpp
     src/tmdl/connection.hpp src/tmdl/connection.cpp
+    src/tmdl/connection_manager.hpp src/tmdl/connection_manager.cpp
     src/tmdl/io_ports.hpp src/tmdl/io_ports.cpp
     src/tmdl/library.hpp src/tmdl/library.cpp
     src/tmdl/model.hpp src/tmdl/model.cpp
@@ -29,6 +30,7 @@ set(
     src/tmdl/sim_state.hpp
     src/tmdl/value.hpp
     src/tmdl/value.cpp
+    src/tmdl/variable_manager.hpp src/tmdl/variable_manager.cpp
     src/tmdl/stdlib/tmdl_stdlib.hpp src/tmdl/stdlib/tmdl_stdlib.cpp
     src/tmdl/stdlib/clock.hpp src/tmdl/stdlib/clock.cpp
     src/tmdl/stdlib/limiter.hpp src/tmdl/stdlib/limiter.cpp

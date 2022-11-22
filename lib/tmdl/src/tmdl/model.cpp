@@ -96,50 +96,18 @@ void Model::remove_block(const size_t id)
     }
 
     // Remove references to the block ID
-    auto conn_it = connections.begin();
-    while (conn_it != connections.end())
-    {
-        if (conn_it->contains_id(id))
-        {
-            if (const auto tid = conn_it->get_to_id(); tid != id)
-            {
-                auto blk = get_block(tid);
-                blk->set_input_port(conn_it->get_to_port(), nullptr);
-            }
-
-            conn_it = connections.erase(conn_it);
-        }
-        else
-        {
-            ++conn_it;
-        }
-    }
+    connections.remove_block(id);
 }
 
 void Model::add_connection(const Connection connection)
 {
-    auto duplicate_it = std::find(connections.begin(), connections.end(), connection);
-    if (duplicate_it != connections.end())
-    {
-        throw ModelException("cannot add a duplicate connection value");
-    }
-
-    auto conflict_it = std::find_if(connections.begin(), connections.end(), [&connection](const Connection& c)
-    {
-        return c.get_to_id() == connection.get_to_id() && c.get_to_port() == connection.get_to_port();
-    });
-    if (conflict_it != connections.end())
-    {
-        throw ModelException("cannot add a connection with the same to block and port");
-    }
-
     const BlockInterface* from_block = get_block(connection.get_from_id());
     BlockInterface* to_block = get_block(connection.get_to_id());
 
     if (connection.get_from_port() < from_block->get_num_outputs() &&
         connection.get_to_port() < to_block->get_num_inputs())
     {
-        connections.push_back(connection);
+        connections.add_connection(connection);
         to_block->set_input_port(
             connection.get_to_port(),
             from_block->get_output_port(connection.get_from_port()));
@@ -152,26 +120,15 @@ void Model::add_connection(const Connection connection)
 
 void Model::remove_connection(const size_t to_block, const size_t to_port)
 {
-    auto it = std::find_if(
-        connections.begin(),
-        connections.end(),
-        [to_block, to_port](const Connection& c)
-    {
-        return c.get_to_port() == to_port && c.get_to_id() == to_block;
-    });
+    const auto& c = connections.get_connection_to(to_block, to_port);
 
-    if (it == connections.end())
+    auto* blk = get_block(c.get_to_id());
+    if (c.get_to_port() < blk->get_num_inputs())
     {
-        throw ModelException("connection not found to be able to remove");
+        blk->set_input_port(c.get_to_port(), PortValue());
     }
 
-    auto* blk = get_block(it->get_to_id());
-    if (it->get_to_port() < blk->get_num_inputs())
-    {
-        blk->set_input_port(it->get_to_port(), nullptr);
-    }
-
-    connections.erase(it);
+    connections.remove_connection(to_block, to_port);
 }
 
 size_t Model::get_num_inputs() const
@@ -193,13 +150,27 @@ bool Model::update_block()
 
     while (any_updated)
     {
+        // Set all to not updated
         any_updated = false;
 
+        // Update any port types
+        for (const auto& c : connections.get_connections())
+        {
+            const auto* from_blk = get_block(c.get_from_id());
+            auto* to_blk = get_block(c.get_to_id());
+
+            to_blk->set_input_port(
+                c.get_to_port(),
+                from_blk->get_output_port(c.get_from_port()));
+        }
+
+        // Check each port for updates
         for (auto& blk : blocks)
         {
             any_updated |= blk.second->update_block();
         }
 
+        // Mark as updated, and break if the count has been exceeded
         if (any_updated)
         {
             model_updated = true;
@@ -232,7 +203,7 @@ std::unique_ptr<const BlockError> Model::has_error() const
 
 void Model::set_input_port(
     const size_t port,
-    const PortValue* value)
+    const PortValue value)
 {
     if (port < get_num_inputs())
     {
@@ -250,7 +221,7 @@ void Model::set_input_port(
     }
 }
 
-const PortValue* Model::get_output_port(const size_t port) const
+PortValue Model::get_output_port(const size_t port) const
 {
 
     if (port < get_num_outputs())
@@ -269,7 +240,9 @@ const PortValue* Model::get_output_port(const size_t port) const
     }
 }
 
-std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface() const
+std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
+    const ConnectionManager&,
+    const VariableManager&) const
 {
     // Check that all inputs are connected
     for (const auto& b : blocks)
@@ -285,18 +258,7 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface() const
 
         for (size_t port = 0; port < block->get_num_inputs(); ++port)
         {
-            const auto conn_it = std::find_if(
-                connections.begin(),
-                connections.end(),
-                [id, port](const Connection& c)
-            {
-                return c.get_to_id() == id && c.get_to_port() == port;
-            });
-
-            if (conn_it == connections.end())
-            {
-                throw ModelException("cannot compute execution order for incomplete input ports");
-            }
+            connections.has_connection_to(id, port);
         }
     }
 
@@ -341,16 +303,8 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface() const
             // Search for each port to see if it is complete
             for (size_t port = 0; port < block->get_num_inputs(); ++port)
             {
-                // Find the corresponding connection
-                const auto conn_it = std::find_if(
-                    connections.begin(),
-                    connections.end(),
-                    [id, port](const Connection& c)
-                {
-                    return c.get_to_port() == port && c.get_to_id() == id;
-                });
-
-                if (conn_it == connections.end())
+                // Ensure that all parameters are accounted for
+                if (!connections.has_connection_to(id, port))
                 {
                     throw ModelException("cannot compute execution order for incomplete input ports");
                 }
@@ -362,11 +316,14 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface() const
                     continue;
                 }
 
+                // Grab the port
+                const auto& conn = connections.get_connection_to(id, port);
+
                 // Check if the from block is already in the execution order
                 const auto from_it = std::find(
                     order_values.begin(),
                     order_values.end(),
-                    conn_it->get_from_id());
+                    conn.get_from_id());
 
                 if (from_it == order_values.end())
                 {
@@ -398,11 +355,51 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface() const
         order_values.push_back(i);
     }
 
+    // Construct the variable list values
+    VariableManager variables;
+
+    for (const auto& c : connections.get_connections())
+    {
+        const VariableIdentifier vid {
+            .block_id = c.get_from_id(),
+            .output_port_num = c.get_from_port()
+        };
+
+        const PortValue pv = get_block(vid.block_id)->get_output_port(vid.output_port_num);
+
+        std::shared_ptr<ValueBox> value;
+
+        switch (pv.dtype)
+        {
+        case DataType::BOOLEAN:
+            value = std::make_shared<ValueBoxType<bool>>(false);
+            break;
+        case DataType::SINGLE:
+            value = std::make_shared<ValueBoxType<float>>(false);
+            break;
+        case DataType::DOUBLE:
+            value = std::make_shared<ValueBoxType<double>>(false);
+            break;
+        case DataType::INT32:
+            value = std::make_shared<ValueBoxType<int32_t>>(false);
+            break;
+        case DataType::UINT32:
+            value = std::make_shared<ValueBoxType<uint32_t>>(false);
+            break;
+        default:
+            throw ModelException("unable to construct value for type");
+        }
+
+        variables.add_variable(vid, value);
+    }
+
     // Construct the interface order value
     std::vector<std::shared_ptr<BlockExecutionInterface>> interface_order;
     for (const auto& b_id : order_values)
     {
-        std::shared_ptr<BlockExecutionInterface> block = get_block(b_id)->get_execution_interface();
+        std::shared_ptr<BlockExecutionInterface> block = get_block(b_id)->get_execution_interface(
+            connections,
+            variables);
         interface_order.push_back(block);
     }
 

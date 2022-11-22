@@ -19,6 +19,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Charts REQUIRED)
 set(PROJECT_SOURCESS
     src/main.cpp
     src/windows/main_window.h src/windows/main_window.cpp src/windows/main_window.ui
+    src/windows/block_library.h src/windows/block_library.cpp src/windows/block_library.ui
     src/windows/plot_window.h src/windows/plot_window.cpp src/windows/plot_window.ui
     src/windows/parameter_dialog.h src/windows/parameter_dialog.cpp src/windows/parameter_dialog.ui
     src/windows/main_window_icon.h src/windows/main_window_icon.cpp

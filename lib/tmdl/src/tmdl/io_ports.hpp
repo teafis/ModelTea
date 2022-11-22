@@ -19,21 +19,19 @@ public:
 
     void set_input_port(
         const size_t port,
-        const PortValue* value) override;
+        const PortValue value) override;
 
-    const PortValue* get_output_port(const size_t port) const override;
+    PortValue get_output_port(const size_t port) const override;
 
     bool update_block() override;
 
     //BlockExecutionInterface* get_executor() const override;
 
 public:
-    void set_input_value(const PortValue* value);
+    void set_input_value(const PortValue value);
 
 protected:
-    const PortValue* _input_port;
     PortValue _port;
-    std::unique_ptr<BlockExecutionInterface> _executor;
 };
 
 class OutputPort : public BlockInterface
@@ -45,20 +43,19 @@ public:
 
     void set_input_port(
         const size_t port,
-        const PortValue* value) override;
+        const PortValue value) override;
 
-    const PortValue* get_output_port(const size_t port) const override;
+    PortValue get_output_port(const size_t port) const override;
 
     bool update_block() override;
 
     //BlockExecutionInterface* get_executor() const override;
 
 public:
-    const PortValue* get_output_value() const;
+    PortValue get_output_value() const;
 
 protected:
-    const PortValue* _port;
-    std::unique_ptr<BlockExecutionInterface> _executor;
+    PortValue _port;
 };
 
 }

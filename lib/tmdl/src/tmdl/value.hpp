@@ -6,6 +6,7 @@
 #include <cstdint>
 
 #include <memory>
+#include <optional>
 
 
 namespace tmdl
@@ -24,7 +25,6 @@ enum class DataType
 struct PortValue
 {
     DataType dtype = DataType::UNKNOWN;
-    const void* ptr = nullptr;
 
     void clear();
 
@@ -37,8 +37,6 @@ struct ValueBox
     {
         // Empty Destructor
     }
-
-    virtual void* get_ptr_val() const = 0;
 };
 
 template <typename T>
@@ -46,15 +44,10 @@ struct ValueBoxType : public ValueBox
 {
     ValueBoxType(const T inval)
     {
-        value = std::make_unique<T>(inval);
+        value = inval;
     }
 
-    virtual void* get_ptr_val() const
-    {
-        return value.get();
-    }
-
-    std::unique_ptr<T> value;
+    T value;
 };
 
 }

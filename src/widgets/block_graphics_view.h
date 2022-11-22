@@ -47,6 +47,10 @@ public slots:
 
     void generateExecutor();
 
+    void showLibrary();
+
+    void addBlock(QString s);
+
 protected:
     BlockObject* findBlockForMousePress(const QPointF& pos);
 
@@ -62,6 +66,8 @@ protected:
     std::unique_ptr<MouseStateBase> mouseState;
     BlockObject* selectedBlock;
     tmdl::Model model;
+
+    std::shared_ptr<tmdl::LibraryBase> library;
 };
 
 #endif // BLOCKGRAPHICSWIDGET_H

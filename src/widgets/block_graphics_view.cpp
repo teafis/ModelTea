@@ -16,7 +16,7 @@
 
 #include <algorithm>
 
-#include <tmdl/stdlib/tmdl_stdlib.hpp>
+#include <tmdl/stdlib.hpp>
 
 #include "blocks/connector_object.h"
 
@@ -37,7 +37,6 @@ BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
 
     // Set the library
     library = std::make_shared<tmdl::stdlib::StandardLibrary>();
-    libraryWindow = nullptr;
 }
 
 void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
@@ -216,6 +215,19 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
     }
 }
 
+void BlockGraphicsView::showEvent(QShowEvent* event)
+{
+    QGraphicsView::showEvent(event);
+    if (executor == nullptr)
+    {
+        emit generatedModelDestroyed();
+    }
+    else
+    {
+        emit generatedModelCreated();
+    }
+}
+
 QPoint BlockGraphicsView::snapMousePositionToGrid(const QPoint& input)
 {
     return input - QPoint(
@@ -285,28 +297,7 @@ void BlockGraphicsView::generateExecutor()
         {
             const auto pv = model.get_output_port(i);
 
-            std::shared_ptr<tmdl::ValueBox> value;
-
-            switch (pv.dtype)
-            {
-            case tmdl::DataType::BOOLEAN:
-                value = std::make_shared<tmdl::ValueBoxType<bool>>(false);
-                break;
-            case tmdl::DataType::SINGLE:
-                value = std::make_shared<tmdl::ValueBoxType<float>>(0.0f);
-                break;
-            case tmdl::DataType::DOUBLE:
-                value = std::make_shared<tmdl::ValueBoxType<double>>(0.0);
-                break;
-            case tmdl::DataType::INT32:
-                value = std::make_shared<tmdl::ValueBoxType<int32_t>>(0);
-                break;
-            case tmdl::DataType::UINT32:
-                value = std::make_shared<tmdl::ValueBoxType<uint32_t>>(0);
-                break;
-            default:
-                throw tmdl::ModelException("unable to construct value for type");
-            }
+            const std::shared_ptr<tmdl::ValueBox> value = tmdl::make_shared_default_value(pv.dtype);
 
             const auto vid = tmdl::VariableIdentifier
             {
@@ -331,6 +322,8 @@ void BlockGraphicsView::generateExecutor()
                 .dt = 0.1
             }
         });
+
+        emit generatedModelCreated();
     }
     catch (const tmdl::ModelException& ex)
     {
@@ -341,11 +334,6 @@ void BlockGraphicsView::generateExecutor()
 
         executor = nullptr;
         return;
-    }
-
-    if (libraryWindow != nullptr)
-    {
-        libraryWindow->close();
     }
 }
 
@@ -381,11 +369,12 @@ void BlockGraphicsView::stepExecutor()
 void BlockGraphicsView::clearExecutor()
 {
     executor = nullptr;
+    emit generatedModelDestroyed();
 }
 
 void BlockGraphicsView::showLibrary()
 {
-    libraryWindow = new BlockLibrary(this);
+    auto* libraryWindow = new BlockLibrary(this);
     libraryWindow->set_library(library);
 
     connect(
@@ -395,10 +384,10 @@ void BlockGraphicsView::showLibrary()
         &BlockGraphicsView::addBlock);
 
     connect(
-        libraryWindow,
-        &BlockLibrary::destroyed,
         this,
-        &BlockGraphicsView::libraryClosed);
+        &BlockGraphicsView::generatedModelCreated,
+        libraryWindow,
+        &BlockLibrary::generatedModelCreated);
 
     libraryWindow->show();
 }
@@ -408,13 +397,9 @@ void BlockGraphicsView::showPlot()
     auto* plt = new PlotWindow(this);
 
     connect(this, &BlockGraphicsView::plotPointUpdated, plt, &PlotWindow::addPlotPoint);
+    connect(this, &BlockGraphicsView::generatedModelCreated, plt, &PlotWindow::resetPlot);
 
     plt->show();
-}
-
-void BlockGraphicsView::libraryClosed()
-{
-    libraryWindow = nullptr;
 }
 
 void BlockGraphicsView::addBlock(QString s)

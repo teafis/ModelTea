@@ -33,6 +33,8 @@ public:
 
     virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
 
+    virtual void showEvent(QShowEvent* event) override;
+
 protected:
     virtual QPoint snapMousePositionToGrid(const QPoint& input);
 
@@ -55,11 +57,11 @@ public slots:
 
     void addBlock(QString s);
 
-protected slots:
-    void libraryClosed();
-
 signals:
     void plotPointUpdated(const double t, const double y);
+
+    void generatedModelCreated();
+    void generatedModelDestroyed();
 
 protected:
     BlockObject* findBlockForMousePress(const QPointF& pos);
@@ -86,8 +88,6 @@ protected:
 
     std::shared_ptr<tmdl::LibraryBase> library;
     std::unique_ptr<ExecutionState> executor;
-
-    BlockLibrary* libraryWindow;
 };
 
 #endif // BLOCKGRAPHICSWIDGET_H

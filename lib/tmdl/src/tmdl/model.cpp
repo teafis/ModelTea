@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <tmdl/model.hpp>
+#include "model.hpp"
+
+#include "blocks/io_ports.hpp"
+#include "model_exception.hpp"
 
 using namespace tmdl;
 
@@ -415,35 +418,11 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
                 .output_port_num = i
             };
 
-            const PortValue pv = get_block(vid.block_id)->get_output_port(vid.output_port_num);
-
-            std::shared_ptr<ValueBox> value;
-
-            switch (pv.dtype)
-            {
-            case DataType::BOOLEAN:
-                value = std::make_shared<ValueBoxType<bool>>(false);
-                break;
-            case DataType::SINGLE:
-                value = std::make_shared<ValueBoxType<float>>(0.0f);
-                break;
-            case DataType::DOUBLE:
-                value = std::make_shared<ValueBoxType<double>>(0.0);
-                break;
-            case DataType::INT32:
-                value = std::make_shared<ValueBoxType<int32_t>>(0);
-                break;
-            case DataType::UINT32:
-                value = std::make_shared<ValueBoxType<uint32_t>>(0);
-                break;
-            default:
-                throw ModelException("unable to construct value for type");
-            }
-
             // Skip if variable already added (due to input/output)
             if (!variables.has_variable(vid))
             {
-                variables.add_variable(vid, value);
+                const auto pv = get_block(vid.block_id)->get_output_port(vid.output_port_num);
+                variables.add_variable(vid, make_shared_default_value(pv.dtype));
             }
         }
     }

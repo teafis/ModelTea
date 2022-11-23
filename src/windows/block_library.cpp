@@ -39,6 +39,12 @@ void BlockLibrary::itemSelected(QListWidgetItem* item)
     }
 }
 
+void BlockLibrary::generatedModelCreated()
+{
+    close();
+    deleteLater();
+}
+
 BlockLibrary::~BlockLibrary()
 {
     delete ui;

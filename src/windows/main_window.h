@@ -17,6 +17,9 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+protected:
+    void updateMenuBars(bool generatedAvailable);
+
 private:
     Ui::MainWindow *ui;
 };

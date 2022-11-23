@@ -3,10 +3,7 @@
 #ifndef TF_MODEL_IO_PORTS_HPP
 #define TF_MODEL_IO_PORTS_HPP
 
-#include "block_interface.hpp"
-#include "library.hpp"
-
-#include "model_exception.hpp"
+#include "../library.hpp"
 
 namespace tmdl
 {

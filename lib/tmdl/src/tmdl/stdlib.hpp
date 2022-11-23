@@ -3,7 +3,7 @@
 #ifndef TF_MODEL_STDLIB_HPP
 #define TF_MODEL_STDLIB_HPP
 
-#include <tmdl/library.hpp>
+#include "library.hpp"
 
 #include <string>
 #include <unordered_map>

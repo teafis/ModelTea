@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <tmdl/io_ports.hpp>
+#include "io_ports.hpp"
+
+#include "../model_exception.hpp"
+
 
 using namespace tmdl;
 

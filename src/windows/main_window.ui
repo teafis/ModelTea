@@ -225,22 +225,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionModelBuildExecutor</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>update_model_pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>315</x>
-     <y>154</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionModelUpdate</sender>
    <signal>triggered()</signal>
    <receiver>block_graphics</receiver>
@@ -269,22 +253,6 @@
     <hint type="destinationlabel">
      <x>315</x>
      <y>162</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionSimClear</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>clear_sim_pressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>315</x>
-     <y>154</y>
     </hint>
    </hints>
   </connection>
@@ -353,8 +321,4 @@
    </hints>
   </connection>
  </connections>
- <slots>
-  <slot>update_model_pressed()</slot>
-  <slot>clear_sim_pressed()</slot>
- </slots>
 </ui>

@@ -50,6 +50,8 @@ struct ValueBoxType : public ValueBox
     T value;
 };
 
+std::shared_ptr<ValueBox> make_shared_default_value(const DataType dtype);
+
 }
 
 #endif // TF_MODEL_VALUE_HPP

@@ -2,13 +2,12 @@
 
 #include "tmdl_stdlib.hpp"
 
-#include <tmdl/stdlib/clock.hpp>
-#include <tmdl/stdlib/limiter.hpp>
-#include <tmdl/stdlib/trig.hpp>
+#include "blocks/clock.hpp"
+#include "blocks/limiter.hpp"
+#include "blocks/trig.hpp"
+#include "blocks/io_ports.hpp"
 
-#include <tmdl/model_exception.hpp>
-
-#include "tmdl/io_ports.hpp"
+#include "model_exception.hpp"
 
 #include <ranges>
 

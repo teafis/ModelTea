@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Setup the main UI
     ui->setupUi(this);
 
-    // Attempt to
+    // Attempt to load the window icon
     QPixmap pixmap;
     bool result = pixmap.loadFromData(
                 main_window_icon::icon_png,
@@ -25,6 +25,23 @@ MainWindow::MainWindow(QWidget *parent) :
     {
         setWindowIcon(QIcon(pixmap));
     }
+
+    // Connect signals
+    connect(
+        ui->block_graphics,
+        &BlockGraphicsView::generatedModelCreated,
+        [this]() { updateMenuBars(true); });
+    connect(
+        ui->block_graphics,
+        &BlockGraphicsView::generatedModelDestroyed,
+        [this]() { updateMenuBars(false); });
+}
+
+void MainWindow::updateMenuBars(bool generatedAvailable)
+{
+    ui->menuModel->setEnabled(!generatedAvailable);
+    ui->menuBlocks->setEnabled(!generatedAvailable);
+    ui->menuSim->setEnabled(generatedAvailable);
 }
 
 MainWindow::~MainWindow()

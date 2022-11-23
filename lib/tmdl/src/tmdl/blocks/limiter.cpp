@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <tmdl/stdlib/limiter.hpp>
+#include "limiter.hpp"
 
 #include <algorithm>
 

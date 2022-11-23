@@ -9,11 +9,9 @@
 #include <vector>
 #include <unordered_map>
 
-#include <tmdl/library.hpp>
-#include <tmdl/block_interface.hpp>
-#include <tmdl/connection_manager.hpp>
-#include <tmdl/io_ports.hpp>
-#include <tmdl/model_exception.hpp>
+#include "library.hpp"
+#include "block_interface.hpp"
+#include "connection_manager.hpp"
 
 
 namespace tmdl

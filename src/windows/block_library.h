@@ -28,6 +28,9 @@ public:
 protected slots:
     void itemSelected(QListWidgetItem* item);
 
+public slots:
+    void generatedModelCreated();
+
 signals:
     void blockSelected(QString s);
 

@@ -21,9 +21,13 @@ public:
 public slots:
     void addPlotPoint(const double t, const double y);
 
+    void resetPlot();
+
 private:
     Ui::PlotWindow *ui;
     QLineSeries* series;
+    double y_min;
+    double y_max;
 };
 
 #endif // PLOT_WINDOW_H

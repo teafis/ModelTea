@@ -6,6 +6,7 @@
 #include "blocks/limiter.hpp"
 #include "blocks/trig.hpp"
 #include "blocks/io_ports.hpp"
+#include "blocks/arithmetic.hpp"
 
 #include "model_exception.hpp"
 
@@ -25,7 +26,11 @@ tmdl::stdlib::StandardLibrary::StandardLibrary()
         {"sin", &make_block<TrigSin>},
         {"clock", &make_block<Clock>},
         {"input", &make_block<InputPort>},
-        {"output", &make_block<OutputPort>}
+        {"output", &make_block<OutputPort>},
+        {"add", &make_block<Addition>},
+        {"sub", &make_block<Subtraction>},
+        {"mul", &make_block<Product>},
+        {"div", &make_block<Divide>}
     };
 }
 

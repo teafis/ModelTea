@@ -8,6 +8,8 @@
 
 #include <tmdl/model_exception.hpp>
 
+#include "tmdl/io_ports.hpp"
+
 #include <ranges>
 
 template <typename T>
@@ -16,14 +18,15 @@ std::shared_ptr<tmdl::LibraryBlock> make_block()
     return std::make_shared<T>();
 }
 
-
 tmdl::stdlib::StandardLibrary::StandardLibrary()
 {
     block_map = {
         {"limiter", &make_block<Limiter>},
         {"cos", &make_block<TrigCos>},
         {"sin", &make_block<TrigSin>},
-        {"clock", &make_block<Clock>}
+        {"clock", &make_block<Clock>},
+        {"input", &make_block<InputPort>},
+        {"output", &make_block<OutputPort>}
     };
 }
 

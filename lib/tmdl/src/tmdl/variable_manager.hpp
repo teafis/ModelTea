@@ -47,6 +47,10 @@ public:
 
     std::shared_ptr<ValueBox> get_ptr(const Connection& c) const;
 
+    bool has_variable(const VariableIdentifier& id) const;
+
+    bool has_variable(const Connection& c) const;
+
 protected:
     std::unordered_map<VariableIdentifier, std::shared_ptr<ValueBox>> variables;
 };

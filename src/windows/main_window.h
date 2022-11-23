@@ -17,11 +17,6 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-public slots:
-    void update_model_pressed();
-
-    void clear_sim_pressed();
-
 private:
     Ui::MainWindow *ui;
 };

@@ -15,6 +15,8 @@
 
 #include <tmdl/model.hpp>
 
+#include "windows/block_library.h"
+
 class BlockGraphicsView : public QGraphicsView
 {
     Q_OBJECT
@@ -34,6 +36,8 @@ public:
 protected:
     virtual QPoint snapMousePositionToGrid(const QPoint& input);
 
+    virtual void keyPressEvent(QKeyEvent *event) override;
+
 public slots:
     void removeSelectedBlock();
 
@@ -41,11 +45,21 @@ public slots:
 
     void generateExecutor();
 
+    void stepExecutor();
+
     void clearExecutor();
 
     void showLibrary();
 
+    void showPlot();
+
     void addBlock(QString s);
+
+protected slots:
+    void libraryClosed();
+
+signals:
+    void plotPointUpdated(const double t, const double y);
 
 protected:
     BlockObject* findBlockForMousePress(const QPointF& pos);
@@ -63,8 +77,17 @@ protected:
     BlockObject* selectedBlock;
     tmdl::Model model;
 
+    struct ExecutionState
+    {
+        std::shared_ptr<tmdl::VariableManager> variables;
+        std::shared_ptr<tmdl::BlockExecutionInterface> model;
+        tmdl::SimState state;
+    };
+
     std::shared_ptr<tmdl::LibraryBase> library;
-    std::shared_ptr<tmdl::BlockExecutionInterface> executor;
+    std::unique_ptr<ExecutionState> executor;
+
+    BlockLibrary* libraryWindow;
 };
 
 #endif // BLOCKGRAPHICSWIDGET_H

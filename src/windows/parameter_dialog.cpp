@@ -20,6 +20,8 @@ ParameterDialog::ParameterDialog(
     ui->lblBlockTitle->setText(block->get_block()->get_name().c_str());
 
     reloadParameters();
+
+    setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
 void ParameterDialog::reloadParameters()

@@ -62,7 +62,7 @@
    </widget>
    <widget class="QMenu" name="menuSim">
     <property name="enabled">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="title">
      <string>Sim</string>
@@ -185,6 +185,8 @@
     <slot>generateExecutor()</slot>
     <slot>showLibrary()</slot>
     <slot>clearExecutor()</slot>
+    <slot>stepExecutor()</slot>
+    <slot>showPlot()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -277,8 +279,8 @@
    <slot>clear_sim_pressed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>181</x>
-     <y>76</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>315</x>
@@ -291,6 +293,54 @@
    <signal>triggered()</signal>
    <receiver>block_graphics</receiver>
    <slot>clearExecutor()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>315</x>
+     <y>162</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSimStep</sender>
+   <signal>triggered()</signal>
+   <receiver>block_graphics</receiver>
+   <slot>stepExecutor()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>315</x>
+     <y>162</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSimShowPlot</sender>
+   <signal>triggered()</signal>
+   <receiver>block_graphics</receiver>
+   <slot>showPlot()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>315</x>
+     <y>162</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionBlockRemove</sender>
+   <signal>triggered()</signal>
+   <receiver>block_graphics</receiver>
+   <slot>removeSelectedBlock()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>

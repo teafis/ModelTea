@@ -2,6 +2,8 @@
 
 #include "block_graphics_view.h"
 
+#include <QtGlobal>
+
 #include <QPainter>
 #include <QBrush>
 
@@ -22,7 +24,7 @@
 #include "state/port_drag_state.h"
 
 #include "windows/parameter_dialog.h"
-#include "windows/block_library.h"
+#include "windows/plot_window.h"
 
 
 BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
@@ -35,6 +37,7 @@ BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
 
     // Set the library
     library = std::make_shared<tmdl::stdlib::StandardLibrary>();
+    libraryWindow = nullptr;
 }
 
 void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
@@ -184,7 +187,9 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
             ParameterDialog* dialog = new ParameterDialog(block, this);
             dialog->exec();
 
-            for (auto ptr : scene()->items())
+            const auto sceneItems = scene()->items();
+
+            for (auto ptr : qAsConst(sceneItems))
             {
                 if (auto c = dynamic_cast<ConnectorObject*>(ptr); c != nullptr)
                 {
@@ -198,7 +203,7 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
                 }
             }
 
-            for (auto ptr : scene()->items())
+            for (auto ptr : qAsConst(sceneItems))
             {
                 if (auto b = dynamic_cast<BlockObject*>(ptr); b != nullptr)
                 {
@@ -218,6 +223,16 @@ QPoint BlockGraphicsView::snapMousePositionToGrid(const QPoint& input)
         input.y() % 10);
 }
 
+void BlockGraphicsView::keyPressEvent(QKeyEvent* event)
+{
+    switch (event->key())
+    {
+    case Qt::Key_S:
+        stepExecutor();
+        break;
+    }
+}
+
 void BlockGraphicsView::removeSelectedBlock()
 {
     if (executor != nullptr)
@@ -231,6 +246,7 @@ void BlockGraphicsView::removeSelectedBlock()
         scene()->removeItem(selectedBlock);
         selectedBlock->deleteLater();
         selectedBlock = nullptr;
+        scene()->update();
     }
 }
 
@@ -243,7 +259,8 @@ void BlockGraphicsView::updateModel()
 
     if (model.update_block())
     {
-        for (auto* item : scene()->items())
+        const auto sceneItems = scene()->items();
+        for (auto* item : qAsConst(sceneItems))
         {
             auto* block = dynamic_cast<BlockObject*>(item);
             if (block != nullptr)
@@ -251,19 +268,69 @@ void BlockGraphicsView::updateModel()
                 block->update();
             }
         }
+
+        scene()->update();
     }
 }
 
 void BlockGraphicsView::generateExecutor()
 {
     tmdl::ConnectionManager connections;
-    tmdl::VariableManager manager;
+    std::shared_ptr<tmdl::VariableManager> manager = std::make_shared<tmdl::VariableManager>();
 
     try
     {
-    executor = model.get_execution_interface(
-        connections,
-        manager);
+        // Add each output variable to the manager
+        for (size_t i = 0; i < model.get_num_outputs(); ++i)
+        {
+            const auto pv = model.get_output_port(i);
+
+            std::shared_ptr<tmdl::ValueBox> value;
+
+            switch (pv.dtype)
+            {
+            case tmdl::DataType::BOOLEAN:
+                value = std::make_shared<tmdl::ValueBoxType<bool>>(false);
+                break;
+            case tmdl::DataType::SINGLE:
+                value = std::make_shared<tmdl::ValueBoxType<float>>(0.0f);
+                break;
+            case tmdl::DataType::DOUBLE:
+                value = std::make_shared<tmdl::ValueBoxType<double>>(0.0);
+                break;
+            case tmdl::DataType::INT32:
+                value = std::make_shared<tmdl::ValueBoxType<int32_t>>(0);
+                break;
+            case tmdl::DataType::UINT32:
+                value = std::make_shared<tmdl::ValueBoxType<uint32_t>>(0);
+                break;
+            default:
+                throw tmdl::ModelException("unable to construct value for type");
+            }
+
+            const auto vid = tmdl::VariableIdentifier
+            {
+                .block_id = model.get_id(),
+                .output_port_num = i
+            };
+
+            manager->add_variable(vid, value);
+        }
+
+        model.update_block();
+
+        executor = std::make_unique<ExecutionState>(ExecutionState
+        {
+            .variables = manager,
+            .model = model.get_execution_interface(
+                connections,
+                *manager),
+            .state = tmdl::SimState
+            {
+                .time = 0.0,
+                .dt = 0.1
+            }
+        });
     }
     catch (const tmdl::ModelException& ex)
     {
@@ -276,13 +343,38 @@ void BlockGraphicsView::generateExecutor()
         return;
     }
 
-    for (auto* c : children())
+    if (libraryWindow != nullptr)
     {
-        auto* dialog = dynamic_cast<BlockLibrary*>(c);
-        if (dialog != nullptr)
-        {
-            dialog->close();
-        }
+        libraryWindow->close();
+    }
+}
+
+void BlockGraphicsView::stepExecutor()
+{
+    if (executor == nullptr)
+    {
+        return;
+    }
+
+    const auto vid = tmdl::VariableIdentifier
+    {
+        .block_id = model.get_id(),
+        .output_port_num = 0
+    };
+
+    auto var = std::dynamic_pointer_cast<tmdl::ValueBoxType<double>>(executor->variables->get_ptr(vid));
+
+    if (executor->state.time < executor->state.dt && var)
+    {
+        emit plotPointUpdated(executor->state.time, var->value);
+    }
+
+    executor->state.time += executor->state.dt;
+    executor->model->step(executor->state);
+
+    if (var)
+    {
+        emit plotPointUpdated(executor->state.time, var->value);
     }
 }
 
@@ -293,16 +385,36 @@ void BlockGraphicsView::clearExecutor()
 
 void BlockGraphicsView::showLibrary()
 {
-    BlockLibrary* lib = new BlockLibrary(this);
-    lib->set_library(library);
+    libraryWindow = new BlockLibrary(this);
+    libraryWindow->set_library(library);
 
     connect(
-        lib,
+        libraryWindow,
         &BlockLibrary::blockSelected,
         this,
         &BlockGraphicsView::addBlock);
 
-    lib->show();
+    connect(
+        libraryWindow,
+        &BlockLibrary::destroyed,
+        this,
+        &BlockGraphicsView::libraryClosed);
+
+    libraryWindow->show();
+}
+
+void BlockGraphicsView::showPlot()
+{
+    auto* plt = new PlotWindow(this);
+
+    connect(this, &BlockGraphicsView::plotPointUpdated, plt, &PlotWindow::addPlotPoint);
+
+    plt->show();
+}
+
+void BlockGraphicsView::libraryClosed()
+{
+    libraryWindow = nullptr;
 }
 
 void BlockGraphicsView::addBlock(QString s)
@@ -327,7 +439,8 @@ void BlockGraphicsView::addBlock(QString s)
 
 BlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
 {
-    for (auto itm : scene()->items())
+    const auto sceneItems = scene()->items();
+    for (auto itm : qAsConst(sceneItems))
     {
         BlockObject* blk = dynamic_cast<BlockObject*>(itm);
         if (blk != nullptr && blk->sceneBoundingRect().contains(pos))

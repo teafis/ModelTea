@@ -16,6 +16,8 @@ BlockLibrary::BlockLibrary(QWidget *parent) :
         &QListWidget::itemDoubleClicked,
         this,
         &BlockLibrary::itemSelected);
+
+    setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
 void BlockLibrary::set_library(const std::shared_ptr<const tmdl::LibraryBase> lib)

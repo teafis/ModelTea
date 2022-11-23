@@ -6,6 +6,21 @@ using namespace tmdl;
 
 /* ========== INPUT PORT ========== */
 
+std::string InputPort::get_name() const
+{
+    return "IN";
+}
+
+std::string InputPort::get_description() const
+{
+    return "Input Port";
+}
+
+std::vector<Parameter*> InputPort::get_parameters() const
+{
+    return {};
+}
+
 size_t InputPort::get_num_inputs() const
 {
     return 0;
@@ -35,17 +50,32 @@ PortValue InputPort::get_output_port(const size_t port) const
     }
 }
 
+std::unique_ptr<const BlockError> InputPort::has_error() const
+{
+    if (_port.dtype == DataType::UNKNOWN)
+    {
+        return std::make_unique<BlockError>(
+        BlockError
+        {
+            .id = get_id(),
+            .message = "input port has unknown type"
+        });
+    }
+
+    return nullptr;
+}
+
 bool InputPort::update_block()
 {
     return false;
 }
 
-/*
-BlockExecutionInterface* InputPort::get_executor() const
+std::shared_ptr<BlockExecutionInterface> InputPort::get_execution_interface(
+    const ConnectionManager&,
+    const VariableManager&) const
 {
-    return _executor.get();
+    return std::make_shared<BlockExecutionInterface>();
 }
-*/
 
 void InputPort::set_input_value(const PortValue value)
 {
@@ -53,6 +83,21 @@ void InputPort::set_input_value(const PortValue value)
 }
 
 /* ========== OUTPUT PORT ========== */
+
+std::string OutputPort::get_name() const
+{
+    return "OUT";
+}
+
+std::string OutputPort::get_description() const
+{
+    return "Output Port";
+}
+
+std::vector<Parameter*> OutputPort::get_parameters() const
+{
+    return {};
+}
 
 size_t OutputPort::get_num_inputs() const
 {
@@ -83,17 +128,32 @@ PortValue OutputPort::get_output_port(const size_t /* port */) const
     throw ModelException("cannot get input port value");
 }
 
+std::unique_ptr<const BlockError> OutputPort::has_error() const
+{
+    if (_port.dtype == DataType::UNKNOWN)
+    {
+        return std::make_unique<BlockError>(
+        BlockError
+        {
+            .id = get_id(),
+            .message = "output port has unknown type"
+        });
+    }
+
+    return nullptr;
+}
+
 bool OutputPort::update_block()
 {
     return false;
 }
 
-/*
-BlockExecutionInterface* OutputPort::get_executor() const
+std::shared_ptr<BlockExecutionInterface> OutputPort::get_execution_interface(
+    const ConnectionManager&,
+    const VariableManager&) const
 {
-    return _executor.get();
+    return std::make_shared<BlockExecutionInterface>();
 }
-*/
 
 PortValue OutputPort::get_output_value() const
 {

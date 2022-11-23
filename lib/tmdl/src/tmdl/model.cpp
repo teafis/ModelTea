@@ -241,9 +241,18 @@ PortValue Model::get_output_port(const size_t port) const
 }
 
 std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
-    const ConnectionManager&,
-    const VariableManager&) const
+    const ConnectionManager& outer_connections,
+    const VariableManager& outer_variables) const
 {
+    // Skip if an error is present
+    if (const auto err = has_error(); err != nullptr)
+    {
+        throw ModelException(err->message);
+    }
+
+    // Add blocks for input and output ports
+
+
     // Check that all inputs are connected
     for (const auto& b : blocks)
     {
@@ -358,8 +367,45 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
     // Construct the variable list values
     VariableManager variables;
 
+    // Add output port types
+    for (size_t i = 0; i < output_ids.size(); ++i)
+    {
+        const auto outer_id = VariableIdentifier {
+            .block_id = get_id(),
+            .output_port_num = i
+        };
+
+        const auto ptr_val = outer_variables.get_ptr(outer_id);
+
+        const auto& c = connections.get_connection_to(output_ids[i], 0);
+        const auto inner_id = VariableIdentifier
+        {
+            .block_id = c.get_from_id(),
+            .output_port_num = c.get_from_port()
+        };
+
+        variables.add_variable(inner_id, ptr_val);
+    }
+
+    // Add input port types
+    for (size_t i = 0; i < input_ids.size(); ++i)
+    {
+        const auto& outer_connection = outer_connections.get_connection_to(get_id(), i);
+        const auto ptr_val = outer_variables.get_ptr(outer_connection);
+
+        const auto inner_id = VariableIdentifier
+        {
+            .block_id = input_ids[i],
+            .output_port_num = 0
+        };
+
+        variables.add_variable(inner_id, ptr_val);
+    }
+
+    // Add interior block types
     for (const auto& bv : blocks)
     {
+        // Grab block, but skip if an input or output port, as it would have been updated above
         const auto blk = bv.second;
 
         for (size_t i = 0; i < blk->get_num_outputs(); ++i)
@@ -394,7 +440,11 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
                 throw ModelException("unable to construct value for type");
             }
 
-            variables.add_variable(vid, value);
+            // Skip if variable already added (due to input/output)
+            if (!variables.has_variable(vid))
+            {
+                variables.add_variable(vid, value);
+            }
         }
     }
 

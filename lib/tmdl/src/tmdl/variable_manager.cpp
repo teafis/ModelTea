@@ -4,6 +4,15 @@
 
 #include "model_exception.hpp"
 
+static tmdl::VariableIdentifier connection_to_variable_id(const tmdl::Connection& c)
+{
+    return tmdl::VariableIdentifier
+    {
+        .block_id = c.get_from_id(),
+        .output_port_num = c.get_from_port()
+    };
+}
+
 
 void tmdl::VariableManager::add_variable(const VariableIdentifier id, const std::shared_ptr<ValueBox> value)
 {
@@ -38,11 +47,15 @@ std::shared_ptr<tmdl::ValueBox> tmdl::VariableManager::get_ptr(const VariableIde
 
 std::shared_ptr<tmdl::ValueBox> tmdl::VariableManager::get_ptr(const Connection& c) const
 {
-    const VariableIdentifier vid = VariableIdentifier
-    {
-        .block_id = c.get_from_id(),
-        .output_port_num = c.get_from_port()
-    };
+    return get_ptr(connection_to_variable_id(c));
+}
 
-    return get_ptr(vid);
+bool tmdl::VariableManager::has_variable(const VariableIdentifier& id) const
+{
+    return variables.find(id) != variables.end();
+}
+
+bool tmdl::VariableManager::has_variable(const Connection& c) const
+{
+    return has_variable(connection_to_variable_id(c));
 }

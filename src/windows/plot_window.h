@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 
+#include <QtCharts>
+
+
 namespace Ui {
 class PlotWindow;
 }
@@ -15,8 +18,12 @@ public:
     explicit PlotWindow(QWidget *parent = nullptr);
     ~PlotWindow();
 
+public slots:
+    void addPlotPoint(const double t, const double y);
+
 private:
     Ui::PlotWindow *ui;
+    QLineSeries* series;
 };
 
 #endif // PLOT_WINDOW_H

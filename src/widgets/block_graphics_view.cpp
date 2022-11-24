@@ -184,6 +184,12 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
         if (block != nullptr)
         {
             ParameterDialog* dialog = new ParameterDialog(block, this);
+
+            connect(
+                dialog,
+                &ParameterDialog::finished,
+                [block](int) { block->update(); });
+
             dialog->exec();
 
             const auto sceneItems = scene()->items();

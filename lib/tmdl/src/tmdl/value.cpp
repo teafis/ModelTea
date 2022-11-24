@@ -33,5 +33,4 @@ std::shared_ptr<tmdl::ValueBox> tmdl::make_shared_default_value(const DataType d
     default:
         throw ModelException("unable to construct value for type");
     }
-
 }

@@ -16,11 +16,6 @@ template <Number T, T (FCN)(const T&, const T&)>
 class OperatorBase
 {
 public:
-    OperatorBase() : current(T{})
-    {
-        // Empty Constructor
-    }
-
     void apply(const T& x)
     {
         if (is_first)
@@ -41,7 +36,7 @@ public:
 
 protected:
     bool is_first = true;
-    T current;
+    T current{};
 };
 
 template <Number T>

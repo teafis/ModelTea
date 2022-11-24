@@ -79,7 +79,7 @@ tmdl::PortValue tmdl::stdlib::TrigFunction::get_output_port(const size_t port) c
     }
 }
 
-template <typename T, T (FNC)( T)>
+template <typename T, T (FNC)(T)>
 class TrigExecutor : public tmdl::BlockExecutionInterface
 {
 public:

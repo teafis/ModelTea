@@ -4,7 +4,138 @@
 
 #include "../model_exception.hpp"
 
+#include <concepts>
 #include <memory>
+
+// Arithmetic Executor
+
+template <typename T>
+concept Number = std::integral<T> || std::floating_point<T>;
+
+template <Number T, T (FCN)(const T&, const T&)>
+class OperatorBase
+{
+public:
+    OperatorBase() : current(T{})
+    {
+        // Empty Constructor
+    }
+
+    void apply(const T& x)
+    {
+        if (is_first)
+        {
+            current = x;
+            is_first = false;
+        }
+        else
+        {
+            current = FCN(current, x);
+        }
+    }
+
+    T get_value() const
+    {
+        return current;
+    }
+
+protected:
+    bool is_first = true;
+    T current;
+};
+
+template <Number T>
+T tsim_add(const T& a, const T& b)
+{
+    return a + b;
+}
+
+template <Number T>
+T tsim_sub(const T& a, const T& b)
+{
+    return a - b;
+}
+
+template <Number T>
+T tsim_mul(const T& a, const T& b)
+{
+    return a * b;
+}
+
+template <Number T>
+T tsim_div(const T& a, const T& b)
+{
+    return a / b;
+}
+
+template <Number T>
+class AdditionOperator : public OperatorBase<T, tsim_add>
+{
+};
+
+template <Number T>
+class SubtractionOperator : public OperatorBase<T, tsim_sub>
+{
+};
+
+template <Number T>
+class MultiplicationOperator : public OperatorBase<T, tsim_mul>
+{
+};
+
+template <Number T>
+class DivisionOperator : public OperatorBase<T, tsim_div>
+{
+};
+
+template <typename OP, typename N>
+concept OperatorClass = requires(OP op, N n) {
+    requires Number<N>;
+    { op.get_value() } -> std::same_as<N>;
+    op.apply(n);
+};
+
+template <Number T, OperatorClass<T> OP>
+struct ArithmeticExecutor : public tmdl::BlockExecutionInterface
+{
+    ArithmeticExecutor(
+        std::vector<std::shared_ptr<const tmdl::ValueBox>> inputValues,
+        std::shared_ptr<tmdl::ValueBox> outputValue)
+    {
+        output_value = std::dynamic_pointer_cast<tmdl::ValueBoxType<T>>(outputValue);
+
+        if (output_value == nullptr)
+        {
+            throw tmdl::ModelException("output pointer must be non-null");
+        }
+
+        for (const auto& p : inputValues)
+        {
+            const auto ptr = std::dynamic_pointer_cast<const tmdl::ValueBoxType<T>>(p);
+            if (ptr == nullptr)
+            {
+                throw tmdl::ModelException("input pointer must be non-null");
+            }
+
+            input_values.push_back(ptr);
+        }
+    }
+
+    void step(const tmdl::SimState&) override
+    {
+        OP op;
+
+        for (const auto& p : input_values)
+        {
+            op.apply(p->value);
+        }
+        output_value->value = op.get_value();
+    }
+
+protected:
+    std::vector<std::shared_ptr<const tmdl::ValueBoxType<T>>> input_values;
+    std::shared_ptr<tmdl::ValueBoxType<T>> output_value;
+};
 
 // Arithmetic Base
 
@@ -16,7 +147,7 @@ tmdl::stdlib::ArithmeticBase::ArithmeticBase() :
 
 size_t tmdl::stdlib::ArithmeticBase::get_num_inputs() const
 {
-    return _inputPorts.size();
+    return currentPrmPortCount();
 }
 
 size_t tmdl::stdlib::ArithmeticBase::get_num_outputs() const
@@ -33,6 +164,14 @@ bool tmdl::stdlib::ArithmeticBase::update_block()
 {
     auto firstType = DataType::UNKNOWN;
 
+    bool updated = false;
+
+    if (_inputPorts.size() != get_num_inputs())
+    {
+        _inputPorts.resize(get_num_inputs());
+        updated = true;
+    }
+
     if (_inputPorts.size() > 0)
     {
         firstType = _inputPorts[0].dtype;
@@ -41,10 +180,10 @@ bool tmdl::stdlib::ArithmeticBase::update_block()
     if (_outputPort.dtype != firstType)
     {
         _outputPort.dtype = firstType;
-        return true;
+        updated = true;
     }
 
-    return false;
+    return updated;
 }
 
 std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::ArithmeticBase::has_error() const
@@ -55,15 +194,6 @@ std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::ArithmeticBase::has_error(
         {
             .id = get_id(),
             .message = "arithmetic block must have >= 2 ports"
-        });
-    }
-
-    if (currentPrmPortCount() != _inputPorts.size())
-    {
-        return std::make_unique<BlockError>(BlockError
-        {
-            .id = get_id(),
-            .message = "mismatch in provided output values"
         });
     }
 
@@ -134,168 +264,6 @@ size_t tmdl::stdlib::ArithmeticBase::currentPrmPortCount() const
     return _prmNumInputPorts->get_value().value.u32;
 }
 
-// Arithmetic Executor
-
-template <typename T>
-struct ArithOperator
-{
-    virtual void apply(const T& x) = 0;
-    virtual T get_value() const = 0;
-};
-
-template <typename T>
-class AdditionOperator : public ArithOperator<T>
-{
-public:
-    AdditionOperator() : current(static_cast<T>(0))
-    {
-        // Empty Constructor
-    }
-
-    void apply(const T& x) override
-    {
-        current += x;
-    }
-
-    T get_value() const override
-    {
-        return current;
-    }
-
-protected:
-    T current;
-};
-
-template <typename T>
-class SubtractionOperator : public ArithOperator<T>
-{
-public:
-    SubtractionOperator() : current(static_cast<T>(0))
-    {
-        // Empty Constructor
-    }
-
-    void apply(const T& x) override
-    {
-        if (is_first)
-        {
-            current = x;
-            is_first = false;
-        }
-        else
-        {
-            current -= x;
-        }
-    }
-
-    T get_value() const override
-    {
-        return current;
-    }
-
-protected:
-    bool is_first = false;
-    T current;
-};
-
-template <typename T>
-class MultiplicationOperator : public ArithOperator<T>
-{
-public:
-    MultiplicationOperator() : current(static_cast<T>(1))
-    {
-        // Empty Constructor
-    }
-
-    void apply(const T& x) override
-    {
-        current *= x;
-    }
-
-    T get_value() const override
-    {
-        return current;
-    }
-
-protected:
-    T current;
-};
-
-template <typename T>
-class DivisionOperator : public ArithOperator<T>
-{
-public:
-    DivisionOperator() : current(static_cast<T>(0))
-    {
-        // Empty Constructor
-    }
-
-    void apply(const T& x) override
-    {
-        if (is_first)
-        {
-            current = x;
-            is_first = false;
-        }
-        else
-        {
-            current /= x;
-        }
-    }
-
-    T get_value() const override
-    {
-        return current;
-    }
-
-protected:
-    bool is_first = false;
-    T current;
-};
-
-template <template <typename> class OP, class T>
-struct ArithmeticExecutor : public tmdl::BlockExecutionInterface
-{
-    ArithmeticExecutor(
-        std::vector<std::shared_ptr<const tmdl::ValueBox>> inputValues,
-        std::shared_ptr<tmdl::ValueBox> outputValue)
-    {
-        output_value = std::dynamic_pointer_cast<tmdl::ValueBoxType<T>>(outputValue);
-
-        if (output_value == nullptr)
-        {
-            throw tmdl::ModelException("output pointer must be non-null");
-        }
-
-        for (const auto& p : inputValues)
-        {
-            const auto ptr = std::dynamic_pointer_cast<const tmdl::ValueBoxType<T>>(p);
-            if (ptr == nullptr)
-            {
-                throw tmdl::ModelException("input pointer must be non-null");
-            }
-
-            input_values.push_back(ptr);
-        }
-    }
-
-    void step(const tmdl::SimState&) override
-    {
-        OP<T> op;
-        ArithOperator<T>* ptr = &op;
-
-        for (const auto& p : input_values)
-        {
-            ptr->apply(p->value);
-        }
-        output_value->value = ptr->get_value();
-    }
-
-protected:
-    std::vector<std::shared_ptr<const tmdl::ValueBoxType<T>>> input_values;
-    std::shared_ptr<tmdl::ValueBoxType<T>> output_value;
-};
-
 // Addition Block
 
 std::string tmdl::stdlib::Addition::get_name() const
@@ -333,19 +301,19 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Addition::get_execu
     switch (_outputPort.dtype)
     {
     case DataType::DOUBLE:
-        return std::make_shared<ArithmeticExecutor<AdditionOperator, double>>(
+        return std::make_shared<ArithmeticExecutor<double, AdditionOperator<double>>>(
             input_values,
             output_value);
     case DataType::SINGLE:
-        return std::make_shared<ArithmeticExecutor<AdditionOperator, float>>(
+        return std::make_shared<ArithmeticExecutor<float, AdditionOperator<float>>>(
             input_values,
             output_value);
     case DataType::INT32:
-        return std::make_shared<ArithmeticExecutor<AdditionOperator, int32_t>>(
+        return std::make_shared<ArithmeticExecutor<int32_t, AdditionOperator<int32_t>>>(
             input_values,
             output_value);
     case DataType::UINT32:
-        return std::make_shared<ArithmeticExecutor<AdditionOperator, uint32_t>>(
+        return std::make_shared<ArithmeticExecutor<uint32_t, AdditionOperator<uint32_t>>>(
             input_values,
             output_value);
     default:
@@ -390,19 +358,19 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Subtraction::get_ex
     switch (_outputPort.dtype)
     {
     case DataType::DOUBLE:
-        return std::make_shared<ArithmeticExecutor<SubtractionOperator, double>>(
+        return std::make_shared<ArithmeticExecutor<double, SubtractionOperator<double>>>(
             input_values,
             output_value);
     case DataType::SINGLE:
-        return std::make_shared<ArithmeticExecutor<SubtractionOperator, float>>(
+        return std::make_shared<ArithmeticExecutor<float, SubtractionOperator<float>>>(
             input_values,
             output_value);
     case DataType::INT32:
-        return std::make_shared<ArithmeticExecutor<SubtractionOperator, int32_t>>(
+        return std::make_shared<ArithmeticExecutor<int32_t, SubtractionOperator<int32_t>>>(
             input_values,
             output_value);
     case DataType::UINT32:
-        return std::make_shared<ArithmeticExecutor<SubtractionOperator, uint32_t>>(
+        return std::make_shared<ArithmeticExecutor<uint32_t, SubtractionOperator<uint32_t>>>(
             input_values,
             output_value);
     default:
@@ -447,19 +415,19 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Product::get_execut
     switch (_outputPort.dtype)
     {
     case DataType::DOUBLE:
-        return std::make_shared<ArithmeticExecutor<MultiplicationOperator, double>>(
+        return std::make_shared<ArithmeticExecutor<double, MultiplicationOperator<double>>>(
             input_values,
             output_value);
     case DataType::SINGLE:
-        return std::make_shared<ArithmeticExecutor<MultiplicationOperator, float>>(
+        return std::make_shared<ArithmeticExecutor<float, MultiplicationOperator<float>>>(
             input_values,
             output_value);
     case DataType::INT32:
-        return std::make_shared<ArithmeticExecutor<MultiplicationOperator, int32_t>>(
+        return std::make_shared<ArithmeticExecutor<int32_t, MultiplicationOperator<int32_t>>>(
             input_values,
             output_value);
     case DataType::UINT32:
-        return std::make_shared<ArithmeticExecutor<MultiplicationOperator, uint32_t>>(
+        return std::make_shared<ArithmeticExecutor<uint32_t, MultiplicationOperator<uint32_t>>>(
             input_values,
             output_value);
     default:
@@ -504,19 +472,19 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Divide::get_executi
     switch (_outputPort.dtype)
     {
     case DataType::DOUBLE:
-        return std::make_shared<ArithmeticExecutor<DivisionOperator, double>>(
+        return std::make_shared<ArithmeticExecutor<double, DivisionOperator<double>>>(
             input_values,
             output_value);
     case DataType::SINGLE:
-        return std::make_shared<ArithmeticExecutor<DivisionOperator, float>>(
+        return std::make_shared<ArithmeticExecutor<float, DivisionOperator<float>>>(
             input_values,
             output_value);
     case DataType::INT32:
-        return std::make_shared<ArithmeticExecutor<DivisionOperator, int32_t>>(
+        return std::make_shared<ArithmeticExecutor<int32_t, DivisionOperator<int32_t>>>(
             input_values,
             output_value);
     case DataType::UINT32:
-        return std::make_shared<ArithmeticExecutor<DivisionOperator, uint32_t>>(
+        return std::make_shared<ArithmeticExecutor<uint32_t, DivisionOperator<uint32_t>>>(
             input_values,
             output_value);
     default:

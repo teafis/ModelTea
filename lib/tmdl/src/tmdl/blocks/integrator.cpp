@@ -11,12 +11,12 @@ template <Number T>
 struct IntegratorExecutor : public tmdl::BlockExecutionInterface
 {
     IntegratorExecutor(
-        std::shared_ptr<tmdl::ValueBox> input,
-        std::shared_ptr<tmdl::ValueBox> reset_value,
-        std::shared_ptr<tmdl::ValueBoxType<bool>> reset_flag,
+        std::shared_ptr<const tmdl::ValueBox> input,
+        std::shared_ptr<const tmdl::ValueBox> reset_value,
+        std::shared_ptr<const tmdl::ValueBoxType<bool>> reset_flag,
         std::shared_ptr<tmdl::ValueBox> output) :
-        _input(std::dynamic_pointer_cast<tmdl::ValueBoxType<T>>(input)),
-        _reset_value(std::dynamic_pointer_cast<tmdl::ValueBoxType<T>>(reset_value)),
+        _input(std::dynamic_pointer_cast<const tmdl::ValueBoxType<T>>(input)),
+        _reset_value(std::dynamic_pointer_cast<const tmdl::ValueBoxType<T>>(reset_value)),
         _output(std::dynamic_pointer_cast<tmdl::ValueBoxType<T>>(output)),
         _reset_flag(reset_flag)
     {
@@ -31,13 +31,13 @@ struct IntegratorExecutor : public tmdl::BlockExecutionInterface
         if (_reset_flag->value)
         {
             reset();
+            _output->value = state_value;
         }
         else
         {
+            _output->value = state_value;
             state_value = _input->value * state.dt;
         }
-
-        _output->value = state_value;
     }
 
     void reset() override
@@ -46,11 +46,11 @@ struct IntegratorExecutor : public tmdl::BlockExecutionInterface
     }
 
 protected:
-    std::shared_ptr<tmdl::ValueBoxType<T>> _input;
-    std::shared_ptr<tmdl::ValueBoxType<T>> _reset_value;
+    std::shared_ptr<const tmdl::ValueBoxType<T>> _input;
+    std::shared_ptr<const tmdl::ValueBoxType<T>> _reset_value;
     std::shared_ptr<tmdl::ValueBoxType<T>> _output;
 
-    std::shared_ptr<tmdl::ValueBoxType<bool>> _reset_flag;
+    std::shared_ptr<const tmdl::ValueBoxType<bool>> _reset_flag;
 
     T state_value;
 };

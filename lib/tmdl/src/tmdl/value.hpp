@@ -26,9 +26,9 @@ struct PortValue
 {
     DataType dtype = DataType::UNKNOWN;
 
-    void clear();
+    bool is_delayed_output = false;
 
-    bool operator==(const PortValue& other) const = default;
+    PortValue& operator=(const PortValue&) = delete;
 };
 
 struct ValueBox

@@ -5,11 +5,6 @@
 
 using namespace tmdl;
 
-void tmdl::PortValue::clear()
-{
-    dtype = DataType::UNKNOWN;
-}
-
 template <typename T>
 static std::shared_ptr<tmdl::ValueBox> get_default_shared()
 {

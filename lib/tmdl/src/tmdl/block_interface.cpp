@@ -15,18 +15,14 @@ void tmdl::BlockInterface::set_id(const size_t id)
     _id = id;
 }
 
-bool tmdl::BlockInterface::is_delayed_input(const size_t port) const
+std::unique_ptr<const tmdl::BlockError> tmdl::BlockInterface::make_error(const std::string& msg) const
 {
-    if (port < get_num_inputs())
+    return std::make_unique<BlockError>(BlockError
     {
-        return false;
-    }
-    else
-    {
-        throw ModelException("port number exceeds input port count");
-    }
+        .id = get_id(),
+        .message = msg
+    });
 }
-
 
 void tmdl::BlockExecutionInterface::init()
 {

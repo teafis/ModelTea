@@ -36,7 +36,7 @@ size_t InputPort::get_num_outputs() const
 
 void InputPort::set_input_port(
     const size_t,
-    const PortValue)
+    const DataType)
 {
     throw ModelException("cannot set input port value");
 }
@@ -57,12 +57,7 @@ std::unique_ptr<const BlockError> InputPort::has_error() const
 {
     if (_port.dtype == DataType::UNKNOWN)
     {
-        return std::make_unique<BlockError>(
-        BlockError
-        {
-            .id = get_id(),
-            .message = "input port has unknown type"
-        });
+        return make_error("input port has unknown type");
     }
 
     return nullptr;
@@ -80,9 +75,9 @@ std::shared_ptr<BlockExecutionInterface> InputPort::get_execution_interface(
     return std::make_shared<BlockExecutionInterface>();
 }
 
-void InputPort::set_input_value(const PortValue value)
+void InputPort::set_input_value(const DataType type)
 {
-    _port = value;
+    _port.dtype = type;
 }
 
 /* ========== OUTPUT PORT ========== */
@@ -114,11 +109,11 @@ size_t OutputPort::get_num_outputs() const
 
 void OutputPort::set_input_port(
     const size_t port,
-    const PortValue value)
+    const DataType type)
 {
     if (port == 0)
     {
-        _port = value;
+        _port.dtype = type;
     }
     else
     {
@@ -135,12 +130,7 @@ std::unique_ptr<const BlockError> OutputPort::has_error() const
 {
     if (_port.dtype == DataType::UNKNOWN)
     {
-        return std::make_unique<BlockError>(
-        BlockError
-        {
-            .id = get_id(),
-            .message = "output port has unknown type"
-        });
+        return make_error("output port has unknown type");
     }
 
     return nullptr;

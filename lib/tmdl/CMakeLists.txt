@@ -33,6 +33,7 @@ set(
     src/tmdl/variable_manager.hpp src/tmdl/variable_manager.cpp
     src/tmdl/blocks/arithmetic.hpp src/tmdl/blocks/arithmetic.cpp
     src/tmdl/blocks/clock.hpp src/tmdl/blocks/clock.cpp
+    src/tmdl/blocks/integrator.hpp src/tmdl/blocks/integrator.cpp
     src/tmdl/blocks/io_ports.hpp src/tmdl/blocks/io_ports.cpp
     src/tmdl/blocks/limiter.hpp src/tmdl/blocks/limiter.cpp
     src/tmdl/blocks/trig.hpp src/tmdl/blocks/trig.cpp

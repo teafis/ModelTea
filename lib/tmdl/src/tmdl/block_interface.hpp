@@ -40,19 +40,20 @@ public:
 
     virtual size_t get_num_inputs() const = 0;
 
-    virtual bool is_delayed_input(const size_t port) const;
-
     virtual size_t get_num_outputs() const = 0;
 
     virtual void set_input_port(
         const size_t port,
-        const PortValue value) = 0;
+        const DataType type) = 0;
 
     virtual PortValue get_output_port(const size_t port) const = 0;
 
     virtual std::shared_ptr<BlockExecutionInterface> get_execution_interface(
         const ConnectionManager& connections,
         const VariableManager& manager) const = 0;
+
+protected:
+    std::unique_ptr<const BlockError> make_error(const std::string& msg) const;
 
 protected:
     size_t _id = 0;

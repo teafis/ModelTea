@@ -78,7 +78,9 @@ Limiter::Limiter()
         "Minimum Value",
         ParameterValue{});
 
-    Limiter::update_block();
+    input_type = DataType::UNKNOWN;
+    input_type_min = DataType::UNKNOWN;
+    input_type_max = DataType::UNKNOWN;
 }
 
 std::string Limiter::get_name() const
@@ -128,11 +130,11 @@ size_t Limiter::get_num_outputs() const
 
 bool Limiter::update_block()
 {
-    if (input_port.dtype != output_port.dtype)
+    if (input_type != output_port.dtype)
     {
         ParameterValue::Type new_dtype = ParameterValue::Type::UNKNOWN;
 
-        switch (input_port.dtype)
+        switch (input_type)
         {
         case DataType::DOUBLE:
             new_dtype = ParameterValue::Type::DOUBLE;
@@ -153,8 +155,7 @@ bool Limiter::update_block()
         prmMaxValue->get_value().convert(new_dtype);
         prmMinValue->get_value().convert(new_dtype);
 
-
-        output_port = input_port;
+        output_port.dtype = input_type;
         return true;
     }
 
@@ -170,24 +171,16 @@ std::unique_ptr<const BlockError> Limiter::has_error() const
         DataType::UINT32
     };
 
-    if (std::find(supportedDataTypes.begin(), supportedDataTypes.end(), input_port.dtype) == supportedDataTypes.end())
+    if (std::find(supportedDataTypes.begin(), supportedDataTypes.end(), input_type) == supportedDataTypes.end())
     {
-        return std::make_unique<BlockError>(BlockError
-        {
-            .id = get_id(),
-            .message = "input port not set"
-        });
+        return make_error("input port not set");
     }
 
     if (dynamicLimiter->get_value().value.tf)
     {
-        if (input_port_max.dtype != input_port.dtype || input_port_min.dtype != input_port.dtype)
+        if (input_type_max != input_type || input_type_min != input_type)
         {
-            return std::make_unique<BlockError>(BlockError
-            {
-                .id = get_id(),
-                .message = "min/max data types should be the same data type as the primary input"
-            });
+            return make_error("min/max data types should be the same data type as the primary input");
         }
     }
     else
@@ -196,11 +189,7 @@ std::unique_ptr<const BlockError> Limiter::has_error() const
         {
             if (p->get_value().dtype == ParameterValue::Type::UNKNOWN)
             {
-                return std::make_unique<BlockError>(BlockError
-                {
-                    .id = get_id(),
-                    .message = "min or max value is not able to be set"
-                });
+                return make_error("min or max value is not able to be set");
             }
         }
     }
@@ -210,20 +199,20 @@ std::unique_ptr<const BlockError> Limiter::has_error() const
 
 void Limiter::set_input_port(
     const size_t port,
-    const PortValue value)
+    const DataType type)
 {
     if (port < get_num_inputs())
     {
         switch (port)
         {
         case 0:
-            input_port = value;
+            input_type = type;
             break;
         case 1:
-            input_port_min = value;
+            input_type_min = type;
             break;
         case 2:
-            input_port_max = value;
+            input_type_max = type;
             break;
         }
     }
@@ -277,7 +266,7 @@ std::shared_ptr<BlockExecutionInterface> Limiter::get_execution_interface(
 
     const auto outputPointer = manager.get_ptr(vidOutput);
 
-    switch (input_port.dtype)
+    switch (input_type)
     {
     case DataType::DOUBLE:
         return std::make_shared<LimiterExecutor<double>>(

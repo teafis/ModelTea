@@ -23,7 +23,7 @@ public:
 
     void set_input_port(
         const size_t port,
-        const PortValue value) override;
+        const DataType type) override;
 
     PortValue get_output_port(const size_t port) const override;
 
@@ -36,7 +36,7 @@ public:
         const VariableManager& manager) const override;
 
 public:
-    void set_input_value(const PortValue value);
+    void set_input_value(const DataType type);
 
 protected:
     PortValue _port;
@@ -57,7 +57,7 @@ public:
 
     void set_input_port(
         const size_t port,
-        const PortValue value) override;
+        const DataType type) override;
 
     PortValue get_output_port(const size_t port) const override;
 

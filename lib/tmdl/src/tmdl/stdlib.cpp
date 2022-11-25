@@ -7,6 +7,7 @@
 #include "blocks/trig.hpp"
 #include "blocks/io_ports.hpp"
 #include "blocks/arithmetic.hpp"
+#include "blocks/integrator.hpp"
 
 #include "model_exception.hpp"
 
@@ -30,7 +31,8 @@ tmdl::stdlib::StandardLibrary::StandardLibrary()
         {"add", &make_block<Addition>},
         {"sub", &make_block<Subtraction>},
         {"mul", &make_block<Multiplication>},
-        {"div", &make_block<Division>}
+        {"div", &make_block<Division>},
+        {"integrator", &make_block<Integrator>}
     };
 }
 

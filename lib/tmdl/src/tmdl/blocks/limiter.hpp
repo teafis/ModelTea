@@ -31,7 +31,7 @@ public:
 
     void set_input_port(
         const size_t port,
-        const PortValue value) override;
+        const DataType type) override;
 
     PortValue get_output_port(const size_t port) const override;
 
@@ -40,9 +40,9 @@ public:
         const VariableManager& manager) const override;
 
 protected:
-    PortValue input_port;
-    PortValue input_port_max;
-    PortValue input_port_min;
+    DataType input_type;
+    DataType input_type_max;
+    DataType input_type_min;
     PortValue output_port;
 
     std::unique_ptr<Parameter> dynamicLimiter;

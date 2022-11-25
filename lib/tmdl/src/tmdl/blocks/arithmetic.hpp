@@ -34,7 +34,7 @@ public:
 
     void set_input_port(
         const size_t port,
-        const PortValue value) override;
+        const DataType type) override;
 
     PortValue get_output_port(const size_t port) const override;
 
@@ -50,7 +50,7 @@ private:
 
 protected:
     std::unique_ptr<Parameter> _prmNumInputPorts;
-    std::vector<PortValue> _inputPorts;
+    std::vector<DataType> _inputTypes;
     PortValue _outputPort;
 };
 

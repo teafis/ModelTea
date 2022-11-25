@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#ifndef TF_MODEL_STDLIB_CLOCK_HPP
-#define TF_MODEL_STDLIB_CLOCK_HPP
+#ifndef TF_MODEL_STDLIB_INTEGRATOR_HPP
+#define TF_MODEL_STDLIB_INTEGRATOR_HPP
 
 #include "../library.hpp"
 
 namespace tmdl::stdlib
 {
 
-class Clock : public LibraryBlock
+class Integrator : public LibraryBlock
 {
 public:
-    Clock();
+    Integrator();
 
     std::string get_name() const override;
 
@@ -23,11 +23,13 @@ public:
 
     bool update_block() override;
 
+    std::vector<Parameter*> get_parameters() const override;
+
     std::unique_ptr<const BlockError> has_error() const override;
 
     void set_input_port(
-        const size_t,
-        const DataType) override;
+        const size_t port,
+        const DataType type) override;
 
     PortValue get_output_port(const size_t port) const override;
 
@@ -36,9 +38,12 @@ public:
         const VariableManager& manager) const override;
 
 protected:
+    DataType input_type;
+    DataType input_reset_flat_type;
+    DataType input_reset_value_type;
     PortValue output_port;
 };
 
 }
 
-#endif // TF_MODEL_STDLIB_CLOCK_HPP
+#endif // TF_MODEL_STDLIB_INTEGRATOR_HPP

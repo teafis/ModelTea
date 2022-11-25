@@ -28,10 +28,7 @@ protected:
 
 tmdl::stdlib::Clock::Clock()
 {
-    output_port = PortValue
-    {
-        .dtype = DataType::DOUBLE
-    };
+    output_port.dtype = DataType::DOUBLE;
 }
 
 std::string tmdl::stdlib::Clock::get_name() const
@@ -66,7 +63,7 @@ std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::Clock::has_error() const
 
 void tmdl::stdlib::Clock::set_input_port(
     const size_t,
-    const PortValue)
+    const DataType)
 {
     throw ModelException("no input ports for clock");
 }

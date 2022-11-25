@@ -4,8 +4,7 @@
 
 tmdl::stdlib::TrigFunction::TrigFunction()
 {
-    input_port = PortValue{};
-    output_port = PortValue{};
+    input_type = DataType::UNKNOWN;
 }
 
 size_t tmdl::stdlib::TrigFunction::get_num_inputs() const
@@ -20,9 +19,9 @@ size_t tmdl::stdlib::TrigFunction::get_num_outputs() const
 
 bool tmdl::stdlib::TrigFunction::update_block()
 {
-    if (input_port.dtype != output_port.dtype)
+    if (input_type != output_port.dtype)
     {
-        output_port = input_port;
+        output_port.dtype = input_type;
         return true;
     }
     else
@@ -33,21 +32,13 @@ bool tmdl::stdlib::TrigFunction::update_block()
 
 std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::TrigFunction::has_error() const
 {
-    if (input_port.dtype != output_port.dtype)
+    if (input_type != output_port.dtype)
     {
-        return std::make_unique<BlockError>(BlockError
-        {
-            .id = get_id(),
-            .message = "mismatch in input and output types"
-        });
+        return make_error("mismatch in input and output types");
     }
-    else if (input_port.dtype != DataType::DOUBLE && input_port.dtype != DataType::SINGLE)
+    else if (input_type != DataType::DOUBLE && input_type != DataType::SINGLE)
     {
-        return std::make_unique<BlockError>(BlockError
-        {
-            .id = get_id(),
-            .message = "invalid input port type provided"
-        });
+        return make_error("invalid input port type provided");
     }
 
     return nullptr;
@@ -55,11 +46,11 @@ std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::TrigFunction::has_error() 
 
 void tmdl::stdlib::TrigFunction::set_input_port(
     const size_t port,
-    const PortValue value)
+    const DataType type)
 {
     if (port == 0)
     {
-        input_port = value;
+        input_type = type;
     }
     else
     {
@@ -132,7 +123,7 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::TrigSin::get_execut
         .output_port_num = 0
     });
 
-    switch (input_port.dtype)
+    switch (input_type)
     {
     case DataType::DOUBLE:
         return std::make_shared<TrigExecutor<double, std::sin>>(
@@ -173,7 +164,7 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::TrigCos::get_execut
         .output_port_num = 0
     });
 
-    switch (input_port.dtype)
+    switch (input_type)
     {
     case DataType::DOUBLE:
         return std::make_shared<TrigExecutor<double, std::cos>>(

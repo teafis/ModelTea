@@ -128,7 +128,7 @@ protected:
 tmdl::stdlib::ArithmeticBase::ArithmeticBase() :
     _prmNumInputPorts(std::make_unique<Parameter>("num_inputs", "number of input ports", ParameterValue::from_string("1", ParameterValue::Type::UINT32)))
 {
-    _inputPorts.resize(currentPrmPortCount());
+    _inputTypes.resize(currentPrmPortCount(), DataType::UNKNOWN);
 }
 
 size_t tmdl::stdlib::ArithmeticBase::get_num_inputs() const
@@ -152,15 +152,15 @@ bool tmdl::stdlib::ArithmeticBase::update_block()
 
     bool updated = false;
 
-    if (_inputPorts.size() != get_num_inputs())
+    if (_inputTypes.size() != get_num_inputs())
     {
-        _inputPorts.resize(get_num_inputs());
+        _inputTypes.resize(get_num_inputs(), DataType::UNKNOWN);
         updated = true;
     }
 
-    if (_inputPorts.size() > 0)
+    if (_inputTypes.size() > 0)
     {
-        firstType = _inputPorts[0].dtype;
+        firstType = _inputTypes[0];
     }
 
     if (_outputPort.dtype != firstType)
@@ -176,32 +176,20 @@ std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::ArithmeticBase::has_error(
 {
     if (currentPrmPortCount() < 1)
     {
-        return std::make_unique<BlockError>(BlockError
-        {
-            .id = get_id(),
-            .message = "arithmetic block must have >= 2 ports"
-        });
+        return make_error("arithmetic block must have >= 2 ports");
     }
 
-    const DataType firstType = _inputPorts[0].dtype;
+    const DataType firstType = _inputTypes[0];
 
-    for (const auto& p : _inputPorts)
+    for (const auto& p : _inputTypes)
     {
-        if (p.dtype == DataType::BOOLEAN || p.dtype == DataType::UNKNOWN)
+        if (p == DataType::BOOLEAN || p == DataType::UNKNOWN)
         {
-            return std::make_unique<BlockError>(BlockError
-            {
-                .id = get_id(),
-                .message = "unknown data type provided for input port"
-            });
+            return make_error("unknown data type provided for input port");
         }
-        else if (p.dtype != firstType)
+        else if (p != firstType)
         {
-            return std::make_unique<BlockError>(BlockError
-            {
-                .id = get_id(),
-                .message = "all input ports must have the same data type"
-            });
+            return make_error("all input ports must have the same data type");
         }
     }
 
@@ -210,13 +198,13 @@ std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::ArithmeticBase::has_error(
 
 void tmdl::stdlib::ArithmeticBase::set_input_port(
     const size_t port,
-    const PortValue value)
+    const DataType type)
 {
-    _inputPorts.resize(currentPrmPortCount());
+    _inputTypes.resize(currentPrmPortCount());
 
-    if (port < _inputPorts.size())
+    if (port < _inputTypes.size())
     {
-        _inputPorts[port] = value;
+        _inputTypes[port] = type;
     }
     else
     {
@@ -229,9 +217,9 @@ tmdl::PortValue tmdl::stdlib::ArithmeticBase::get_output_port(const size_t port)
     if (port == 0)
     {
         DataType dtype = DataType::UNKNOWN;
-        if (_inputPorts.size() > 0)
+        if (_inputTypes.size() > 0)
         {
-            dtype = _inputPorts[0].dtype;
+            dtype = _inputTypes[0];
         }
 
         return PortValue
@@ -255,7 +243,7 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::ArithmeticBase::get
     }
 
     std::vector<std::shared_ptr<const ValueBox>> input_values;
-    for (size_t i = 0; i < _inputPorts.size(); ++i)
+    for (size_t i = 0; i < _inputTypes.size(); ++i)
     {
         const auto& c = connections.get_connection_to(get_id(), i);
         input_values.push_back(manager.get_ptr(c));

@@ -113,7 +113,7 @@ void Model::add_connection(const Connection connection)
         connections.add_connection(connection);
         to_block->set_input_port(
             connection.get_to_port(),
-            from_block->get_output_port(connection.get_from_port()));
+            from_block->get_output_port(connection.get_from_port()).dtype);
     }
     else
     {
@@ -128,7 +128,7 @@ void Model::remove_connection(const size_t to_block, const size_t to_port)
     auto* blk = get_block(c.get_to_id());
     if (c.get_to_port() < blk->get_num_inputs())
     {
-        blk->set_input_port(c.get_to_port(), PortValue());
+        blk->set_input_port(c.get_to_port(), DataType::UNKNOWN);
     }
 
     connections.remove_connection(to_block, to_port);
@@ -164,7 +164,7 @@ bool Model::update_block()
 
             to_blk->set_input_port(
                 c.get_to_port(),
-                from_blk->get_output_port(c.get_from_port()));
+                from_blk->get_output_port(c.get_from_port()).dtype);
         }
 
         // Check each port for updates
@@ -206,7 +206,7 @@ std::unique_ptr<const BlockError> Model::has_error() const
 
 void Model::set_input_port(
     const size_t port,
-    const PortValue value)
+    const DataType type)
 {
     if (port < get_num_inputs())
     {
@@ -216,7 +216,7 @@ void Model::set_input_port(
             throw ModelException("invalid block found for input port");
         }
 
-        blk->set_input_value(value);
+        blk->set_input_value(type);
     }
     else
     {
@@ -323,7 +323,10 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
 
                 // Skip if the input port is a delayed input, but after need to check
                 // connections to ensure that all blocks are connected
-                if (block->is_delayed_input(port))
+                const auto from_conn = connections.get_connection_to(id, port);
+                const auto from_port = get_block(from_conn.get_from_id())->get_output_port(from_conn.get_from_port());
+
+                if (from_port.is_delayed_output)
                 {
                     continue;
                 }

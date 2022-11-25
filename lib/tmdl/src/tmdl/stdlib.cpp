@@ -29,8 +29,8 @@ tmdl::stdlib::StandardLibrary::StandardLibrary()
         {"output", &make_block<OutputPort>},
         {"add", &make_block<Addition>},
         {"sub", &make_block<Subtraction>},
-        {"mul", &make_block<Product>},
-        {"div", &make_block<Divide>}
+        {"mul", &make_block<Multiplication>},
+        {"div", &make_block<Division>}
     };
 }
 

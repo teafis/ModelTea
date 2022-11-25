@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-only
+// SPDX-License-IdentifierDiDivision3.0-only
 
 #include "arithmetic.hpp"
 
@@ -12,10 +12,17 @@
 template <typename T>
 concept Number = std::integral<T> || std::floating_point<T>;
 
-template <Number T, T (FCN)(const T&, const T&)>
+template <Number T>
 class OperatorBase
 {
 public:
+    using fcn_t = T (*)(const T&, const T&);
+
+    OperatorBase(const fcn_t apply_func) : apply_func(apply_func)
+    {
+        // Empty Constructor
+    }
+
     void apply(const T& x)
     {
         if (is_first)
@@ -25,7 +32,7 @@ public:
         }
         else
         {
-            current = FCN(current, x);
+            current = apply_func(current, x);
         }
     }
 
@@ -37,6 +44,7 @@ public:
 protected:
     bool is_first = true;
     T current{};
+    fcn_t apply_func;
 };
 
 template <Number T>
@@ -63,26 +71,6 @@ T tsim_div(const T& a, const T& b)
     return a / b;
 }
 
-template <Number T>
-class AdditionOperator : public OperatorBase<T, tsim_add>
-{
-};
-
-template <Number T>
-class SubtractionOperator : public OperatorBase<T, tsim_sub>
-{
-};
-
-template <Number T>
-class MultiplicationOperator : public OperatorBase<T, tsim_mul>
-{
-};
-
-template <Number T>
-class DivisionOperator : public OperatorBase<T, tsim_div>
-{
-};
-
 template <typename OP, typename N>
 concept OperatorClass = requires(OP op, N n) {
     requires Number<N>;
@@ -95,7 +83,9 @@ struct ArithmeticExecutor : public tmdl::BlockExecutionInterface
 {
     ArithmeticExecutor(
         std::vector<std::shared_ptr<const tmdl::ValueBox>> inputValues,
-        std::shared_ptr<tmdl::ValueBox> outputValue)
+        std::shared_ptr<tmdl::ValueBox> outputValue,
+        const typename OperatorBase<T>::fcn_t applyFunc) :
+        apply_func(applyFunc)
     {
         output_value = std::dynamic_pointer_cast<tmdl::ValueBoxType<T>>(outputValue);
 
@@ -118,7 +108,7 @@ struct ArithmeticExecutor : public tmdl::BlockExecutionInterface
 
     void step(const tmdl::SimState&) override
     {
-        OP op;
+        OP op(apply_func);
 
         for (const auto& p : input_values)
         {
@@ -130,6 +120,7 @@ struct ArithmeticExecutor : public tmdl::BlockExecutionInterface
 protected:
     std::vector<std::shared_ptr<const tmdl::ValueBoxType<T>>> input_values;
     std::shared_ptr<tmdl::ValueBoxType<T>> output_value;
+    typename OperatorBase<T>::fcn_t apply_func;
 };
 
 // Arithmetic Base
@@ -254,6 +245,57 @@ tmdl::PortValue tmdl::stdlib::ArithmeticBase::get_output_port(const size_t port)
     }
 }
 
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::ArithmeticBase::get_execution_interface(
+    const ConnectionManager& connections,
+    const VariableManager& manager) const
+{
+    if (has_error() != nullptr)
+    {
+        throw ModelException("cannot generate a model with an error");
+    }
+
+    std::vector<std::shared_ptr<const ValueBox>> input_values;
+    for (size_t i = 0; i < _inputPorts.size(); ++i)
+    {
+        const auto& c = connections.get_connection_to(get_id(), i);
+        input_values.push_back(manager.get_ptr(c));
+    }
+
+    auto output_value = manager.get_ptr(VariableIdentifier
+    {
+        .block_id = get_id(),
+        .output_port_num = 0
+    });
+
+    const FunctionTypes fcs = get_application_functions();
+
+    switch (_outputPort.dtype)
+    {
+    case DataType::DOUBLE:
+        return std::make_shared<ArithmeticExecutor<double, OperatorBase<double>>>(
+            input_values,
+            output_value,
+            fcs.double_fcn);
+    case DataType::SINGLE:
+        return std::make_shared<ArithmeticExecutor<float, OperatorBase<float>>>(
+            input_values,
+            output_value,
+            fcs.float_fcn);
+    case DataType::INT32:
+        return std::make_shared<ArithmeticExecutor<int32_t, OperatorBase<int32_t>>>(
+            input_values,
+            output_value,
+            fcs.i32_fcn);
+    case DataType::UINT32:
+        return std::make_shared<ArithmeticExecutor<uint32_t, OperatorBase<uint32_t>>>(
+            input_values,
+            output_value,
+            fcs.u32_fcn);
+    default:
+        throw ModelException("unable to generate arithmetic executor");
+    }
+}
+
 size_t tmdl::stdlib::ArithmeticBase::currentPrmPortCount() const
 {
     return _prmNumInputPorts->get_value().value.u32;
@@ -271,49 +313,15 @@ std::string tmdl::stdlib::Addition::get_description() const
     return "adds the provided inputs together";
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Addition::get_execution_interface(
-    const ConnectionManager& connections,
-    const VariableManager& manager) const
+tmdl::stdlib::ArithmeticBase::FunctionTypes tmdl::stdlib::Addition::get_application_functions() const
 {
-    if (has_error() != nullptr)
+    return FunctionTypes
     {
-        throw ModelException("cannot generate a model with an error");
-    }
-
-    std::vector<std::shared_ptr<const ValueBox>> input_values;
-    for (size_t i = 0; i < _inputPorts.size(); ++i)
-    {
-        const auto& c = connections.get_connection_to(get_id(), i);
-        input_values.push_back(manager.get_ptr(c));
-    }
-
-    auto output_value = manager.get_ptr(VariableIdentifier
-    {
-        .block_id = get_id(),
-        .output_port_num = 0
-    });
-
-    switch (_outputPort.dtype)
-    {
-    case DataType::DOUBLE:
-        return std::make_shared<ArithmeticExecutor<double, AdditionOperator<double>>>(
-            input_values,
-            output_value);
-    case DataType::SINGLE:
-        return std::make_shared<ArithmeticExecutor<float, AdditionOperator<float>>>(
-            input_values,
-            output_value);
-    case DataType::INT32:
-        return std::make_shared<ArithmeticExecutor<int32_t, AdditionOperator<int32_t>>>(
-            input_values,
-            output_value);
-    case DataType::UINT32:
-        return std::make_shared<ArithmeticExecutor<uint32_t, AdditionOperator<uint32_t>>>(
-            input_values,
-            output_value);
-    default:
-        throw ModelException("unable to generate addition executor");
-    }
+        .double_fcn = tsim_add<double>,
+        .float_fcn = tsim_add<float>,
+        .i32_fcn = tsim_add<int32_t>,
+        .u32_fcn = tsim_add<uint32_t>
+    };
 }
 
 // Subtraction Block
@@ -325,164 +333,62 @@ std::string tmdl::stdlib::Subtraction::get_name() const
 
 std::string tmdl::stdlib::Subtraction::get_description() const
 {
-    return "subtracts the provided inputs together";
+    return "subtracts the Multiplicationd inputs together";
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Subtraction::get_execution_interface(
-    const ConnectionManager& connections,
-    const VariableManager& manager) const
+tmdl::stdlib::ArithmeticBase::FunctionTypes tmdl::stdlib::Subtraction::get_application_functions() const
 {
-    if (has_error() != nullptr)
+    return FunctionTypes
     {
-        throw ModelException("cannot generate a model with an error");
-    }
-
-    std::vector<std::shared_ptr<const ValueBox>> input_values;
-    for (size_t i = 0; i < _inputPorts.size(); ++i)
-    {
-        const auto& c = connections.get_connection_to(get_id(), i);
-        input_values.push_back(manager.get_ptr(c));
-    }
-
-    auto output_value = manager.get_ptr(VariableIdentifier
-    {
-        .block_id = get_id(),
-        .output_port_num = 0
-    });
-
-    switch (_outputPort.dtype)
-    {
-    case DataType::DOUBLE:
-        return std::make_shared<ArithmeticExecutor<double, SubtractionOperator<double>>>(
-            input_values,
-            output_value);
-    case DataType::SINGLE:
-        return std::make_shared<ArithmeticExecutor<float, SubtractionOperator<float>>>(
-            input_values,
-            output_value);
-    case DataType::INT32:
-        return std::make_shared<ArithmeticExecutor<int32_t, SubtractionOperator<int32_t>>>(
-            input_values,
-            output_value);
-    case DataType::UINT32:
-        return std::make_shared<ArithmeticExecutor<uint32_t, SubtractionOperator<uint32_t>>>(
-            input_values,
-            output_value);
-    default:
-        throw ModelException("unable to generate subtraction executor");
-    }
+        .double_fcn = tsim_sub<double>,
+        .float_fcn = tsim_sub<float>,
+        .i32_fcn = tsim_sub<int32_t>,
+        .u32_fcn = tsim_sub<uint32_t>
+    };
 }
 
 // Product Block
 
-std::string tmdl::stdlib::Product::get_name() const
+std::string tmdl::stdlib::Multiplication::get_name() const
 {
     return "*";
 }
 
-std::string tmdl::stdlib::Product::get_description() const
+std::string tmdl::stdlib::Multiplication::get_description() const
 {
     return "multiplies the provided inputs together";
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Product::get_execution_interface(
-    const ConnectionManager& connections,
-    const VariableManager& manager) const
+tmdl::stdlib::ArithmeticBase::FunctionTypes tmdl::stdlib::Multiplication::get_application_functions() const
 {
-    if (has_error() != nullptr)
+    return FunctionTypes
     {
-        throw ModelException("cannot generate a model with an error");
-    }
-
-    std::vector<std::shared_ptr<const ValueBox>> input_values;
-    for (size_t i = 0; i < _inputPorts.size(); ++i)
-    {
-        const auto& c = connections.get_connection_to(get_id(), i);
-        input_values.push_back(manager.get_ptr(c));
-    }
-
-    auto output_value = manager.get_ptr(VariableIdentifier
-    {
-        .block_id = get_id(),
-        .output_port_num = 0
-    });
-
-    switch (_outputPort.dtype)
-    {
-    case DataType::DOUBLE:
-        return std::make_shared<ArithmeticExecutor<double, MultiplicationOperator<double>>>(
-            input_values,
-            output_value);
-    case DataType::SINGLE:
-        return std::make_shared<ArithmeticExecutor<float, MultiplicationOperator<float>>>(
-            input_values,
-            output_value);
-    case DataType::INT32:
-        return std::make_shared<ArithmeticExecutor<int32_t, MultiplicationOperator<int32_t>>>(
-            input_values,
-            output_value);
-    case DataType::UINT32:
-        return std::make_shared<ArithmeticExecutor<uint32_t, MultiplicationOperator<uint32_t>>>(
-            input_values,
-            output_value);
-    default:
-        throw ModelException("unable to generate product executor");
-    }
+        .double_fcn = tsim_mul<double>,
+        .float_fcn = tsim_mul<float>,
+        .i32_fcn = tsim_mul<int32_t>,
+        .u32_fcn = tsim_mul<uint32_t>
+    };
 }
 
 // Division Block
 
-std::string tmdl::stdlib::Divide::get_name() const
+std::string tmdl::stdlib::Division::get_name() const
 {
     return "/";
 }
 
-std::string tmdl::stdlib::Divide::get_description() const
+std::string tmdl::stdlib::Division::get_description() const
 {
     return "divides the provided inputs together";
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Divide::get_execution_interface(
-    const ConnectionManager& connections,
-    const VariableManager& manager) const
+tmdl::stdlib::ArithmeticBase::FunctionTypes tmdl::stdlib::Division::get_application_functions() const
 {
-    if (has_error() != nullptr)
+    return FunctionTypes
     {
-        throw ModelException("cannot generate a model with an error");
-    }
-
-    std::vector<std::shared_ptr<const ValueBox>> input_values;
-    for (size_t i = 0; i < _inputPorts.size(); ++i)
-    {
-        const auto& c = connections.get_connection_to(get_id(), i);
-        input_values.push_back(manager.get_ptr(c));
-    }
-
-    auto output_value = manager.get_ptr(VariableIdentifier
-    {
-        .block_id = get_id(),
-        .output_port_num = 0
-    });
-
-    switch (_outputPort.dtype)
-    {
-    case DataType::DOUBLE:
-        return std::make_shared<ArithmeticExecutor<double, DivisionOperator<double>>>(
-            input_values,
-            output_value);
-    case DataType::SINGLE:
-        return std::make_shared<ArithmeticExecutor<float, DivisionOperator<float>>>(
-            input_values,
-            output_value);
-    case DataType::INT32:
-        return std::make_shared<ArithmeticExecutor<int32_t, DivisionOperator<int32_t>>>(
-            input_values,
-            output_value);
-    case DataType::UINT32:
-        return std::make_shared<ArithmeticExecutor<uint32_t, DivisionOperator<uint32_t>>>(
-            input_values,
-            output_value);
-    default:
-        throw ModelException("unable to generate division executor");
-    }
+        .double_fcn = tsim_div<double>,
+        .float_fcn = tsim_div<float>,
+        .i32_fcn = tsim_div<int32_t>,
+        .u32_fcn = tsim_div<uint32_t>
+    };
 }

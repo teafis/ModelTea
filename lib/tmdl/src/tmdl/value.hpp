@@ -5,6 +5,7 @@
 
 #include <cstdint>
 
+#include <string>
 #include <memory>
 #include <optional>
 
@@ -22,13 +23,15 @@ enum class DataType
     UINT32
 };
 
+std::string data_type_to_string(const DataType dtype);
+
+DataType data_type_from_string(const std::string& s);
+
 struct PortValue
 {
     DataType dtype = DataType::UNKNOWN;
 
     bool is_delayed_output = false;
-
-    PortValue& operator=(const PortValue&) = delete;
 };
 
 struct ValueBox

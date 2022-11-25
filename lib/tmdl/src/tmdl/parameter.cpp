@@ -2,6 +2,11 @@
 
 #include "parameter.hpp"
 
+#include "model_exception.hpp"
+
+#include <iomanip>
+
+
 std::string tmdl::ParameterValue::to_string() const
 {
     std::ostringstream oss;
@@ -22,6 +27,9 @@ std::string tmdl::ParameterValue::to_string() const
         break;
     case Type::UINT32:
         oss << value.u32;
+        break;
+    case Type::DATA_TYPE:
+        oss << data_type_to_string(value.dtype);
         break;
     default:
         throw ModelException("unsupported type");
@@ -143,6 +151,31 @@ void tmdl::ParameterValue::convert(const Type t)
     dtype = t;
 }
 
+void tmdl::ParameterValue::convert(const DataType t)
+{
+    switch (t)
+    {
+    case DataType::DOUBLE:
+        convert(Type::DOUBLE);
+        break;
+    case DataType::SINGLE:
+        convert(Type::SINGLE);
+        break;
+    case DataType::INT32:
+        convert(Type::INT32);
+        break;
+    case DataType::UINT32:
+        convert(Type::UINT32);
+        break;
+    case DataType::BOOLEAN:
+        convert(Type::BOOLEAN);
+        break;
+    default:
+        convert(Type::UNKNOWN);
+        break;
+    }
+}
+
 tmdl::ParameterValue tmdl::ParameterValue::from_string(const std::string& s, const Type t)
 {
     ParameterValue data_value{};
@@ -168,9 +201,10 @@ tmdl::ParameterValue tmdl::ParameterValue::from_string(const std::string& s, con
             data_value.value.f64 = std::stod(s);
             break;
         case ParameterValue::Type::DATA_TYPE:
-        {
-            throw ModelException("not implemented");
-        }
+            data_value.value.dtype = data_type_from_string(s);
+            break;
+        case ParameterValue::Type::UNKNOWN:
+            break;
         default:
             throw ModelException("unknown parse parameter type provided");
         }
@@ -225,6 +259,11 @@ std::string tmdl::Parameter::get_id() const
 std::string tmdl::Parameter::get_name() const
 {
     return name;
+}
+
+void tmdl::Parameter::set_name(const std::string& n)
+{
+    name = n;
 }
 
 tmdl::ParameterValue& tmdl::Parameter::get_value()

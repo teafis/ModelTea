@@ -2,6 +2,9 @@
 
 #include "trig.hpp"
 
+#include "../model_exception.hpp"
+
+
 tmdl::stdlib::TrigFunction::TrigFunction()
 {
     input_type = DataType::UNKNOWN;

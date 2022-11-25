@@ -2,6 +2,8 @@
 
 #include "clock.hpp"
 
+#include "../model_exception.hpp"
+
 class ClockExecutor : public tmdl::BlockExecutionInterface
 {
 public:

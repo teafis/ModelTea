@@ -250,6 +250,13 @@ bool BlockObject::blockRectContainsPoint(const QPointF& loc) const
     return blockRect().contains(loc - pos());
 }
 
+void BlockObject::update_block()
+{
+    const size_t ITER_LIM = 100;
+    size_t i = 0;
+    while (block->update_block() && i++ < ITER_LIM);
+}
+
 const tmdl::LibraryBlock* BlockObject::get_block() const
 {
     return block.get();

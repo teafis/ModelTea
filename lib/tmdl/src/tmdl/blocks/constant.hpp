@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#ifndef TF_MODEL_STDLIB_INTEGRATOR_HPP
-#define TF_MODEL_STDLIB_INTEGRATOR_HPP
+#ifndef TF_MODEL_STDLIB_CONSTANT_HPP
+#define TF_MODEL_STDLIB_CONSTANT_HPP
 
 #include "../library.hpp"
 
 namespace tmdl::stdlib
 {
 
-class Integrator : public LibraryBlock
+class Constant : public LibraryBlock
 {
 public:
-    Integrator();
+    Constant();
 
     std::string get_name() const override;
 
@@ -28,8 +28,8 @@ public:
     std::unique_ptr<const BlockError> has_error() const override;
 
     void set_input_port(
-        const size_t port,
-        const DataType type) override;
+        const size_t,
+        const DataType) override;
 
     PortValue get_output_port(const size_t port) const override;
 
@@ -38,12 +38,11 @@ public:
         const VariableManager& manager) const override;
 
 protected:
-    DataType input_type;
-    DataType input_reset_flag_type;
-    DataType input_reset_value_type;
+    std::unique_ptr<Parameter> param_dtype;
+    std::unique_ptr<Parameter> param_value;
     PortValue output_port;
 };
 
 }
 
-#endif // TF_MODEL_STDLIB_INTEGRATOR_HPP
+#endif // TF_MODEL_STDLIB_CONSTANT_HPP

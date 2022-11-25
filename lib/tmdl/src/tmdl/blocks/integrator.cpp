@@ -2,6 +2,8 @@
 
 #include "integrator.hpp"
 
+#include "../model_exception.hpp"
+
 #include <concepts>
 
 template <typename T>
@@ -36,7 +38,7 @@ struct IntegratorExecutor : public tmdl::BlockExecutionInterface
         else
         {
             _output->value = state_value;
-            state_value = _input->value * state.dt;
+            state_value += _input->value * state.dt;
         }
     }
 
@@ -58,7 +60,7 @@ protected:
 tmdl::stdlib::Integrator::Integrator()
 {
     input_type = DataType::UNKNOWN;
-    input_reset_flat_type = DataType::UNKNOWN;
+    input_reset_flag_type = DataType::UNKNOWN;
     input_reset_value_type = DataType::UNKNOWN;
 
     output_port.is_delayed_output = true;
@@ -114,7 +116,7 @@ std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::Integrator::has_error() co
     {
         return make_error("input port value and reset value types don't match");
     }
-    else if (input_reset_flat_type != DataType::BOOLEAN)
+    else if (input_reset_flag_type != DataType::BOOLEAN)
     {
         return make_error("reset flag must be a boolean type");
     }
@@ -132,7 +134,7 @@ void tmdl::stdlib::Integrator::set_input_port(
         input_type = type;
         break;
     case 1:
-        input_reset_flat_type = type;
+        input_reset_flag_type = type;
         break;
     case 2:
         input_reset_value_type = type;

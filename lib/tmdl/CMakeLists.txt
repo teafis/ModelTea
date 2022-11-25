@@ -28,14 +28,15 @@ set(
     src/tmdl/parameter.hpp src/tmdl/parameter.cpp
     src/tmdl/sim_state.hpp
     src/tmdl/stdlib.hpp src/tmdl/stdlib.cpp
-    src/tmdl/value.hpp
-    src/tmdl/value.cpp
+    src/tmdl/value.hpp src/tmdl/value.cpp
     src/tmdl/variable_manager.hpp src/tmdl/variable_manager.cpp
     src/tmdl/blocks/arithmetic.hpp src/tmdl/blocks/arithmetic.cpp
     src/tmdl/blocks/clock.hpp src/tmdl/blocks/clock.cpp
+    src/tmdl/blocks/constant.hpp src/tmdl/blocks/constant.cpp
     src/tmdl/blocks/integrator.hpp src/tmdl/blocks/integrator.cpp
     src/tmdl/blocks/io_ports.hpp src/tmdl/blocks/io_ports.cpp
     src/tmdl/blocks/limiter.hpp src/tmdl/blocks/limiter.cpp
+    src/tmdl/blocks/relational.hpp src/tmdl/blocks/relational.cpp
     src/tmdl/blocks/trig.hpp src/tmdl/blocks/trig.cpp
 )
 

@@ -17,6 +17,7 @@
 #include <algorithm>
 
 #include <tmdl/stdlib.hpp>
+#include <tmdl/model_exception.hpp>
 
 #include "blocks/connector_object.h"
 

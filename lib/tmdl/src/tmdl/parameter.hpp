@@ -3,13 +3,12 @@
 #ifndef TF_MODEL_PARAMETER_HPP
 #define TF_MODEL_PARAMETER_HPP
 
-#include <string>
+#include "value.hpp"
 
-#include <tmdl/model_exception.hpp>
-#include <tmdl/value.hpp>
-
+#include <cstdint>
 #include <sstream>
-#include <iomanip>
+#include <string>
+#include <unordered_map>
 
 
 namespace tmdl
@@ -25,7 +24,8 @@ struct ParameterValue
         DOUBLE,
         INT32,
         UINT32,
-        DATA_TYPE
+        DATA_TYPE,
+        ENUM
     };
 
     union Value {
@@ -45,6 +45,8 @@ struct ParameterValue
 
     void convert(const Type t);
 
+    void convert(const DataType t);
+
     std::shared_ptr<ValueBox> to_box() const;
 
     static ParameterValue from_string(const std::string& s, const Type t);
@@ -62,13 +64,15 @@ public:
 
     std::string get_name() const;
 
+    void set_name(const std::string& n);
+
     ParameterValue& get_value();
 
     const ParameterValue& get_value() const;
 
 protected:
     const std::string id;
-    const std::string name;
+    std::string name;
 
     ParameterValue value;
 };

@@ -48,25 +48,25 @@ protected:
 };
 
 template <Number T>
-T tsim_add(const T& a, const T& b)
+static T tsim_add(const T& a, const T& b)
 {
     return a + b;
 }
 
 template <Number T>
-T tsim_sub(const T& a, const T& b)
+static T tsim_sub(const T& a, const T& b)
 {
     return a - b;
 }
 
 template <Number T>
-T tsim_mul(const T& a, const T& b)
+static T tsim_mul(const T& a, const T& b)
 {
     return a * b;
 }
 
 template <Number T>
-T tsim_div(const T& a, const T& b)
+static T tsim_div(const T& a, const T& b)
 {
     return a / b;
 }
@@ -158,9 +158,13 @@ bool tmdl::stdlib::ArithmeticBase::update_block()
         updated = true;
     }
 
-    if (_inputTypes.size() > 0)
+    for (const auto& t : _inputTypes)
     {
-        firstType = _inputTypes[0];
+        if (t != DataType::UNKNOWN)
+        {
+            firstType = t;
+            break;
+        }
     }
 
     if (_outputPort.dtype != firstType)
@@ -216,16 +220,7 @@ tmdl::PortValue tmdl::stdlib::ArithmeticBase::get_output_port(const size_t port)
 {
     if (port == 0)
     {
-        DataType dtype = DataType::UNKNOWN;
-        if (_inputTypes.size() > 0)
-        {
-            dtype = _inputTypes[0];
-        }
-
-        return PortValue
-        {
-            .dtype = dtype
-        };
+        return _outputPort;
     }
     else
     {

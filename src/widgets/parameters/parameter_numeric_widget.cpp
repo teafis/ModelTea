@@ -3,6 +3,8 @@
 #include "parameter_numeric_widget.h"
 #include "ui_parameter_numeric_widget.h"
 
+#include <tmdl/model_exception.hpp>
+
 #include <QMessageBox>
 
 

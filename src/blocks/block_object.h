@@ -29,6 +29,8 @@ public:
 
     bool blockRectContainsPoint(const QPointF& localCoords) const;
 
+    void update_block();
+
     const tmdl::LibraryBlock* get_block() const;
 
     const QPointF getInputPortLocation(const size_t port_num) const;

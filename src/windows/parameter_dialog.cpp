@@ -5,6 +5,7 @@
 
 #include "widgets/parameters/parameter_boolean_widget.h"
 #include "widgets/parameters/parameter_numeric_widget.h"
+#include "widgets/parameters/parameter_datatype_widget.h"
 #include "widgets/parameters/parameter_unknown_widget.h"
 
 
@@ -26,6 +27,8 @@ ParameterDialog::ParameterDialog(
 
 void ParameterDialog::reloadParameters()
 {
+    block->update_block();
+
     while (QLayoutItem* item = ui->parameterItemLayout->itemAt(0))
     {
         QWidget* w = item->widget();
@@ -58,6 +61,17 @@ void ParameterDialog::reloadParameters()
             connect(
                 w,
                 &ParameterNumericWidget::parameterUpdated,
+                this,
+                &ParameterDialog::updateForParameters);
+            break;
+        }
+        case tmdl::ParameterValue::Type::DATA_TYPE:
+        {
+            ParameterDataTypeWidget* w = new ParameterDataTypeWidget(prm, this);
+            ui->parameterItemLayout->addWidget(w);
+            connect(
+                w,
+                &ParameterDataTypeWidget::parameterUpdated,
                 this,
                 &ParameterDialog::updateForParameters);
             break;

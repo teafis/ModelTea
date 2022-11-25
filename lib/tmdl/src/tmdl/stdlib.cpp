@@ -8,6 +8,8 @@
 #include "blocks/io_ports.hpp"
 #include "blocks/arithmetic.hpp"
 #include "blocks/integrator.hpp"
+#include "blocks/relational.hpp"
+#include "blocks/constant.hpp"
 
 #include "model_exception.hpp"
 
@@ -32,7 +34,14 @@ tmdl::stdlib::StandardLibrary::StandardLibrary()
         {"sub", &make_block<Subtraction>},
         {"mul", &make_block<Multiplication>},
         {"div", &make_block<Division>},
-        {"integrator", &make_block<Integrator>}
+        {"integrator", &make_block<Integrator>},
+        {"<", &make_block<LessThan>},
+        {"<=", &make_block<LessThanEqual>},
+        {">", &make_block<GreaterThan>},
+        {">=", &make_block<GreaterThanEqual>},
+        {"==", &make_block<Equal>},
+        {"!=", &make_block<NotEqual>},
+        {"constant", &make_block<Constant>}
     };
 }
 

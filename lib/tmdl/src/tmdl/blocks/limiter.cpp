@@ -2,6 +2,8 @@
 
 #include "limiter.hpp"
 
+#include "../model_exception.hpp"
+
 #include <algorithm>
 
 using namespace tmdl;

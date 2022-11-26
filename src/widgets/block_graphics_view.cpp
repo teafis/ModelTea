@@ -327,7 +327,8 @@ void BlockGraphicsView::generateExecutor()
             {
                 .time = 0.0,
                 .dt = 0.1
-            }
+            },
+            .iterations = 0
         });
 
         emit generatedModelCreated();
@@ -344,6 +345,34 @@ void BlockGraphicsView::generateExecutor()
     }
 }
 
+static std::optional<double> double_from_variable(std::shared_ptr<const tmdl::ValueBox> ptr)
+{
+    if (auto v = std::dynamic_pointer_cast<const tmdl::ValueBoxType<double>>(ptr); v)
+    {
+        return v->value;
+    }
+    else if (auto v = std::dynamic_pointer_cast<const tmdl::ValueBoxType<float>>(ptr); v)
+    {
+        return static_cast<double>(v->value);
+    }
+    else if (auto v = std::dynamic_pointer_cast<const tmdl::ValueBoxType<int32_t>>(ptr); v)
+    {
+        return static_cast<double>(v->value);
+    }
+    else if (auto v = std::dynamic_pointer_cast<const tmdl::ValueBoxType<uint32_t>>(ptr); v)
+    {
+        return static_cast<double>(v->value);
+    }
+    else if (auto v = std::dynamic_pointer_cast<const tmdl::ValueBoxType<bool>>(ptr); v)
+    {
+        return (v->value) ? 1.0 : 0.0;
+    }
+    else
+    {
+        return std::nullopt;
+    }
+}
+
 void BlockGraphicsView::stepExecutor()
 {
     if (executor == nullptr)
@@ -357,19 +386,20 @@ void BlockGraphicsView::stepExecutor()
         .output_port_num = 0
     };
 
-    auto var = std::dynamic_pointer_cast<tmdl::ValueBoxType<double>>(executor->variables->get_ptr(vid));
+    auto var = executor->variables->get_ptr(vid);
 
-    if (executor->state.time < executor->state.dt && var)
+    if (executor->iterations != 0)
     {
-        emit plotPointUpdated(executor->state.time, var->value);
+        executor->state.time += executor->state.dt;
     }
-
-    executor->state.time += executor->state.dt;
+    executor->iterations += 1;
     executor->model->step(executor->state);
 
-    if (var)
+    auto double_val = double_from_variable(var);
+    if (double_val)
     {
-        emit plotPointUpdated(executor->state.time, var->value);
+        emit plotPointUpdated(executor->state.time, double_val.value());
+        qDebug() << "T = " << executor->state.time << ", Y = " << double_val.value();
     }
 }
 

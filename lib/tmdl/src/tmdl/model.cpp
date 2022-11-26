@@ -441,7 +441,13 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
     }
 
     // Create the executor
-    return std::make_shared<ModelExecutor>(interface_order);
+    auto model_exec = std::make_shared<ModelExecutor>(interface_order);
+
+    // Reset the model executor
+    model_exec->reset();
+
+    // Return result
+    return model_exec;
 }
 
 size_t Model::get_next_id() const

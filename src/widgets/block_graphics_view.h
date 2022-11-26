@@ -84,6 +84,7 @@ protected:
         std::shared_ptr<tmdl::VariableManager> variables;
         std::shared_ptr<tmdl::BlockExecutionInterface> model;
         tmdl::SimState state;
+        uint64_t iterations;
     };
 
     std::shared_ptr<tmdl::LibraryBase> library;

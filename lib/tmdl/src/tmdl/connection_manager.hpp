@@ -7,6 +7,8 @@
 
 #include <vector>
 
+#include <nlohmann/json.hpp>
+
 
 namespace tmdl
 {
@@ -29,6 +31,15 @@ public:
 protected:
     std::vector<Connection> connections;
 };
+
+}
+
+namespace ns
+{
+
+void to_json(nlohmann::json& j, const tmdl::ConnectionManager& cm);
+
+void from_json(const nlohmann::json& j, tmdl::ConnectionManager& cm);
 
 }
 

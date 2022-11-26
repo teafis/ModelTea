@@ -46,6 +46,8 @@ add_library(
     ${TEAFIS_MODEL_SOURCES}
 )
 
+target_link_libraries(TeaFIS-Model PUBLIC nlohmann_json)
+
 # Include Directories
 target_include_directories(TeaFIS-Model PUBLIC src)
 

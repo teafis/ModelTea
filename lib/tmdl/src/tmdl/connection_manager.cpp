@@ -86,3 +86,28 @@ const std::vector<tmdl::Connection>& tmdl::ConnectionManager::get_connections() 
 {
     return connections;
 }
+
+void ns::to_json(nlohmann::json& j, const tmdl::ConnectionManager& cm)
+{
+    const auto& conns = cm.get_connections();
+    auto jcons = nlohmann::json::array();
+
+    for (size_t i = 0; i < conns.size(); ++i)
+    {
+        nlohmann::json cj;
+        to_json(cj, conns[i]);
+        jcons[i] = cj;
+    }
+
+    j["connections"] = jcons;
+}
+
+void ns::from_json(const nlohmann::json& j, tmdl::ConnectionManager& cm)
+{
+    for (const auto& i : j.at("connections"))
+    {
+        tmdl::Connection c(0, 0, 0, 0);
+        from_json(i, c);
+        cm.add_connection(c);
+    }
+}

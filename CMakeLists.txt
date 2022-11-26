@@ -49,6 +49,7 @@ endif()
 
 # Add library directories
 add_subdirectory(lib/tmdl)
+add_subdirectory(lib/json)
 
 target_include_directories(TSim PRIVATE src/)
 

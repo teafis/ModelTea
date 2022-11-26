@@ -5,6 +5,21 @@
 
 #include <cstdlib>
 
+#include <nlohmann/json.hpp>
+
+namespace tmdl
+{
+class Connection;
+}
+
+namespace ns
+{
+
+void to_json(nlohmann::json&, const tmdl::Connection&);
+void from_json(const nlohmann::json&, tmdl::Connection&);
+
+}
+
 namespace tmdl
 {
 
@@ -34,6 +49,9 @@ protected:
     size_t from_port;
     size_t to_id;
     size_t to_port;
+
+public:
+    friend void ::ns::from_json(const nlohmann::json&, tmdl::Connection&);
 };
 
 }

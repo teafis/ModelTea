@@ -39,3 +39,19 @@ size_t tmdl::Connection::get_to_port() const
 {
     return to_port;
 }
+
+void ns::to_json(nlohmann::json& j, const tmdl::Connection& c)
+{
+    j["to_block"] = c.get_to_id();
+    j["to_port"] = c.get_to_port();
+    j["from_block"] = c.get_from_id();
+    j["from_port"] = c.get_from_port();
+}
+
+void ns::from_json(const nlohmann::json& j, tmdl::Connection& c)
+{
+    j.at("to_block").get_to(c.to_id);
+    j.at("to_port").get_to(c.to_port);
+    j.at("from_block").get_to(c.from_id);
+    j.at("from_port").get_to(c.from_port);
+}

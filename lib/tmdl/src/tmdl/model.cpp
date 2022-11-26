@@ -59,19 +59,27 @@ protected:
 
 void Model::add_block(const std::shared_ptr<BlockInterface> block)
 {
-    const size_t new_id = get_next_id();
+    add_block(block, get_next_id());
+}
 
-    if (const auto* ptr = dynamic_cast<InputPort*>(block.get()); ptr != nullptr)
+void Model::add_block(const std::shared_ptr<BlockInterface> block, const size_t id)
+{
+    if (blocks.find(id) != blocks.end())
     {
-        input_ids.push_back(new_id);
-    }
-    else if (const auto* ptr = dynamic_cast<OutputPort*>(block.get()); ptr != nullptr)
-    {
-        output_ids.push_back(new_id);
+        throw ModelException("block already contains provided ID");
     }
 
-    block->set_id(new_id);
-    blocks.insert({new_id, std::move(block)});
+    if (const auto ptr = std::dynamic_pointer_cast<InputPort>(block); ptr != nullptr)
+    {
+        input_ids.push_back(id);
+    }
+    else if (const auto ptr = std::dynamic_pointer_cast<OutputPort>(block); ptr != nullptr)
+    {
+        output_ids.push_back(id);
+    }
+
+    block->set_id(id);
+    blocks.insert({id, block});
 }
 
 void Model::remove_block(const size_t id)
@@ -104,8 +112,8 @@ void Model::remove_block(const size_t id)
 
 void Model::add_connection(const Connection connection)
 {
-    const BlockInterface* from_block = get_block(connection.get_from_id());
-    BlockInterface* to_block = get_block(connection.get_to_id());
+    std::shared_ptr<const BlockInterface> from_block = get_block(connection.get_from_id());
+    std::shared_ptr<BlockInterface> to_block = get_block(connection.get_to_id());
 
     if (connection.get_from_port() < from_block->get_num_outputs() &&
         connection.get_to_port() < to_block->get_num_inputs())
@@ -127,7 +135,7 @@ void Model::remove_connection(const size_t to_block, const size_t to_port)
 {
     const auto& c = connections.get_connection_to(to_block, to_port);
 
-    auto* blk = get_block(c.get_to_id());
+    auto blk = get_block(c.get_to_id());
     if (c.get_to_port() < blk->get_num_inputs())
     {
         blk->set_input_port(c.get_to_port(), DataType::UNKNOWN);
@@ -161,8 +169,8 @@ bool Model::update_block()
         // Update any port types
         for (const auto& c : connections.get_connections())
         {
-            const auto* from_blk = get_block(c.get_from_id());
-            auto* to_blk = get_block(c.get_to_id());
+            std::shared_ptr<const BlockInterface> from_blk = get_block(c.get_from_id());
+            std::shared_ptr<BlockInterface> to_blk = get_block(c.get_to_id());
 
             to_blk->set_input_port(
                 c.get_to_port(),
@@ -212,7 +220,7 @@ void Model::set_input_port(
 {
     if (port < get_num_inputs())
     {
-        auto* blk = dynamic_cast<InputPort*>(get_block(input_ids[port]));
+        auto blk = std::dynamic_pointer_cast<InputPort>(get_block(input_ids[port]));
         if (blk == nullptr)
         {
             throw ModelException("invalid block found for input port");
@@ -231,7 +239,7 @@ PortValue Model::get_output_port(const size_t port) const
 
     if (port < get_num_outputs())
     {
-        auto* blk = dynamic_cast<OutputPort*>(get_block(output_ids[port]));
+        auto blk = std::dynamic_pointer_cast<OutputPort>(get_block(output_ids[port]));
         if (blk == nullptr)
         {
             throw ModelException("invalid block found for input port");
@@ -305,7 +313,7 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
         {
             // Extract identifiers
             const size_t id = remaining_id_values[i];
-            const BlockInterface* block = get_block(id);
+            std::shared_ptr<const BlockInterface> block = get_block(id);
 
             // Add the index if there are no input ports
             if (block->get_num_inputs() == 0)
@@ -469,6 +477,11 @@ std::vector<std::unique_ptr<const BlockError>> Model::get_all_errors() const
     return error_vals;
 }
 
+const ConnectionManager& Model::get_connection_manager() const
+{
+    return connections;
+}
+
 size_t Model::get_next_id() const
 {
     size_t current_id = 0;
@@ -480,12 +493,40 @@ size_t Model::get_next_id() const
     return current_id;
 }
 
-BlockInterface* Model::get_block(const size_t id) const
+std::shared_ptr<BlockInterface> Model::get_block(const size_t id) const
 {
     const auto it = blocks.find(id);
     if (it == blocks.end())
     {
         throw ModelException("unable to find block with given id");
     }
-    return it->second.get();
+    return it->second;
+}
+
+void ns::to_json(nlohmann::json& j, const tmdl::Model& m)
+{
+    j["type"] = "model";
+    j["name"] = "TODO";
+    j["output_ids"] = m.get_output_ids();
+    j["input_ids"] = m.get_input_ids();
+
+    nlohmann::json conn_json;
+    to_json(conn_json, m.get_connection_manager());
+    j["connections"] = conn_json;
+
+    for (const auto& blk : m.get_all_blocks())
+    {
+        nlohmann::json blk_json = {{"name", "testing"}};
+        //to_json(blk_json, blk);
+        j["blocks"][blk->get_id()] = blk_json;
+    }
+}
+
+void ns::from_json(const nlohmann::json& j, tmdl::Model& m)
+{
+    (void)j;
+    (void)m;
+    //j.at("name").get_to(p.name);
+    //j.at("address").get_to(p.address);
+    //j.at("age").get_to(p.age);
 }

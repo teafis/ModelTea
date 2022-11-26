@@ -47,6 +47,9 @@ public:
         const ConnectionManager& connections,
         const VariableManager& manager) const override;
 
+public:
+    std::vector<std::unique_ptr<const BlockError>> get_all_errors() const;
+
 protected:
     size_t get_next_id() const;
 

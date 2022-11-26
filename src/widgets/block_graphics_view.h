@@ -16,6 +16,8 @@
 #include <tmdl/model.hpp>
 
 #include "windows/block_library.h"
+#include "windows/model_error_dialog.h"
+
 
 class BlockGraphicsView : public QGraphicsView
 {
@@ -45,6 +47,8 @@ public slots:
 
     void updateModel();
 
+    void showErrors();
+
     void generateExecutor();
 
     void stepExecutor();
@@ -60,7 +64,10 @@ public slots:
 signals:
     void plotPointUpdated(const double t, const double y);
 
+    void modelUpdated();
+
     void generatedModelCreated();
+
     void generatedModelDestroyed();
 
 protected:
@@ -73,6 +80,9 @@ protected:
     bool blockBodyContainsMouse(
         const QPointF& pos,
         const BlockObject* block);
+
+public:
+    void onClose();
 
 protected:
     std::unique_ptr<MouseStateBase> mouseState;
@@ -89,6 +99,9 @@ protected:
 
     std::shared_ptr<tmdl::LibraryBase> library;
     std::unique_ptr<ExecutionState> executor;
+
+    BlockLibrary* window_library = nullptr;
+    ModelErrorDialog* window_errors = nullptr;
 };
 
 #endif // BLOCKGRAPHICSWIDGET_H

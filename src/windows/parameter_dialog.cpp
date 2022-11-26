@@ -87,6 +87,7 @@ void ParameterDialog::reloadParameters()
 void ParameterDialog::updateForParameters()
 {
     reloadParameters();
+    block->update();
 }
 
 ParameterDialog::~ParameterDialog()

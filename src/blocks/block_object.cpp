@@ -5,8 +5,6 @@
 #include <QPainter>
 #include <QWidget>
 
-#include <QDebug>
-
 #include <algorithm>
 
 #include <stdexcept>
@@ -71,7 +69,6 @@ void BlockObject::paint(
     if (err != nullptr)
     {
         painter->setBrush(Qt::red);
-        qDebug() << static_cast<int>(err->id) << " - " << err->message.c_str();
     }
     else
     {

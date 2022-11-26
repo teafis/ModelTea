@@ -26,7 +26,7 @@
      <x>0</x>
      <y>0</y>
      <width>631</width>
-     <height>24</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -59,6 +59,7 @@
     </property>
     <addaction name="actionModelUpdate"/>
     <addaction name="actionModelBuildExecutor"/>
+    <addaction name="actionModelShowErrors"/>
    </widget>
    <widget class="QMenu" name="menuSim">
     <property name="enabled">
@@ -170,6 +171,11 @@
     <string>Clear</string>
    </property>
   </action>
+  <action name="actionModelShowErrors">
+   <property name="text">
+    <string>Show Errors</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -187,6 +193,7 @@
     <slot>clearExecutor()</slot>
     <slot>stepExecutor()</slot>
     <slot>showPlot()</slot>
+    <slot>showErrors()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -309,6 +316,22 @@
    <signal>triggered()</signal>
    <receiver>block_graphics</receiver>
    <slot>removeSelectedBlock()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>315</x>
+     <y>162</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionModelShowErrors</sender>
+   <signal>triggered()</signal>
+   <receiver>block_graphics</receiver>
+   <slot>showErrors()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>

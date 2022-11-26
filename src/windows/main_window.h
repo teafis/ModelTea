@@ -17,6 +17,8 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void closeEvent(QCloseEvent* event) override;
+
 protected:
     void updateMenuBars(bool generatedAvailable);
 

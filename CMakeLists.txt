@@ -22,6 +22,7 @@ set(PROJECT_SOURCESS
     src/windows/block_library.h src/windows/block_library.cpp src/windows/block_library.ui
     src/windows/plot_window.h src/windows/plot_window.cpp src/windows/plot_window.ui
     src/windows/parameter_dialog.h src/windows/parameter_dialog.cpp src/windows/parameter_dialog.ui
+    src/windows/model_error_dialog.h src/windows/model_error_dialog.cpp src/windows/model_error_dialog.ui
     src/windows/main_window_icon.h src/windows/main_window_icon.cpp
     src/widgets/block_graphics_view.h src/widgets/block_graphics_view.cpp
     src/widgets/state/mouse_state_base.h

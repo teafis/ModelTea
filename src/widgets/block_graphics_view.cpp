@@ -164,6 +164,17 @@ void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
                 &ConnectorObject::deleteLater);
 
             scene()->addItem(conn_obj);
+
+            for (auto* i : scene()->items())
+            {
+                auto* blk = dynamic_cast<BlockObject*>(i);
+                if (blk != nullptr)
+                {
+                    blk->update();
+                }
+            }
+
+            emit modelUpdated();
         }
     }
 
@@ -188,8 +199,9 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
 
             connect(
                 dialog,
-                &ParameterDialog::finished,
-                [block](int) { block->update(); });
+                &ParameterDialog::destroyed,
+                this,
+                &BlockGraphicsView::updateModel);
 
             dialog->exec();
 
@@ -266,6 +278,8 @@ void BlockGraphicsView::removeSelectedBlock()
         selectedBlock->deleteLater();
         selectedBlock = nullptr;
         scene()->update();
+
+        emit modelUpdated();
     }
 }
 
@@ -290,10 +304,28 @@ void BlockGraphicsView::updateModel()
 
         scene()->update();
     }
+
+    emit modelUpdated();
+}
+
+void BlockGraphicsView::showErrors()
+{
+    if (window_errors == nullptr)
+    {
+        window_errors = new ModelErrorDialog(&model);
+
+        connect(window_errors, &ModelErrorDialog::destroyed, [this]() {
+            window_errors = nullptr;
+        });
+    }
+
+    window_errors->show();
 }
 
 void BlockGraphicsView::generateExecutor()
 {
+    updateModel();
+
     tmdl::ConnectionManager connections;
     std::shared_ptr<tmdl::VariableManager> manager = std::make_shared<tmdl::VariableManager>();
 
@@ -411,27 +443,35 @@ void BlockGraphicsView::clearExecutor()
 
 void BlockGraphicsView::showLibrary()
 {
-    auto* libraryWindow = new BlockLibrary(this);
-    libraryWindow->set_library(library);
+    if (window_library == nullptr)
+    {
+        window_library = new BlockLibrary();
+        window_library->set_library(library);
 
-    connect(
-        libraryWindow,
-        &BlockLibrary::blockSelected,
-        this,
-        &BlockGraphicsView::addBlock);
+        connect(
+            window_library,
+            &BlockLibrary::blockSelected,
+            this,
+            &BlockGraphicsView::addBlock);
 
-    connect(
-        this,
-        &BlockGraphicsView::generatedModelCreated,
-        libraryWindow,
-        &BlockLibrary::generatedModelCreated);
+        connect(
+            this,
+            &BlockGraphicsView::generatedModelCreated,
+            window_library,
+            &BlockLibrary::generatedModelCreated);
 
-    libraryWindow->show();
+        connect(
+            window_library,
+            &BlockLibrary::destroyed,
+            [this]() { window_library = nullptr; });
+    }
+
+    window_library->show();
 }
 
 void BlockGraphicsView::showPlot()
 {
-    auto* plt = new PlotWindow(this);
+    auto* plt = new PlotWindow();
 
     connect(this, &BlockGraphicsView::plotPointUpdated, plt, &PlotWindow::addPlotPoint);
     connect(this, &BlockGraphicsView::generatedModelCreated, plt, &PlotWindow::resetPlot);
@@ -457,6 +497,9 @@ void BlockGraphicsView::addBlock(QString s)
 
     // Add the block to storage/tracking
     scene()->addItem(block_obj);
+
+    // State the model is updated
+    emit modelUpdated();
 }
 
 BlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
@@ -492,4 +535,19 @@ bool BlockGraphicsView::blockBodyContainsMouse(
 {
     if (block == nullptr) return false;
     return block->blockRectContainsPoint(pos);
+}
+
+void BlockGraphicsView::onClose()
+{
+    if (window_library != nullptr)
+    {
+        window_library->close();
+        window_library = nullptr;
+    }
+
+    if (window_errors != nullptr)
+    {
+        window_errors->close();
+        window_errors = nullptr;
+    }
 }

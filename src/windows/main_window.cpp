@@ -3,7 +3,6 @@
 #include "main_window.h"
 #include "./ui_main_window.h"
 
-#include <QDebug>
 #include <QIcon>
 #include <QPixmap>
 
@@ -19,8 +18,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // Attempt to load the window icon
     QPixmap pixmap;
     bool result = pixmap.loadFromData(
-                main_window_icon::icon_png,
-                main_window_icon::icon_png_len);
+        main_window_icon::icon_png,
+        main_window_icon::icon_png_len);
     if (result)
     {
         setWindowIcon(QIcon(pixmap));
@@ -47,4 +46,10 @@ void MainWindow::updateMenuBars(bool generatedAvailable)
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+    (void) event;
+    ui->block_graphics->onClose();
 }

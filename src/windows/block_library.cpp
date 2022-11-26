@@ -3,8 +3,6 @@
 #include "block_library.h"
 #include "ui_block_library.h"
 
-#include <QDebug>
-
 BlockLibrary::BlockLibrary(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::BlockLibrary)

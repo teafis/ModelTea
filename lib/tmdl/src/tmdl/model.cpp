@@ -114,6 +114,8 @@ void Model::add_connection(const Connection connection)
         to_block->set_input_port(
             connection.get_to_port(),
             from_block->get_output_port(connection.get_from_port()).dtype);
+
+        to_block->update_block();
     }
     else
     {
@@ -448,6 +450,23 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
 
     // Return result
     return model_exec;
+}
+
+std::vector<std::unique_ptr<const BlockError>> Model::get_all_errors() const
+{
+    std::vector<std::unique_ptr<const BlockError>> error_vals;
+
+    for (const auto& kv : blocks)
+    {
+        const auto blk = kv.second;
+        auto err = blk->has_error();
+        if (err != nullptr)
+        {
+            error_vals.push_back(std::move(err));
+        }
+    }
+
+    return error_vals;
 }
 
 size_t Model::get_next_id() const

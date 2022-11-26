@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>BlockLibrary</class>
- <widget class="QDialog" name="BlockLibrary">
+ <class>ModelErrorDialog</class>
+ <widget class="QDialog" name="ModelErrorDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,11 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Library Blocks</string>
+   <string>Model Errors</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QListWidget" name="listBlocks"/>
+    <widget class="QListWidget" name="errors"/>
    </item>
   </layout>
  </widget>

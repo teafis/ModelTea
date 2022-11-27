@@ -59,7 +59,7 @@ public slots:
 
     void showPlot();
 
-    void addBlock(QString s);
+    void addBlock(QString l, QString s);
 
 signals:
     void plotPointUpdated(const double t, const double y);
@@ -97,7 +97,6 @@ protected:
         uint64_t iterations;
     };
 
-    std::shared_ptr<tmdl::LibraryBase> library;
     std::unique_ptr<ExecutionState> executor;
 
     BlockLibrary* window_library = nullptr;

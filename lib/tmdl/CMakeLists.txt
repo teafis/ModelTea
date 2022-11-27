@@ -22,7 +22,8 @@ set(
     src/tmdl/block_interface.hpp src/tmdl/block_interface.cpp
     src/tmdl/connection.hpp src/tmdl/connection.cpp
     src/tmdl/connection_manager.hpp src/tmdl/connection_manager.cpp
-    src/tmdl/library.hpp src/tmdl/library.cpp
+    src/tmdl/library.hpp
+    src/tmdl/library_manager.hpp src/tmdl/library_manager.cpp
     src/tmdl/model.hpp src/tmdl/model.cpp
     src/tmdl/model_exception.hpp src/tmdl/model_exception.cpp
     src/tmdl/parameter.hpp src/tmdl/parameter.cpp

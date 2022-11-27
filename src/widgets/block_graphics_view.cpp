@@ -16,7 +16,7 @@
 
 #include <algorithm>
 
-#include <tmdl/stdlib.hpp>
+#include <tmdl/library_manager.hpp>
 #include <tmdl/model_exception.hpp>
 
 #include "blocks/connector_object.h"
@@ -35,9 +35,6 @@ BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
     // Set the scene
     setScene(new QGraphicsScene(this));
     setAlignment(Qt::AlignTop | Qt::AlignLeft);
-
-    // Set the library
-    library = std::make_shared<tmdl::stdlib::StandardLibrary>();
 }
 
 void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
@@ -446,7 +443,6 @@ void BlockGraphicsView::showLibrary()
     if (window_library == nullptr)
     {
         window_library = new BlockLibrary();
-        window_library->set_library(library);
 
         connect(
             window_library,
@@ -458,7 +454,7 @@ void BlockGraphicsView::showLibrary()
             this,
             &BlockGraphicsView::generatedModelCreated,
             window_library,
-            &BlockLibrary::generatedModelCreated);
+            &BlockLibrary::close);
 
         connect(
             window_library,
@@ -479,7 +475,7 @@ void BlockGraphicsView::showPlot()
     plt->show();
 }
 
-void BlockGraphicsView::addBlock(QString s)
+void BlockGraphicsView::addBlock(QString l, QString s)
 {
     if (executor != nullptr)
     {
@@ -487,7 +483,7 @@ void BlockGraphicsView::addBlock(QString s)
     }
 
     // Initialze the block
-    const auto tmp = library->create_block_from_name(s.toStdString());
+    const auto tmp = tmdl::LibraryManager::get_instance().get_library(l.toStdString())->create_block_from_name(s.toStdString());
     model.add_block(tmp);
 
     // Create the block object

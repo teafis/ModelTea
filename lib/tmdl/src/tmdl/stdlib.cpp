@@ -63,6 +63,7 @@ std::vector<std::string> tmdl::stdlib::StandardLibrary::get_block_names() const
     {
         keys.push_back(i.first);
     }
+    std::sort(keys.begin(), keys.end());
     return keys;
 }
 

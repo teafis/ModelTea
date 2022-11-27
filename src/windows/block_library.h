@@ -5,8 +5,6 @@
 
 #include <QDialog>
 
-#include <tmdl/library.hpp>
-
 #include <QListWidget>
 #include <QListWidgetItem>
 
@@ -20,23 +18,18 @@ class BlockLibrary : public QDialog
 
 public:
     explicit BlockLibrary(QWidget *parent = nullptr);
-
-    void set_library(const std::shared_ptr<const tmdl::LibraryBase> lib);
-
     ~BlockLibrary();
 
 protected slots:
+    void librarySelectionUpdated();
+
     void itemSelected(QListWidgetItem* item);
 
-public slots:
-    void generatedModelCreated();
-
 signals:
-    void blockSelected(QString s);
+    void blockSelected(QString l, QString s);
 
 private:
     Ui::BlockLibrary *ui;
-    std::shared_ptr<const tmdl::LibraryBase> library;
 };
 
 #endif // BLOCK_LIBRARY_H

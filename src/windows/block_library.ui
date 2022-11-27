@@ -13,7 +13,14 @@
   <property name="windowTitle">
    <string>Library Blocks</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <widget class="QListWidget" name="listLibraries">
+     <property name="selectionMode">
+      <enum>QAbstractItemView::MultiSelection</enum>
+     </property>
+    </widget>
+   </item>
    <item>
     <widget class="QListWidget" name="listBlocks"/>
    </item>

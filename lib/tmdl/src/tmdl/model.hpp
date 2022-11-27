@@ -9,11 +9,11 @@
 #include <vector>
 #include <unordered_map>
 
-#include "library.hpp"
 #include "block_interface.hpp"
 #include "connection_manager.hpp"
 
-#include "nlohmann/json.hpp"
+#include <nlohmann/json.hpp>
+
 
 namespace tmdl
 {

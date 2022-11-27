@@ -2,8 +2,6 @@
 
 #include "block_interface.hpp"
 
-#include "model_exception.hpp"
-
 
 size_t tmdl::BlockInterface::get_id() const
 {

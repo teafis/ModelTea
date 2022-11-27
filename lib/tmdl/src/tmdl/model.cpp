@@ -273,27 +273,6 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
         throw ModelException(err->message);
     }
 
-    // Add blocks for input and output ports
-
-
-    // Check that all inputs are connected
-    for (const auto& b : blocks)
-    {
-        const auto id = b.first;
-
-        if (std::find(input_ids.begin(), input_ids.end(), id) != input_ids.end())
-        {
-            continue;
-        }
-
-        const auto& block = b.second;
-
-        for (size_t port = 0; port < block->get_num_inputs(); ++port)
-        {
-            connections.has_connection_to(id, port);
-        }
-    }
-
     // Add the input blocks as the first to be executed
     std::vector<size_t> order_values;
     for (const size_t i : input_ids)

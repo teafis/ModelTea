@@ -9,6 +9,20 @@ using namespace tmdl;
 
 /* ========== INPUT PORT ========== */
 
+InputPort::InputPort()
+{
+    ParameterValue pv = ParameterValue
+    {
+        .dtype = ParameterValue::Type::DATA_TYPE,
+        .value = ParameterValue::Value
+        {
+            .dtype = DataType::UNKNOWN
+        }
+    };
+
+    dataTypeParameter = std::make_shared<Parameter>("data_type", "parameter data type", pv);
+}
+
 std::string InputPort::get_name() const
 {
     return "IN";
@@ -58,8 +72,22 @@ std::unique_ptr<const BlockError> InputPort::has_error() const
     return nullptr;
 }
 
+std::vector<std::shared_ptr<tmdl::Parameter>> InputPort::get_parameters() const
+{
+    return {
+        dataTypeParameter
+    };
+}
+
 bool InputPort::update_block()
 {
+    const auto param_dt = dataTypeParameter->get_value().value.dtype;
+    if (param_dt != _port.dtype)
+    {
+        _port.dtype = param_dt;
+        return true;
+    }
+
     return false;
 }
 

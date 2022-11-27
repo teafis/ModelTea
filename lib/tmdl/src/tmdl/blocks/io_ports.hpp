@@ -11,6 +11,8 @@ namespace tmdl
 class InputPort : public BlockInterface
 {
 public:
+    InputPort();
+
     std::string get_name() const override;
 
     std::string get_description() const override;
@@ -27,6 +29,8 @@ public:
 
     std::unique_ptr<const BlockError> has_error() const override;
 
+    std::vector<std::shared_ptr<Parameter>> get_parameters() const override;
+
     bool update_block() override;
 
     std::shared_ptr<BlockExecutionInterface> get_execution_interface(
@@ -38,6 +42,7 @@ public:
 
 protected:
     PortValue _port;
+    std::shared_ptr<Parameter> dataTypeParameter;
 };
 
 class OutputPort : public BlockInterface

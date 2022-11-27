@@ -3,14 +3,13 @@
 #ifndef TF_MODEL_STDLIB_LIMITER_HPP
 #define TF_MODEL_STDLIB_LIMITER_HPP
 
-#include "../library.hpp"
-#include <array>
+#include "../block_interface.hpp"
 
 
 namespace tmdl::stdlib
 {
 
-class Limiter : public LibraryBlock
+class Limiter : public BlockInterface
 {
 public:
     Limiter();
@@ -19,7 +18,7 @@ public:
 
     std::string get_description() const override;
 
-    std::vector<Parameter*> get_parameters() const override;
+    std::vector<std::shared_ptr<Parameter>> get_parameters() const override;
 
     size_t get_num_inputs() const override;
 
@@ -45,9 +44,9 @@ protected:
     DataType input_type_min;
     PortValue output_port;
 
-    std::unique_ptr<Parameter> dynamicLimiter;
-    std::unique_ptr<Parameter> prmMaxValue;
-    std::unique_ptr<Parameter> prmMinValue;
+    std::shared_ptr<Parameter> dynamicLimiter;
+    std::shared_ptr<Parameter> prmMaxValue;
+    std::shared_ptr<Parameter> prmMinValue;
 };
 
 }

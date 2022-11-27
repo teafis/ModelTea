@@ -97,11 +97,6 @@ bool tmdl::stdlib::Integrator::update_block()
     return false;
 }
 
-std::vector<tmdl::Parameter*> tmdl::stdlib::Integrator::get_parameters() const
-{
-    return {};
-}
-
 std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::Integrator::has_error() const
 {
     if (input_type != DataType::DOUBLE && input_type != DataType::SINGLE)

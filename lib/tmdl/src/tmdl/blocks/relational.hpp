@@ -3,12 +3,12 @@
 #ifndef TF_MODEL_STDLIB_RELATIONAL_HPP
 #define TF_MODEL_STDLIB_RELATIONAL_HPP
 
-#include "../library.hpp"
+#include "../block_interface.hpp"
 
 namespace tmdl::stdlib
 {
 
-class RelationalBase : public LibraryBlock
+class RelationalBase : public BlockInterface
 {
 public:
     struct FunctionTypes

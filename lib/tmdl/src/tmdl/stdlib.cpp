@@ -16,7 +16,7 @@
 #include <ranges>
 
 template <typename T>
-std::shared_ptr<tmdl::LibraryBlock> make_block()
+std::shared_ptr<tmdl::BlockInterface> make_block()
 {
     return std::make_shared<T>();
 }
@@ -66,7 +66,7 @@ std::vector<std::string> tmdl::stdlib::StandardLibrary::get_block_names() const
     return keys;
 }
 
-std::shared_ptr<tmdl::LibraryBlock> tmdl::stdlib::StandardLibrary::create_block_from_name(const std::string& name) const
+std::shared_ptr<tmdl::BlockInterface> tmdl::stdlib::StandardLibrary::create_block_from_name(const std::string& name) const
 {
     auto it = block_map.find(name);
 

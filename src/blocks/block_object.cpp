@@ -22,7 +22,7 @@ const double HEIGHT_PER_IO = 50;
 const double IO_RADIUS = 5;
 
 
-BlockObject::BlockObject(const std::shared_ptr<tmdl::LibraryBlock> block) :
+BlockObject::BlockObject(const std::shared_ptr<tmdl::BlockInterface> block) :
     block(block)
 {
     // Set the provided parent to help with destruction
@@ -254,9 +254,9 @@ void BlockObject::update_block()
     while (block->update_block() && i++ < ITER_LIM);
 }
 
-const tmdl::LibraryBlock* BlockObject::get_block() const
+std::shared_ptr<const tmdl::BlockInterface> BlockObject::get_block() const
 {
-    return block.get();
+    return block;
 }
 
 const QPointF BlockObject::getInputPortLocation(const size_t port_num) const

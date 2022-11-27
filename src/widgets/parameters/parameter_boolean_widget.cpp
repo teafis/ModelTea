@@ -4,7 +4,7 @@
 #include "ui_parameter_boolean_widget.h"
 
 ParameterBooleanWidget::ParameterBooleanWidget(
-    tmdl::Parameter* parameter,
+    std::shared_ptr<tmdl::Parameter> parameter,
     QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ParameterBooleanWidget),

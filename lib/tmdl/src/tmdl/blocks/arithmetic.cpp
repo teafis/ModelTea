@@ -126,7 +126,7 @@ protected:
 // Arithmetic Base
 
 tmdl::stdlib::ArithmeticBase::ArithmeticBase() :
-    _prmNumInputPorts(std::make_unique<Parameter>("num_inputs", "number of input ports", ParameterValue::from_string("1", ParameterValue::Type::UINT32)))
+    _prmNumInputPorts(std::make_shared<Parameter>("num_inputs", "number of input ports", ParameterValue::from_string("2", ParameterValue::Type::UINT32)))
 {
     _inputTypes.resize(currentPrmPortCount(), DataType::UNKNOWN);
 }
@@ -141,9 +141,9 @@ size_t tmdl::stdlib::ArithmeticBase::get_num_outputs() const
     return 1;
 }
 
-std::vector<tmdl::Parameter*> tmdl::stdlib::ArithmeticBase::get_parameters() const
+std::vector<std::shared_ptr<tmdl::Parameter>> tmdl::stdlib::ArithmeticBase::get_parameters() const
 {
-    return { _prmNumInputPorts.get() };
+    return { _prmNumInputPorts };
 }
 
 bool tmdl::stdlib::ArithmeticBase::update_block()

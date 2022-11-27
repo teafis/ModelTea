@@ -144,6 +144,16 @@ void Model::remove_connection(const size_t to_block, const size_t to_port)
     connections.remove_connection(to_block, to_port);
 }
 
+std::string Model::get_name() const
+{
+    return "test_model";
+}
+
+std::string Model::get_description() const
+{
+    return "user-made model block";
+}
+
 size_t Model::get_num_inputs() const
 {
     return input_ids.size();
@@ -506,18 +516,39 @@ std::shared_ptr<BlockInterface> Model::get_block(const size_t id) const
 void ns::to_json(nlohmann::json& j, const tmdl::Model& m)
 {
     j["type"] = "model";
-    j["name"] = "TODO";
-    j["output_ids"] = m.get_output_ids();
-    j["input_ids"] = m.get_input_ids();
+    j["name"] = m.get_name();
+    j["output_ids"] = m.output_ids;
+    j["input_ids"] = m.input_ids;
 
     nlohmann::json conn_json;
     to_json(conn_json, m.get_connection_manager());
     j["connections"] = conn_json;
 
-    for (const auto& blk : m.get_all_blocks())
+    for (const auto& kv : m.blocks)
     {
-        nlohmann::json blk_json = {{"name", "testing"}};
-        //to_json(blk_json, blk);
+        const auto blk = kv.second;
+
+        nlohmann::json blk_json;
+        blk_json["id"] = blk->get_id();
+        blk_json["name"] = blk->get_name();
+
+        nlohmann::json param_json = nlohmann::json::array();
+
+        const auto params = blk->get_parameters();
+        for (size_t i = 0; i < params.size(); ++i)
+        {
+            const auto p = params[i];
+
+            param_json[i] = {
+                {"id", p->get_id()},
+                {"dtype", static_cast<uint32_t>(p->get_value().dtype)},
+                {"value", p->get_value().to_string()},
+                {"enabled", p->get_enabled()}
+            };
+        }
+
+        blk_json["parameters"] = param_json;
+
         j["blocks"][blk->get_id()] = blk_json;
     }
 }

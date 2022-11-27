@@ -246,7 +246,8 @@ tmdl::Parameter::Parameter(
     const ParameterValue value) :
     id(id),
     name(name),
-    value(value)
+    value(value),
+    enabled(true)
 {
     // Empty Constructor
 }
@@ -264,6 +265,16 @@ std::string tmdl::Parameter::get_name() const
 void tmdl::Parameter::set_name(const std::string& n)
 {
     name = n;
+}
+
+bool tmdl::Parameter::get_enabled() const
+{
+    return enabled;
+}
+
+void tmdl::Parameter::set_enabled(const bool v)
+{
+    enabled = v;
 }
 
 tmdl::ParameterValue& tmdl::Parameter::get_value()

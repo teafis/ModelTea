@@ -9,7 +9,7 @@
 
 
 ParameterNumericWidget::ParameterNumericWidget(
-    tmdl::Parameter* parameter,
+    std::shared_ptr<tmdl::Parameter> parameter,
     QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ParameterNumericWidget),

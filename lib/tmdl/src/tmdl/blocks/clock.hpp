@@ -3,12 +3,12 @@
 #ifndef TF_MODEL_STDLIB_CLOCK_HPP
 #define TF_MODEL_STDLIB_CLOCK_HPP
 
-#include "../library.hpp"
+#include "../block_interface.hpp"
 
 namespace tmdl::stdlib
 {
 
-class Clock : public LibraryBlock
+class Clock : public BlockInterface
 {
 public:
     Clock();

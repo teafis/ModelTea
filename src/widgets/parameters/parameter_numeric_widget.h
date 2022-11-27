@@ -18,7 +18,7 @@ class ParameterNumericWidget : public QWidget
 
 public:
     explicit ParameterNumericWidget(
-        tmdl::Parameter* parameter,
+        std::shared_ptr<tmdl::Parameter> parameter,
         QWidget *parent = nullptr);
 
     ~ParameterNumericWidget();
@@ -31,7 +31,7 @@ signals:
 
 private:
     Ui::ParameterNumericWidget *ui;
-    tmdl::Parameter* parameter;
+    std::shared_ptr<tmdl::Parameter> parameter;
 };
 
 #endif // PARAMETER_NUMERIC_WIDGET_H

@@ -3,12 +3,12 @@
 #ifndef TF_MODEL_STDLIB_ARITHMETIC_HPP
 #define TF_MODEL_STDLIB_ARITHMETIC_HPP
 
-#include "../library.hpp"
+#include "../block_interface.hpp"
 
 namespace tmdl::stdlib
 {
 
-class ArithmeticBase : public LibraryBlock
+class ArithmeticBase : public BlockInterface
 {
 public:
     struct FunctionTypes
@@ -26,7 +26,7 @@ public:
 
     size_t get_num_outputs() const override;
 
-    std::vector<Parameter*> get_parameters() const override;
+    std::vector<std::shared_ptr<Parameter>> get_parameters() const override;
 
     bool update_block() override;
 
@@ -49,7 +49,7 @@ private:
     size_t currentPrmPortCount() const;
 
 protected:
-    std::unique_ptr<Parameter> _prmNumInputPorts;
+    std::shared_ptr<Parameter> _prmNumInputPorts;
     std::vector<DataType> _inputTypes;
     PortValue _outputPort;
 };

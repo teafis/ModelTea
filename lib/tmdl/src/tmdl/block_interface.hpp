@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+#include "parameter.hpp"
 #include "sim_state.hpp"
 #include "value.hpp"
 
@@ -34,6 +35,12 @@ public:
 
     void set_id(const size_t id);
 
+    virtual std::string get_name() const = 0;
+
+    virtual std::string get_description() const = 0;
+
+    virtual std::vector<std::shared_ptr<Parameter>> get_parameters() const;
+
     virtual bool update_block() = 0; // return true if the block updated anything that affects other blocks
 
     virtual std::unique_ptr<const BlockError> has_error() const = 0; // Return null if no error
@@ -51,6 +58,8 @@ public:
     virtual std::shared_ptr<BlockExecutionInterface> get_execution_interface(
         const ConnectionManager& connections,
         const VariableManager& manager) const = 0;
+
+    BlockInterface& operator=(const BlockInterface&) = delete;
 
 protected:
     std::unique_ptr<const BlockError> make_error(const std::string& msg) const;

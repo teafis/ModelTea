@@ -2,7 +2,7 @@
 #include "ui_parameter_unknown_widget.h"
 
 ParameterUnknownWidget::ParameterUnknownWidget(
-    tmdl::Parameter* parameter,
+    std::shared_ptr<tmdl::Parameter> parameter,
     QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ParameterUnknownWidget)

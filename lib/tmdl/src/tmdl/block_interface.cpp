@@ -15,6 +15,11 @@ void tmdl::BlockInterface::set_id(const size_t id)
     _id = id;
 }
 
+std::vector<std::shared_ptr<tmdl::Parameter>> tmdl::BlockInterface::get_parameters() const
+{
+    return {};
+}
+
 std::unique_ptr<const tmdl::BlockError> tmdl::BlockInterface::make_error(const std::string& msg) const
 {
     return std::make_unique<BlockError>(BlockError

@@ -58,7 +58,7 @@ protected:
 Limiter::Limiter()
 {
     // Setup parameters
-    dynamicLimiter = std::make_unique<Parameter>(
+    dynamicLimiter = std::make_shared<Parameter>(
         "dynamic_limiter",
         "Use Dynamic Limits",
         ParameterValue
@@ -70,12 +70,12 @@ Limiter::Limiter()
             }
         });
 
-    prmMaxValue = std::make_unique<Parameter>(
+    prmMaxValue = std::make_shared<Parameter>(
         "max_value",
         "Maximum Value",
         ParameterValue{});
 
-    prmMinValue = std::make_unique<Parameter>(
+    prmMinValue = std::make_shared<Parameter>(
         "min_value",
         "Minimum Value",
         ParameterValue{});
@@ -95,22 +95,13 @@ std::string Limiter::get_description() const
     return "Limits input values by the provided parameters";
 }
 
-std::vector<Parameter*> Limiter::get_parameters() const
+std::vector<std::shared_ptr<Parameter>> Limiter::get_parameters() const
 {
-    if (dynamicLimiter->get_value().value.tf)
-    {
-        return {
-            dynamicLimiter.get()
-        };
-    }
-    else
-    {
-        return {
-            dynamicLimiter.get(),
-            prmMinValue.get(),
-            prmMaxValue.get()
-        };
-    }
+    return {
+        dynamicLimiter,
+        prmMinValue,
+        prmMaxValue
+    };
 }
 
 size_t Limiter::get_num_inputs() const
@@ -132,6 +123,11 @@ size_t Limiter::get_num_outputs() const
 
 bool Limiter::update_block()
 {
+    bool updated = false;
+
+    prmMaxValue->set_enabled(dynamicLimiter->get_value().value.tf);
+    prmMinValue->set_enabled(dynamicLimiter->get_value().value.tf);
+
     if (input_type != output_port.dtype)
     {
         ParameterValue::Type new_dtype = ParameterValue::Type::UNKNOWN;
@@ -158,10 +154,10 @@ bool Limiter::update_block()
         prmMinValue->get_value().convert(new_dtype);
 
         output_port.dtype = input_type;
-        return true;
+        updated = true;
     }
 
-    return false;
+    return updated;
 }
 
 std::unique_ptr<const BlockError> Limiter::has_error() const

@@ -3,19 +3,17 @@
 #ifndef TF_MODEL_IO_PORTS_HPP
 #define TF_MODEL_IO_PORTS_HPP
 
-#include "../library.hpp"
+#include "../block_interface.hpp"
 
 namespace tmdl
 {
 
-class InputPort : public LibraryBlock
+class InputPort : public BlockInterface
 {
 public:
     std::string get_name() const override;
 
     std::string get_description() const override;
-
-    std::vector<Parameter*> get_parameters() const override;
 
     size_t get_num_inputs() const override;
 
@@ -42,14 +40,12 @@ protected:
     PortValue _port;
 };
 
-class OutputPort : public LibraryBlock
+class OutputPort : public BlockInterface
 {
 public:
     std::string get_name() const override;
 
     std::string get_description() const override;
-
-    std::vector<Parameter*> get_parameters() const override;
 
     size_t get_num_inputs() const override;
 

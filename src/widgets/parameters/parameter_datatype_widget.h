@@ -19,7 +19,7 @@ class ParameterDataTypeWidget : public QWidget
 
 public:
     explicit ParameterDataTypeWidget(
-        tmdl::Parameter* parameter,
+        std::shared_ptr<tmdl::Parameter> parameter,
         QWidget *parent = nullptr);
     ~ParameterDataTypeWidget();
 
@@ -31,7 +31,7 @@ signals:
 
 private:
     Ui::ParameterDataTypeWidget *ui;
-    tmdl::Parameter* parameter;
+    std::shared_ptr<tmdl::Parameter> parameter;
 
     std::unordered_map<std::string, tmdl::DataType> map_values;
 };

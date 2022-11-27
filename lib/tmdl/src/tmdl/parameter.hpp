@@ -66,6 +66,10 @@ public:
 
     void set_name(const std::string& n);
 
+    bool get_enabled() const;
+
+    void set_enabled(const bool v);
+
     ParameterValue& get_value();
 
     const ParameterValue& get_value() const;
@@ -75,6 +79,8 @@ protected:
     std::string name;
 
     ParameterValue value;
+
+    bool enabled;
 };
 
 }

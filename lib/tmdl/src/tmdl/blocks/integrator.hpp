@@ -3,12 +3,12 @@
 #ifndef TF_MODEL_STDLIB_INTEGRATOR_HPP
 #define TF_MODEL_STDLIB_INTEGRATOR_HPP
 
-#include "../library.hpp"
+#include "../block_interface.hpp"
 
 namespace tmdl::stdlib
 {
 
-class Integrator : public LibraryBlock
+class Integrator : public BlockInterface
 {
 public:
     Integrator();
@@ -22,8 +22,6 @@ public:
     size_t get_num_outputs() const override;
 
     bool update_block() override;
-
-    std::vector<Parameter*> get_parameters() const override;
 
     std::unique_ptr<const BlockError> has_error() const override;
 

@@ -4,7 +4,7 @@
 #include "ui_parameter_datatype_widget.h"
 
 ParameterDataTypeWidget::ParameterDataTypeWidget(
-    tmdl::Parameter* parameter,
+    std::shared_ptr<tmdl::Parameter> parameter,
     QWidget* parent) :
     QWidget(parent),
     ui(new Ui::ParameterDataTypeWidget),

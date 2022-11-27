@@ -15,6 +15,19 @@
 
 #include "nlohmann/json.hpp"
 
+namespace tmdl
+{
+class Model;
+}
+
+namespace ns
+{
+
+void to_json(nlohmann::json& j, const tmdl::Model& m);
+
+void from_json(const nlohmann::json& j, tmdl::Model& m);
+
+}
 
 namespace tmdl
 {
@@ -33,6 +46,10 @@ public:
     void remove_connection(const size_t to_block, const size_t to_port);
 
 public:
+    std::string get_name() const override;
+
+    std::string get_description() const override;
+
     size_t get_num_outputs() const override;
 
     size_t get_num_inputs() const override;
@@ -62,41 +79,17 @@ protected:
 public:
     std::shared_ptr<BlockInterface> get_block(const size_t id) const;
 
-    const std::vector<size_t>& get_output_ids() const
-    {
-        return output_ids;
-    }
-
-    const std::vector<size_t>& get_input_ids() const
-    {
-        return input_ids;
-    }
-
-    std::vector<std::shared_ptr<const BlockInterface>> get_all_blocks() const
-    {
-        std::vector<std::shared_ptr<const BlockInterface>> blks;
-        for (const auto& blk : blocks)
-        {
-            blks.push_back(blk.second);
-        }
-        return blks;
-    }
-
 protected:
     std::unordered_map<size_t, std::shared_ptr<BlockInterface>> blocks;
     ConnectionManager connections;
     std::vector<size_t> input_ids;
     std::vector<size_t> output_ids;
+
+public:
+    friend void ::ns::to_json(nlohmann::json&, const Model&);
+
+    friend void ::ns::from_json(const nlohmann::json&, Model&);
 };
-
-}
-
-namespace ns
-{
-
-void to_json(nlohmann::json& j, const tmdl::Model& m);
-
-void from_json(const nlohmann::json& j, tmdl::Model& m);
 
 }
 

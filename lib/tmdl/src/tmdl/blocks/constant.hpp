@@ -3,12 +3,12 @@
 #ifndef TF_MODEL_STDLIB_CONSTANT_HPP
 #define TF_MODEL_STDLIB_CONSTANT_HPP
 
-#include "../library.hpp"
+#include "../block_interface.hpp"
 
 namespace tmdl::stdlib
 {
 
-class Constant : public LibraryBlock
+class Constant : public BlockInterface
 {
 public:
     Constant();
@@ -23,7 +23,7 @@ public:
 
     bool update_block() override;
 
-    std::vector<Parameter*> get_parameters() const override;
+    std::vector<std::shared_ptr<Parameter>> get_parameters() const override;
 
     std::unique_ptr<const BlockError> has_error() const override;
 
@@ -38,8 +38,8 @@ public:
         const VariableManager& manager) const override;
 
 protected:
-    std::unique_ptr<Parameter> param_dtype;
-    std::unique_ptr<Parameter> param_value;
+    std::shared_ptr<Parameter> param_dtype;
+    std::shared_ptr<Parameter> param_value;
     PortValue output_port;
 };
 

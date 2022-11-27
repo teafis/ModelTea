@@ -18,7 +18,7 @@ class BlockObject : public QGraphicsObject
     Q_OBJECT
 
 public:
-    BlockObject(const std::shared_ptr<tmdl::LibraryBlock> block);
+    BlockObject(const std::shared_ptr<tmdl::BlockInterface> block);
 
     virtual void paint(
         QPainter* painter,
@@ -31,7 +31,7 @@ public:
 
     void update_block();
 
-    const tmdl::LibraryBlock* get_block() const;
+    std::shared_ptr<const tmdl::BlockInterface> get_block() const;
 
     const QPointF getInputPortLocation(const size_t port_num) const;
 
@@ -73,7 +73,7 @@ protected:
     QRectF blockRect() const;
 
 protected:
-    std::shared_ptr<tmdl::LibraryBlock> block;
+    std::shared_ptr<tmdl::BlockInterface> block;
 };
 
 #endif // BASE_BLOCK_H

@@ -3,14 +3,14 @@
 #ifndef TF_MODEL_STDLIB_TRIG_HPP
 #define TF_MODEL_STDLIB_TRIG_HPP
 
-#include "../library.hpp"
+#include "../block_interface.hpp"
 
 #include <cmath>
 
 namespace tmdl::stdlib
 {
 
-class TrigFunction : public LibraryBlock
+class TrigFunction : public BlockInterface
 {
 public:
     TrigFunction();

@@ -8,8 +8,8 @@
 
 
 tmdl::stdlib::Constant::Constant() :
-    param_dtype(std::make_unique<Parameter>("dtype", "data type", ParameterValue::from_string("", ParameterValue::Type::DATA_TYPE))),
-    param_value(std::make_unique<Parameter>("value", "Constant Value", ParameterValue::from_string("", ParameterValue::Type::UNKNOWN)))
+    param_dtype(std::make_shared<Parameter>("dtype", "data type", ParameterValue::from_string("", ParameterValue::Type::DATA_TYPE))),
+    param_value(std::make_shared<Parameter>("value", "Constant Value", ParameterValue::from_string("", ParameterValue::Type::UNKNOWN)))
 {
     // Empty Constructor
 }
@@ -52,11 +52,11 @@ bool tmdl::stdlib::Constant::update_block()
     return false;
 }
 
-std::vector<tmdl::Parameter*> tmdl::stdlib::Constant::get_parameters() const
+std::vector<std::shared_ptr<tmdl::Parameter>> tmdl::stdlib::Constant::get_parameters() const
 {
     return {
-        param_dtype.get(),
-        param_value.get()
+        param_dtype,
+        param_value
     };
 }
 

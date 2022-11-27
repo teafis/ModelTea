@@ -38,6 +38,11 @@ void ParameterDialog::reloadParameters()
 
     for (auto prm : block->get_block()->get_parameters())
     {
+        if (!prm->get_enabled())
+        {
+            continue;
+        }
+
         switch (prm->get_value().dtype)
         {
         case tmdl::ParameterValue::Type::BOOLEAN:

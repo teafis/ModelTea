@@ -19,11 +19,6 @@ std::string InputPort::get_description() const
     return "Input Port";
 }
 
-std::vector<Parameter*> InputPort::get_parameters() const
-{
-    return {};
-}
-
 size_t InputPort::get_num_inputs() const
 {
     return 0;
@@ -90,11 +85,6 @@ std::string OutputPort::get_name() const
 std::string OutputPort::get_description() const
 {
     return "Output Port";
-}
-
-std::vector<Parameter*> OutputPort::get_parameters() const
-{
-    return {};
 }
 
 size_t OutputPort::get_num_inputs() const

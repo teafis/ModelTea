@@ -26,10 +26,10 @@ public:
 
     std::vector<std::string> get_block_names() const override;
 
-    std::shared_ptr<LibraryBlock> create_block_from_name(const std::string& name) const override;
+    std::shared_ptr<BlockInterface> create_block_from_name(const std::string& name) const override;
 
 protected:
-    std::unordered_map<std::string, std::shared_ptr<LibraryBlock> (*)()> block_map;
+    std::unordered_map<std::string, std::shared_ptr<BlockInterface> (*)()> block_map;
 };
 
 }

@@ -280,6 +280,8 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
         order_values.push_back(i);
     }
 
+    std::vector<size_t> delayed_values;
+
     // Create a list of remaining ID values
     std::vector<size_t> remaining_id_values;
     for (const auto& it : blocks)
@@ -305,27 +307,17 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
             std::shared_ptr<const BlockInterface> block = get_block(id);
 
             // Add the index if there are no input ports
-            if (block->get_num_inputs() == 0)
-            {
-                index = i;
-                break;
-            }
+            index = i;
 
             // Search for each port to see if it is complete
             for (size_t port = 0; port < block->get_num_inputs(); ++port)
             {
-                // Ensure that all parameters are accounted for
-                if (!connections.has_connection_to(id, port))
-                {
-                    throw ModelException("cannot compute execution order for incomplete input ports");
-                }
-
                 // Skip if the input port is a delayed input, but after need to check
                 // connections to ensure that all blocks are connected
                 const auto from_conn = connections.get_connection_to(id, port);
-                const auto from_port = get_block(from_conn.get_from_id())->get_output_port(from_conn.get_from_port());
+                const auto from_block = get_block(from_conn.get_from_id());
 
-                if (from_port.is_delayed_output)
+                if (from_block->outputs_are_delayed())
                 {
                     continue;
                 }
@@ -341,13 +333,14 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
 
                 if (from_it == order_values.end())
                 {
-                    continue;
-                }
-                else
-                {
-                    index = i;
+                    index = std::nullopt;
                     break;
                 }
+            }
+
+            if (index.has_value())
+            {
+                break;
             }
         }
 

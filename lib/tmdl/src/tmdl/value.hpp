@@ -30,8 +30,6 @@ DataType data_type_from_string(const std::string& s);
 struct PortValue
 {
     DataType dtype = DataType::UNKNOWN;
-
-    bool is_delayed_output = false;
 };
 
 struct ValueBox

@@ -62,8 +62,6 @@ tmdl::stdlib::Integrator::Integrator()
     input_type = DataType::UNKNOWN;
     input_reset_flag_type = DataType::UNKNOWN;
     input_reset_value_type = DataType::UNKNOWN;
-
-    output_port.is_delayed_output = true;
 }
 
 std::string tmdl::stdlib::Integrator::get_name() const
@@ -149,6 +147,11 @@ tmdl::PortValue tmdl::stdlib::Integrator::get_output_port(const size_t port) con
     {
         throw ModelException("output port out of range");
     }
+}
+
+bool tmdl::stdlib::Integrator::outputs_are_delayed() const
+{
+    return true;
 }
 
 std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Integrator::get_execution_interface(

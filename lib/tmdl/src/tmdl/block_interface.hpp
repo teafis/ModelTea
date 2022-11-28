@@ -49,6 +49,8 @@ public:
 
     virtual size_t get_num_outputs() const = 0;
 
+    virtual bool outputs_are_delayed() const;
+
     virtual void set_input_port(
         const size_t port,
         const DataType type) = 0;

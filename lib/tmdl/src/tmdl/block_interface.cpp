@@ -18,6 +18,11 @@ std::vector<std::shared_ptr<tmdl::Parameter>> tmdl::BlockInterface::get_paramete
     return {};
 }
 
+bool tmdl::BlockInterface::outputs_are_delayed() const
+{
+    return false;
+}
+
 std::unique_ptr<const tmdl::BlockError> tmdl::BlockInterface::make_error(const std::string& msg) const
 {
     return std::make_unique<BlockError>(BlockError

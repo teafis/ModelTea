@@ -21,6 +21,8 @@ public:
 
     size_t get_num_outputs() const override;
 
+    bool outputs_are_delayed() const override;
+
     bool update_block() override;
 
     std::unique_ptr<const BlockError> has_error() const override;

@@ -29,6 +29,8 @@ public:
 
     std::vector<std::string> get_library_names() const;
 
+    std::shared_ptr<BlockInterface> make_block(const std::string& name) const;
+
 protected:
     std::unordered_map<std::string, std::shared_ptr<LibraryBase>> libraries;
 };

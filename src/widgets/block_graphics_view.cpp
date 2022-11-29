@@ -402,8 +402,6 @@ static std::optional<double> double_from_variable(std::shared_ptr<const tmdl::Va
     }
 }
 
-#include <iostream>
-
 void BlockGraphicsView::stepExecutor()
 {
     if (executor == nullptr)
@@ -431,7 +429,6 @@ void BlockGraphicsView::stepExecutor()
     {
         emit plotPointUpdated(executor->state.time, double_val.value());
         qDebug() << "T = " << executor->state.time << ", Y = " << double_val.value();
-        std::cout << "T = " << executor->state.time << ", Y = " << double_val.value() << std::endl;
     }
 }
 
@@ -486,7 +483,7 @@ void BlockGraphicsView::addBlock(QString l, QString s)
     }
 
     // Initialze the block
-    const auto tmp = tmdl::LibraryManager::get_instance().get_library(l.toStdString())->create_block_from_name(s.toStdString());
+    const auto tmp = tmdl::LibraryManager::get_instance().get_library(l.toStdString())->create_block(s.toStdString());
     model.add_block(tmp);
 
     // Create the block object

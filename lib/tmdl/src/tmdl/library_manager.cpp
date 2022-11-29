@@ -65,3 +65,16 @@ std::vector<std::string> tmdl::LibraryManager::get_library_names() const
     std::sort(names.begin(), names.end());
     return names;
 }
+
+std::shared_ptr<tmdl::BlockInterface> tmdl::LibraryManager::make_block(const std::string& name) const
+{
+    for (const auto& kv : libraries)
+    {
+        if (kv.second->has_block(name))
+        {
+            return kv.second->create_block(name);
+        }
+    }
+
+    throw ModelException("unable to create block with name");
+}

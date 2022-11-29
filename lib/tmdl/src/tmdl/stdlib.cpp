@@ -67,7 +67,12 @@ std::vector<std::string> tmdl::stdlib::StandardLibrary::get_block_names() const
     return keys;
 }
 
-std::shared_ptr<tmdl::BlockInterface> tmdl::stdlib::StandardLibrary::create_block_from_name(const std::string& name) const
+bool tmdl::stdlib::StandardLibrary::has_block(const std::string name) const
+{
+    return block_map.find(name) != block_map.end();
+}
+
+std::shared_ptr<tmdl::BlockInterface> tmdl::stdlib::StandardLibrary::create_block(const std::string& name) const
 {
     auto it = block_map.find(name);
 

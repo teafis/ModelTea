@@ -26,7 +26,9 @@ public:
 
     std::vector<std::string> get_block_names() const override;
 
-    std::shared_ptr<BlockInterface> create_block_from_name(const std::string& name) const override;
+    bool has_block(const std::string name) const;
+
+    std::shared_ptr<BlockInterface> create_block(const std::string& name) const override;
 
 protected:
     std::unordered_map<std::string, std::shared_ptr<BlockInterface> (*)()> block_map;

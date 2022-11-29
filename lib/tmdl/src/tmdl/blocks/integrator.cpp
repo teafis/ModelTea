@@ -33,13 +33,16 @@ struct IntegratorExecutor : public tmdl::BlockExecutionInterface
         if (_reset_flag->value)
         {
             reset();
-            _output->value = state_value;
         }
         else
         {
-            _output->value = state_value;
             state_value += _input->value * state.dt;
         }
+    }
+
+    void post_step() override
+    {
+        _output->value = state_value;
     }
 
     void reset() override

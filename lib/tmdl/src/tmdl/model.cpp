@@ -32,6 +32,11 @@ public:
         {
             b->step(state);
         }
+
+        for (const auto& b : blocks)
+        {
+            b->post_step();
+        }
     }
 
     void reset() override

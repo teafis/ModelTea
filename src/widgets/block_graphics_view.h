@@ -99,7 +99,6 @@ protected:
 
     std::unique_ptr<ExecutionState> executor;
 
-    BlockLibrary* window_library = nullptr;
     ModelErrorDialog* window_errors = nullptr;
 };
 

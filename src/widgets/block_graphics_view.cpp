@@ -440,27 +440,19 @@ void BlockGraphicsView::clearExecutor()
 
 void BlockGraphicsView::showLibrary()
 {
-    if (window_library == nullptr)
-    {
-        window_library = new BlockLibrary();
+    BlockLibrary* window_library = new BlockLibrary(this);
 
-        connect(
-            window_library,
-            &BlockLibrary::blockSelected,
-            this,
-            &BlockGraphicsView::addBlock);
+    connect(
+        window_library,
+        &BlockLibrary::blockSelected,
+        this,
+        &BlockGraphicsView::addBlock);
 
-        connect(
-            this,
-            &BlockGraphicsView::generatedModelCreated,
-            window_library,
-            &BlockLibrary::close);
-
-        connect(
-            window_library,
-            &BlockLibrary::destroyed,
-            [this]() { window_library = nullptr; });
-    }
+    connect(
+        this,
+        &BlockGraphicsView::generatedModelCreated,
+        window_library,
+        &BlockLibrary::close);
 
     window_library->show();
 }
@@ -535,12 +527,6 @@ bool BlockGraphicsView::blockBodyContainsMouse(
 
 void BlockGraphicsView::onClose()
 {
-    if (window_library != nullptr)
-    {
-        window_library->close();
-        window_library = nullptr;
-    }
-
     if (window_errors != nullptr)
     {
         window_errors->close();

@@ -1,0 +1,56 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
+#ifndef TF_MODEL_BLOCK_HPP
+#define TF_MODEL_BLOCK_HPP
+
+#include <memory>
+#include <vector>
+
+#include "block_interface.hpp"
+#include "connection_manager.hpp"
+#include "model.hpp"
+
+#include <nlohmann/json.hpp>
+
+namespace tmdl
+{
+
+class ModelBlock : public BlockInterface
+{
+public:
+    std::string get_name() const override;
+
+    std::string get_description() const override;
+
+    size_t get_num_outputs() const override;
+
+    size_t get_num_inputs() const override;
+
+    bool update_block() override;
+
+    std::unique_ptr<const BlockError> has_error() const override;
+
+    void set_input_port(
+        const size_t port,
+        const DataType type) override;
+
+    PortValue get_output_port(const size_t port) const override;
+
+    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
+        const ConnectionManager& connections,
+        const VariableManager& manager) const override;
+
+    std::shared_ptr<Model> get_model();
+
+    std::shared_ptr<const Model> get_model() const;
+
+protected:
+    std::vector<DataType> input_types;
+    std::vector<DataType> output_types;
+
+    std::shared_ptr<Model> model;
+};
+
+}
+
+#endif // TF_MODEL_BLOCK_HPP

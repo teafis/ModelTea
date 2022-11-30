@@ -62,6 +62,11 @@ protected:
 
 /* ==================== MODEL ==================== */
 
+Model::Model(const std::string& name) : name(name)
+{
+    // Empty Constructor?
+}
+
 void Model::add_block(const std::shared_ptr<BlockInterface> block)
 {
     add_block(block, get_next_id());
@@ -151,7 +156,7 @@ void Model::remove_connection(const size_t to_block, const size_t to_port)
 
 std::string Model::get_name() const
 {
-    return "test_model";
+    return name;
 }
 
 std::string Model::get_description() const
@@ -229,9 +234,7 @@ std::unique_ptr<const BlockError> Model::has_error() const
     return nullptr;
 }
 
-void Model::set_input_port(
-    const size_t port,
-    const DataType type)
+DataType Model::get_input_datatype(const size_t port) const
 {
     if (port < get_num_inputs())
     {
@@ -241,7 +244,7 @@ void Model::set_input_port(
             throw ModelException("invalid block found for input port");
         }
 
-        blk->set_input_value(type);
+        return blk->get_output_port(0).dtype;
     }
     else
     {
@@ -249,7 +252,7 @@ void Model::set_input_port(
     }
 }
 
-PortValue Model::get_output_port(const size_t port) const
+DataType Model::get_output_datatype(const size_t port) const
 {
 
     if (port < get_num_outputs())
@@ -260,7 +263,7 @@ PortValue Model::get_output_port(const size_t port) const
             throw ModelException("invalid block found for input port");
         }
 
-        return blk->get_output_value();
+        return blk->get_output_value().dtype;
     }
     else
     {
@@ -374,7 +377,7 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
     for (size_t i = 0; i < output_ids.size(); ++i)
     {
         const auto outer_id = VariableIdentifier {
-            .block_id = get_id(),
+            .block_id = 0, // TODO get_id(),
             .output_port_num = i
         };
 
@@ -393,7 +396,7 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
     // Add input port types
     for (size_t i = 0; i < input_ids.size(); ++i)
     {
-        const auto& outer_connection = outer_connections.get_connection_to(get_id(), i);
+        const auto& outer_connection = outer_connections.get_connection_to(/* TODO: get_id()*/ 0, i);
         const auto ptr_val = outer_variables.get_ptr(outer_connection);
 
         const auto inner_id = VariableIdentifier

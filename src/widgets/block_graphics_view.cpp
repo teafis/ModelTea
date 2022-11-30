@@ -30,7 +30,8 @@
 
 BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
     QGraphicsView(parent),
-    selectedBlock(nullptr)
+    selectedBlock(nullptr),
+    model("test_model")
 {
     // Set the scene
     setScene(new QGraphicsScene(this));
@@ -331,13 +332,13 @@ void BlockGraphicsView::generateExecutor()
         // Add each output variable to the manager
         for (size_t i = 0; i < model.get_num_outputs(); ++i)
         {
-            const auto pv = model.get_output_port(i);
+            const auto pv = model.get_output_datatype(i);
 
-            const std::shared_ptr<tmdl::ValueBox> value = tmdl::make_shared_default_value(pv.dtype);
+            const std::shared_ptr<tmdl::ValueBox> value = tmdl::make_shared_default_value(pv);
 
             const auto vid = tmdl::VariableIdentifier
             {
-                .block_id = model.get_id(),
+                .block_id = /* TODO: model.get_id() */ 0,
                 .output_port_num = i
             };
 
@@ -411,7 +412,7 @@ void BlockGraphicsView::stepExecutor()
 
     const auto vid = tmdl::VariableIdentifier
     {
-        .block_id = model.get_id(),
+        .block_id = /* TODO: model.get_id() */ 0,
         .output_port_num = 0
     };
 

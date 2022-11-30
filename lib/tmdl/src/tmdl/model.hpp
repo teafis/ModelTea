@@ -3,14 +3,13 @@
 #ifndef TF_MODEL_HPP
 #define TF_MODEL_HPP
 
-#include <algorithm>
 #include <memory>
-#include <optional>
+#include <string>
 #include <vector>
 #include <unordered_map>
 
 #include "block_interface.hpp"
-#include "connection_manager.hpp"
+//#include "connection_manager.hpp"
 
 #include <nlohmann/json.hpp>
 
@@ -18,6 +17,7 @@
 namespace tmdl
 {
 class Model;
+class ModelBlock;
 }
 
 namespace ns
@@ -32,8 +32,13 @@ void from_json(const nlohmann::json& j, tmdl::Model& m);
 namespace tmdl
 {
 
-class Model : public BlockInterface
+class Model
 {
+public:
+    friend class ModelBlock;
+
+    Model(const std::string& name);
+
 public:
     void add_block(const std::shared_ptr<BlockInterface> block);
 
@@ -46,27 +51,25 @@ public:
     void remove_connection(const size_t to_block, const size_t to_port);
 
 public:
-    std::string get_name() const override;
+    std::string get_name() const;
 
-    std::string get_description() const override;
+    std::string get_description() const;
 
-    size_t get_num_outputs() const override;
+    size_t get_num_outputs() const;
 
-    size_t get_num_inputs() const override;
+    size_t get_num_inputs() const;
 
-    bool update_block() override;
+    DataType get_input_datatype(const size_t port) const;
 
-    std::unique_ptr<const BlockError> has_error() const override;
+    DataType get_output_datatype(const size_t port) const;
 
-    void set_input_port(
-        const size_t port,
-        const DataType type) override;
+    bool update_block();
 
-    PortValue get_output_port(const size_t port) const override;
+    std::unique_ptr<const BlockError> has_error() const;
 
     std::shared_ptr<BlockExecutionInterface> get_execution_interface(
         const ConnectionManager& connections,
-        const VariableManager& manager) const override;
+        const VariableManager& manager) const;
 
 public:
     std::vector<std::unique_ptr<const BlockError>> get_all_errors() const;
@@ -80,6 +83,7 @@ public:
     std::shared_ptr<BlockInterface> get_block(const size_t id) const;
 
 protected:
+    std::string name;
     std::unordered_map<size_t, std::shared_ptr<BlockInterface>> blocks;
     ConnectionManager connections;
     std::vector<size_t> input_ids;

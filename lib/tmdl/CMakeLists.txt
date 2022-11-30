@@ -25,7 +25,9 @@ set(
     src/tmdl/library.hpp
     src/tmdl/library_manager.hpp src/tmdl/library_manager.cpp
     src/tmdl/model.hpp src/tmdl/model.cpp
+    src/tmdl/model_block.hpp src/tmdl/model_block.cpp
     src/tmdl/model_exception.hpp src/tmdl/model_exception.cpp
+    src/tmdl/model_library.hpp src/tmdl/model_library.cpp
     src/tmdl/parameter.hpp src/tmdl/parameter.cpp
     src/tmdl/sim_state.hpp
     src/tmdl/stdlib.hpp src/tmdl/stdlib.cpp

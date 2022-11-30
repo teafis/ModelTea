@@ -2,14 +2,16 @@
 
 #include "stdlib.hpp"
 
-#include "blocks/clock.hpp"
-#include "blocks/limiter.hpp"
-#include "blocks/trig.hpp"
-#include "blocks/io_ports.hpp"
 #include "blocks/arithmetic.hpp"
-#include "blocks/integrator.hpp"
-#include "blocks/relational.hpp"
+#include "blocks/clock.hpp"
 #include "blocks/constant.hpp"
+#include "blocks/delay.hpp"
+#include "blocks/derivative.hpp"
+#include "blocks/integrator.hpp"
+#include "blocks/io_ports.hpp"
+#include "blocks/limiter.hpp"
+#include "blocks/relational.hpp"
+#include "blocks/trig.hpp"
 
 #include "model_exception.hpp"
 
@@ -41,7 +43,9 @@ tmdl::stdlib::StandardLibrary::StandardLibrary()
         {">=", &make_block<GreaterThanEqual>},
         {"==", &make_block<Equal>},
         {"!=", &make_block<NotEqual>},
-        {"constant", &make_block<Constant>}
+        {"constant", &make_block<Constant>},
+        {"delay", &make_block<Delay>},
+        {"derivative", &make_block<Derivative>}
     };
 }
 

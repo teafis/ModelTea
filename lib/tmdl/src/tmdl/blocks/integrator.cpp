@@ -28,6 +28,11 @@ struct IntegratorExecutor : public tmdl::BlockExecutionInterface
         }
     }
 
+    void init() override
+    {
+        reset();
+    }
+
     void step(const tmdl::SimState& state) override
     {
         if (_reset_flag->value)
@@ -168,7 +173,7 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Integrator::get_exe
     }
 
     const auto in_value = manager.get_ptr(connections.get_connection_to(get_id(), 0));
-    const auto in_reset_flag = std::dynamic_pointer_cast<ValueBoxType<bool>>(manager.get_ptr(connections.get_connection_to(get_id(), 1)));
+    const auto in_reset_flag = std::dynamic_pointer_cast<const ValueBoxType<bool>>(manager.get_ptr(connections.get_connection_to(get_id(), 1)));
     const auto in_reset_value = manager.get_ptr(connections.get_connection_to(get_id(), 2));
 
     const auto out_value = manager.get_ptr(VariableIdentifier {
@@ -176,19 +181,13 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Integrator::get_exe
         .output_port_num = 0
     });
 
-    std::shared_ptr<BlockExecutionInterface> exec;
-
     switch (input_type)
     {
     case DataType::DOUBLE:
-        exec = std::make_shared<IntegratorExecutor<double>>(in_value, in_reset_value, in_reset_flag, out_value);
-        break;
+        return std::make_shared<IntegratorExecutor<double>>(in_value, in_reset_value, in_reset_flag, out_value);
     case DataType::SINGLE:
-        exec = std::make_shared<IntegratorExecutor<float>>(in_value, in_reset_value, in_reset_flag, out_value);
-        break;
+        return std::make_shared<IntegratorExecutor<float>>(in_value, in_reset_value, in_reset_flag, out_value);
     default:
         throw ModelException("unable to create pointer value");
     }
-
-    return exec;
 }

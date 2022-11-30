@@ -34,6 +34,8 @@ set(
     src/tmdl/blocks/arithmetic.hpp src/tmdl/blocks/arithmetic.cpp
     src/tmdl/blocks/clock.hpp src/tmdl/blocks/clock.cpp
     src/tmdl/blocks/constant.hpp src/tmdl/blocks/constant.cpp
+    src/tmdl/blocks/delay.hpp src/tmdl/blocks/delay.cpp
+    src/tmdl/blocks/derivative.hpp src/tmdl/blocks/derivative.cpp
     src/tmdl/blocks/integrator.hpp src/tmdl/blocks/integrator.cpp
     src/tmdl/blocks/io_ports.hpp src/tmdl/blocks/io_ports.cpp
     src/tmdl/blocks/limiter.hpp src/tmdl/blocks/limiter.cpp

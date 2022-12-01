@@ -7,8 +7,8 @@
 #include <vector>
 #include <unordered_map>
 
-#include "library.hpp"
-#include "model.hpp"
+#include "../library.hpp"
+#include "../model.hpp"
 
 namespace tmdl
 {

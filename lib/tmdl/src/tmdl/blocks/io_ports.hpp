@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#ifndef TF_MODEL_IO_PORTS_HPP
-#define TF_MODEL_IO_PORTS_HPP
+#ifndef TF_MODEL_BLOCKS_IO_PORTS_HPP
+#define TF_MODEL_BLOCKS_IO_PORTS_HPP
 
 #include "../block_interface.hpp"
 
@@ -79,4 +79,4 @@ protected:
 
 }
 
-#endif // TF_MODEL_IO_PORTS_HPP
+#endif // TF_MODEL_BLOCKS_IO_PORTS_HPP

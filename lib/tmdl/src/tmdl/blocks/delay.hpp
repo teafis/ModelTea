@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#ifndef TF_MODEL_STDLIB_DELAY_HPP
-#define TF_MODEL_STDLIB_DELAY_HPP
+#ifndef TF_MODEL_BLOCKS_DELAY_HPP
+#define TF_MODEL_BLOCKS_DELAY_HPP
 
 #include "../block_interface.hpp"
 
@@ -44,4 +44,4 @@ protected:
 
 }
 
-#endif // TF_MODEL_STDLIB_DELAY_HPP
+#endif // TF_MODEL_BLOCKS_DELAY_HPP

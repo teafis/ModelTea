@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#ifndef TF_MODEL_STDLIB_ARITHMETIC_HPP
-#define TF_MODEL_STDLIB_ARITHMETIC_HPP
+#ifndef TF_MODEL_BLOCKS_ARITHMETIC_HPP
+#define TF_MODEL_BLOCKS_ARITHMETIC_HPP
 
 #include "../block_interface.hpp"
 
@@ -96,4 +96,4 @@ public:
 
 }
 
-#endif // TF_MODEL_STDLIB_ARITHMETIC_HPP
+#endif // TF_MODEL_BLOCKS_ARITHMETIC_HPP

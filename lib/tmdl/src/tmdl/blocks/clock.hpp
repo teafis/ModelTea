@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#ifndef TF_MODEL_STDLIB_CLOCK_HPP
-#define TF_MODEL_STDLIB_CLOCK_HPP
+#ifndef TF_MODEL_BLOCKS_CLOCK_HPP
+#define TF_MODEL_BLOCKS_CLOCK_HPP
 
 #include "../block_interface.hpp"
 
@@ -41,4 +41,4 @@ protected:
 
 }
 
-#endif // TF_MODEL_STDLIB_CLOCK_HPP
+#endif // TF_MODEL_BLOCKS_CLOCK_HPP

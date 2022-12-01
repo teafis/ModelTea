@@ -27,10 +27,8 @@ set(
     src/tmdl/model.hpp src/tmdl/model.cpp
     src/tmdl/model_block.hpp src/tmdl/model_block.cpp
     src/tmdl/model_exception.hpp src/tmdl/model_exception.cpp
-    src/tmdl/model_library.hpp src/tmdl/model_library.cpp
     src/tmdl/parameter.hpp src/tmdl/parameter.cpp
     src/tmdl/sim_state.hpp
-    src/tmdl/stdlib.hpp src/tmdl/stdlib.cpp
     src/tmdl/value.hpp src/tmdl/value.cpp
     src/tmdl/variable_manager.hpp src/tmdl/variable_manager.cpp
     src/tmdl/blocks/arithmetic.hpp src/tmdl/blocks/arithmetic.cpp
@@ -43,6 +41,8 @@ set(
     src/tmdl/blocks/limiter.hpp src/tmdl/blocks/limiter.cpp
     src/tmdl/blocks/relational.hpp src/tmdl/blocks/relational.cpp
     src/tmdl/blocks/trig.hpp src/tmdl/blocks/trig.cpp
+    src/tmdl/libraries/model_library.hpp src/tmdl/libraries/model_library.cpp
+    src/tmdl/libraries/stdlib.hpp src/tmdl/libraries/stdlib.cpp
 )
 
 # Define the library

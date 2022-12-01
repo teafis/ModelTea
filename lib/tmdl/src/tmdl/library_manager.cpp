@@ -2,7 +2,7 @@
 
 #include "library_manager.hpp"
 
-#include "stdlib.hpp"
+#include "libraries/stdlib.hpp"
 
 #include "model_exception.hpp"
 

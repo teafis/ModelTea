@@ -1,5 +1,8 @@
 #include "model_library.hpp"
 
+#include "../model_exception.hpp"
+
+
 std::string tmdl::ModelLibrary::get_library_name() const
 {
     return "models";

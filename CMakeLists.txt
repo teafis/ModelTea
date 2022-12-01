@@ -2,6 +2,14 @@
 
 cmake_minimum_required(VERSION 3.18)
 
+set(
+    CMAKE_TOOLCHAIN_FILE
+    "vcpkg/scripts/buildsystems/vcpkg.cmake"
+    CACHE STRING "vcpkg toolchain file")
+set(QT_CREATOR_SKIP_VCPKG_SETUP ON)
+
+set(VCPKG_FEATURE_FLAGS "versions")
+
 project(TSim VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -15,6 +23,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets Charts REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Charts REQUIRED)
+
+find_package(nlohmann_json CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
 
 set(PROJECT_SOURCESS
     src/main.cpp
@@ -47,14 +58,12 @@ else()
     )
 endif()
 
-# Add library directories
 add_subdirectory(lib/tmdl)
-add_subdirectory(lib/json)
 
 target_include_directories(TSim PRIVATE src/)
 
 target_link_libraries(TSim PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-target_link_libraries(TSim PRIVATE TeaFIS-Model)
+target_link_libraries(TSim PRIVATE tmdl)
 
 #target_compile_options(TSim PRIVATE -fsanitize=address)
 #target_link_options(TSim PRIVATE -fsanitize=address)

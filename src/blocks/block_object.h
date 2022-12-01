@@ -10,7 +10,7 @@
 #include <optional>
 #include <string>
 
-#include <tmdl/library.hpp>
+#include <tmdl/block_interface.hpp>
 
 
 class BlockObject : public QGraphicsObject

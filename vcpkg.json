@@ -1,0 +1,9 @@
+{
+  "name": "tsim",
+  "version-string": "0.1.0",
+  "dependencies": [
+    "nlohmann-json",
+    "fmt"
+  ]
+}
+

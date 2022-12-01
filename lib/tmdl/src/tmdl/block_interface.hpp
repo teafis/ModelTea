@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#ifndef TF_MODEL_IO_INTERFACES_HPP
-#define TF_MODEL_IO_INTERFACES_HPP
+#ifndef TF_MODEL_BLOCK_INTERFACE_HPP
+#define TF_MODEL_BLOCK_INTERFACE_HPP
 
 #include <cstdlib>
 
@@ -87,4 +87,4 @@ public:
 
 }
 
-#endif // TF_MODEL_IO_INTERFACES_HPP
+#endif // TF_MODEL_BLOCK_INTERFACE_HPP

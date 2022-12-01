@@ -6,7 +6,7 @@ set(VCPKG_FEATURE_FLAGS "versions")
 
 # Define the project information
 project (
-    TeaFIS-Model
+    tmdl
     VERSION 0.1
     LANGUAGES CXX
 )
@@ -47,20 +47,21 @@ set(
 
 # Define the library
 add_library(
-    TeaFIS-Model
+    tmdl
     ${TEAFIS_MODEL_SOURCES}
 )
 
-target_link_libraries(TeaFIS-Model PUBLIC nlohmann_json)
+target_link_libraries(tmdl PUBLIC nlohmann_json::nlohmann_json)
+target_link_libraries(tmdl PUBLIC fmt::fmt)
 
 # Include Directories
-target_include_directories(TeaFIS-Model PUBLIC src)
+target_include_directories(tmdl PUBLIC src)
 
 # Add compiler options
 if (MSVC)
-    target_compile_options(TeaFIS-Model PUBLIC /W4 /WX)
+    target_compile_options(tmdl PUBLIC /W4 /WX)
 else()
-    target_compile_options(TeaFIS-Model PUBLIC -Wall -Wextra -pedantic -Werror)
+    target_compile_options(tmdl PUBLIC -Wall -Wextra -pedantic -Werror)
 
     if (TEAFIS_USE_ASAN)
         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak")

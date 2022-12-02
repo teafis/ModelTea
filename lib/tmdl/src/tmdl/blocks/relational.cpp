@@ -91,7 +91,7 @@ tmdl::stdlib::RelationalBase::RelationalBase()
 {
     _inputA = DataType::UNKNOWN;
     _inputB = DataType::UNKNOWN;
-    _outputPort.dtype = DataType::BOOLEAN;
+    _outputPort = DataType::BOOLEAN;
 }
 
 size_t tmdl::stdlib::RelationalBase::get_num_inputs() const
@@ -133,7 +133,7 @@ std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::RelationalBase::has_error(
     return nullptr;
 }
 
-void tmdl::stdlib::RelationalBase::set_input_port(
+void tmdl::stdlib::RelationalBase::set_input_type(
     const size_t port,
     const DataType type)
 {
@@ -150,7 +150,7 @@ void tmdl::stdlib::RelationalBase::set_input_port(
     }
 }
 
-tmdl::PortValue tmdl::stdlib::RelationalBase::get_output_port(const size_t port) const
+tmdl::DataType tmdl::stdlib::RelationalBase::get_output_type(const size_t port) const
 {
     if (port == 0)
     {

@@ -167,9 +167,9 @@ bool tmdl::stdlib::ArithmeticBase::update_block()
         }
     }
 
-    if (_outputPort.dtype != firstType)
+    if (_outputPort != firstType)
     {
-        _outputPort.dtype = firstType;
+        _outputPort = firstType;
         updated = true;
     }
 
@@ -200,7 +200,7 @@ std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::ArithmeticBase::has_error(
     return nullptr;
 }
 
-void tmdl::stdlib::ArithmeticBase::set_input_port(
+void tmdl::stdlib::ArithmeticBase::set_input_type(
     const size_t port,
     const DataType type)
 {
@@ -216,7 +216,7 @@ void tmdl::stdlib::ArithmeticBase::set_input_port(
     }
 }
 
-tmdl::PortValue tmdl::stdlib::ArithmeticBase::get_output_port(const size_t port) const
+tmdl::DataType tmdl::stdlib::ArithmeticBase::get_output_type(const size_t port) const
 {
     if (port == 0)
     {
@@ -252,7 +252,7 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::ArithmeticBase::get
 
     const FunctionTypes fcs = get_application_functions();
 
-    switch (_outputPort.dtype)
+    switch (_outputPort)
     {
     case DataType::DOUBLE:
         return std::make_shared<ArithmeticExecutor<double, OperatorBase<double>>>(

@@ -80,9 +80,9 @@ size_t tmdl::stdlib::Derivative::get_num_outputs() const
 
 bool tmdl::stdlib::Derivative::update_block()
 {
-    if (output_port.dtype != input_type)
+    if (output_port != input_type)
     {
-        output_port.dtype = input_type;
+        output_port = input_type;
         return true;
     }
 
@@ -95,7 +95,7 @@ std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::Derivative::has_error() co
     {
         return make_error("integrator only works with floating point types");
     }
-    if (input_type != output_port.dtype)
+    if (input_type != output_port)
     {
         return make_error("input port doesn't match output port type");
     }
@@ -107,7 +107,7 @@ std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::Derivative::has_error() co
     return nullptr;
 }
 
-void tmdl::stdlib::Derivative::set_input_port(
+void tmdl::stdlib::Derivative::set_input_type(
     const size_t port,
     const DataType type)
 {
@@ -124,7 +124,7 @@ void tmdl::stdlib::Derivative::set_input_port(
     }
 }
 
-tmdl::PortValue tmdl::stdlib::Derivative::get_output_port(const size_t port) const
+tmdl::DataType tmdl::stdlib::Derivative::get_output_type(const size_t port) const
 {
     if (port == 0)
     {

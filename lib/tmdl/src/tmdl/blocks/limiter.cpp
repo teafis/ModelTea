@@ -128,7 +128,7 @@ bool Limiter::update_block()
     prmMaxValue->set_enabled(dynamicLimiter->get_value().value.tf);
     prmMinValue->set_enabled(dynamicLimiter->get_value().value.tf);
 
-    if (input_type != output_port.dtype)
+    if (input_type != output_port)
     {
         ParameterValue::Type new_dtype = ParameterValue::Type::UNKNOWN;
 
@@ -153,7 +153,7 @@ bool Limiter::update_block()
         prmMaxValue->get_value().convert(new_dtype);
         prmMinValue->get_value().convert(new_dtype);
 
-        output_port.dtype = input_type;
+        output_port = input_type;
         updated = true;
     }
 
@@ -195,7 +195,7 @@ std::unique_ptr<const BlockError> Limiter::has_error() const
     return nullptr;
 }
 
-void Limiter::set_input_port(
+void Limiter::set_input_type(
     const size_t port,
     const DataType type)
 {
@@ -220,7 +220,7 @@ void Limiter::set_input_port(
     }
 }
 
-PortValue Limiter::get_output_port(const size_t port) const
+DataType Limiter::get_output_type(const size_t port) const
 {
     if (port < get_num_outputs())
     {

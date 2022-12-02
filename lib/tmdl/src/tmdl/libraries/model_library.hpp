@@ -24,8 +24,16 @@ public:
 
     std::shared_ptr<BlockInterface> create_block(const std::string& name) const override;
 
+public:
+    std::shared_ptr<Model> get_model(const std::string& name) const;
+
+    std::shared_ptr<Model> create_model(const std::string& name);
+
 protected:
-    std::shared_ptr<Model> models;
+    std::shared_ptr<Model> try_get_model(const std::string& name) const;
+
+protected:
+    std::vector<std::shared_ptr<Model>> models;
 };
 
 }

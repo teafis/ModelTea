@@ -54,10 +54,7 @@ tmdl::stdlib::Delay::Delay()
     input_type = DataType::UNKNOWN;
     input_reset_flag = DataType::UNKNOWN;
     input_reset_value = DataType::UNKNOWN;
-    output_port = PortValue
-    {
-        .dtype = DataType::UNKNOWN
-    };
+    output_port = DataType::UNKNOWN;
 }
 
 std::string tmdl::stdlib::Delay::get_name() const
@@ -82,9 +79,9 @@ size_t tmdl::stdlib::Delay::get_num_outputs() const
 
 bool tmdl::stdlib::Delay::update_block()
 {
-    if (input_type != output_port.dtype)
+    if (input_type != output_port)
     {
-        output_port.dtype = input_type;
+        output_port = input_type;
         return true;
     }
 
@@ -93,7 +90,7 @@ bool tmdl::stdlib::Delay::update_block()
 
 std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::Delay::has_error() const
 {
-    if (input_type != output_port.dtype)
+    if (input_type != output_port)
     {
         return make_error("input type does not equal output type");
     }
@@ -109,7 +106,7 @@ std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::Delay::has_error() const
     return nullptr;
 }
 
-void tmdl::stdlib::Delay::set_input_port(
+void tmdl::stdlib::Delay::set_input_type(
     const size_t port,
     const DataType type)
 {
@@ -129,7 +126,7 @@ void tmdl::stdlib::Delay::set_input_port(
     }
 }
 
-tmdl::PortValue tmdl::stdlib::Delay::get_output_port(const size_t port) const
+tmdl::DataType tmdl::stdlib::Delay::get_output_type(const size_t port) const
 {
     if (port == 0)
     {
@@ -161,7 +158,7 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Delay::get_executio
         .output_port_num = 0
     });
 
-    switch (output_port.dtype)
+    switch (output_port)
     {
     case DataType::DOUBLE:
         return std::make_shared<DelayExecutor<double>>(input_value, output_value, input_value_reset_flag, input_value_reset_value);

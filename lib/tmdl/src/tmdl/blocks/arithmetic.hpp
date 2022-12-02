@@ -32,11 +32,11 @@ public:
 
     std::unique_ptr<const BlockError> has_error() const override;
 
-    void set_input_port(
+    void set_input_type(
         const size_t port,
         const DataType type) override;
 
-    PortValue get_output_port(const size_t port) const override;
+    DataType get_output_type(const size_t port) const override;
 
     std::shared_ptr<BlockExecutionInterface> get_execution_interface(
         const ConnectionManager& connections,
@@ -51,7 +51,7 @@ private:
 protected:
     std::shared_ptr<Parameter> _prmNumInputPorts;
     std::vector<DataType> _inputTypes;
-    PortValue _outputPort;
+    DataType _outputPort;
 };
 
 class Addition : public ArithmeticBase

@@ -22,9 +22,9 @@ size_t tmdl::stdlib::TrigFunction::get_num_outputs() const
 
 bool tmdl::stdlib::TrigFunction::update_block()
 {
-    if (input_type != output_port.dtype)
+    if (input_type != output_port)
     {
-        output_port.dtype = input_type;
+        output_port = input_type;
         return true;
     }
     else
@@ -35,7 +35,7 @@ bool tmdl::stdlib::TrigFunction::update_block()
 
 std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::TrigFunction::has_error() const
 {
-    if (input_type != output_port.dtype)
+    if (input_type != output_port)
     {
         return make_error("mismatch in input and output types");
     }
@@ -47,7 +47,7 @@ std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::TrigFunction::has_error() 
     return nullptr;
 }
 
-void tmdl::stdlib::TrigFunction::set_input_port(
+void tmdl::stdlib::TrigFunction::set_input_type(
     const size_t port,
     const DataType type)
 {
@@ -61,7 +61,7 @@ void tmdl::stdlib::TrigFunction::set_input_port(
     }
 }
 
-tmdl::PortValue tmdl::stdlib::TrigFunction::get_output_port(const size_t port) const
+tmdl::DataType tmdl::stdlib::TrigFunction::get_output_type(const size_t port) const
 {
     if (port == 0)
     {

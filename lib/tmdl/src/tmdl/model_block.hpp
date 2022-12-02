@@ -18,23 +18,25 @@ namespace tmdl
 class ModelBlock : public BlockInterface
 {
 public:
+    ModelBlock(std::shared_ptr<Model> model);
+
     std::string get_name() const override;
 
     std::string get_description() const override;
 
-    size_t get_num_outputs() const override;
-
     size_t get_num_inputs() const override;
+
+    size_t get_num_outputs() const override;
 
     bool update_block() override;
 
     std::unique_ptr<const BlockError> has_error() const override;
 
-    void set_input_port(
+    void set_input_type(
         const size_t port,
         const DataType type) override;
 
-    PortValue get_output_port(const size_t port) const override;
+    DataType get_output_type(const size_t port) const override;
 
     std::shared_ptr<BlockExecutionInterface> get_execution_interface(
         const ConnectionManager& connections,

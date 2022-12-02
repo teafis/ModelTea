@@ -21,11 +21,11 @@ public:
 
     size_t get_num_outputs() const override;
 
-    void set_input_port(
+    void set_input_type(
         const size_t port,
         const DataType type) override;
 
-    PortValue get_output_port(const size_t port) const override;
+    DataType get_output_type(const size_t port) const override;
 
     std::unique_ptr<const BlockError> has_error() const override;
 
@@ -41,7 +41,7 @@ public:
     void set_input_value(const DataType type);
 
 protected:
-    PortValue _port;
+    DataType _port;
     std::shared_ptr<Parameter> dataTypeParameter;
 };
 
@@ -56,11 +56,11 @@ public:
 
     size_t get_num_outputs() const override;
 
-    void set_input_port(
+    void set_input_type(
         const size_t port,
         const DataType type) override;
 
-    PortValue get_output_port(const size_t port) const override;
+    DataType get_output_type(const size_t port) const override;
 
     std::unique_ptr<const BlockError> has_error() const override;
 
@@ -71,10 +71,10 @@ public:
         const VariableManager& manager) const override;
 
 public:
-    PortValue get_output_value() const;
+    DataType get_output_value() const;
 
 protected:
-    PortValue _port;
+    DataType _port;
 };
 
 }

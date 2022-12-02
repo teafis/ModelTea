@@ -36,15 +36,15 @@ size_t tmdl::stdlib::Constant::get_num_outputs() const
 
 bool tmdl::stdlib::Constant::update_block()
 {
-    if (param_dtype->get_value().value.dtype != output_port.dtype)
+    if (param_dtype->get_value().value.dtype != output_port)
     {
-        output_port.dtype = param_dtype->get_value().value.dtype;
+        output_port = param_dtype->get_value().value.dtype;
 
         std::ostringstream oss;
-        oss << "Constant Value (" << data_type_to_string(output_port.dtype) << ")";
+        oss << "Constant Value (" << data_type_to_string(output_port) << ")";
 
         param_value->set_name(oss.str());
-        param_value->get_value().convert(output_port.dtype);
+        param_value->get_value().convert(output_port);
 
         return true;
     }
@@ -70,14 +70,14 @@ std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::Constant::has_error() cons
     return nullptr;
 }
 
-void tmdl::stdlib::Constant::set_input_port(
+void tmdl::stdlib::Constant::set_input_type(
     const size_t,
     const DataType)
 {
     throw ModelException("input port out of range");
 }
 
-tmdl::PortValue tmdl::stdlib::Constant::get_output_port(const size_t port) const
+tmdl::DataType tmdl::stdlib::Constant::get_output_type(const size_t port) const
 {
     if (port == 0)
     {

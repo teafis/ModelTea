@@ -15,7 +15,7 @@ namespace tmdl
 
 enum class DataType
 {
-    UNKNOWN,
+    UNKNOWN = 0,
     SINGLE,
     DOUBLE,
     BOOLEAN,
@@ -73,11 +73,6 @@ struct data_type_t<DataType::BOOLEAN>
 std::string data_type_to_string(const DataType dtype);
 
 DataType data_type_from_string(const std::string& s);
-
-struct PortValue
-{
-    DataType dtype = DataType::UNKNOWN;
-};
 
 struct ValueBox
 {

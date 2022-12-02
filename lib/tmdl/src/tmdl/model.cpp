@@ -129,9 +129,9 @@ void Model::add_connection(const Connection connection)
         connection.get_to_port() < to_block->get_num_inputs())
     {
         connections.add_connection(connection);
-        to_block->set_input_port(
+        to_block->set_input_type(
             connection.get_to_port(),
-            from_block->get_output_port(connection.get_from_port()).dtype);
+            from_block->get_output_type(connection.get_from_port()));
 
         to_block->update_block();
     }
@@ -148,7 +148,7 @@ void Model::remove_connection(const size_t to_block, const size_t to_port)
     auto blk = get_block(c.get_to_id());
     if (c.get_to_port() < blk->get_num_inputs())
     {
-        blk->set_input_port(c.get_to_port(), DataType::UNKNOWN);
+        blk->set_input_type(c.get_to_port(), DataType::UNKNOWN);
     }
 
     connections.remove_connection(to_block, to_port);
@@ -192,9 +192,9 @@ bool Model::update_block()
             std::shared_ptr<const BlockInterface> from_blk = get_block(c.get_from_id());
             std::shared_ptr<BlockInterface> to_blk = get_block(c.get_to_id());
 
-            to_blk->set_input_port(
+            to_blk->set_input_type(
                 c.get_to_port(),
-                from_blk->get_output_port(c.get_from_port()).dtype);
+                from_blk->get_output_type(c.get_from_port()));
         }
 
         // Check each port for updates
@@ -244,7 +244,7 @@ DataType Model::get_input_datatype(const size_t port) const
             throw ModelException("invalid block found for input port");
         }
 
-        return blk->get_output_port(0).dtype;
+        return blk->get_output_type(0);
     }
     else
     {
@@ -263,7 +263,7 @@ DataType Model::get_output_datatype(const size_t port) const
             throw ModelException("invalid block found for input port");
         }
 
-        return blk->get_output_value().dtype;
+        return blk->get_output_value();
     }
     else
     {
@@ -424,8 +424,8 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
             // Skip if variable already added (due to input/output)
             if (!variables.has_variable(vid))
             {
-                const auto pv = get_block(vid.block_id)->get_output_port(vid.output_port_num);
-                variables.add_variable(vid, make_shared_default_value(pv.dtype));
+                const auto pv = get_block(vid.block_id)->get_output_type(vid.output_port_num);
+                variables.add_variable(vid, make_shared_default_value(pv));
             }
         }
     }
@@ -495,7 +495,6 @@ std::shared_ptr<BlockInterface> Model::get_block(const size_t id) const
 
 void ns::to_json(nlohmann::json& j, const tmdl::Model& m)
 {
-    j["type"] = "model";
     j["name"] = m.get_name();
     j["output_ids"] = m.output_ids;
     j["input_ids"] = m.input_ids;

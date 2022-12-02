@@ -4,6 +4,12 @@
 
 #include "model_exception.hpp"
 
+tmdl::ModelBlock::ModelBlock(std::shared_ptr<Model> model) :
+    model(model)
+{
+    // Empty Constructor
+}
+
 
 std::string tmdl::ModelBlock::get_name() const
 {
@@ -81,9 +87,10 @@ std::unique_ptr<const tmdl::BlockError> tmdl::ModelBlock::has_error() const
 
     for (const auto& it : portvec)
     {
-        const auto& vec = std::get<0>(it);
-        const auto dt_func = std::get<1>(it);
-        const auto size_func = std::get<2>(it);
+        const auto& [vec, dt_func, size_func] = it;
+        //const auto& vec = std::get<0>(it);
+        //const auto dt_func = std::get<1>(it);
+        //const auto size_func = std::get<2>(it);
 
         if (vec.size() != size_func())
         {
@@ -102,7 +109,7 @@ std::unique_ptr<const tmdl::BlockError> tmdl::ModelBlock::has_error() const
     return nullptr;
 }
 
-void tmdl::ModelBlock::set_input_port(
+void tmdl::ModelBlock::set_input_type(
     const size_t port,
     const DataType type)
 {
@@ -121,17 +128,17 @@ void tmdl::ModelBlock::set_input_port(
     }
 }
 
-tmdl::PortValue tmdl::ModelBlock::get_output_port(const size_t port) const
+tmdl::DataType tmdl::ModelBlock::get_output_type(const size_t port) const
 {
     if (port < get_num_outputs())
     {
         if (port < output_types.size())
         {
-            return PortValue { .dtype = output_types[port] };
+            return output_types[port];
         }
         else
         {
-            return PortValue { .dtype = DataType::UNKNOWN };
+            return DataType::UNKNOWN;
         }
     }
     else

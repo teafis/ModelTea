@@ -41,7 +41,7 @@ public:
 
     virtual std::vector<std::shared_ptr<Parameter>> get_parameters() const;
 
-    virtual bool update_block() = 0; // return true if the block updated anything that affects other blocks
+    virtual bool update_block() = 0;
 
     virtual std::unique_ptr<const BlockError> has_error() const = 0; // Return null if no error
 
@@ -51,11 +51,11 @@ public:
 
     virtual bool outputs_are_delayed() const;
 
-    virtual void set_input_port(
+    virtual void set_input_type(
         const size_t port,
         const DataType type) = 0;
 
-    virtual PortValue get_output_port(const size_t port) const = 0;
+    virtual DataType get_output_type(const size_t port) const = 0;
 
     virtual std::shared_ptr<BlockExecutionInterface> get_execution_interface(
         const ConnectionManager& connections,

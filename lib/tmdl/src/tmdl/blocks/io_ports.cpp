@@ -43,14 +43,14 @@ size_t InputPort::get_num_outputs() const
     return 1;
 }
 
-void InputPort::set_input_port(
+void InputPort::set_input_type(
     const size_t,
     const DataType)
 {
     throw ModelException("cannot set input port value");
 }
 
-PortValue InputPort::get_output_port(const size_t port) const
+DataType InputPort::get_output_type(const size_t port) const
 {
     if (port == 0)
     {
@@ -64,7 +64,7 @@ PortValue InputPort::get_output_port(const size_t port) const
 
 std::unique_ptr<const BlockError> InputPort::has_error() const
 {
-    if (_port.dtype == DataType::UNKNOWN)
+    if (_port == DataType::UNKNOWN)
     {
         return make_error("input port has unknown type");
     }
@@ -82,9 +82,9 @@ std::vector<std::shared_ptr<tmdl::Parameter>> InputPort::get_parameters() const
 bool InputPort::update_block()
 {
     const auto param_dt = dataTypeParameter->get_value().value.dtype;
-    if (param_dt != _port.dtype)
+    if (param_dt != _port)
     {
-        _port.dtype = param_dt;
+        _port = param_dt;
         return true;
     }
 
@@ -100,7 +100,7 @@ std::shared_ptr<BlockExecutionInterface> InputPort::get_execution_interface(
 
 void InputPort::set_input_value(const DataType type)
 {
-    _port.dtype = type;
+    _port = type;
 }
 
 /* ========== OUTPUT PORT ========== */
@@ -125,13 +125,13 @@ size_t OutputPort::get_num_outputs() const
     return 0;
 }
 
-void OutputPort::set_input_port(
+void OutputPort::set_input_type(
     const size_t port,
     const DataType type)
 {
     if (port == 0)
     {
-        _port.dtype = type;
+        _port = type;
     }
     else
     {
@@ -139,14 +139,14 @@ void OutputPort::set_input_port(
     }
 }
 
-PortValue OutputPort::get_output_port(const size_t /* port */) const
+DataType OutputPort::get_output_type(const size_t /* port */) const
 {
     throw ModelException("cannot get input port value");
 }
 
 std::unique_ptr<const BlockError> OutputPort::has_error() const
 {
-    if (_port.dtype == DataType::UNKNOWN)
+    if (_port == DataType::UNKNOWN)
     {
         return make_error("output port has unknown type");
     }
@@ -166,7 +166,7 @@ std::shared_ptr<BlockExecutionInterface> OutputPort::get_execution_interface(
     return std::make_shared<BlockExecutionInterface>();
 }
 
-PortValue OutputPort::get_output_value() const
+DataType OutputPort::get_output_value() const
 {
     return _port;
 }

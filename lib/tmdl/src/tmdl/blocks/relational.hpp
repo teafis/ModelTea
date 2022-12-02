@@ -31,11 +31,11 @@ public:
 
     std::unique_ptr<const BlockError> has_error() const override;
 
-    void set_input_port(
+    void set_input_type(
         const size_t port,
         const DataType type) override;
 
-    PortValue get_output_port(const size_t port) const override;
+    DataType get_output_type(const size_t port) const override;
 
     std::shared_ptr<BlockExecutionInterface> get_execution_interface(
         const ConnectionManager& connections,
@@ -47,7 +47,7 @@ protected:
 protected:
     DataType _inputA;
     DataType _inputB;
-    PortValue _outputPort;
+    DataType _outputPort;
 };
 
 class GreaterThan : public RelationalBase

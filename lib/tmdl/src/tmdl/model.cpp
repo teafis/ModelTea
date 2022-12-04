@@ -5,6 +5,8 @@
 #include "blocks/io_ports.hpp"
 #include "model_exception.hpp"
 
+#include "library_manager.hpp"
+
 using namespace tmdl;
 
 /* ==================== MODEL EXECUTOR ==================== */
@@ -500,7 +502,7 @@ void ns::to_json(nlohmann::json& j, const tmdl::Model& m)
     j["input_ids"] = m.input_ids;
 
     nlohmann::json conn_json;
-    to_json(conn_json, m.get_connection_manager());
+    to_json(conn_json, m.connections);
     j["connections"] = conn_json;
 
     for (const auto& kv : m.blocks)
@@ -534,9 +536,54 @@ void ns::to_json(nlohmann::json& j, const tmdl::Model& m)
 
 void ns::from_json(const nlohmann::json& j, tmdl::Model& m)
 {
-    (void)j;
-    (void)m;
-    //j.at("name").get_to(p.name);
-    //j.at("address").get_to(p.address);
-    //j.at("age").get_to(p.age);
+    j.at("name").get_to(m.name);
+    j.at("output_ids").get_to(m.output_ids);
+    j.at("input_ids").get_to(m.input_ids);
+
+    from_json(j.at("connections"), m.connections);
+
+    for (const auto& json_blk : j.at("blocks"))
+    {
+        size_t blk_id;
+        std::string blk_name;
+
+        json_blk.at("id").get_to(blk_id);
+        json_blk.at("name").get_to(blk_name);
+
+        auto blk = tmdl::LibraryManager::get_instance().make_block(blk_name);
+        blk->set_id(blk_id);
+
+        for (const auto& json_param : json_blk.at("parameters"))
+        {
+            std::string prm_id;
+            uint32_t prm_dtype;
+            std::string prm_value;
+            bool prm_enabled;
+
+            json_param.at("id").get_to(prm_id);
+            json_param.at("dtype").get_to(prm_dtype);
+            json_param.at("value").get_to(prm_value);
+            json_param.at("enabled").get_to(prm_enabled);
+
+            bool prm_found = false;
+            for (auto p : blk->get_parameters())
+            {
+               if (p->get_id() != prm_id) continue;
+
+               const auto dt = static_cast<tmdl::ParameterValue::Type>(prm_dtype);
+
+               p->get_value() = ParameterValue::from_string(prm_value, dt);
+               p->set_enabled(prm_enabled);
+
+               prm_found = true;
+            }
+
+            if (!prm_found)
+            {
+                throw tmdl::ModelException("missing parameter id for provided block");
+            }
+        }
+
+        m.blocks[blk_id] = blk;
+    }
 }

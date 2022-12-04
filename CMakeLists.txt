@@ -72,6 +72,7 @@ target_link_libraries(TSim PRIVATE tmdl)
 #target_link_options(TSim PRIVATE -fsanitize=leak)
 
 target_link_libraries(TSim PRIVATE Qt::Widgets Qt::Charts)
+target_link_libraries(TSim PUBLIC nlohmann_json::nlohmann_json)
 
 set_target_properties(TSim PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER org.teafis.tsim

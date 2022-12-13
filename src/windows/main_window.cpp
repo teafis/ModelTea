@@ -5,6 +5,7 @@
 
 #include <QIcon>
 #include <QPixmap>
+#include <QFileDialog>
 
 #include "main_window_icon.h"
 
@@ -41,6 +42,23 @@ void MainWindow::updateMenuBars(bool generatedAvailable)
     ui->menuModel->setEnabled(!generatedAvailable);
     ui->menuBlocks->setEnabled(!generatedAvailable);
     ui->menuSim->setEnabled(generatedAvailable);
+}
+
+#include <QDebug>
+
+void MainWindow::saveModel()
+{
+    QFileDialog* dialog = new QFileDialog(this);
+    dialog->setFileMode(QFileDialog::AnyFile);
+    dialog->setNameFilter("JSON (*.json)");
+
+    if (dialog->exec())
+    {
+        const auto s = ui->block_graphics->getJsonString();
+        dialog->getSaveFileName();
+
+        qDebug() << s.c_str();
+    }
 }
 
 MainWindow::~MainWindow()

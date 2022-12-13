@@ -22,6 +22,9 @@ public:
 protected:
     void updateMenuBars(bool generatedAvailable);
 
+public slots:
+    void saveModel();
+
 private:
     Ui::MainWindow *ui;
 };

@@ -15,6 +15,7 @@
 #include <QMouseEvent>
 
 #include <algorithm>
+#include <iomanip>
 
 #include <tmdl/library_manager.hpp>
 #include <tmdl/model_exception.hpp>
@@ -26,6 +27,8 @@
 
 #include "windows/parameter_dialog.h"
 #include "windows/plot_window.h"
+
+#include <nlohmann/json.hpp>
 
 
 BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
@@ -533,4 +536,27 @@ void BlockGraphicsView::onClose()
         window_errors->close();
         window_errors = nullptr;
     }
+}
+
+std::string BlockGraphicsView::getJsonString() const
+{
+    std::unordered_map<size_t, size_t> loc_graph;
+
+    for (auto* i : scene()->items())
+    {
+        auto* blk = dynamic_cast<BlockObject*>(i);
+        if (blk != nullptr)
+        {
+            loc_graph[blk->get_block()->get_id()] = 0;
+        }
+    }
+
+    nlohmann::json j;
+    ns::to_json(j, model);
+    j["locations"] = loc_graph;
+
+    std::ostringstream oss;
+    oss << std::setw(4) << j;
+
+    return oss.str();
 }

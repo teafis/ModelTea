@@ -84,6 +84,8 @@ protected:
 public:
     void onClose();
 
+    std::string getJsonString() const;
+
 protected:
     std::unique_ptr<MouseStateBase> mouseState;
     BlockObject* selectedBlock;

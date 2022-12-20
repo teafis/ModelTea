@@ -89,13 +89,7 @@ const std::vector<tmdl::Connection>& tmdl::ConnectionManager::get_connections() 
 
 void tmdl::to_json(nlohmann::json& j, const ConnectionManager& cm)
 {
-    const auto& conns = cm.get_connections();
-    j = nlohmann::json::array();
-
-    for (size_t i = 0; i < conns.size(); ++i)
-    {
-        j[i] = conns[i];
-    }
+    j = cm.get_connections();
 }
 
 void tmdl::from_json(const nlohmann::json& j, ConnectionManager& cm)

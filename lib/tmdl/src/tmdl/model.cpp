@@ -507,43 +507,86 @@ std::vector<std::shared_ptr<BlockInterface>> Model::get_blocks() const
     return retval;
 }
 
+struct SaveParameter
+{
+    std::string id;
+    tmdl::ParameterValue::Type dtype;
+    std::string value;
+    bool enabled;
+};
+
+void to_json(nlohmann::json& j, const SaveParameter& p)
+{
+    j["id"] = p.id;
+    j["dtype"] = p.dtype;
+    j["value"] = p.value;
+    j["enabled"] = p.enabled;
+}
+
+void from_json(const nlohmann::json& j, SaveParameter& p)
+{
+    j.at("id").get_to(p.id);
+    j.at("dtype").get_to(p.dtype);
+    j.at("value").get_to(p.value);
+    j.at("enabled").get_to(p.enabled);
+}
+
+struct SaveBlock
+{
+    size_t id;
+    std::string name;
+    std::vector<SaveParameter> parameters;
+};
+
+void to_json(nlohmann::json& j, const SaveBlock& b)
+{
+    j["id"] = b.id;
+    j["name"] = b.name;
+    j["parameters"] = b.parameters;
+}
+
+void from_json(const nlohmann::json& j, SaveBlock& b)
+{
+    j.at("id").get_to(b.id);
+    j.at("name").get_to(b.name);
+    j.at("parameters").get_to(b.parameters);
+}
+
 void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m)
 {
     j["name"] = m.get_name();
     j["output_ids"] = m.output_ids;
     j["input_ids"] = m.input_ids;
+    j["connections"] = m.connections;
 
-    nlohmann::json conn_json;
-    to_json(conn_json, m.connections);
-    j["connections"] = conn_json;
-
+    std::unordered_map<std::string, SaveBlock> json_blocks;
     for (const auto& kv : m.blocks)
     {
         const auto blk = kv.second;
 
-        nlohmann::json blk_json;
-        blk_json["id"] = blk->get_id();
-        blk_json["name"] = blk->get_name();
-
-        nlohmann::json param_json = nlohmann::json::array();
-
-        const auto params = blk->get_parameters();
-        for (size_t i = 0; i < params.size(); ++i)
+        std::vector<SaveParameter> json_parameters;
+        for (const auto& p : blk->get_parameters())
         {
-            const auto p = params[i];
-
-            param_json[i] = {
-                {"id", p->get_id()},
-                {"dtype", static_cast<uint32_t>(p->get_value().dtype)},
-                {"value", p->get_value().to_string()},
-                {"enabled", p->get_enabled()}
-            };
+            json_parameters.push_back(SaveParameter
+           {
+               .id = p->get_id(),
+               .dtype = p->get_value().dtype,
+               .value = p->get_value().to_string(),
+               .enabled = p->get_enabled()
+           });
         }
 
-        blk_json["parameters"] = param_json;
+        SaveBlock save_blk
+        {
+            .id = blk->get_id(),
+            .name = blk->get_name(),
+            .parameters = json_parameters
+        };
 
-        j["blocks"][blk->get_id()] = blk_json;
+        json_blocks.insert({std::to_string(save_blk.id), save_blk});
     }
+
+    j["blocks"] = json_blocks;
 }
 
 void tmdl::from_json(const nlohmann::json& j, tmdl::Model& m)
@@ -554,38 +597,23 @@ void tmdl::from_json(const nlohmann::json& j, tmdl::Model& m)
 
     from_json(j.at("connections"), m.connections);
 
-    for (const auto& json_blk : j.at("blocks"))
+    const auto json_blocks = j.at("blocks").get<std::unordered_map<std::string, SaveBlock>>();
+
+    for (const auto& kv : json_blocks)
     {
-        size_t blk_id;
-        std::string blk_name;
+        const auto& json_blk = kv.second;
+        auto blk = tmdl::LibraryManager::get_instance().make_block(json_blk.name);
+        blk->set_id(json_blk.id);
 
-        json_blk.at("id").get_to(blk_id);
-        json_blk.at("name").get_to(blk_name);
-
-        auto blk = tmdl::LibraryManager::get_instance().make_block(blk_name);
-        blk->set_id(blk_id);
-
-        for (const auto& json_param : json_blk.at("parameters"))
+        for (const auto& prm : json_blk.parameters)
         {
-            std::string prm_id;
-            uint32_t prm_dtype;
-            std::string prm_value;
-            bool prm_enabled;
-
-            json_param.at("id").get_to(prm_id);
-            json_param.at("dtype").get_to(prm_dtype);
-            json_param.at("value").get_to(prm_value);
-            json_param.at("enabled").get_to(prm_enabled);
-
             bool prm_found = false;
             for (auto p : blk->get_parameters())
             {
-               if (p->get_id() != prm_id) continue;
+               if (p->get_id() != prm.id) continue;
 
-               const auto dt = static_cast<tmdl::ParameterValue::Type>(prm_dtype);
-
-               p->get_value() = ParameterValue::from_string(prm_value, dt);
-               p->set_enabled(prm_enabled);
+               p->get_value() = ParameterValue::from_string(prm.value, prm.dtype);
+               p->set_enabled(prm.enabled);
 
                prm_found = true;
             }
@@ -596,6 +624,6 @@ void tmdl::from_json(const nlohmann::json& j, tmdl::Model& m)
             }
         }
 
-        m.blocks[blk_id] = blk;
+        m.blocks[blk->get_id()] = blk;
     }
 }

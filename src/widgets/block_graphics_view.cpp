@@ -164,7 +164,8 @@ void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
 
             scene()->addItem(conn_obj);
 
-            for (auto* i : scene()->items())
+            const auto& items = scene()->items();
+            for (auto* i : qAsConst(items))
             {
                 auto* blk = dynamic_cast<BlockObject*>(i);
                 if (blk != nullptr)
@@ -554,10 +555,10 @@ void from_json(const nlohmann::json& j, BlockLocation& b)
 
 std::string BlockGraphicsView::getJsonString() const
 {
-    nlohmann::json loc_graph;
-    std::unordered_map<size_t, BlockLocation> locations;
+    std::unordered_map<std::string, BlockLocation> locations;
 
-    for (auto* i : scene()->items())
+    const auto& items = scene()->items();
+    for (auto* i : qAsConst(items))
     {
         auto* blk = dynamic_cast<BlockObject*>(i);
         if (blk != nullptr)
@@ -567,7 +568,7 @@ std::string BlockGraphicsView::getJsonString() const
                 .y = static_cast<int>(blk->pos().y())
             };
 
-            locations.insert({blk->get_block()->get_id(), loc});
+            locations.insert({std::to_string(blk->get_block()->get_id()), loc});
         }
     }
 
@@ -598,7 +599,7 @@ void BlockGraphicsView::fromJsonString(const std::string& jsonData)
     tmdl::from_json(j["model"], *mdl);
     model = mdl;
 
-    const auto blk_locations = j["locations"].get<std::unordered_map<size_t, BlockLocation>>();
+    const auto blk_locations = j["locations"].get<std::unordered_map<std::string, BlockLocation>>();
 
     for (const auto& blk : model->get_blocks())
     {
@@ -606,7 +607,7 @@ void BlockGraphicsView::fromJsonString(const std::string& jsonData)
         BlockObject* block_obj = new BlockObject(blk);
 
         // Get the block location
-        const auto it = blk_locations.find(block_obj->get_block()->get_id());
+        const auto it = blk_locations.find(std::to_string(block_obj->get_block()->get_id()));
         const BlockLocation loc = it->second;
         block_obj->setPos(mapToScene(QPoint(loc.x, loc.y)));
 
@@ -622,7 +623,8 @@ void BlockGraphicsView::fromJsonString(const std::string& jsonData)
         BlockObject* from_block = nullptr;
         BlockObject* to_block = nullptr;
 
-        for (auto it = scene()->items().begin(); it != scene()->items().end() && (from_block == nullptr || to_block == nullptr); ++it)
+        const auto& items = scene()->items();
+        for (auto it = items.begin(); it != items.end() && (from_block == nullptr || to_block == nullptr); ++it)
         {
             BlockObject* tmp = dynamic_cast<BlockObject*>(*it);
             if (tmp == nullptr) continue;

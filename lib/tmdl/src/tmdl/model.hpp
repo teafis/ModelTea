@@ -13,24 +13,14 @@
 
 #include <nlohmann/json.hpp>
 
-
 namespace tmdl
 {
+
 class Model;
-class ModelBlock;
-}
 
-namespace ns
-{
+void to_json(nlohmann::json& j, const Model& m);
 
-void to_json(nlohmann::json& j, const tmdl::Model& m);
-
-void from_json(const nlohmann::json& j, tmdl::Model& m);
-
-}
-
-namespace tmdl
-{
+void from_json(const nlohmann::json& j, Model& m);
 
 class Model
 {
@@ -82,6 +72,8 @@ protected:
 public:
     std::shared_ptr<BlockInterface> get_block(const size_t id) const;
 
+    std::vector<std::shared_ptr<BlockInterface>> get_blocks() const;
+
 protected:
     std::string name;
     std::unordered_map<size_t, std::shared_ptr<BlockInterface>> blocks;
@@ -90,9 +82,9 @@ protected:
     std::vector<size_t> output_ids;
 
 public:
-    friend void ::ns::to_json(nlohmann::json&, const Model&);
+    friend void to_json(nlohmann::json&, const Model&);
 
-    friend void ::ns::from_json(const nlohmann::json&, Model&);
+    friend void from_json(const nlohmann::json&, Model&);
 };
 
 }

@@ -495,7 +495,19 @@ std::shared_ptr<BlockInterface> Model::get_block(const size_t id) const
     return it->second;
 }
 
-void ns::to_json(nlohmann::json& j, const tmdl::Model& m)
+std::vector<std::shared_ptr<BlockInterface>> Model::get_blocks() const
+{
+    std::vector<std::shared_ptr<BlockInterface>> retval;
+
+    for (const auto& b : blocks)
+    {
+        retval.push_back(b.second);
+    }
+
+    return retval;
+}
+
+void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m)
 {
     j["name"] = m.get_name();
     j["output_ids"] = m.output_ids;
@@ -534,7 +546,7 @@ void ns::to_json(nlohmann::json& j, const tmdl::Model& m)
     }
 }
 
-void ns::from_json(const nlohmann::json& j, tmdl::Model& m)
+void tmdl::from_json(const nlohmann::json& j, tmdl::Model& m)
 {
     j.at("name").get_to(m.name);
     j.at("output_ids").get_to(m.output_ids);

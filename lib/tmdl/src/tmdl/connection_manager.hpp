@@ -32,14 +32,9 @@ protected:
     std::vector<Connection> connections;
 };
 
-}
+void to_json(nlohmann::json& j, const ConnectionManager& cm);
 
-namespace ns
-{
-
-void to_json(nlohmann::json& j, const tmdl::ConnectionManager& cm);
-
-void from_json(const nlohmann::json& j, tmdl::ConnectionManager& cm);
+void from_json(const nlohmann::json& j, ConnectionManager& cm);
 
 }
 

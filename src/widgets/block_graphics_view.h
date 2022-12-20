@@ -86,10 +86,12 @@ public:
 
     std::string getJsonString() const;
 
+    void fromJsonString(const std::string& jsonData);
+
 protected:
     std::unique_ptr<MouseStateBase> mouseState;
     BlockObject* selectedBlock;
-    tmdl::Model model;
+    std::shared_ptr<tmdl::Model> model;
 
     struct ExecutionState
     {

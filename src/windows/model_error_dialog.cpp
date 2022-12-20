@@ -4,12 +4,17 @@
 #include "ui_model_error_dialog.h"
 
 ModelErrorDialog::ModelErrorDialog(
-    const tmdl::Model* model,
+    const std::shared_ptr<const tmdl::Model> model,
     QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ModelErrorDialog),
     model(model)
 {
+    if (model == nullptr)
+    {
+        throw 1;
+    }
+
     setAttribute(Qt::WA_DeleteOnClose, true);
 
     ui->setupUi(this);

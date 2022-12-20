@@ -25,7 +25,7 @@ InputPort::InputPort()
 
 std::string InputPort::get_name() const
 {
-    return "IN";
+    return "input";
 }
 
 std::string InputPort::get_description() const
@@ -107,7 +107,7 @@ void InputPort::set_input_value(const DataType type)
 
 std::string OutputPort::get_name() const
 {
-    return "OUT";
+    return "output";
 }
 
 std::string OutputPort::get_description() const

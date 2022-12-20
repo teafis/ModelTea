@@ -44,20 +44,50 @@ void MainWindow::updateMenuBars(bool generatedAvailable)
     ui->menuSim->setEnabled(generatedAvailable);
 }
 
-#include <QDebug>
+#include <iostream>
+#include <QTextStream>
+#include <QMessageBox>
 
 void MainWindow::saveModel()
 {
-    QFileDialog* dialog = new QFileDialog(this);
-    dialog->setFileMode(QFileDialog::AnyFile);
-    dialog->setNameFilter("JSON (*.json)");
-
-    if (dialog->exec())
+    QString saveName = QFileDialog::getSaveFileName(this, tr("Save Model"), QString(), "JSON (*.json); Any (*.*)");
+    if (!saveName.isEmpty())
     {
+        std::cout << "Saving to: \"" << saveName.toStdString() << "\"\n";
         const auto s = ui->block_graphics->getJsonString();
-        dialog->getSaveFileName();
+        std::cout << s << std::endl;
 
-        qDebug() << s.c_str();
+        QFile file(saveName);
+        if(!file.open(QIODevice::WriteOnly))
+        {
+            QMessageBox::information(this, "error", file.errorString());
+            return;
+        }
+
+        file.write(QString(s.c_str()).toUtf8());
+        file.close();
+    }
+}
+
+void MainWindow::openModel()
+{
+    QString openName = QFileDialog::getOpenFileName(this, tr("Open Model"), QString(), "JSON (*.json); Any (*.*)");
+    if (!openName.isEmpty())
+    {
+        std::cout << "Loading from: \"" << openName.toStdString() << "\"\n";
+
+        QFile file(openName);
+        if(!file.open(QIODevice::ReadOnly))
+        {
+            QMessageBox::information(this, "error", file.errorString());
+            return;
+        }
+
+        QTextStream stream(&file);
+        QString data = stream.readAll();
+        file.close();
+
+        ui->block_graphics->fromJsonString(data.toStdString());
     }
 }
 

@@ -10,19 +10,11 @@
 
 namespace tmdl
 {
+
 class Connection;
-}
 
-namespace ns
-{
-
-void to_json(nlohmann::json&, const tmdl::Connection&);
-void from_json(const nlohmann::json&, tmdl::Connection&);
-
-}
-
-namespace tmdl
-{
+void to_json(nlohmann::json&, const Connection&);
+void from_json(const nlohmann::json&, Connection&);
 
 class Connection
 {
@@ -52,7 +44,7 @@ protected:
     size_t to_port;
 
 public:
-    friend void ::ns::from_json(const nlohmann::json&, tmdl::Connection&);
+    friend void from_json(const nlohmann::json&, tmdl::Connection&);
 };
 
 }

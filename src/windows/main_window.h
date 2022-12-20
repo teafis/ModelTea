@@ -25,6 +25,8 @@ protected:
 public slots:
     void saveModel();
 
+    void openModel();
+
 private:
     Ui::MainWindow *ui;
 };

@@ -26,7 +26,7 @@
      <x>0</x>
      <y>0</y>
      <width>631</width>
-     <height>23</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -370,8 +370,25 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionFileOpen</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>openModel()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>315</x>
+     <y>296</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>315</x>
+     <y>154</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>saveModel()</slot>
+  <slot>openModel()</slot>
  </slots>
 </ui>

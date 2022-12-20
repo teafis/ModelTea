@@ -5,6 +5,8 @@
 
 #include <QDialog>
 
+#include <memory>
+
 #include <tmdl/model.hpp>
 
 
@@ -18,7 +20,7 @@ class ModelErrorDialog : public QDialog
 
 public:
     explicit ModelErrorDialog(
-        const tmdl::Model* model,
+        const std::shared_ptr<const tmdl::Model> model,
         QWidget *parent = nullptr);
     ~ModelErrorDialog();
 
@@ -27,7 +29,7 @@ public slots:
 
 private:
     Ui::ModelErrorDialog *ui;
-    const tmdl::Model* model;
+    const std::shared_ptr<const tmdl::Model> model;
 };
 
 #endif // MODEL_ERROR_DIALOG_H

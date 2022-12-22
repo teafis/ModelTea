@@ -125,8 +125,8 @@ bool Limiter::update_block()
 {
     bool updated = false;
 
-    prmMaxValue->set_enabled(dynamicLimiter->get_value().value.tf);
-    prmMinValue->set_enabled(dynamicLimiter->get_value().value.tf);
+    prmMaxValue->set_enabled(!dynamicLimiter->get_value().value.tf);
+    prmMinValue->set_enabled(!dynamicLimiter->get_value().value.tf);
 
     if (input_type != output_port)
     {
@@ -150,8 +150,11 @@ bool Limiter::update_block()
             break;
         }
 
-        prmMaxValue->get_value().convert(new_dtype);
-        prmMinValue->get_value().convert(new_dtype);
+        if (new_dtype != ParameterValue::Type::UNKNOWN)
+        {
+            prmMaxValue->get_value().convert(new_dtype);
+            prmMinValue->get_value().convert(new_dtype);
+        }
 
         output_port = input_type;
         updated = true;
@@ -162,7 +165,7 @@ bool Limiter::update_block()
 
 std::unique_ptr<const BlockError> Limiter::has_error() const
 {
-    std::vector<DataType> supportedDataTypes = {
+    const std::vector<DataType> supportedDataTypes = {
         DataType::DOUBLE,
         DataType::SINGLE,
         DataType::INT32,

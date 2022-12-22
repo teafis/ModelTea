@@ -512,7 +512,6 @@ struct SaveParameter
     std::string id;
     tmdl::ParameterValue::Type dtype;
     std::string value;
-    bool enabled;
 };
 
 void to_json(nlohmann::json& j, const SaveParameter& p)
@@ -520,7 +519,6 @@ void to_json(nlohmann::json& j, const SaveParameter& p)
     j["id"] = p.id;
     j["dtype"] = p.dtype;
     j["value"] = p.value;
-    j["enabled"] = p.enabled;
 }
 
 void from_json(const nlohmann::json& j, SaveParameter& p)
@@ -528,7 +526,6 @@ void from_json(const nlohmann::json& j, SaveParameter& p)
     j.at("id").get_to(p.id);
     j.at("dtype").get_to(p.dtype);
     j.at("value").get_to(p.value);
-    j.at("enabled").get_to(p.enabled);
 }
 
 struct SaveBlock
@@ -572,7 +569,6 @@ void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m)
                .id = p->get_id(),
                .dtype = p->get_value().dtype,
                .value = p->get_value().to_string(),
-               .enabled = p->get_enabled()
            });
         }
 
@@ -608,14 +604,15 @@ void tmdl::from_json(const nlohmann::json& j, tmdl::Model& m)
         for (const auto& prm : json_blk.parameters)
         {
             bool prm_found = false;
-            for (auto p : blk->get_parameters())
+
+            for (const auto& p : blk->get_parameters())
             {
                if (p->get_id() != prm.id) continue;
 
                p->get_value() = ParameterValue::from_string(prm.value, prm.dtype);
-               p->set_enabled(prm.enabled);
 
                prm_found = true;
+               break;
             }
 
             if (!prm_found)
@@ -626,4 +623,6 @@ void tmdl::from_json(const nlohmann::json& j, tmdl::Model& m)
 
         m.blocks[blk->get_id()] = blk;
     }
+
+    m.update_block();
 }

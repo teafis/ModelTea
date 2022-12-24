@@ -44,6 +44,7 @@ public slots:
 
 signals:
     void modelUpdated();
+    void modelChanged();
 
 protected:
     BlockObject* findBlockForMousePress(const QPointF& pos);
@@ -74,12 +75,14 @@ public:
 
     void fromJsonString(const std::string& jsonData);
 
+    bool getChangeFlag() const;
+
+    void resetChangeFlag();
+
 protected:
     std::unique_ptr<MouseStateBase> mouseState;
     BlockObject* selectedBlock;
     std::shared_ptr<tmdl::Model> model;
-
-    bool hasBeenChanged = false;
 };
 
 #endif // BLOCK_GRAPHICS_VIEW_H

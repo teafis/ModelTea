@@ -24,12 +24,15 @@ public:
         QWidget *parent = nullptr);
     ~ModelDiagnosticsDialog();
 
+public:
+    void setModel(std::shared_ptr<const tmdl::Model> m);
+
 public slots:
-    void modelUpdated();
+    void updateDiagnostics();
 
 private:
     Ui::ModelDiagnosticsDialog *ui;
-    const std::shared_ptr<const tmdl::Model> model;
+    std::shared_ptr<const tmdl::Model> model;
 };
 
 #endif // MODEL_DIAGNOSTIC_DIALOG_H

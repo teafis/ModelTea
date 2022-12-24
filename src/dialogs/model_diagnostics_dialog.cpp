@@ -15,13 +15,26 @@ ModelDiagnosticsDialog::ModelDiagnosticsDialog(
         throw 1;
     }
 
-    setAttribute(Qt::WA_DeleteOnClose, true);
-
     ui->setupUi(this);
-    modelUpdated();
+    updateDiagnostics();
+
+    setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
-void ModelDiagnosticsDialog::modelUpdated()
+void ModelDiagnosticsDialog::setModel(std::shared_ptr<const tmdl::Model> m)
+{
+    if (m == nullptr)
+    {
+        throw 2;
+    }
+    else
+    {
+        model = m;
+        updateDiagnostics();
+    }
+}
+
+void ModelDiagnosticsDialog::updateDiagnostics()
 {
     ui->errors->clear();
     bool added = false;

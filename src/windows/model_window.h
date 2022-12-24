@@ -32,6 +32,8 @@ public:
 protected slots:
     void updateMenuBars();
 
+    void updateTitle();
+
 public slots:
     void saveModel();
 
@@ -63,7 +65,7 @@ private:
     Ui::ModelWindow *ui;
     QString filename;
 
-    ModelDiagnosticsDialog* window_errors = nullptr;
+    ModelDiagnosticsDialog* window_diagnostics = nullptr;
     BlockSelectorDialog* window_library = nullptr;
     PlotWindow* window_plot = nullptr;
 
@@ -76,5 +78,7 @@ private:
     };
 
     std::unique_ptr<ExecutionState> executor;
+
+    bool changeFlag;
 };
 #endif // MODEL_WINDOW_H

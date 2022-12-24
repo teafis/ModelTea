@@ -85,7 +85,8 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
             // Setup the drag state object
             mouseState = std::make_unique<BlockDragState>(
                 block,
-                block->sceneBoundingRect().center() - mappedPos);
+                block->sceneBoundingRect().center() - mappedPos,
+                snapMousePositionToGrid(block->pos().toPoint()));
         }
     }
 }
@@ -97,12 +98,17 @@ void BlockGraphicsView::mouseMoveEvent(QMouseEvent* event)
         return;
     }
 
-    if (const auto* mouseDragState = dynamic_cast<BlockDragState*>(mouseState.get()); mouseDragState != nullptr)
+    if (auto* mouseDragState = dynamic_cast<BlockDragState*>(mouseState.get()); mouseDragState != nullptr)
     {
-        const QPointF newBlockPos = mapToScene(
-            event->pos()) - mouseDragState->getBlock()->boundingRect().center() + mouseDragState->getOffset();
+        const QPointF newBlockPos = mapToScene(event->pos()) - mouseDragState->getBlock()->boundingRect().center() + mouseDragState->getOffset();
         const QPoint newBlockPosInt = snapMousePositionToGrid(newBlockPos.toPoint());
-        mouseDragState->getBlock()->setPos(newBlockPosInt);
+
+        if (newBlockPosInt != mouseDragState->getCurrent())
+        {
+            mouseDragState->getBlock()->setPos(newBlockPosInt);
+            mouseDragState->setCurrent(newBlockPosInt);
+            emit modelChanged();
+        }
     }
 }
 
@@ -150,7 +156,7 @@ void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
                 }
             }
 
-            emit modelUpdated();
+            updateModel();
         }
     }
 
@@ -169,39 +175,35 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
         const auto mappedPos = mapToScene(event->pos());
         BlockObject* block = findBlockForMousePress(mappedPos);
 
-        if (block != nullptr)
+        if (block == nullptr)
         {
-            BlockParameterDialog* dialog = new BlockParameterDialog(block, this);
-
-            dialog->exec();
-            updateModel();
-
-            const auto sceneItems = scene()->items();
-
-            for (auto ptr : qAsConst(sceneItems))
-            {
-                if (auto c = dynamic_cast<ConnectorObject*>(ptr); c != nullptr)
-                {
-                    if (!c->isValidConnection())
-                    {
-                        model->remove_connection(
-                            c->get_to_block()->get_block()->get_id(),
-                            c->get_to_port());
-                        c->deleteLater();
-                    }
-                }
-            }
-
-            for (auto ptr : qAsConst(sceneItems))
-            {
-                if (auto b = dynamic_cast<BlockObject*>(ptr); b != nullptr)
-                {
-                    emit b->sceneLocationUpdated();
-                }
-            }
-
-            update();
+            return;
         }
+
+        BlockParameterDialog* dialog = new BlockParameterDialog(block, this);
+
+        dialog->exec();
+        updateModel();
+
+        const auto sceneItems = scene()->items();
+
+        for (auto ptr : qAsConst(sceneItems))
+        {
+            const auto c = dynamic_cast<ConnectorObject*>(ptr);
+            if (c == nullptr) continue;
+
+            if (!c->isValidConnection())
+            {
+                model->remove_connection(
+                    c->get_to_block()->get_block()->get_id(),
+                    c->get_to_port());
+                c->deleteLater();
+            }
+        }
+
+        emit block->sceneLocationUpdated();
+
+        updateModel();
     }
 }
 
@@ -249,7 +251,7 @@ void BlockGraphicsView::removeSelectedBlock()
         selectedBlock = nullptr;
         scene()->update();
 
-        emit modelUpdated();
+        updateModel();
     }
 }
 
@@ -275,7 +277,9 @@ void BlockGraphicsView::updateModel()
         scene()->update();
     }
 
+
     emit modelUpdated();
+    emit modelChanged();
 }
 
 BlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
@@ -376,7 +380,7 @@ void BlockGraphicsView::addBlock(std::shared_ptr<tmdl::BlockInterface> blk)
     scene()->addItem(block_obj);
 
     // State the model is updated
-    emit modelUpdated();
+    updateModel();
 }
 
 struct BlockLocation {

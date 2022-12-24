@@ -124,6 +124,14 @@ void Model::remove_block(const size_t id)
         }
     }
 
+    // Set any inputs that have the current id value
+    for (auto& c : connections.get_connections())
+    {
+        if (c.get_from_id() != id) continue;
+
+        get_block(c.get_to_id())->set_input_type(c.get_to_port(), DataType::UNKNOWN);
+    }
+
     // Remove references to the block ID
     connections.remove_block(id);
 }

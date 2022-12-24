@@ -399,11 +399,27 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionFileSaveAs</sender>
+   <signal>triggered()</signal>
+   <receiver>ModelWindow</receiver>
+   <slot>saveModelAs()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>436</x>
+     <y>434</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>436</x>
+     <y>223</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>saveModel()</slot>
   <slot>openModel()</slot>
-  <slot>saveAsModel()</slot>
+  <slot>saveModelAs()</slot>
   <slot>showErrors()</slot>
   <slot>generateExecutor()</slot>
   <slot>stepExecutor()</slot>

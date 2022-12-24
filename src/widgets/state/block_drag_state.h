@@ -12,16 +12,25 @@ class BlockDragState : public MouseStateBase
 {
 public:
     BlockDragState(
-        BlockObject* inBlock,
-        const QPointF& inOffset);
+        BlockObject* block,
+        const QPointF& offset,
+        const QPoint& original);
 
     BlockObject* getBlock() const;
 
     const QPointF& getOffset() const;
 
+    const QPoint& getOriginal() const;
+
+    const QPoint& getCurrent() const;
+
+    void setCurrent(const QPoint& p);
+
 protected:
     BlockObject* block;
     QPointF offset;
+    QPoint original;
+    QPoint current;
 };
 
 #endif // BLOCK_MOUSE_DRAG_STATE_H

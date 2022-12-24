@@ -3,6 +3,8 @@
 #include "model_window.h"
 #include "./ui_model_window.h"
 
+#include <array>
+
 #include <QIcon>
 #include <QPixmap>
 #include <QFileDialog>
@@ -20,7 +22,8 @@
 
 ModelWindow::ModelWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::ModelWindow)
+    ui(new Ui::ModelWindow),
+    changeFlag(false)
 {
     // Setup the main UI
     ui->setupUi(this);
@@ -32,8 +35,11 @@ ModelWindow::ModelWindow(QWidget *parent) :
         setWindowIcon(QIcon(pixmap));
     }
 
+    connect(ui->block_graphics, &BlockGraphicsView::modelChanged, [this]() { changeFlag = true; updateTitle(); });
+
     // Update the menu items
     updateMenuBars();
+    updateTitle();
 }
 
 void ModelWindow::keyPressEvent(QKeyEvent* event)
@@ -57,6 +63,14 @@ void ModelWindow::updateMenuBars()
     ui->menuSim->setEnabled(generatedAvailable);
 }
 
+void ModelWindow::updateTitle()
+{
+    QString windowTitle = QString("%1%2")
+        .arg(ui->block_graphics->get_model()->get_name().c_str())
+        .arg(changeFlag ? "*" : "");
+    setWindowTitle(windowTitle);
+}
+
 void ModelWindow::saveModel()
 {
     if (filename.isEmpty())
@@ -75,12 +89,14 @@ void ModelWindow::saveModel()
         const auto s = ui->block_graphics->getJsonString();
         file.write(QString(s.c_str()).toUtf8());
         file.close();
+        changeFlag = false;
+        updateTitle();
     }
 }
 
 void ModelWindow::saveModelAs()
 {
-    QString saveName = QFileDialog::getSaveFileName(this, tr("Save Model"), QString(), "JSON (*.json); Any (*.*)");
+    QString saveName = QFileDialog::getSaveFileName(this, tr("Save Model"), filename, "JSON (*.json); Any (*.*)");
     if (!saveName.isEmpty())
     {
         filename = saveName;
@@ -90,7 +106,7 @@ void ModelWindow::saveModelAs()
 
 void ModelWindow::openModel()
 {
-    QString openName = QFileDialog::getOpenFileName(this, tr("Open Model"), QString(), "JSON (*.json); Any (*.*)");
+    QString openName = QFileDialog::getOpenFileName(this, tr("Open Model"), filename, "JSON (*.json); Any (*.*)");
     if (!openName.isEmpty())
     {
         QFile file(openName);
@@ -110,21 +126,32 @@ void ModelWindow::openModel()
         {
             window_library->updateLibrary();
         }
+
+        filename = openName;
+        changeFlag = false;
+        updateTitle();
+
+        if (window_diagnostics != nullptr)
+        {
+            window_diagnostics->setModel(ui->block_graphics->get_model());
+        }
     }
 }
 
 void ModelWindow::showErrors()
 {
-    if (window_errors == nullptr)
+    if (window_diagnostics == nullptr)
     {
-        window_errors = new ModelDiagnosticsDialog(ui->block_graphics->get_model());
+        window_diagnostics = new ModelDiagnosticsDialog(ui->block_graphics->get_model());
 
-        connect(window_errors, &ModelDiagnosticsDialog::destroyed, [this]() {
-            window_errors = nullptr;
+        connect(window_diagnostics, &ModelDiagnosticsDialog::destroyed, [this]() {
+            window_diagnostics = nullptr;
         });
+
+        connect(ui->block_graphics, &BlockGraphicsView::modelUpdated, window_diagnostics, &ModelDiagnosticsDialog::updateDiagnostics);
     }
 
-    window_errors->show();
+    window_diagnostics->show();
 }
 
 void ModelWindow::generateExecutor()
@@ -318,23 +345,34 @@ ModelWindow::~ModelWindow()
 
 void ModelWindow::closeEvent(QCloseEvent* event)
 {
-    (void)event;
-
-    if (window_errors != nullptr)
+    if (changeFlag)
     {
-        window_errors->close();
-        window_errors = nullptr;
+        const QMessageBox::StandardButton reply = QMessageBox::question(
+            this, "Quit?", "Model has unsaved changes - save before exiting?",
+            QMessageBox::Yes | QMessageBox::No);
+
+        if (reply == QMessageBox::Yes)
+        {
+            event->ignore();
+            return;
+        }
     }
 
-    if (window_library != nullptr)
+    std::array<QWidget*, 3> windows = {
+        window_diagnostics,
+        window_library,
+        window_plot
+    };
+
+    for (auto& w : windows)
     {
-        window_library->close();
-        window_library = nullptr;
+        if (w != nullptr)
+        {
+            w->close();
+        }
     }
 
-    if (window_plot != nullptr)
-    {
-        window_plot->close();
-        window_plot = nullptr;
-    }
+    window_diagnostics = nullptr;
+    window_library = nullptr;
+    window_plot = nullptr;
 }

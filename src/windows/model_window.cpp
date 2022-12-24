@@ -11,8 +11,6 @@
 #include <QTextStream>
 #include <QMessageBox>
 
-#include "ui/window_icon.h"
-
 #include "dialogs/block_parameters_dialog.h"
 #include "dialogs/model_parameters_dialog.h"
 
@@ -27,14 +25,6 @@ ModelWindow::ModelWindow(QWidget *parent) :
 {
     // Setup the main UI
     ui->setupUi(this);
-
-    // Attempt to load the window icon
-    QPixmap pixmap;
-    if (pixmap.loadFromData(tsim_ui::icon_png, tsim_ui::icon_png_len))
-    {
-        setWindowIcon(QIcon(pixmap));
-    }
-
     connect(ui->block_graphics, &BlockGraphicsView::modelChanged, [this]() { changeFlag = true; updateTitle(); });
 
     // Update the menu items

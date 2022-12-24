@@ -13,9 +13,7 @@
 #include <tmdl/block_interface.hpp>
 
 
-QT_BEGIN_NAMESPACE
 namespace Ui { class ModelWindow; }
-QT_END_NAMESPACE
 
 class ModelWindow : public QMainWindow
 {
@@ -81,4 +79,5 @@ private:
 
     bool changeFlag;
 };
+
 #endif // MODEL_WINDOW_H

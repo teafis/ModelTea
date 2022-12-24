@@ -27,7 +27,11 @@ public:
 public:
     std::shared_ptr<Model> get_model(const std::string& name) const;
 
+    std::shared_ptr<Model> create_model();
+
     std::shared_ptr<Model> create_model(const std::string& name);
+
+    void add_model(std::shared_ptr<Model> model);
 
 protected:
     std::shared_ptr<Model> try_get_model(const std::string& name) const;

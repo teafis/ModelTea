@@ -17,7 +17,10 @@ tmdl::LibraryManager& tmdl::LibraryManager::get_instance()
 
 tmdl::LibraryManager::LibraryManager()
 {
+    model_library = std::make_shared<ModelLibrary>();
+
     register_library("stdlib", std::make_shared<tmdl::stdlib::StandardLibrary>());
+    register_library("models", model_library);
 }
 
 void tmdl::LibraryManager::register_library(const std::string& name, std::shared_ptr<LibraryBase> library)
@@ -77,4 +80,9 @@ std::shared_ptr<tmdl::BlockInterface> tmdl::LibraryManager::make_block(const std
     }
 
     throw ModelException("unable to create block with name");
+}
+
+std::shared_ptr<tmdl::ModelLibrary> tmdl::LibraryManager::default_model_library() const
+{
+    return model_library;
 }

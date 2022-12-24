@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#ifndef BLOCKGRAPHICSWIDGET_H
-#define BLOCKGRAPHICSWIDGET_H
+#ifndef BLOCK_GRAPHICS_VIEW_H
+#define BLOCK_GRAPHICS_VIEW_H
 
 #include <QWidget>
 #include <QGraphicsView>
@@ -14,9 +14,6 @@
 #include <QPoint>
 
 #include <tmdl/model.hpp>
-
-#include "windows/block_library.h"
-#include "windows/model_error_dialog.h"
 
 
 class BlockGraphicsView : public QGraphicsView
@@ -35,40 +32,18 @@ public:
 
     virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
 
-    virtual void showEvent(QShowEvent* event) override;
+    virtual void changeEvent(QEvent* event) override;
 
 protected:
     virtual QPoint snapMousePositionToGrid(const QPoint& input);
-
-    virtual void keyPressEvent(QKeyEvent *event) override;
 
 public slots:
     void removeSelectedBlock();
 
     void updateModel();
 
-    void showErrors();
-
-    void generateExecutor();
-
-    void stepExecutor();
-
-    void clearExecutor();
-
-    void showLibrary();
-
-    void showPlot();
-
-    void addBlock(QString l, QString s);
-
 signals:
-    void plotPointUpdated(const double t, const double y);
-
     void modelUpdated();
-
-    void generatedModelCreated();
-
-    void generatedModelDestroyed();
 
 protected:
     BlockObject* findBlockForMousePress(const QPointF& pos);
@@ -80,6 +55,17 @@ protected:
     bool blockBodyContainsMouse(
         const QPointF& pos,
         const BlockObject* block);
+
+    void addConnectionItem(
+        const BlockObject* from_block,
+        const size_t from_port,
+        const BlockObject* to_block,
+        const size_t to_port);
+
+public:
+    std::shared_ptr<tmdl::Model> get_model() const;
+
+    void addBlock(std::shared_ptr<tmdl::BlockInterface> blk);
 
 public:
     void onClose();
@@ -93,17 +79,7 @@ protected:
     BlockObject* selectedBlock;
     std::shared_ptr<tmdl::Model> model;
 
-    struct ExecutionState
-    {
-        std::shared_ptr<tmdl::VariableManager> variables;
-        std::shared_ptr<tmdl::BlockExecutionInterface> model;
-        tmdl::SimState state;
-        uint64_t iterations;
-    };
-
-    std::unique_ptr<ExecutionState> executor;
-
-    ModelErrorDialog* window_errors = nullptr;
+    bool hasBeenChanged = false;
 };
 
-#endif // BLOCKGRAPHICSWIDGET_H
+#endif // BLOCK_GRAPHICS_VIEW_H

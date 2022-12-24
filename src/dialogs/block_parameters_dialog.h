@@ -1,26 +1,26 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#ifndef PARAMETER_DIALOG_H
-#define PARAMETER_DIALOG_H
+#ifndef BLOCK_PARAMETER_DIALOG_H
+#define BLOCK_PARAMETER_DIALOG_H
 
 #include <QDialog>
 
 #include "blocks/block_object.h"
 
 namespace Ui {
-class ParameterDialog;
+class BlockParameterDialog;
 }
 
-class ParameterDialog : public QDialog
+class BlockParameterDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit ParameterDialog(
+    explicit BlockParameterDialog(
         BlockObject* block,
         QWidget *parent = nullptr);
 
-    ~ParameterDialog();
+    ~BlockParameterDialog();
 
 protected:
     void reloadParameters();
@@ -29,8 +29,8 @@ protected slots:
     void updateForParameters();
 
 private:
-    Ui::ParameterDialog *ui;
+    Ui::BlockParameterDialog *ui;
     BlockObject* block;
 };
 
-#endif // PARAMETER_DIALOG_H
+#endif // BLOCK_PARAMETER_DIALOG_H

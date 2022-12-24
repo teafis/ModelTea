@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>ModelWindow</class>
+ <widget class="QMainWindow" name="ModelWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>631</width>
-    <height>309</height>
+    <width>873</width>
+    <height>447</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,7 +25,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>631</width>
+     <width>873</width>
      <height>24</height>
     </rect>
    </property>
@@ -60,6 +60,7 @@
     <addaction name="actionModelUpdate"/>
     <addaction name="actionModelBuildExecutor"/>
     <addaction name="actionModelShowErrors"/>
+    <addaction name="actionModelParameters"/>
    </widget>
    <widget class="QMenu" name="menuSim">
     <property name="enabled">
@@ -187,6 +188,11 @@
     <string>Show Errors</string>
    </property>
   </action>
+  <action name="actionModelParameters">
+   <property name="text">
+    <string>Parameters</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -194,17 +200,8 @@
    <extends>QGraphicsView</extends>
    <header>widgets/block_graphics_view.h</header>
    <slots>
-    <slot>addTestBlock()</slot>
     <slot>removeSelectedBlock()</slot>
-    <slot>addSinBlock()</slot>
-    <slot>addClockBlock()</slot>
     <slot>updateModel()</slot>
-    <slot>generateExecutor()</slot>
-    <slot>showLibrary()</slot>
-    <slot>clearExecutor()</slot>
-    <slot>stepExecutor()</slot>
-    <slot>showPlot()</slot>
-    <slot>showErrors()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -213,7 +210,7 @@
   <connection>
    <sender>actionExit</sender>
    <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ModelWindow</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -229,7 +226,7 @@
   <connection>
    <sender>actionLibrary</sender>
    <signal>triggered()</signal>
-   <receiver>block_graphics</receiver>
+   <receiver>ModelWindow</receiver>
    <slot>showLibrary()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -237,8 +234,8 @@
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>315</x>
-     <y>154</y>
+     <x>436</x>
+     <y>223</y>
     </hint>
    </hints>
   </connection>
@@ -261,7 +258,7 @@
   <connection>
    <sender>actionModelBuildExecutor</sender>
    <signal>triggered()</signal>
-   <receiver>block_graphics</receiver>
+   <receiver>ModelWindow</receiver>
    <slot>generateExecutor()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -269,15 +266,15 @@
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>315</x>
-     <y>162</y>
+     <x>436</x>
+     <y>223</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>actionSimClear</sender>
    <signal>triggered()</signal>
-   <receiver>block_graphics</receiver>
+   <receiver>ModelWindow</receiver>
    <slot>clearExecutor()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -285,15 +282,15 @@
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>315</x>
-     <y>162</y>
+     <x>436</x>
+     <y>223</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>actionSimStep</sender>
    <signal>triggered()</signal>
-   <receiver>block_graphics</receiver>
+   <receiver>ModelWindow</receiver>
    <slot>stepExecutor()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -301,15 +298,15 @@
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>315</x>
-     <y>162</y>
+     <x>436</x>
+     <y>223</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>actionSimShowPlot</sender>
    <signal>triggered()</signal>
-   <receiver>block_graphics</receiver>
+   <receiver>ModelWindow</receiver>
    <slot>showPlot()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -317,8 +314,8 @@
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>315</x>
-     <y>162</y>
+     <x>436</x>
+     <y>223</y>
     </hint>
    </hints>
   </connection>
@@ -341,7 +338,7 @@
   <connection>
    <sender>actionModelShowErrors</sender>
    <signal>triggered()</signal>
-   <receiver>block_graphics</receiver>
+   <receiver>ModelWindow</receiver>
    <slot>showErrors()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -349,15 +346,15 @@
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>315</x>
-     <y>162</y>
+     <x>436</x>
+     <y>223</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>actionFileSave</sender>
    <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ModelWindow</receiver>
    <slot>saveModel()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -373,12 +370,12 @@
   <connection>
    <sender>actionFileOpen</sender>
    <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
+   <receiver>ModelWindow</receiver>
    <slot>openModel()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>315</x>
-     <y>296</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>315</x>
@@ -386,9 +383,34 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionModelParameters</sender>
+   <signal>triggered()</signal>
+   <receiver>ModelWindow</receiver>
+   <slot>showModelParameters()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>436</x>
+     <y>223</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>saveModel()</slot>
   <slot>openModel()</slot>
+  <slot>saveAsModel()</slot>
+  <slot>showErrors()</slot>
+  <slot>generateExecutor()</slot>
+  <slot>stepExecutor()</slot>
+  <slot>clearExecutor()</slot>
+  <slot>showLibrary()</slot>
+  <slot>showModelParameters()</slot>
+  <slot>showPlot()</slot>
+  <slot>addBlock(QString,QString)</slot>
  </slots>
 </ui>

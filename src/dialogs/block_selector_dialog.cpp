@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "block_library.h"
-#include "ui_block_library.h"
+#include "block_selector_dialog.h"
+#include "ui_block_selector_dialog.h"
 
 #include <tmdl/library_manager.hpp>
 
 
-BlockLibrary::BlockLibrary(QWidget *parent) :
+BlockSelectorDialog::BlockSelectorDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::BlockLibrary)
+    ui(new Ui::BlockSelectorDialog)
 {
     ui->setupUi(this);
 
@@ -16,39 +16,26 @@ BlockLibrary::BlockLibrary(QWidget *parent) :
         ui->listBlocks,
         &QListWidget::itemDoubleClicked,
         this,
-        &BlockLibrary::itemSelected);
+        &BlockSelectorDialog::itemSelected);
 
     setAttribute(Qt::WA_DeleteOnClose, true);
 
-    const tmdl::LibraryManager& manager = tmdl::LibraryManager::get_instance();
-    ui->listLibraries->clear();
-    for (const auto& n : manager.get_library_names())
-    {
-        QListWidgetItem* item = new QListWidgetItem(QString(n.c_str()), ui->listLibraries);
-        item->setData(Qt::UserRole, QString(n.c_str()));
-    }
-
-    connect(
-        ui->listLibraries,
-        &QListWidget::itemSelectionChanged,
-        this,
-        &BlockLibrary::librarySelectionUpdated);
-
-    ui->listLibraries->selectAll();
+    updateLibrary();
 }
 
-BlockLibrary::~BlockLibrary()
+BlockSelectorDialog::~BlockSelectorDialog()
 {
     delete ui;
 }
 
-void BlockLibrary::librarySelectionUpdated()
+void BlockSelectorDialog::librarySelectionUpdated()
 {
     ui->listBlocks->clear();
 
     const tmdl::LibraryManager& manager = tmdl::LibraryManager::get_instance();
 
-    for (const auto* itm : ui->listLibraries->selectedItems())
+    const auto& items = ui->listLibraries->selectedItems();
+    for (const auto* itm : qAsConst(items))
     {
         const auto libName = itm->data(Qt::UserRole).toString().toStdString();
         const auto lib = manager.get_library(libName);
@@ -63,7 +50,7 @@ void BlockLibrary::librarySelectionUpdated()
     }
 }
 
-void BlockLibrary::itemSelected(QListWidgetItem* item)
+void BlockSelectorDialog::itemSelected(QListWidgetItem* item)
 {
     if (item != nullptr)
     {
@@ -72,4 +59,23 @@ void BlockLibrary::itemSelected(QListWidgetItem* item)
 
         emit blockSelected(libName, blockName);
     }
+}
+
+void BlockSelectorDialog::updateLibrary()
+{
+    const tmdl::LibraryManager& manager = tmdl::LibraryManager::get_instance();
+    ui->listLibraries->clear();
+    for (const auto& n : manager.get_library_names())
+    {
+        QListWidgetItem* item = new QListWidgetItem(QString(n.c_str()), ui->listLibraries);
+        item->setData(Qt::UserRole, QString(n.c_str()));
+    }
+
+    connect(
+        ui->listLibraries,
+        &QListWidget::itemSelectionChanged,
+        this,
+        &BlockSelectorDialog::librarySelectionUpdated);
+
+    ui->listLibraries->selectAll();
 }

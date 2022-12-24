@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "parameter_dialog.h"
-#include "ui_parameter_dialog.h"
+#include "block_parameters_dialog.h"
+#include "ui_block_parameters_dialog.h"
 
 #include "widgets/parameters/parameter_boolean_widget.h"
 #include "widgets/parameters/parameter_numeric_widget.h"
@@ -9,11 +9,11 @@
 #include "widgets/parameters/parameter_unknown_widget.h"
 
 
-ParameterDialog::ParameterDialog(
+BlockParameterDialog::BlockParameterDialog(
     BlockObject* block,
     QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::ParameterDialog),
+    ui(new Ui::BlockParameterDialog),
     block(block)
 {
     ui->setupUi(this);
@@ -25,7 +25,7 @@ ParameterDialog::ParameterDialog(
     setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
-void ParameterDialog::reloadParameters()
+void BlockParameterDialog::reloadParameters()
 {
     block->update_block();
 
@@ -53,7 +53,7 @@ void ParameterDialog::reloadParameters()
                 w,
                 &ParameterBooleanWidget::parameterUpdated,
                 this,
-                &ParameterDialog::updateForParameters);
+                &BlockParameterDialog::updateForParameters);
             break;
         }
         case tmdl::ParameterValue::Type::SINGLE:
@@ -67,7 +67,7 @@ void ParameterDialog::reloadParameters()
                 w,
                 &ParameterNumericWidget::parameterUpdated,
                 this,
-                &ParameterDialog::updateForParameters);
+                &BlockParameterDialog::updateForParameters);
             break;
         }
         case tmdl::ParameterValue::Type::DATA_TYPE:
@@ -78,7 +78,7 @@ void ParameterDialog::reloadParameters()
                 w,
                 &ParameterDataTypeWidget::parameterUpdated,
                 this,
-                &ParameterDialog::updateForParameters);
+                &BlockParameterDialog::updateForParameters);
             break;
         }
         default:
@@ -89,13 +89,13 @@ void ParameterDialog::reloadParameters()
     }
 }
 
-void ParameterDialog::updateForParameters()
+void BlockParameterDialog::updateForParameters()
 {
     reloadParameters();
     block->update();
 }
 
-ParameterDialog::~ParameterDialog()
+BlockParameterDialog::~BlockParameterDialog()
 {
     delete ui;
 }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#ifndef MODEL_ERROR_DIALOG_H
-#define MODEL_ERROR_DIALOG_H
+#ifndef MODEL_DIAGNOSTIC_DIALOG_H
+#define MODEL_DIAGNOSTIC_DIALOG_H
 
 #include <QDialog>
 
@@ -11,25 +11,25 @@
 
 
 namespace Ui {
-class ModelErrorDialog;
+class ModelDiagnosticsDialog;
 }
 
-class ModelErrorDialog : public QDialog
+class ModelDiagnosticsDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit ModelErrorDialog(
+    explicit ModelDiagnosticsDialog(
         const std::shared_ptr<const tmdl::Model> model,
         QWidget *parent = nullptr);
-    ~ModelErrorDialog();
+    ~ModelDiagnosticsDialog();
 
 public slots:
     void modelUpdated();
 
 private:
-    Ui::ModelErrorDialog *ui;
+    Ui::ModelDiagnosticsDialog *ui;
     const std::shared_ptr<const tmdl::Model> model;
 };
 
-#endif // MODEL_ERROR_DIALOG_H
+#endif // MODEL_DIAGNOSTIC_DIALOG_H

@@ -25,17 +25,18 @@
 #include "state/block_drag_state.h"
 #include "state/port_drag_state.h"
 
-#include "windows/parameter_dialog.h"
-#include "windows/plot_window.h"
+#include "dialogs/block_parameters_dialog.h"
 
 #include <nlohmann/json.hpp>
 
 
 BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
     QGraphicsView(parent),
-    selectedBlock(nullptr),
-    model(std::make_shared<tmdl::Model>("test_model"))
+    selectedBlock(nullptr)
 {
+    // Attempt to create a new model
+    model = tmdl::LibraryManager::get_instance().default_model_library()->create_model();
+
     // Set the scene
     setScene(new QGraphicsScene(this));
     setAlignment(Qt::AlignTop | Qt::AlignLeft);
@@ -43,7 +44,7 @@ BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
 
 void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
 {
-    if (executor != nullptr)
+    if (!isEnabled())
     {
         return;
     }
@@ -91,7 +92,7 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
 
 void BlockGraphicsView::mouseMoveEvent(QMouseEvent* event)
 {
-    if (executor != nullptr)
+    if (!isEnabled())
     {
         return;
     }
@@ -107,7 +108,7 @@ void BlockGraphicsView::mouseMoveEvent(QMouseEvent* event)
 
 void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
 {
-    if (executor != nullptr)
+    if (!isEnabled())
     {
         return;
     }
@@ -133,36 +134,11 @@ void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
 
             model->add_connection(conn);
 
-            ConnectorObject* conn_obj = new ConnectorObject(
+            addConnectionItem(
                 portDragState->get_output().block,
                 portDragState->get_output().port_count,
                 portDragState->get_input().block,
                 portDragState->get_input().port_count);
-            conn_obj->blockLocationUpdated();
-
-            connect(
-                portDragState->get_output().block,
-                &BlockObject::sceneLocationUpdated,
-                conn_obj,
-                &ConnectorObject::blockLocationUpdated);
-            connect(
-                portDragState->get_input().block,
-                &BlockObject::sceneLocationUpdated,
-                conn_obj,
-                &ConnectorObject::blockLocationUpdated);
-
-            connect(
-                portDragState->get_output().block,
-                &BlockObject::destroyed,
-                conn_obj,
-                &ConnectorObject::deleteLater);
-            connect(
-                portDragState->get_input().block,
-                &BlockObject::destroyed,
-                conn_obj,
-                &ConnectorObject::deleteLater);
-
-            scene()->addItem(conn_obj);
 
             const auto& items = scene()->items();
             for (auto* i : qAsConst(items))
@@ -183,7 +159,7 @@ void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
 
 void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
 {
-    if (executor != nullptr)
+    if (!isEnabled())
     {
         return;
     }
@@ -195,15 +171,10 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
 
         if (block != nullptr)
         {
-            ParameterDialog* dialog = new ParameterDialog(block, this);
-
-            connect(
-                dialog,
-                &ParameterDialog::destroyed,
-                this,
-                &BlockGraphicsView::updateModel);
+            BlockParameterDialog* dialog = new BlockParameterDialog(block, this);
 
             dialog->exec();
+            updateModel();
 
             const auto sceneItems = scene()->items();
 
@@ -234,16 +205,25 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
     }
 }
 
-void BlockGraphicsView::showEvent(QShowEvent* event)
+void BlockGraphicsView::changeEvent(QEvent* event)
 {
-    QGraphicsView::showEvent(event);
-    if (executor == nullptr)
+    if (event->type() == QEvent::EnabledChange)
     {
-        emit generatedModelDestroyed();
-    }
-    else
-    {
-        emit generatedModelCreated();
+        if (selectedBlock != nullptr)
+        {
+            selectedBlock->setSelected(false);
+            selectedBlock = nullptr;
+            mouseState = nullptr;
+        }
+
+        if (isEnabled())
+        {
+            scene()->setForegroundBrush(Qt::transparent);
+        }
+        else
+        {
+            scene()->setForegroundBrush(QColor(100, 100, 100, 100));
+        }
     }
 }
 
@@ -254,19 +234,9 @@ QPoint BlockGraphicsView::snapMousePositionToGrid(const QPoint& input)
         input.y() % 10);
 }
 
-void BlockGraphicsView::keyPressEvent(QKeyEvent* event)
-{
-    switch (event->key())
-    {
-    case Qt::Key_S:
-        stepExecutor();
-        break;
-    }
-}
-
 void BlockGraphicsView::removeSelectedBlock()
 {
-    if (executor != nullptr)
+    if (!isEnabled())
     {
         return;
     }
@@ -285,7 +255,7 @@ void BlockGraphicsView::removeSelectedBlock()
 
 void BlockGraphicsView::updateModel()
 {
-    if (executor != nullptr)
+    if (!isEnabled())
     {
         return;
     }
@@ -305,190 +275,6 @@ void BlockGraphicsView::updateModel()
         scene()->update();
     }
 
-    emit modelUpdated();
-}
-
-void BlockGraphicsView::showErrors()
-{
-    if (window_errors == nullptr)
-    {
-        window_errors = new ModelErrorDialog(model);
-
-        connect(window_errors, &ModelErrorDialog::destroyed, [this]() {
-            window_errors = nullptr;
-        });
-    }
-
-    window_errors->show();
-}
-
-void BlockGraphicsView::generateExecutor()
-{
-    updateModel();
-
-    tmdl::ConnectionManager connections;
-    std::shared_ptr<tmdl::VariableManager> manager = std::make_shared<tmdl::VariableManager>();
-
-    try
-    {
-        // Add each output variable to the manager
-        for (size_t i = 0; i < model->get_num_outputs(); ++i)
-        {
-            const auto pv = model->get_output_datatype(i);
-
-            const std::shared_ptr<tmdl::ValueBox> value = tmdl::make_shared_default_value(pv);
-
-            const auto vid = tmdl::VariableIdentifier
-            {
-                .block_id = /* TODO: model.get_id() */ 0,
-                .output_port_num = i
-            };
-
-            manager->add_variable(vid, value);
-        }
-
-        model->update_block();
-
-        executor = std::make_unique<ExecutionState>(ExecutionState
-        {
-            .variables = manager,
-            .model = model->get_execution_interface(
-                connections,
-                *manager),
-            .state = tmdl::SimState
-            {
-                .time = 0.0,
-                .dt = 0.1
-            },
-            .iterations = 0
-        });
-
-        emit generatedModelCreated();
-    }
-    catch (const tmdl::ModelException& ex)
-    {
-        auto* msg = new QMessageBox(this);
-        msg->setText(ex.what().c_str());
-        msg->setWindowTitle("Parameter Error");
-        msg->exec();
-
-        executor = nullptr;
-        return;
-    }
-}
-
-static std::optional<double> double_from_variable(std::shared_ptr<const tmdl::ValueBox> ptr)
-{
-    if (auto v = std::dynamic_pointer_cast<const tmdl::ValueBoxType<double>>(ptr); v)
-    {
-        return v->value;
-    }
-    else if (auto v = std::dynamic_pointer_cast<const tmdl::ValueBoxType<float>>(ptr); v)
-    {
-        return static_cast<double>(v->value);
-    }
-    else if (auto v = std::dynamic_pointer_cast<const tmdl::ValueBoxType<int32_t>>(ptr); v)
-    {
-        return static_cast<double>(v->value);
-    }
-    else if (auto v = std::dynamic_pointer_cast<const tmdl::ValueBoxType<uint32_t>>(ptr); v)
-    {
-        return static_cast<double>(v->value);
-    }
-    else if (auto v = std::dynamic_pointer_cast<const tmdl::ValueBoxType<bool>>(ptr); v)
-    {
-        return (v->value) ? 1.0 : 0.0;
-    }
-    else
-    {
-        return std::nullopt;
-    }
-}
-
-void BlockGraphicsView::stepExecutor()
-{
-    if (executor == nullptr)
-    {
-        return;
-    }
-
-    const auto vid = tmdl::VariableIdentifier
-    {
-        .block_id = /* TODO: model.get_id() */ 0,
-        .output_port_num = 0
-    };
-
-    auto var = executor->variables->get_ptr(vid);
-
-    if (executor->iterations != 0)
-    {
-        executor->state.time += executor->state.dt;
-    }
-    executor->iterations += 1;
-    executor->model->step(executor->state);
-
-    auto double_val = double_from_variable(var);
-    if (double_val)
-    {
-        emit plotPointUpdated(executor->state.time, double_val.value());
-        qDebug() << "T = " << executor->state.time << ", Y = " << double_val.value();
-    }
-}
-
-void BlockGraphicsView::clearExecutor()
-{
-    executor = nullptr;
-    emit generatedModelDestroyed();
-}
-
-void BlockGraphicsView::showLibrary()
-{
-    BlockLibrary* window_library = new BlockLibrary(this);
-
-    connect(
-        window_library,
-        &BlockLibrary::blockSelected,
-        this,
-        &BlockGraphicsView::addBlock);
-
-    connect(
-        this,
-        &BlockGraphicsView::generatedModelCreated,
-        window_library,
-        &BlockLibrary::close);
-
-    window_library->show();
-}
-
-void BlockGraphicsView::showPlot()
-{
-    auto* plt = new PlotWindow();
-
-    connect(this, &BlockGraphicsView::plotPointUpdated, plt, &PlotWindow::addPlotPoint);
-    connect(this, &BlockGraphicsView::generatedModelCreated, plt, &PlotWindow::resetPlot);
-
-    plt->show();
-}
-
-void BlockGraphicsView::addBlock(QString l, QString s)
-{
-    if (executor != nullptr)
-    {
-        return;
-    }
-
-    // Initialze the block
-    const auto tmp = tmdl::LibraryManager::get_instance().get_library(l.toStdString())->create_block(s.toStdString());
-    model->add_block(tmp);
-
-    // Create the block object
-    BlockObject* block_obj = new BlockObject(tmp);
-    block_obj->setPos(mapToScene(QPoint(50, 50)));
-
-    // Add the block to storage/tracking
-    scene()->addItem(block_obj);
-
-    // State the model is updated
     emit modelUpdated();
 }
 
@@ -527,13 +313,70 @@ bool BlockGraphicsView::blockBodyContainsMouse(
     return block->blockRectContainsPoint(pos);
 }
 
-void BlockGraphicsView::onClose()
+void BlockGraphicsView::addConnectionItem(
+    const BlockObject* from_block,
+    const size_t from_port,
+    const BlockObject* to_block,
+    const size_t to_port)
 {
-    if (window_errors != nullptr)
+    // Construct the connector object
+    ConnectorObject* conn_obj = new ConnectorObject(
+        from_block,
+        from_port,
+        to_block,
+        to_port);
+    conn_obj->blockLocationUpdated();
+
+    // Connect up location and destroyed items
+    connect(
+        from_block,
+        &BlockObject::sceneLocationUpdated,
+        conn_obj,
+        &ConnectorObject::blockLocationUpdated);
+    connect(
+        to_block,
+        &BlockObject::sceneLocationUpdated,
+        conn_obj,
+        &ConnectorObject::blockLocationUpdated);
+
+    connect(
+        from_block,
+        &BlockObject::destroyed,
+        conn_obj,
+        &ConnectorObject::deleteLater);
+    connect(
+        to_block,
+        &BlockObject::destroyed,
+        conn_obj,
+        &ConnectorObject::deleteLater);
+
+    scene()->addItem(conn_obj);
+}
+
+std::shared_ptr<tmdl::Model> BlockGraphicsView::get_model() const
+{
+    return model;
+}
+
+void BlockGraphicsView::addBlock(std::shared_ptr<tmdl::BlockInterface> blk)
+{
+    if (!isEnabled())
     {
-        window_errors->close();
-        window_errors = nullptr;
+        return;
     }
+
+    // Add the block to the model
+    model->add_block(blk);
+
+    // Create the block object
+    BlockObject* block_obj = new BlockObject(blk);
+    block_obj->setPos(mapToScene(QPoint(50, 50)));
+
+    // Add the block to storage/tracking
+    scene()->addItem(block_obj);
+
+    // State the model is updated
+    emit modelUpdated();
 }
 
 struct BlockLocation {
@@ -584,6 +427,10 @@ std::string BlockGraphicsView::getJsonString() const
 
 void BlockGraphicsView::fromJsonString(const std::string& jsonData)
 {
+    if (!isEnabled()) {
+        throw 1;
+    }
+
     std::istringstream iss(jsonData);
     nlohmann::json j;
     iss >> j;
@@ -591,12 +438,23 @@ void BlockGraphicsView::fromJsonString(const std::string& jsonData)
     mouseState = nullptr;
     selectedBlock = nullptr;
     model = nullptr;
-    executor = nullptr;
 
     scene()->clear();
 
     std::shared_ptr<tmdl::Model> mdl = std::make_shared<tmdl::Model>("tmp");
     tmdl::from_json(j["model"], *mdl);
+
+    const auto mdl_library = tmdl::LibraryManager::get_instance().default_model_library();
+
+    if (mdl_library->has_block(mdl->get_name()))
+    {
+        mdl = mdl_library->get_model(mdl->get_name());
+    }
+    else
+    {
+        mdl_library->add_model(mdl);
+    }
+
     model = mdl;
 
     const auto blk_locations = j["locations"].get<std::unordered_map<std::string, BlockLocation>>();
@@ -645,37 +503,7 @@ void BlockGraphicsView::fromJsonString(const std::string& jsonData)
         if (from_block == nullptr || to_block == nullptr) throw 2;
 
         // Construct the connector object
-        ConnectorObject* conn_obj = new ConnectorObject(
-            from_block,
-            conn.get_from_port(),
-            to_block,
-            conn.get_to_port());
-        conn_obj->blockLocationUpdated();
-
-        // TODO - Consolidate with drag block
-        connect(
-            from_block,
-            &BlockObject::sceneLocationUpdated,
-            conn_obj,
-            &ConnectorObject::blockLocationUpdated);
-        connect(
-            to_block,
-            &BlockObject::sceneLocationUpdated,
-            conn_obj,
-            &ConnectorObject::blockLocationUpdated);
-
-        connect(
-            from_block,
-            &BlockObject::destroyed,
-            conn_obj,
-            &ConnectorObject::deleteLater);
-        connect(
-            to_block,
-            &BlockObject::destroyed,
-            conn_obj,
-            &ConnectorObject::deleteLater);
-
-        scene()->addItem(conn_obj);
+        addConnectionItem(from_block, conn.get_from_port(), to_block, conn.get_to_port());
     }
 
     updateModel();

@@ -5,6 +5,8 @@
 
 #include <algorithm>
 
+#include <fmt/format.h>
+
 
 std::string tmdl::ModelLibrary::get_library_name() const
 {
@@ -45,6 +47,26 @@ std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::get_model(const std::string& na
     return mdl;
 }
 
+std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::create_model()
+{
+    for (size_t i = 0; i < 1000; ++i)
+    {
+        const std::string name = fmt::format("untitled_{}", i + 1);
+
+        if (try_get_model(name) != nullptr)
+        {
+            continue;
+        }
+
+        auto mdl = std::make_shared<Model>(name);
+        models.push_back(mdl);
+
+        return mdl;
+    }
+
+    throw ModelException("unable to find unused untitled model name");
+}
+
 std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::create_model(const std::string& name)
 {
     if (try_get_model(name) == nullptr)
@@ -58,6 +80,16 @@ std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::create_model(const std::string&
     {
         throw ModelException("model with name always exists");
     }
+}
+
+void tmdl::ModelLibrary::add_model(std::shared_ptr<Model> model)
+{
+    if (try_get_model(model->get_name()) != nullptr)
+    {
+        throw ModelException(fmt::format("cannot add model - model with name '{}' already exists", model->get_name()));
+    }
+
+    models.push_back(model);
 }
 
 std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::try_get_model(const std::string& name) const

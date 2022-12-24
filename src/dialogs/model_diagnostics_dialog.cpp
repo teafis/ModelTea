@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "model_error_dialog.h"
-#include "ui_model_error_dialog.h"
+#include "model_diagnostics_dialog.h"
+#include "ui_model_diagnostics_dialog.h"
 
-ModelErrorDialog::ModelErrorDialog(
+ModelDiagnosticsDialog::ModelDiagnosticsDialog(
     const std::shared_ptr<const tmdl::Model> model,
     QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::ModelErrorDialog),
+    ui(new Ui::ModelDiagnosticsDialog),
     model(model)
 {
     if (model == nullptr)
@@ -21,7 +21,7 @@ ModelErrorDialog::ModelErrorDialog(
     modelUpdated();
 }
 
-void ModelErrorDialog::modelUpdated()
+void ModelDiagnosticsDialog::modelUpdated()
 {
     ui->errors->clear();
     bool added = false;
@@ -38,7 +38,7 @@ void ModelErrorDialog::modelUpdated()
     }
 }
 
-ModelErrorDialog::~ModelErrorDialog()
+ModelDiagnosticsDialog::~ModelDiagnosticsDialog()
 {
     delete ui;
 }

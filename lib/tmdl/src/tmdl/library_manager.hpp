@@ -9,6 +9,8 @@
 
 #include "library.hpp"
 
+#include "libraries/model_library.hpp"
+
 namespace tmdl
 {
 
@@ -31,8 +33,11 @@ public:
 
     std::shared_ptr<BlockInterface> make_block(const std::string& name) const;
 
+    std::shared_ptr<ModelLibrary> default_model_library() const;
+
 protected:
     std::unordered_map<std::string, std::shared_ptr<LibraryBase>> libraries;
+    std::shared_ptr<ModelLibrary> model_library;
 };
 
 }

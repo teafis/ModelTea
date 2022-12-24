@@ -9,7 +9,7 @@
 #include <unordered_map>
 
 #include "block_interface.hpp"
-//#include "connection_manager.hpp"
+#include "connection_manager.hpp"
 
 #include <nlohmann/json.hpp>
 
@@ -19,7 +19,6 @@ namespace tmdl
 class Model;
 
 void to_json(nlohmann::json& j, const Model& m);
-
 void from_json(const nlohmann::json& j, Model& m);
 
 class Model
@@ -43,7 +42,11 @@ public:
 public:
     std::string get_name() const;
 
+    void set_name(const std::string& s); // TODO
+
     std::string get_description() const;
+
+    void set_description(const std::string& s); // TODO
 
     size_t get_num_outputs() const;
 
@@ -74,8 +77,12 @@ public:
 
     std::vector<std::shared_ptr<BlockInterface>> get_blocks() const;
 
+public:
+    static bool name_is_valid(const std::string& s);
+
 protected:
     std::string name;
+    std::string description;
     std::unordered_map<size_t, std::shared_ptr<BlockInterface>> blocks;
     ConnectionManager connections;
     std::vector<size_t> input_ids;

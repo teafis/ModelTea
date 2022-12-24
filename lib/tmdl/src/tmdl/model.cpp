@@ -7,6 +7,9 @@
 
 #include "library_manager.hpp"
 
+#include <fmt/format.h>
+
+
 using namespace tmdl;
 
 /* ==================== MODEL EXECUTOR ==================== */
@@ -64,9 +67,12 @@ protected:
 
 /* ==================== MODEL ==================== */
 
-Model::Model(const std::string& name) : name(name)
+Model::Model(const std::string& name) : name(name), description("user-defined model block")
 {
-    // Empty Constructor?
+    if (!name_is_valid(name))
+    {
+        throw ModelException(fmt::format("cannot construct block due to invalid name '{}'", name));
+    }
 }
 
 void Model::add_block(const std::shared_ptr<BlockInterface> block)
@@ -78,7 +84,7 @@ void Model::add_block(const std::shared_ptr<BlockInterface> block, const size_t 
 {
     if (blocks.find(id) != blocks.end())
     {
-        throw ModelException("block already contains provided ID");
+        throw ModelException(fmt::format("block already contains provided ID {}", id));
     }
 
     if (const auto ptr = std::dynamic_pointer_cast<InputPort>(block); ptr != nullptr)
@@ -100,7 +106,7 @@ void Model::remove_block(const size_t id)
     auto map_it = blocks.find(id);
     if (map_it == blocks.end())
     {
-        throw ModelException("id not found in the block map");
+        throw ModelException(fmt::format("id {} not found in the block map", id));
     }
 
     blocks.erase(map_it);
@@ -139,7 +145,10 @@ void Model::add_connection(const Connection connection)
     }
     else
     {
-        throw ModelException("to/from block and port number mismatch");
+        throw ModelException(fmt::format(
+            "from ({} < {}) / to ({} < {}) block and port number mismatch",
+            connection.get_from_port(), from_block->get_num_outputs(),
+            connection.get_to_port(), to_block->get_num_inputs()));
     }
 }
 
@@ -161,9 +170,23 @@ std::string Model::get_name() const
     return name;
 }
 
+void Model::set_name(const std::string& s)
+{
+    if (!name_is_valid(s))
+    {
+        throw ModelException(fmt::format("provided model name '{}' is not valid", s));
+    }
+    name = s;
+}
+
 std::string Model::get_description() const
 {
-    return "user-made model block";
+    return description;
+}
+
+void Model::set_description(const std::string& s)
+{
+    description = s;
 }
 
 size_t Model::get_num_inputs() const
@@ -213,7 +236,7 @@ bool Model::update_block()
 
         if (update_count > UPDATE_LIMIT)
         {
-            throw ModelException("update limit exceeded for model block");
+            throw ModelException("iteration limit exceeded trying to update model block");
         }
 
         update_count += 1;
@@ -243,14 +266,14 @@ DataType Model::get_input_datatype(const size_t port) const
         auto blk = std::dynamic_pointer_cast<InputPort>(get_block(input_ids[port]));
         if (blk == nullptr)
         {
-            throw ModelException("invalid block found for input port");
+            throw ModelException(fmt::format("invalid block found for input port {}", port));
         }
 
         return blk->get_output_type(0);
     }
     else
     {
-        throw ModelException("model input port count exceeded");
+        throw ModelException(fmt::format("model input port count exceeded with {} !< {}", port, get_num_inputs()));
     }
 }
 
@@ -507,6 +530,19 @@ std::vector<std::shared_ptr<BlockInterface>> Model::get_blocks() const
     return retval;
 }
 
+bool tmdl::Model::name_is_valid(const std::string& s)
+{
+    for (const auto c : s)
+    {
+        if (!std::isalnum(c) && c != '_')
+        {
+            return false;
+        }
+    }
+
+    return s.size() > 0 && std::isalpha(s[0]);
+}
+
 struct SaveParameter
 {
     std::string id;
@@ -551,7 +587,8 @@ void from_json(const nlohmann::json& j, SaveBlock& b)
 
 void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m)
 {
-    j["name"] = m.get_name();
+    j["name"] = m.name;
+    j["description"] = m.description;
     j["output_ids"] = m.output_ids;
     j["input_ids"] = m.input_ids;
     j["connections"] = m.connections;
@@ -587,10 +624,13 @@ void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m)
 
 void tmdl::from_json(const nlohmann::json& j, tmdl::Model& m)
 {
-    j.at("name").get_to(m.name);
+    std::string temp_name;
+    j.at("name").get_to(temp_name);
+    m.set_name(temp_name);
+
+    j.at("description").get_to(m.description);
     j.at("output_ids").get_to(m.output_ids);
     j.at("input_ids").get_to(m.input_ids);
-
     from_json(j.at("connections"), m.connections);
 
     const auto json_blocks = j.at("blocks").get<std::unordered_map<std::string, SaveBlock>>();

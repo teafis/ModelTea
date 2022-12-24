@@ -29,22 +29,23 @@ find_package(fmt CONFIG REQUIRED)
 
 set(PROJECT_SOURCESS
     src/main.cpp
-    src/windows/main_window.h src/windows/main_window.cpp src/windows/main_window.ui
-    src/windows/block_library.h src/windows/block_library.cpp src/windows/block_library.ui
+    src/windows/model_window.h src/windows/model_window.cpp src/windows/model_window.ui
     src/windows/plot_window.h src/windows/plot_window.cpp src/windows/plot_window.ui
-    src/windows/parameter_dialog.h src/windows/parameter_dialog.cpp src/windows/parameter_dialog.ui
-    src/windows/model_error_dialog.h src/windows/model_error_dialog.cpp src/windows/model_error_dialog.ui
-    src/windows/main_window_icon.h src/windows/main_window_icon.cpp
+    src/dialogs/model_parameters_dialog.h src/dialogs/model_parameters_dialog.cpp src/dialogs/model_parameters_dialog.ui
+    src/dialogs/model_diagnostics_dialog.h src/dialogs/model_diagnostics_dialog.cpp src/dialogs/model_diagnostics_dialog.ui
+    src/dialogs/block_selector_dialog.h src/dialogs/block_selector_dialog.cpp src/dialogs/block_selector_dialog.ui
+    src/dialogs/block_parameters_dialog.h src/dialogs/block_parameters_dialog.cpp src/dialogs/block_parameters_dialog.ui
     src/widgets/block_graphics_view.h src/widgets/block_graphics_view.cpp
     src/widgets/state/mouse_state_base.h
     src/widgets/state/block_drag_state.h src/widgets/state/block_drag_state.cpp
     src/widgets/state/port_drag_state.h
     src/widgets/parameters/parameter_boolean_widget.h src/widgets/parameters/parameter_boolean_widget.cpp src/widgets/parameters/parameter_boolean_widget.ui
-    src/widgets/parameters/parameter_numeric_widget.h src/widgets/parameters/parameter_numeric_widget.cpp src/widgets/parameters/parameter_numeric_widget.ui
     src/widgets/parameters/parameter_datatype_widget.h src/widgets/parameters/parameter_datatype_widget.cpp src/widgets/parameters/parameter_datatype_widget.ui
+    src/widgets/parameters/parameter_numeric_widget.h src/widgets/parameters/parameter_numeric_widget.cpp src/widgets/parameters/parameter_numeric_widget.ui
     src/widgets/parameters/parameter_unknown_widget.h src/widgets/parameters/parameter_unknown_widget.cpp src/widgets/parameters/parameter_unknown_widget.ui
     src/blocks/block_object.h src/blocks/block_object.cpp
     src/blocks/connector_object.h src/blocks/connector_object.cpp
+    src/ui/window_icon.h src/ui/window_icon.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

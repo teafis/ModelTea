@@ -5,6 +5,8 @@
 
 #include <QMainWindow>
 
+#include "events/sim_event.h"
+
 #include "dialogs/block_selector_dialog.h"
 #include "dialogs/model_diagnostics_dialog.h"
 
@@ -60,13 +62,7 @@ public slots:
     void addBlock(QString l, QString s);
 
 signals:
-    void plotPointUpdated(const double t, const double y);
-
-    void executorReset();
-
-    void executorStepped();
-
-    void executorDestroyed();
+    void executorEvent(SimEvent event);
 
 private:
     Ui::ModelWindow *ui;

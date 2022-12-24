@@ -13,7 +13,7 @@
 namespace tmdl
 {
 
-enum class DataType
+enum class DataType : uint32_t
 {
     UNKNOWN = 0,
     SINGLE,

@@ -168,34 +168,8 @@ void ModelWindow::generateExecutor()
         executor = nullptr;
         return;
     }
-}
 
-static std::optional<double> double_from_variable(std::shared_ptr<const tmdl::ValueBox> ptr)
-{
-    if (auto v = std::dynamic_pointer_cast<const tmdl::ValueBoxType<double>>(ptr); v)
-    {
-        return v->value;
-    }
-    else if (auto v = std::dynamic_pointer_cast<const tmdl::ValueBoxType<float>>(ptr); v)
-    {
-        return static_cast<double>(v->value);
-    }
-    else if (auto v = std::dynamic_pointer_cast<const tmdl::ValueBoxType<int32_t>>(ptr); v)
-    {
-        return static_cast<double>(v->value);
-    }
-    else if (auto v = std::dynamic_pointer_cast<const tmdl::ValueBoxType<uint32_t>>(ptr); v)
-    {
-        return static_cast<double>(v->value);
-    }
-    else if (auto v = std::dynamic_pointer_cast<const tmdl::ValueBoxType<bool>>(ptr); v)
-    {
-        return (v->value) ? 1.0 : 0.0;
-    }
-    else
-    {
-        return std::nullopt;
-    }
+    emit executorEvent(SimEvent(SimEvent::EventType::Create));
 }
 
 void ModelWindow::stepExecutor()
@@ -205,14 +179,6 @@ void ModelWindow::stepExecutor()
         return;
     }
 
-    const auto vid = tmdl::VariableIdentifier
-    {
-        .block_id = /* TODO: model.get_id() */ 0,
-        .output_port_num = 0
-    };
-
-    auto var = executor->variables->get_ptr(vid);
-
     if (executor->iterations != 0)
     {
         executor->state.set_time(executor->state.get_time() + executor->state.get_dt());
@@ -220,13 +186,7 @@ void ModelWindow::stepExecutor()
     executor->iterations += 1;
     executor->model->step(executor->state);
 
-    auto double_val = double_from_variable(var);
-    if (double_val)
-    {
-        emit plotPointUpdated(executor->state.get_time(), double_val.value());
-    }
-
-    emit executorStepped();
+    emit executorEvent(SimEvent(SimEvent::EventType::Step));
 }
 
 void ModelWindow::clearExecutor()
@@ -235,7 +195,7 @@ void ModelWindow::clearExecutor()
     {
         executor = nullptr;
         updateMenuBars();
-        emit executorDestroyed();
+        emit executorEvent(SimEvent(SimEvent::EventType::Close));
     }
 }
 
@@ -244,7 +204,7 @@ void ModelWindow::resetExecutor()
     if (executor != nullptr)
     {
         executor->reset();
-        emit executorReset();
+        emit executorEvent(SimEvent(SimEvent::EventType::Reset));
     }
 }
 
@@ -278,7 +238,7 @@ void ModelWindow::showPlot()
     {
         window_plot = new PlotWindow(executor);
 
-        connect(this, &ModelWindow::plotPointUpdated, window_plot, &PlotWindow::addPlotPoint);
+        connect(this, &ModelWindow::executorEvent, window_plot, &PlotWindow::executorEvent);
         connect(window_plot, &PlotWindow::destroyed, [this]() { window_plot = nullptr; });
     }
 

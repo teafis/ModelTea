@@ -9,6 +9,8 @@
 
 #include <tmdl/execution_state.hpp>
 
+#include "events/sim_event.h"
+
 
 namespace Ui {
 class PlotWindow;
@@ -25,9 +27,9 @@ public:
     ~PlotWindow();
 
 public slots:
-    void addPlotPoint(const double t, const double y);
+    void executorEvent(SimEvent event);
 
-    void resetPlot();
+    //void resetPlot();
 
 private:
     Ui::PlotWindow* ui;

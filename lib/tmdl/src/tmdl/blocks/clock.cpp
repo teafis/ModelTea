@@ -20,7 +20,7 @@ public:
 public:
     void step(const tmdl::SimState& s) override
     {
-        output_value->value = s.time;
+        output_value->value = s.get_time();
     }
 
 protected:

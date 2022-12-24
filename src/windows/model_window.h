@@ -11,6 +11,7 @@
 #include "windows/plot_window.h"
 
 #include <tmdl/block_interface.hpp>
+#include <tmdl/execution_state.hpp>
 
 
 namespace Ui { class ModelWindow; }
@@ -46,6 +47,8 @@ public slots:
 
     void stepExecutor();
 
+    void resetExecutor();
+
     void clearExecutor();
 
     void showLibrary();
@@ -59,6 +62,12 @@ public slots:
 signals:
     void plotPointUpdated(const double t, const double y);
 
+    void executorReset();
+
+    void executorStepped();
+
+    void executorDestroyed();
+
 private:
     Ui::ModelWindow *ui;
     QString filename;
@@ -67,15 +76,7 @@ private:
     BlockSelectorDialog* window_library = nullptr;
     PlotWindow* window_plot = nullptr;
 
-    struct ExecutionState
-    {
-        std::shared_ptr<tmdl::VariableManager> variables;
-        std::shared_ptr<tmdl::BlockExecutionInterface> model;
-        tmdl::SimState state;
-        uint64_t iterations;
-    };
-
-    std::unique_ptr<ExecutionState> executor;
+    std::shared_ptr<tmdl::ExecutionState> executor;
 
     bool changeFlag;
 };

@@ -1,12 +1,15 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 #include "plot_window.h"
 #include "ui_plot_window.h"
 
-#include <QChart>
 
-
-PlotWindow::PlotWindow(QWidget *parent) :
+PlotWindow::PlotWindow(
+    std::shared_ptr<tmdl::ExecutionState> execution,
+    QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::PlotWindow)
+    ui(new Ui::PlotWindow),
+    execution_state(execution)
 {
     ui->setupUi(this);
 

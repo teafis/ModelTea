@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 #include "model_parameters_dialog.h"
 #include "ui_model_parameters_dialog.h"
 

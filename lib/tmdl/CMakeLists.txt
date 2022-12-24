@@ -22,13 +22,14 @@ set(
     src/tmdl/block_interface.hpp src/tmdl/block_interface.cpp
     src/tmdl/connection.hpp src/tmdl/connection.cpp
     src/tmdl/connection_manager.hpp src/tmdl/connection_manager.cpp
+    src/tmdl/execution_state.hpp src/tmdl/execution_state.cpp
     src/tmdl/library.hpp
     src/tmdl/library_manager.hpp src/tmdl/library_manager.cpp
     src/tmdl/model.hpp src/tmdl/model.cpp
     src/tmdl/model_block.hpp src/tmdl/model_block.cpp
     src/tmdl/model_exception.hpp src/tmdl/model_exception.cpp
     src/tmdl/parameter.hpp src/tmdl/parameter.cpp
-    src/tmdl/sim_state.hpp
+    src/tmdl/sim_state.hpp src/tmdl/sim_state.cpp
     src/tmdl/value.hpp src/tmdl/value.cpp
     src/tmdl/variable_manager.hpp src/tmdl/variable_manager.cpp
     src/tmdl/blocks/arithmetic.hpp src/tmdl/blocks/arithmetic.cpp

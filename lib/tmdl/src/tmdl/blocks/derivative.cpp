@@ -35,7 +35,7 @@ public:
             reset();
         }
 
-        _output->value = (_input->value - last_val) / s.dt;
+        _output->value = (_input->value - last_val) / s.get_dt();
         last_val = _input->value;
     }
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 #include "parameter_unknown_widget.h"
 #include "ui_parameter_unknown_widget.h"
 

@@ -41,7 +41,7 @@ struct IntegratorExecutor : public tmdl::BlockExecutionInterface
         }
         else
         {
-            state_value += _input->value * state.dt;
+            state_value += _input->value * state.get_dt();
         }
     }
 

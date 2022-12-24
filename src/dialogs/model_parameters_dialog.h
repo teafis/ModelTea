@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 #ifndef MODEL_PARAMETERS_DIALOG_H
 #define MODEL_PARAMETERS_DIALOG_H
 

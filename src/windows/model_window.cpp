@@ -51,6 +51,8 @@ void ModelWindow::updateMenuBars()
     ui->menuModel->setEnabled(!generatedAvailable);
     ui->menuBlocks->setEnabled(!generatedAvailable);
     ui->menuSim->setEnabled(generatedAvailable);
+
+    ui->block_graphics->setEnabled(!generatedAvailable);
 }
 
 void ModelWindow::updateTitle()
@@ -153,55 +155,16 @@ void ModelWindow::generateExecutor()
     }
 
     ui->block_graphics->updateModel();
-
-    tmdl::ConnectionManager connections;
-    std::shared_ptr<tmdl::VariableManager> manager = std::make_shared<tmdl::VariableManager>();
     const auto model = ui->block_graphics->get_model();
 
     try
     {
-        // Add each output variable to the manager
-        for (size_t i = 0; i < model->get_num_outputs(); ++i)
-        {
-            const auto pv = model->get_output_datatype(i);
-
-            const std::shared_ptr<tmdl::ValueBox> value = tmdl::make_shared_default_value(pv);
-
-            const auto vid = tmdl::VariableIdentifier
-            {
-                .block_id = /* TODO: model.get_id() */ 0,
-                .output_port_num = i
-            };
-
-            manager->add_variable(vid, value);
-        }
-
-        model->update_block();
-
-        executor = std::make_unique<ExecutionState>(ExecutionState
-        {
-            .variables = manager,
-            .model = model->get_execution_interface(
-                connections,
-                *manager),
-            .state = tmdl::SimState
-            {
-                .time = 0.0,
-                .dt = 0.1
-            },
-            .iterations = 0
-        });
-
+        executor = std::make_shared<tmdl::ExecutionState>(tmdl::ExecutionState::from_model(model, 0.1));
         updateMenuBars();
-        ui->block_graphics->setEnabled(false);
     }
     catch (const tmdl::ModelException& ex)
     {
-        auto* msg = new QMessageBox(this);
-        msg->setText(ex.what().c_str());
-        msg->setWindowTitle("Parameter Error");
-        msg->exec();
-
+        QMessageBox::warning(this, "Parameter Error", ex.what().c_str());
         executor = nullptr;
         return;
     }
@@ -252,7 +215,7 @@ void ModelWindow::stepExecutor()
 
     if (executor->iterations != 0)
     {
-        executor->state.time += executor->state.dt;
+        executor->state.set_time(executor->state.get_time() + executor->state.get_dt());
     }
     executor->iterations += 1;
     executor->model->step(executor->state);
@@ -260,15 +223,29 @@ void ModelWindow::stepExecutor()
     auto double_val = double_from_variable(var);
     if (double_val)
     {
-        emit plotPointUpdated(executor->state.time, double_val.value());
+        emit plotPointUpdated(executor->state.get_time(), double_val.value());
     }
+
+    emit executorStepped();
 }
 
 void ModelWindow::clearExecutor()
 {
-    executor = nullptr;
-    updateMenuBars();
-    ui->block_graphics->setEnabled(true);
+    if (executor != nullptr)
+    {
+        executor = nullptr;
+        updateMenuBars();
+        emit executorDestroyed();
+    }
+}
+
+void ModelWindow::resetExecutor()
+{
+    if (executor != nullptr)
+    {
+        executor->reset();
+        emit executorReset();
+    }
 }
 
 void ModelWindow::showLibrary()
@@ -299,7 +276,7 @@ void ModelWindow::showPlot()
 {
     if (window_plot == nullptr)
     {
-        window_plot = new PlotWindow();
+        window_plot = new PlotWindow(executor);
 
         connect(this, &ModelWindow::plotPointUpdated, window_plot, &PlotWindow::addPlotPoint);
         connect(window_plot, &PlotWindow::destroyed, [this]() { window_plot = nullptr; });
@@ -338,10 +315,10 @@ void ModelWindow::closeEvent(QCloseEvent* event)
     if (changeFlag)
     {
         const QMessageBox::StandardButton reply = QMessageBox::question(
-            this, "Quit?", "Model has unsaved changes - save before exiting?",
+            this, "Quit?", "Model has unsaved changes - confirm exit?",
             QMessageBox::Yes | QMessageBox::No);
 
-        if (reply == QMessageBox::Yes)
+        if (reply == QMessageBox::No)
         {
             event->ignore();
             return;

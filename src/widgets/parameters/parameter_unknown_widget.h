@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 #ifndef PARAMETER_UNKNOWN_WIDGET_H
 #define PARAMETER_UNKNOWN_WIDGET_H
 

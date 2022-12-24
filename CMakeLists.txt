@@ -10,7 +10,7 @@ set(QT_CREATOR_SKIP_VCPKG_SETUP ON)
 
 set(VCPKG_FEATURE_FLAGS "versions")
 
-project(TSim VERSION 0.1 LANGUAGES CXX)
+project(ModelTea VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -49,38 +49,38 @@ set(PROJECT_SOURCESS
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(TSim
+    qt_add_executable(ModelTea
         MANUAL_FINALIZATION
         ${PROJECT_SOURCESS}
     )
 else()
-    add_executable(TSim
+    add_executable(ModelTea
         ${PROJECT_SOURCESS}
     )
 endif()
 
 add_subdirectory(lib/tmdl)
 
-target_include_directories(TSim PRIVATE src/)
+target_include_directories(ModelTea PRIVATE src/)
 
-target_link_libraries(TSim PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-target_link_libraries(TSim PRIVATE tmdl)
+target_link_libraries(ModelTea PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(ModelTea PRIVATE tmdl)
 
-#target_compile_options(TSim PRIVATE -fsanitize=address)
-#target_link_options(TSim PRIVATE -fsanitize=address)
+#target_compile_options(ModelTea PRIVATE -fsanitize=address)
+#target_link_options(ModelTea PRIVATE -fsanitize=address)
 
-#target_compile_options(TSim PRIVATE -fsanitize=leak)
-#target_link_options(TSim PRIVATE -fsanitize=leak)
+#target_compile_options(ModelTea PRIVATE -fsanitize=leak)
+#target_link_options(ModelTea PRIVATE -fsanitize=leak)
 
-target_link_libraries(TSim PRIVATE Qt::Widgets Qt::Charts)
-target_link_libraries(TSim PUBLIC nlohmann_json::nlohmann_json)
+target_link_libraries(ModelTea PRIVATE Qt::Widgets Qt::Charts)
+target_link_libraries(ModelTea PUBLIC nlohmann_json::nlohmann_json)
 
-set_target_properties(TSim PROPERTIES
-    MACOSX_BUNDLE_GUI_IDENTIFIER org.teafis.tsim
+set_target_properties(ModelTea PROPERTIES
+    MACOSX_BUNDLE_GUI_IDENTIFIER org.teafis.modeltea
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(TSim)
+    qt_finalize_executable(ModelTea)
 endif()

@@ -1,6 +1,6 @@
-# TSim Documentation
+# ModelTea Documentation
 
-TSim is designed to be a Simulink-like environment for
+ModelTea is designed to be a Simulink-like environment for
 creating control laws, generating embedded code, and
 analyzing data.
 

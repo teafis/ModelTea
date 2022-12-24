@@ -1,5 +1,5 @@
 {
-  "name": "tsim",
+  "name": "modeltea",
   "version-string": "0.1.0",
   "dependencies": [
     "nlohmann-json",

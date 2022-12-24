@@ -45,6 +45,8 @@ void tmdl::ParameterValue::convert(const Type t)
         return;
     }
 
+    const Value old = value;
+
     switch (t)
     {
     case Type::BOOLEAN:
@@ -52,16 +54,16 @@ void tmdl::ParameterValue::convert(const Type t)
         switch (dtype)
         {
         case Type::SINGLE:
-            value.tf = value.f32 != 0;
+            value.tf = old.f32 != 0;
             break;
         case Type::DOUBLE:
-            value.tf = value.f64 != 0;
+            value.tf = old.f64 != 0;
             break;
         case Type::INT32:
-            value.tf = value.i32 != 0;
+            value.tf = old.i32 != 0;
             break;
         case Type::UINT32:
-            value.tf = value.u32 != 0;
+            value.tf = old.u32 != 0;
             break;
         default:
             value.tf = false;
@@ -73,13 +75,13 @@ void tmdl::ParameterValue::convert(const Type t)
         switch (dtype)
         {
         case Type::DOUBLE:
-            value.f32 = static_cast<float>(value.f64);
+            value.f32 = static_cast<float>(old.f64);
             break;
         case Type::INT32:
-            value.f32 = static_cast<float>(value.i32);
+            value.f32 = static_cast<float>(old.i32);
             break;
         case Type::UINT32:
-            value.f32 = static_cast<float>(value.u32);
+            value.f32 = static_cast<float>(old.u32);
             break;
         default:
             value.f32 = 0.0f;
@@ -91,13 +93,13 @@ void tmdl::ParameterValue::convert(const Type t)
         switch (dtype)
         {
         case Type::SINGLE:
-            value.f64 = static_cast<double>(value.f32);
+            value.f64 = static_cast<double>(old.f32);
             break;
         case Type::INT32:
-            value.f64 = static_cast<double>(value.i32);
+            value.f64 = static_cast<double>(old.i32);
             break;
         case Type::UINT32:
-            value.f64 = static_cast<double>(value.u32);
+            value.f64 = static_cast<double>(old.u32);
             break;
         default:
             value.f64 = 0.0;
@@ -109,13 +111,13 @@ void tmdl::ParameterValue::convert(const Type t)
         switch (dtype)
         {
         case Type::SINGLE:
-            value.i32 = static_cast<int32_t>(value.f32);
+            value.i32 = static_cast<int32_t>(old.f32);
             break;
         case Type::DOUBLE:
-            value.i32 = static_cast<int32_t>(value.f64);
+            value.i32 = static_cast<int32_t>(old.f64);
             break;
         case Type::UINT32:
-            value.i32 = static_cast<int32_t>(value.u32);
+            value.i32 = static_cast<int32_t>(old.u32);
             break;
         default:
             value.i32 = 0;
@@ -127,13 +129,13 @@ void tmdl::ParameterValue::convert(const Type t)
         switch (dtype)
         {
         case Type::SINGLE:
-            value.u32 = static_cast<uint32_t>(value.f32);
+            value.u32 = static_cast<uint32_t>(old.f32);
             break;
         case Type::DOUBLE:
-            value.u32 = static_cast<uint32_t>(value.f64);
+            value.u32 = static_cast<uint32_t>(old.f64);
             break;
         case Type::INT32:
-            value.u32 = static_cast<uint32_t>(value.i32);
+            value.u32 = static_cast<uint32_t>(old.i32);
             break;
         default:
             value.u32 = 0;

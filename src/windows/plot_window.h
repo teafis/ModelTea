@@ -6,10 +6,13 @@
 #include <QMainWindow>
 
 #include <QtCharts>
+#include <QVector>
 
 #include <tmdl/execution_state.hpp>
 
 #include "events/sim_event.h"
+
+#include "models/plot_variable_selection_model.h"
 
 
 namespace Ui {
@@ -29,13 +32,16 @@ public:
 public slots:
     void executorEvent(SimEvent event);
 
-    //void resetPlot();
+protected slots:
+    void seriesListChanged();
 
 private:
     Ui::PlotWindow* ui;
-    QLineSeries* series;
+    QVector<QLineSeries*> series;
 
     std::shared_ptr<tmdl::ExecutionState> execution_state;
+
+    PlotVariableSelectionModel* list_model;
 
     double y_min;
     double y_max;

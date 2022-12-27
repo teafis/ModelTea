@@ -64,6 +64,8 @@ public slots:
 signals:
     void executorEvent(SimEvent event);
 
+    void modelChanged();
+
 private:
     Ui::ModelWindow *ui;
     QString filename;

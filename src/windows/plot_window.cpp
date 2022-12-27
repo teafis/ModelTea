@@ -18,19 +18,62 @@ PlotWindow::PlotWindow(
     setAttribute(Qt::WA_DeleteOnClose, true);
 
     auto* chart = new QChart();
-
-    series = new QLineSeries();
-    chart->addSeries(series);
-
-    chart->createDefaultAxes();
-    chart->setTitle("Testing Plot");
-
-    chart->legend()->hide();
-
     ui->chartView->setChart(chart);
 
     y_min = -1.0;
     y_max = 1.0;
+
+    const auto& names = execution_state->variables->get_names();
+
+    list_model = new PlotVariableSelectionModel(this);
+
+    for (const auto& n : names)
+    {
+        const auto name = QString(n.c_str());
+        auto* s = new QLineSeries();
+        s->setName(name);
+
+        series.push_back(s);
+        chart->addSeries(s);
+
+        list_model->addItem(ItemSelector
+        {
+            .vid = execution_state->variables->get_identifier(n),
+            .name = name,
+            .series = s
+        });
+    }
+
+    chart->createDefaultAxes();
+
+    ui->outputSelectionView->setModel(list_model);
+
+    ui->outputSelectionView->selectionModel();
+
+    connect(
+        ui->outputSelectionView->selectionModel(),
+        &QItemSelectionModel::selectionChanged,
+        this,
+        &PlotWindow::seriesListChanged);
+
+    ui->outputSelectionView->selectAll();
+}
+
+void PlotWindow::seriesListChanged()
+{
+    const auto& items = list_model->items();
+    for (const auto& it : items)
+    {
+        it.series->setVisible(false);
+    }
+
+    const auto& indexes = ui->outputSelectionView->selectionModel()->selectedIndexes();
+
+    for (int i = 0; i < indexes.size(); ++i)
+    {
+        const auto it = qvariant_cast<ItemSelector>(list_model->data(indexes[i], Qt::UserRole));
+        it.series->setVisible(true);
+    }
 }
 
 static std::optional<double> double_from_variable(std::shared_ptr<const tmdl::ValueBox> ptr)
@@ -65,29 +108,31 @@ void PlotWindow::executorEvent(SimEvent event)
 {
     if (event.event() == SimEvent::EventType::Step)
     {
-        const auto vid = tmdl::VariableIdentifier
+        const auto& names = execution_state->variables->get_names();
+
+        for (size_t i = 0; i < names.size(); ++i)
         {
-            .block_id = /* TODO: model.get_id() */ 0,
-            .output_port_num = 0
-        };
+            auto var = execution_state->variables->get_ptr(names[i]);
 
-        auto var = execution_state->variables->get_ptr(vid);
+            const auto double_val = double_from_variable(var);
 
-        const auto double_val = double_from_variable(var);
+            const auto t = execution_state->state.get_time();
 
-        const auto t = execution_state->state.get_time();
+            series[i]->append(t, *double_val);
+            ui->chartView->chart()->axes(Qt::Horizontal)[0]->setRange(0.0, t);
 
-        series->append(t, *double_val);
-        ui->chartView->chart()->axes(Qt::Horizontal)[0]->setRange(0.0, t);
+            y_min = std::min(*double_val, y_min);
+            y_max = std::max(*double_val, y_max);
 
-        y_min = std::min(*double_val, y_min);
-        y_max = std::max(*double_val, y_max);
-
-        ui->chartView->chart()->axes(Qt::Vertical)[0]->setRange(y_min, y_max);
+            ui->chartView->chart()->axes(Qt::Vertical)[0]->setRange(y_min, y_max);
+        }
     }
     else if (event.event() == SimEvent::EventType::Reset)
     {
-        series->clear();
+        for (int i = 0; i < series.size(); ++i)
+        {
+            series[i]->clear();
+        }
 
         y_min = -1.0;
         y_max = 1.0;

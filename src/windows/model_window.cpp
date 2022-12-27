@@ -17,6 +17,8 @@
 #include <tmdl/model_exception.hpp>
 #include <tmdl/library_manager.hpp>
 
+#include <fmt/format.h>
+
 
 ModelWindow::ModelWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -26,6 +28,7 @@ ModelWindow::ModelWindow(QWidget *parent) :
     // Setup the main UI
     ui->setupUi(this);
     connect(ui->block_graphics, &BlockGraphicsView::modelChanged, [this]() { changeFlag = true; updateTitle(); });
+    connect(this, &ModelWindow::modelChanged, [this]() { changeFlag = true; updateTitle(); });
 
     // Update the menu items
     updateMenuBars();
@@ -160,6 +163,17 @@ void ModelWindow::generateExecutor()
     try
     {
         executor = std::make_shared<tmdl::ExecutionState>(tmdl::ExecutionState::from_model(model, 0.1));
+
+        for (size_t i = 0; i < model->get_num_outputs(); ++i)
+        {
+            const auto outer_id = tmdl::VariableIdentifier {
+                .block_id = 0, // TODO get_id(),
+                .output_port_num = i
+            };
+
+            executor->variables->set_name_for_variable(fmt::format("Output {} ({})", i, outer_id.to_string()), outer_id);
+        }
+
         updateMenuBars();
     }
     catch (const tmdl::ModelException& ex)
@@ -229,7 +243,10 @@ void ModelWindow::showLibrary()
 void ModelWindow::showModelParameters()
 {
     auto* window_parameters = new ModelParametersDialog(ui->block_graphics->get_model(), this);
-    window_parameters->exec();
+    if (window_parameters->exec())
+    {
+        emit modelChanged();
+    }
 }
 
 void ModelWindow::showPlot()

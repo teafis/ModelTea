@@ -171,7 +171,7 @@ void ModelWindow::generateExecutor()
                 .output_port_num = i
             };
 
-            executor->variables->set_name_for_variable(fmt::format("Output {} ({})", i, outer_id.to_string()), outer_id);
+            executor->variables->set_name_for_variable(fmt::format("*Output {} ({})", i, outer_id.to_string()), outer_id);
         }
 
         updateMenuBars();

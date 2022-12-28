@@ -29,7 +29,14 @@ void ConnectorObject::paint(
     (void)widget;
     (void)option;
 
-    painter->setPen(QPen(Qt::black, 3.0));
+    if (isSelected())
+    {
+        painter->setPen(QPen(Qt::blue, 5.0));
+    }
+    else
+    {
+        painter->setPen(QPen(Qt::black, 3.0));
+    }
     painter->setBrush(Qt::transparent);
 
     const auto pts = getLinePoints();
@@ -41,7 +48,46 @@ void ConnectorObject::paint(
 
 bool ConnectorObject::positionOnLine(const QPointF& localCoords) const
 {
-    (void)localCoords;
+    const auto linePoints = getLinePoints();
+    const double THRESHOLD = 5.0;
+
+    for (int i = 1; i < linePoints.size(); ++i)
+    {
+        const auto& a = linePoints[i - 1];
+        const auto& b = linePoints[i];
+
+        const double dx = b.x() - a.x();
+        const double dy = b.y() - a.y();
+
+        const double dist = std::sqrt(std::pow(dx, 2.0) + std::pow(dy, 2.0));
+
+        const double local_dx = a.x() - localCoords.x();
+        const double local_dy = a.y() - localCoords.y();
+
+        if (dist < 1.0)
+        {
+            if (std::sqrt(std::pow(local_dx, 2.0) + std::pow(local_dy, 2.0)) < THRESHOLD)
+            {
+                return true;
+            }
+
+            continue;
+        }
+
+        const double dxn = dx / dist;
+        const double dyn = dy / dist;
+
+        const double denom = dx * dxn + dy * dyn;
+
+        const double line_param = (-dyn * local_dy - dxn * local_dx) / denom;
+        const double dist_from_line = (dx * local_dy + dy * local_dx) / denom;
+
+        if (line_param >= 0.0 && line_param <= 1.0 && std::abs(dist_from_line) < THRESHOLD)
+        {
+            return true;
+        }
+    }
+
     return false;
 }
 

@@ -16,6 +16,12 @@
 namespace tmdl
 {
 
+class ModelExecutionInterface : public BlockExecutionInterface
+{
+public:
+    virtual std::shared_ptr<const VariableManager> get_variable_manager() const = 0;
+};
+
 class Model;
 
 void to_json(nlohmann::json& j, const Model& m);
@@ -60,7 +66,8 @@ public:
 
     std::unique_ptr<const BlockError> has_error() const;
 
-    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
+    std::shared_ptr<ModelExecutionInterface> get_execution_interface(
+        const size_t block_id,
         const ConnectionManager& connections,
         const VariableManager& manager) const;
 

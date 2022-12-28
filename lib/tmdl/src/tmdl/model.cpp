@@ -14,10 +14,13 @@ using namespace tmdl;
 
 /* ==================== MODEL EXECUTOR ==================== */
 
-class ModelExecutor : public BlockExecutionInterface
+class ModelExecutor : public ModelExecutionInterface
 {
 public:
-    ModelExecutor(const std::vector<std::shared_ptr<BlockExecutionInterface>>& blocks) :
+    ModelExecutor(
+        const std::shared_ptr<const VariableManager> variable_manager,
+        const std::vector<std::shared_ptr<BlockExecutionInterface>>& blocks) :
+        variable_manager(variable_manager),
         blocks(blocks)
     {
         // Empty Constructor?
@@ -60,7 +63,13 @@ public:
         }
     }
 
+    std::shared_ptr<const VariableManager> get_variable_manager() const override
+    {
+        return variable_manager;
+    }
+
 protected:
+    std::shared_ptr<const VariableManager> variable_manager;
     std::vector<std::shared_ptr<BlockExecutionInterface>> blocks;
 };
 
@@ -304,7 +313,8 @@ DataType Model::get_output_datatype(const size_t port) const
     }
 }
 
-std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
+std::shared_ptr<ModelExecutionInterface> Model::get_execution_interface(
+    const size_t block_id,
     const ConnectionManager& outer_connections,
     const VariableManager& outer_variables) const
 {
@@ -320,8 +330,6 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
     {
         order_values.push_back(i);
     }
-
-    std::vector<size_t> delayed_values;
 
     // Create a list of remaining ID values
     std::vector<size_t> remaining_id_values;
@@ -404,13 +412,13 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
     }
 
     // Construct the variable list values
-    VariableManager variables;
+    std::shared_ptr<VariableManager> variables = std::make_shared<VariableManager>();
 
     // Add output port types
     for (size_t i = 0; i < output_ids.size(); ++i)
     {
         const auto outer_id = VariableIdentifier {
-            .block_id = 0, // TODO get_id(),
+            .block_id = block_id,
             .output_port_num = i
         };
 
@@ -423,13 +431,13 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
             .output_port_num = c.get_from_port()
         };
 
-        variables.add_variable(inner_id, ptr_val);
+        variables->add_variable(inner_id, ptr_val);
     }
 
     // Add input port types
     for (size_t i = 0; i < input_ids.size(); ++i)
     {
-        const auto& outer_connection = outer_connections.get_connection_to(/* TODO: get_id()*/ 0, i);
+        const auto& outer_connection = outer_connections.get_connection_to(block_id, i);
         const auto ptr_val = outer_variables.get_ptr(outer_connection);
 
         const auto inner_id = VariableIdentifier
@@ -438,7 +446,7 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
             .output_port_num = 0
         };
 
-        variables.add_variable(inner_id, ptr_val);
+        variables->add_variable(inner_id, ptr_val);
     }
 
     // Add interior block types
@@ -455,10 +463,10 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
             };
 
             // Skip if variable already added (due to input/output)
-            if (!variables.has_variable(vid))
+            if (!variables->has_variable(vid))
             {
                 const auto pv = get_block(vid.block_id)->get_output_type(vid.output_port_num);
-                variables.add_variable(vid, make_shared_default_value(pv));
+                variables->add_variable(vid, make_shared_default_value(pv));
             }
         }
     }
@@ -469,12 +477,12 @@ std::shared_ptr<BlockExecutionInterface> Model::get_execution_interface(
     {
         std::shared_ptr<BlockExecutionInterface> block = get_block(b_id)->get_execution_interface(
             connections,
-            variables);
+            *variables);
         interface_order.push_back(block);
     }
 
     // Create the executor
-    auto model_exec = std::make_shared<ModelExecutor>(interface_order);
+    auto model_exec = std::make_shared<ModelExecutor>(variables, interface_order);
 
     // Reset the model executor
     model_exec->reset();

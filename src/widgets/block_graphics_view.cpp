@@ -22,8 +22,8 @@
 
 #include "blocks/connector_object.h"
 
-#include "state/block_drag_state.h"
-#include "state/port_drag_state.h"
+#include "state/mouse/block_drag_state.h"
+#include "state/mouse/port_drag_state.h"
 
 #include "dialogs/block_parameters_dialog.h"
 
@@ -32,7 +32,8 @@
 
 BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
     QGraphicsView(parent),
-    selectedBlock(nullptr)
+    selectedBlock(nullptr),
+    selectedConnector(nullptr)
 {
     // Attempt to create a new model
     model = tmdl::LibraryManager::get_instance().default_model_library()->create_model();
@@ -53,40 +54,69 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
     if ((event->buttons() & Qt::LeftButton) == Qt::LeftButton)
     {
         const auto mappedPos = mapToScene(event->pos());
-        BlockObject* block = findBlockForMousePress(mappedPos);
 
-        if (block != selectedBlock && selectedBlock != nullptr)
         {
-            selectedBlock->setSelected(false);
-            selectedBlock = nullptr;
-            update();
+            BlockObject* block = findBlockForMousePress(mappedPos);
+
+            if (block != selectedBlock && selectedBlock != nullptr)
+            {
+                selectedBlock->setSelected(false);
+                selectedBlock = nullptr;
+                update();
+            }
+
+            if (block != nullptr)
+            {
+                if (selectedConnector != nullptr)
+                {
+                    selectedConnector->setSelected(false);
+                    selectedConnector = nullptr;
+                }
+
+                selectedBlock = block;
+                selectedBlock->setSelected(true);
+
+                const auto block_port = findBlockIOForMousePress(mappedPos, block);
+
+                if (block_port)
+                {
+                    mouseState = std::make_unique<PortDragState>(block_port.value());
+                }
+                else if (blockBodyContainsMouse(mappedPos, block))
+                {
+                    // Update the blocks to bring the clicked block to the foreground
+                    scene()->removeItem(block);
+                    scene()->addItem(block);
+
+                    // Setup the drag state object
+                    mouseState = std::make_unique<BlockDragState>(
+                        block,
+                        block->sceneBoundingRect().center() - mappedPos,
+                        snapMousePositionToGrid(block->pos().toPoint()));
+                }
+            }
         }
 
-        if (block == nullptr)
+        // Check for a selected connector
+        if (selectedBlock == nullptr)
         {
-            return;
-        }
+            if (selectedConnector != nullptr)
+            {
+                selectedConnector->setSelected(false);
+                selectedConnector = nullptr;
+            }
 
-        selectedBlock = block;
-        selectedBlock->setSelected(true);
-
-        const auto block_port = findBlockIOForMousePress(mappedPos, block);
-
-        if (block_port)
-        {
-            mouseState = std::make_unique<PortDragState>(block_port.value());
-        }
-        else if (blockBodyContainsMouse(mappedPos, block))
-        {
-            // Update the blocks to bring the clicked block to the foreground
-            scene()->removeItem(block);
-            scene()->addItem(block);
-
-            // Setup the drag state object
-            mouseState = std::make_unique<BlockDragState>(
-                block,
-                block->sceneBoundingRect().center() - mappedPos,
-                snapMousePositionToGrid(block->pos().toPoint()));
+            const auto sceneItems = scene()->items();
+            for (auto itm : qAsConst(sceneItems))
+            {
+                ConnectorObject* conn = dynamic_cast<ConnectorObject*>(itm);
+                if (conn != nullptr && conn->positionOnLine(conn->mapFromScene(mappedPos)))
+                {
+                    selectedConnector = conn;
+                    selectedConnector->setSelected(true);
+                    break;
+                }
+            }
         }
     }
 }
@@ -249,6 +279,7 @@ void BlockGraphicsView::removeSelectedBlock()
         scene()->removeItem(selectedBlock);
         selectedBlock->deleteLater();
         selectedBlock = nullptr;
+        selectedConnector = nullptr;
         scene()->update();
 
         updateModel();

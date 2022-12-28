@@ -7,7 +7,8 @@
 #include <QGraphicsView>
 
 #include "blocks/block_object.h"
-#include "state/mouse_state_base.h"
+#include "blocks/connector_object.h"
+#include "state/mouse/mouse_state_base.h"
 
 #include <memory>
 
@@ -82,6 +83,7 @@ public:
 protected:
     std::unique_ptr<MouseStateBase> mouseState;
     BlockObject* selectedBlock;
+    ConnectorObject* selectedConnector;
     std::shared_ptr<tmdl::Model> model;
 };
 

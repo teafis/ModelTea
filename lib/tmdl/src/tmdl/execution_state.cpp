@@ -39,7 +39,7 @@ tmdl::ExecutionState tmdl::ExecutionState::from_model(
     // Construct and return the executor
     return tmdl::ExecutionState
     {
-        .model = model->get_execution_interface(connections, *manager),
+        .model = model->get_execution_interface(0, connections, *manager),
         .variables = manager,
         .state = tmdl::SimState(dt),
         .iterations = 0

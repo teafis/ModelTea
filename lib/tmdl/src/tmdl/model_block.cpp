@@ -153,9 +153,7 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::ModelBlock::get_execution_i
     const ConnectionManager& connections,
     const VariableManager& manager) const
 {
-    (void)connections;
-    (void)manager;
-    return nullptr;
+    return model->get_execution_interface(get_id(), connections, manager);
 }
 
 std::shared_ptr<tmdl::Model> tmdl::ModelBlock::get_model()

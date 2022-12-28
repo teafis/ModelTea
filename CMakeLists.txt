@@ -38,9 +38,10 @@ set(PROJECT_SOURCESS
     src/events/sim_event.h src/events/sim_event.cpp
     src/models/plot_variable_selection_model.h src/models/plot_variable_selection_model.cpp
     src/widgets/block_graphics_view.h src/widgets/block_graphics_view.cpp
-    src/widgets/state/mouse_state_base.h
-    src/widgets/state/block_drag_state.h src/widgets/state/block_drag_state.cpp
-    src/widgets/state/port_drag_state.h
+    src/widgets/state/mouse/mouse_state_base.h
+    src/widgets/state/mouse/block_drag_state.h src/widgets/state/mouse/block_drag_state.cpp
+    src/widgets/state/mouse/connector_drag_state.h
+    src/widgets/state/mouse/port_drag_state.h
     src/widgets/parameters/parameter_boolean_widget.h src/widgets/parameters/parameter_boolean_widget.cpp src/widgets/parameters/parameter_boolean_widget.ui
     src/widgets/parameters/parameter_datatype_widget.h src/widgets/parameters/parameter_datatype_widget.cpp src/widgets/parameters/parameter_datatype_widget.ui
     src/widgets/parameters/parameter_numeric_widget.h src/widgets/parameters/parameter_numeric_widget.cpp src/widgets/parameters/parameter_numeric_widget.ui

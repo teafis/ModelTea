@@ -7,12 +7,12 @@
 #include <QGraphicsView>
 
 #include "blocks/block_object.h"
-#include "blocks/connector_object.h"
 #include "state/mouse/mouse_state_base.h"
 
 #include <memory>
 
 #include <QPoint>
+#include <QGraphicsObject>
 
 #include <tmdl/model.hpp>
 
@@ -45,6 +45,7 @@ public slots:
 
 signals:
     void modelUpdated();
+
     void modelChanged();
 
 protected:
@@ -82,8 +83,7 @@ public:
 
 protected:
     std::unique_ptr<MouseStateBase> mouseState;
-    BlockObject* selectedBlock;
-    ConnectorObject* selectedConnector;
+    QGraphicsObject* selectedItem;
     std::shared_ptr<tmdl::Model> model;
 };
 

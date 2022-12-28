@@ -48,6 +48,7 @@ protected:
 protected:
     const BlockObject* from_block;
     const BlockObject* to_block;
+
     const size_t from_port;
     const size_t to_port;
 

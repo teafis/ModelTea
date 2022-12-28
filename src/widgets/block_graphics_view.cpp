@@ -32,8 +32,7 @@
 
 BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
     QGraphicsView(parent),
-    selectedBlock(nullptr),
-    selectedConnector(nullptr)
+    selectedItem(nullptr)
 {
     // Attempt to create a new model
     model = tmdl::LibraryManager::get_instance().default_model_library()->create_model();
@@ -55,13 +54,17 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
     {
         const auto mappedPos = mapToScene(event->pos());
 
+        BlockObject* const selectedBlock = dynamic_cast<BlockObject*>(selectedItem);
+        ConnectorObject* const selectedConnector = dynamic_cast<ConnectorObject*>(selectedItem);
+
+        selectedItem = nullptr;
+
         {
             BlockObject* block = findBlockForMousePress(mappedPos);
 
             if (block != selectedBlock && selectedBlock != nullptr)
             {
                 selectedBlock->setSelected(false);
-                selectedBlock = nullptr;
                 update();
             }
 
@@ -70,11 +73,10 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
                 if (selectedConnector != nullptr)
                 {
                     selectedConnector->setSelected(false);
-                    selectedConnector = nullptr;
                 }
 
-                selectedBlock = block;
-                selectedBlock->setSelected(true);
+                selectedItem = block;
+                selectedItem->setSelected(true);
 
                 const auto block_port = findBlockIOForMousePress(mappedPos, block);
 
@@ -98,13 +100,9 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
         }
 
         // Check for a selected connector
-        if (selectedBlock == nullptr)
+        if (selectedItem == nullptr)
         {
-            if (selectedConnector != nullptr)
-            {
-                selectedConnector->setSelected(false);
-                selectedConnector = nullptr;
-            }
+            ConnectorObject* foundConnector = nullptr;
 
             const auto sceneItems = scene()->items();
             for (auto itm : qAsConst(sceneItems))
@@ -112,10 +110,20 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
                 ConnectorObject* conn = dynamic_cast<ConnectorObject*>(itm);
                 if (conn != nullptr && conn->positionOnLine(conn->mapFromScene(mappedPos)))
                 {
-                    selectedConnector = conn;
-                    selectedConnector->setSelected(true);
+                    foundConnector = conn;
                     break;
                 }
+            }
+
+            if (foundConnector != selectedConnector && selectedConnector != nullptr)
+            {
+                selectedConnector->setSelected(false);
+            }
+
+            if (foundConnector != nullptr)
+            {
+                foundConnector->setSelected(true);
+                selectedItem = foundConnector;
             }
         }
     }
@@ -241,10 +249,10 @@ void BlockGraphicsView::changeEvent(QEvent* event)
 {
     if (event->type() == QEvent::EnabledChange)
     {
-        if (selectedBlock != nullptr)
+        if (selectedItem != nullptr)
         {
-            selectedBlock->setSelected(false);
-            selectedBlock = nullptr;
+            selectedItem->setSelected(false);
+            selectedItem = nullptr;
             mouseState = nullptr;
         }
 
@@ -273,16 +281,23 @@ void BlockGraphicsView::removeSelectedBlock()
         return;
     }
 
-    if (selectedBlock != nullptr)
+    if (selectedItem != nullptr)
     {
-        model->remove_block(selectedBlock->get_block()->get_id());
-        scene()->removeItem(selectedBlock);
-        selectedBlock->deleteLater();
-        selectedBlock = nullptr;
-        selectedConnector = nullptr;
-        scene()->update();
+        if (auto* selectedBlock = dynamic_cast<BlockObject*>(selectedItem); selectedBlock != nullptr)
+        {
+            model->remove_block(selectedBlock->get_block()->get_id());
+        }
+        else if (auto* selectedConnector = dynamic_cast<ConnectorObject*>(selectedItem); selectedConnector != nullptr)
+        {
+            model->remove_connection(selectedConnector->get_to_block()->get_block()->get_id(), selectedConnector->get_to_port());
+        }
+
+        scene()->removeItem(selectedItem);
+        selectedItem->deleteLater();
+        selectedItem = nullptr;
 
         updateModel();
+        emit modelChanged();
     }
 }
 
@@ -295,22 +310,23 @@ void BlockGraphicsView::updateModel()
 
     if (model->update_block())
     {
-        const auto sceneItems = scene()->items();
-        for (auto* item : qAsConst(sceneItems))
-        {
-            auto* block = dynamic_cast<BlockObject*>(item);
-            if (block != nullptr)
-            {
-                block->update();
-            }
-        }
-
-        scene()->update();
+        emit modelChanged();
     }
 
+    const auto sceneItems = scene()->items();
+    for (auto* item : qAsConst(sceneItems))
+    {
+        auto* block = dynamic_cast<BlockObject*>(item);
+        if (block != nullptr)
+        {
+            block->update();
+        }
+    }
+
+    scene()->update();
+    update();
 
     emit modelUpdated();
-    emit modelChanged();
 }
 
 BlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
@@ -471,7 +487,7 @@ void BlockGraphicsView::fromJsonString(const std::string& jsonData)
     iss >> j;
 
     mouseState = nullptr;
-    selectedBlock = nullptr;
+    selectedItem = nullptr;
     model = nullptr;
 
     scene()->clear();

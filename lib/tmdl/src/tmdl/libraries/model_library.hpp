@@ -35,6 +35,8 @@ public:
 
     void close_model(const std::string& name);
 
+    void close_empty_models();
+
 protected:
     std::shared_ptr<Model> try_get_model(const std::string& name) const;
 

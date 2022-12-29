@@ -11,7 +11,6 @@
 #include <QTextStream>
 #include <QMessageBox>
 
-#include "dialogs/block_parameters_dialog.h"
 #include "dialogs/model_parameters_dialog.h"
 
 #include <tmdl/model_exception.hpp>
@@ -146,6 +145,7 @@ void ModelWindow::openModel()
             }
 
             changeModel(mdl);
+            mdl_library->close_empty_models();
         }
 
         if (window_library != nullptr)
@@ -166,7 +166,33 @@ void ModelWindow::openModel()
 
 void ModelWindow::closeModel()
 {
+    const auto name = ui->block_graphics->get_model()->get_name();
+    const auto weak_val = std::weak_ptr<tmdl::Model>(ui->block_graphics->get_model());
+
     changeModel(nullptr);
+
+    auto mdl_library = tmdl::LibraryManager::get_instance().default_model_library();
+
+    try
+    {
+        mdl_library->close_model(name);
+    }
+    catch (const tmdl::ModelException& ex)
+    {
+        QMessageBox::warning(this, "error", ex.what().c_str());
+
+        auto model_ptr = weak_val.lock();
+        if (model_ptr && mdl_library->has_block(name))
+        {
+            changeModel(model_ptr);
+        }
+
+        return;
+    }
+
+    mdl_library->close_empty_models();
+
+    close();
 }
 
 void ModelWindow::changeModel(std::shared_ptr<tmdl::Model> model)
@@ -184,23 +210,23 @@ void ModelWindow::changeModel(std::shared_ptr<tmdl::Model> model)
     }
 
     // Close the model
-    auto last_model = ui->block_graphics->get_model();
-    if (model->get_name() != last_model->get_name())
+    const auto last_name = ui->block_graphics->get_model()->get_name();
+
+    if (model == nullptr || model->get_name() != last_name)
     {
-        //tmdl::LibraryManager::get_instance().default_model_library()->close_model(last_model->get_name());
-
-        // Create a new model
-        if (model == nullptr)
-        {
-            model = tmdl::LibraryManager::get_instance().default_model_library()->create_model();
-        }
-
         // Clear the change flag and load
         changeFlag = false;
+        executor = nullptr;
+
+        // Set the new model
+        if (model == nullptr)
+        {
+            model = std::make_shared<tmdl::Model>("tmp");
+        }
+
+        ui->block_graphics->setEnabled(true);
         ui->block_graphics->set_model(model);
     }
-
-    // TODO: Close unused
 }
 
 void ModelWindow::showErrors()
@@ -280,6 +306,12 @@ void ModelWindow::clearExecutor()
         executor = nullptr;
         updateMenuBars();
         emit executorEvent(SimEvent(SimEvent::EventType::Close));
+    }
+
+    if (window_plot != nullptr)
+    {
+        window_plot->close();
+        window_plot = nullptr;
     }
 }
 
@@ -389,4 +421,6 @@ void ModelWindow::closeEvent(QCloseEvent* event)
     window_diagnostics = nullptr;
     window_library = nullptr;
     window_plot = nullptr;
+
+    tmdl::LibraryManager::get_instance().default_model_library()->close_empty_models();
 }

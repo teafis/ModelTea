@@ -109,7 +109,28 @@ void tmdl::ModelLibrary::close_model(const std::string& name)
     }
     else
     {
+        if (it->use_count() > 1)
+        {
+            throw ModelException(fmt::format("model {} is still in use - cannot close", name));
+        }
+
         models.erase(it);
+    }
+}
+
+void tmdl::ModelLibrary::close_empty_models()
+{
+    auto it = models.begin();
+    while (it != models.end())
+    {
+        if (it->use_count() > 1 || (*it)->get_blocks().size() > 0)
+        {
+            ++it;
+        }
+        else
+        {
+            it = models.erase(it);
+        }
     }
 }
 

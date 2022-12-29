@@ -424,121 +424,33 @@ std::shared_ptr<tmdl::Model> BlockGraphicsView::get_model() const
     return model;
 }
 
-void BlockGraphicsView::addBlock(std::shared_ptr<tmdl::BlockInterface> blk)
+void BlockGraphicsView::set_model(std::shared_ptr<tmdl::Model> mdl)
 {
     if (!isEnabled())
     {
-        return;
-    }
-
-    // Add the block to the model
-    model->add_block(blk);
-
-    // Create the block object
-    BlockObject* block_obj = new BlockObject(blk);
-    block_obj->setPos(mapToScene(QPoint(50, 50)));
-
-    // Add the block to storage/tracking
-    scene()->addItem(block_obj);
-
-    // State the model is updated
-    updateModel();
-}
-
-struct BlockLocation {
-    int32_t x;
-    int32_t y;
-};
-
-void to_json(nlohmann::json& j, const BlockLocation& b)
-{
-    j["x"] = b.x;
-    j["y"] = b.y;
-}
-
-void from_json(const nlohmann::json& j, BlockLocation& b)
-{
-    j.at("x").get_to(b.x);
-    j.at("y").get_to(b.y);
-}
-
-std::string BlockGraphicsView::getJsonString() const
-{
-    std::unordered_map<std::string, BlockLocation> locations;
-
-    const auto& items = scene()->items();
-    for (auto* i : qAsConst(items))
-    {
-        auto* blk = dynamic_cast<BlockObject*>(i);
-        if (blk != nullptr)
-        {
-            BlockLocation loc {
-                .x = static_cast<int>(blk->pos().x()),
-                .y = static_cast<int>(blk->pos().y())
-            };
-
-            locations.insert({std::to_string(blk->get_block()->get_id()), loc});
-        }
-    }
-
-    nlohmann::json j;
-    j["model"] = *model;
-    j["locations"] = locations;
-
-    std::ostringstream oss;
-    oss << std::setw(4) << j;
-
-    return oss.str();
-}
-
-void BlockGraphicsView::fromJsonString(const std::string& jsonData)
-{
-    if (!isEnabled()) {
         throw 1;
     }
 
-    std::istringstream iss(jsonData);
-    nlohmann::json j;
-    iss >> j;
-
+    // Reset the state
     mouseState = nullptr;
     selectedItem = nullptr;
     model = nullptr;
-
     scene()->clear();
 
-    std::shared_ptr<tmdl::Model> mdl = std::make_shared<tmdl::Model>("tmp");
-    tmdl::from_json(j["model"], *mdl);
-
-    const auto mdl_library = tmdl::LibraryManager::get_instance().default_model_library();
-
-    if (mdl_library->has_block(mdl->get_name()))
-    {
-        mdl = mdl_library->get_model(mdl->get_name());
-    }
-    else
-    {
-        mdl_library->add_model(mdl);
-    }
-
+    // Save the model
     model = mdl;
 
-    const auto blk_locations = j["locations"].get<std::unordered_map<std::string, BlockLocation>>();
-
+    // Add new block objects
     for (const auto& blk : model->get_blocks())
     {
         // Create the block object
         BlockObject* block_obj = new BlockObject(blk);
 
-        // Get the block location
-        const auto it = blk_locations.find(std::to_string(block_obj->get_block()->get_id()));
-        const BlockLocation loc = it->second;
-        block_obj->setPos(mapToScene(QPoint(loc.x, loc.y)));
-
         // Add the block to storage/tracking
         scene()->addItem(block_obj);
     }
 
+    // Add new connection objects
     const auto& cm = model->get_connection_manager();
 
     for (const auto& conn : cm.get_connections())
@@ -572,5 +484,27 @@ void BlockGraphicsView::fromJsonString(const std::string& jsonData)
         addConnectionItem(from_block, conn.get_from_port(), to_block, conn.get_to_port());
     }
 
+    // Update the model
+    updateModel();
+}
+
+void BlockGraphicsView::addBlock(std::shared_ptr<tmdl::BlockInterface> blk)
+{
+    if (!isEnabled())
+    {
+        return;
+    }
+
+    // Add the block to the model
+    model->add_block(blk);
+
+    // Create the block object
+    BlockObject* block_obj = new BlockObject(blk);
+    block_obj->setPos(mapToScene(QPoint(50, 50)));
+
+    // Add the block to storage/tracking
+    scene()->addItem(block_obj);
+
+    // State the model is updated
     updateModel();
 }

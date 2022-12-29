@@ -71,14 +71,12 @@ protected:
 public:
     std::shared_ptr<tmdl::Model> get_model() const;
 
+    void set_model(std::shared_ptr<tmdl::Model> model);
+
     void addBlock(std::shared_ptr<tmdl::BlockInterface> blk);
 
 public:
     void onClose();
-
-    std::string getJsonString() const;
-
-    void fromJsonString(const std::string& jsonData);
 
     bool getChangeFlag() const;
 

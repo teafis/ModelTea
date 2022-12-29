@@ -28,6 +28,9 @@ BlockObject::BlockObject(const std::shared_ptr<tmdl::BlockInterface> block) :
     // Set the provided parent to help with destruction
     setFlag(QGraphicsItem::ItemIsSelectable, true);
 
+    // Set Position
+    setPos(block->get_loc().x, block->get_loc().y);
+
     // Connect position update values
     connect(
         this,
@@ -43,6 +46,8 @@ BlockObject::BlockObject(const std::shared_ptr<tmdl::BlockInterface> block) :
 
 void BlockObject::locUpdated()
 {
+    block->set_loc(tmdl::BlockLocation(x(), y()));
+
     emit sceneLocationUpdated();
 }
 

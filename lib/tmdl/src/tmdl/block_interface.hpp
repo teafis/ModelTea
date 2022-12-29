@@ -28,12 +28,28 @@ struct BlockError
     std::string message;
 };
 
+struct BlockLocation
+{
+    int64_t x;
+    int64_t y;
+
+    explicit BlockLocation();
+
+    explicit BlockLocation(const int64_t x, const int64_t y);
+};
+
 class BlockInterface
 {
 public:
+    explicit BlockInterface();
+
     size_t get_id() const;
 
     void set_id(const size_t id);
+
+    void set_loc(const BlockLocation& loc);
+
+    const BlockLocation& get_loc() const;
 
     virtual std::string get_name() const = 0;
 
@@ -67,7 +83,8 @@ protected:
     std::unique_ptr<const BlockError> make_error(const std::string& msg) const;
 
 protected:
-    size_t _id = 0;
+    size_t _id;
+    BlockLocation _loc;
 };
 
 class BlockExecutionInterface

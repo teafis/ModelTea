@@ -36,11 +36,18 @@ protected slots:
     void updateTitle();
 
 public slots:
+    void newModel();
+
     void saveModel();
 
     void saveModelAs();
 
     void openModel();
+
+    void closeModel();
+
+protected:
+    void changeModel(std::shared_ptr<tmdl::Model> model);
 
 public slots:
     void showErrors();

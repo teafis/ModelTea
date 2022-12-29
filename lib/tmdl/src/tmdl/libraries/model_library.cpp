@@ -94,6 +94,25 @@ void tmdl::ModelLibrary::add_model(std::shared_ptr<Model> model)
     models.push_back(model);
 }
 
+void tmdl::ModelLibrary::close_model(const std::string& name)
+{
+    const auto it = std::find_if(
+        models.begin(),
+        models.end(),
+        [&name](const std::shared_ptr<const Model> m) {
+            return m->get_name() == name;
+    });
+
+    if (it == models.end())
+    {
+        throw ModelException(fmt::format("cannot find model {} to close", name));
+    }
+    else
+    {
+        models.erase(it);
+    }
+}
+
 std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::try_get_model(const std::string& name) const
 {
     const auto it = std::find_if(

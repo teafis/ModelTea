@@ -585,6 +585,8 @@ struct SaveBlock
     size_t id;
     std::string name;
     std::vector<SaveParameter> parameters;
+    int64_t x;
+    int64_t y;
 };
 
 void to_json(nlohmann::json& j, const SaveBlock& b)
@@ -592,6 +594,8 @@ void to_json(nlohmann::json& j, const SaveBlock& b)
     j["id"] = b.id;
     j["name"] = b.name;
     j["parameters"] = b.parameters;
+    j["x"] = b.x;
+    j["y"] = b.y;
 }
 
 void from_json(const nlohmann::json& j, SaveBlock& b)
@@ -599,6 +603,8 @@ void from_json(const nlohmann::json& j, SaveBlock& b)
     j.at("id").get_to(b.id);
     j.at("name").get_to(b.name);
     j.at("parameters").get_to(b.parameters);
+    j.at("x").get_to(b.x);
+    j.at("y").get_to(b.y);
 }
 
 void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m)
@@ -629,7 +635,9 @@ void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m)
         {
             .id = blk->get_id(),
             .name = blk->get_name(),
-            .parameters = json_parameters
+            .parameters = json_parameters,
+            .x = blk->get_loc().x,
+            .y = blk->get_loc().y
         };
 
         json_blocks.insert({std::to_string(save_blk.id), save_blk});
@@ -656,6 +664,7 @@ void tmdl::from_json(const nlohmann::json& j, tmdl::Model& m)
         const auto& json_blk = kv.second;
         auto blk = tmdl::LibraryManager::get_instance().make_block(json_blk.name);
         blk->set_id(json_blk.id);
+        blk->set_loc(BlockLocation{json_blk.x, json_blk.y});
 
         for (const auto& prm : json_blk.parameters)
         {

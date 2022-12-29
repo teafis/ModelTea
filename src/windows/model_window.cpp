@@ -66,6 +66,12 @@ void ModelWindow::updateTitle()
     setWindowTitle(windowTitle);
 }
 
+void ModelWindow::newModel()
+{
+    auto* window = new ModelWindow();
+    window->show();
+}
+
 void ModelWindow::saveModel()
 {
     if (filename.isEmpty())
@@ -81,8 +87,13 @@ void ModelWindow::saveModel()
             return;
         }
 
-        const auto s = ui->block_graphics->getJsonString();
-        file.write(QString(s.c_str()).toUtf8());
+        nlohmann::json j;
+        j["model"] = *ui->block_graphics->get_model();
+
+        std::ostringstream oss;
+        oss << std::setw(4) << j;
+
+        file.write(QString(oss.str().c_str()).toUtf8());
         file.close();
         changeFlag = false;
         updateTitle();
@@ -115,7 +126,27 @@ void ModelWindow::openModel()
         const QString data = stream.readAll();
         file.close();
 
-        ui->block_graphics->fromJsonString(data.toStdString());
+        {
+            std::istringstream iss(data.toStdString());
+            nlohmann::json j;
+            iss >> j;
+
+            std::shared_ptr<tmdl::Model> mdl = std::make_shared<tmdl::Model>("tmp");
+            tmdl::from_json(j["model"], *mdl);
+
+            const auto mdl_library = tmdl::LibraryManager::get_instance().default_model_library();
+
+            if (mdl_library->has_block(mdl->get_name()))
+            {
+                mdl = mdl_library->get_model(mdl->get_name());
+            }
+            else
+            {
+                mdl_library->add_model(mdl);
+            }
+
+            changeModel(mdl);
+        }
 
         if (window_library != nullptr)
         {
@@ -131,6 +162,45 @@ void ModelWindow::openModel()
             window_diagnostics->setModel(ui->block_graphics->get_model());
         }
     }
+}
+
+void ModelWindow::closeModel()
+{
+    changeModel(nullptr);
+}
+
+void ModelWindow::changeModel(std::shared_ptr<tmdl::Model> model)
+{
+    if (changeFlag)
+    {
+        const QMessageBox::StandardButton reply = QMessageBox::question(
+            this, "Close?", "Model has unsaved changes - confirm close?",
+            QMessageBox::Yes | QMessageBox::No);
+
+        if (reply == QMessageBox::No)
+        {
+            return;
+        }
+    }
+
+    // Close the model
+    auto last_model = ui->block_graphics->get_model();
+    if (model->get_name() != last_model->get_name())
+    {
+        //tmdl::LibraryManager::get_instance().default_model_library()->close_model(last_model->get_name());
+
+        // Create a new model
+        if (model == nullptr)
+        {
+            model = tmdl::LibraryManager::get_instance().default_model_library()->create_model();
+        }
+
+        // Clear the change flag and load
+        changeFlag = false;
+        ui->block_graphics->set_model(model);
+    }
+
+    // TODO: Close unused
 }
 
 void ModelWindow::showErrors()

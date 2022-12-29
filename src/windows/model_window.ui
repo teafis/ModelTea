@@ -33,7 +33,10 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionFileNew"/>
+    <addaction name="separator"/>
     <addaction name="actionFileOpen"/>
+    <addaction name="actionFileClose"/>
     <addaction name="separator"/>
     <addaction name="actionFileSave"/>
     <addaction name="actionFileSaveAs"/>
@@ -191,6 +194,16 @@
   <action name="actionModelParameters">
    <property name="text">
     <string>Parameters</string>
+   </property>
+  </action>
+  <action name="actionFileClose">
+   <property name="text">
+    <string>Close</string>
+   </property>
+  </action>
+  <action name="actionFileNew">
+   <property name="text">
+    <string>New</string>
    </property>
   </action>
  </widget>
@@ -422,8 +435,40 @@
    <slot>resetExecutor()</slot>
    <hints>
     <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
      <x>436</x>
-     <y>11</y>
+     <y>223</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionFileClose</sender>
+   <signal>triggered()</signal>
+   <receiver>ModelWindow</receiver>
+   <slot>closeModel()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>78</x>
+     <y>96</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>436</x>
+     <y>223</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionFileNew</sender>
+   <signal>triggered()</signal>
+   <receiver>ModelWindow</receiver>
+   <slot>newModel()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>436</x>
@@ -445,5 +490,7 @@
   <slot>showPlot()</slot>
   <slot>addBlock(QString,QString)</slot>
   <slot>resetExecutor()</slot>
+  <slot>closeModel()</slot>
+  <slot>newModel()</slot>
  </slots>
 </ui>

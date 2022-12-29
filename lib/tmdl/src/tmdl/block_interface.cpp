@@ -2,6 +2,24 @@
 
 #include "block_interface.hpp"
 
+tmdl::BlockLocation::BlockLocation() :
+    x(0), y(0)
+{
+    // Empty Constructor
+}
+
+tmdl::BlockLocation::BlockLocation(const int64_t x, const int64_t y) :
+    x(x), y(y)
+{
+    // Empty Constructor
+}
+
+tmdl::BlockInterface::BlockInterface() :
+    _id(0),
+    _loc{}
+{
+    // Empty Constructor
+}
 
 size_t tmdl::BlockInterface::get_id() const
 {
@@ -11,6 +29,16 @@ size_t tmdl::BlockInterface::get_id() const
 void tmdl::BlockInterface::set_id(const size_t id)
 {
     _id = id;
+}
+
+void tmdl::BlockInterface::set_loc(const BlockLocation& loc)
+{
+    _loc = loc;
+}
+
+const tmdl::BlockLocation& tmdl::BlockInterface::get_loc() const
+{
+    return _loc;
 }
 
 std::vector<std::shared_ptr<tmdl::Parameter>> tmdl::BlockInterface::get_parameters() const

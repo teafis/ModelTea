@@ -33,6 +33,8 @@ public:
 
     void add_model(std::shared_ptr<Model> model);
 
+    void close_model(const std::string& name);
+
 protected:
     std::shared_ptr<Model> try_get_model(const std::string& name) const;
 

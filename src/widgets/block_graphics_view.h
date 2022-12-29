@@ -7,6 +7,7 @@
 #include <QGraphicsView>
 
 #include "blocks/block_object.h"
+#include "blocks/connector_object.h"
 #include "state/mouse/mouse_state_base.h"
 
 #include <memory>
@@ -50,6 +51,8 @@ signals:
 
 protected:
     BlockObject* findBlockForMousePress(const QPointF& pos);
+
+    ConnectorObject* findConnectorForMousePress(const QPointF& pos);
 
     std::optional<BlockObject::PortInformation> findBlockIOForMousePress(
         const QPointF& pos,

@@ -102,18 +102,7 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
         // Check for a selected connector
         if (selectedItem == nullptr)
         {
-            ConnectorObject* foundConnector = nullptr;
-
-            const auto sceneItems = scene()->items();
-            for (auto itm : qAsConst(sceneItems))
-            {
-                ConnectorObject* conn = dynamic_cast<ConnectorObject*>(itm);
-                if (conn != nullptr && conn->positionOnLine(conn->mapFromScene(mappedPos)))
-                {
-                    foundConnector = conn;
-                    break;
-                }
-            }
+            ConnectorObject* foundConnector = findConnectorForMousePress(mappedPos);
 
             if (foundConnector != selectedConnector && selectedConnector != nullptr)
             {
@@ -176,7 +165,16 @@ void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
                 portDragState->get_input().block->get_block()->get_id(),
                 portDragState->get_input().port_count);
 
-            model->add_connection(conn);
+            try
+            {
+                model->add_connection(conn);
+            }
+            catch (const tmdl::ModelException& ex)
+            {
+                QMessageBox::warning(this, "error", ex.what().c_str());
+                mouseState = nullptr;
+                return;
+            }
 
             addConnectionItem(
                 portDragState->get_output().block,
@@ -211,37 +209,39 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
     if ((event->buttons() & Qt::LeftButton) == Qt::LeftButton)
     {
         const auto mappedPos = mapToScene(event->pos());
-        BlockObject* block = findBlockForMousePress(mappedPos);
+        ;
 
-        if (block == nullptr)
+        if (BlockObject* block = findBlockForMousePress(mappedPos); block != nullptr)
         {
-            return;
-        }
+            BlockParameterDialog* dialog = new BlockParameterDialog(block, this);
 
-        BlockParameterDialog* dialog = new BlockParameterDialog(block, this);
+            dialog->exec();
+            updateModel();
 
-        dialog->exec();
-        updateModel();
+            const auto sceneItems = scene()->items();
 
-        const auto sceneItems = scene()->items();
-
-        for (auto ptr : qAsConst(sceneItems))
-        {
-            const auto c = dynamic_cast<ConnectorObject*>(ptr);
-            if (c == nullptr) continue;
-
-            if (!c->isValidConnection())
+            for (auto ptr : qAsConst(sceneItems))
             {
-                model->remove_connection(
-                    c->get_to_block()->get_block()->get_id(),
-                    c->get_to_port());
-                c->deleteLater();
+                const auto c = dynamic_cast<ConnectorObject*>(ptr);
+                if (c == nullptr) continue;
+
+                if (!c->isValidConnection())
+                {
+                    model->remove_connection(
+                        c->get_to_block()->get_block()->get_id(),
+                        c->get_to_port());
+                    c->deleteLater();
+                }
             }
+
+            emit block->sceneLocationUpdated();
+
+            updateModel();
         }
-
-        emit block->sceneLocationUpdated();
-
-        updateModel();
+        else if (ConnectorObject* conn = findConnectorForMousePress(mappedPos); conn != nullptr)
+        {
+            // Set name?
+        }
     }
 }
 
@@ -338,6 +338,21 @@ BlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
         if (blk != nullptr && blk->sceneBoundingRect().contains(pos))
         {
             return blk;
+        }
+    }
+
+    return nullptr;
+}
+
+ConnectorObject* BlockGraphicsView::findConnectorForMousePress(const QPointF& pos)
+{
+    const auto sceneItems = scene()->items();
+    for (auto itm : qAsConst(sceneItems))
+    {
+        ConnectorObject* conn = dynamic_cast<ConnectorObject*>(itm);
+        if (conn != nullptr && conn->positionOnLine(conn->mapFromScene(pos)))
+        {
+            return conn;
         }
     }
 

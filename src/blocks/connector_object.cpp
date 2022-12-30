@@ -2,19 +2,24 @@
 
 #include "connector_object.h"
 
+#include <QPainter>
+
+
 ConnectorObject::ConnectorObject(
+    std::shared_ptr<tmdl::Connection> connection,
     const BlockObject* from_block,
-    const size_t from_port,
-    const BlockObject* to_block,
-    const size_t to_port) :
+    const BlockObject* to_block) :
+    connection(connection),
     from_block(from_block),
-    to_block(to_block),
-    from_port(from_port),
-    to_port(to_port)
+    to_block(to_block)
 {
-    if (from_block == nullptr || to_block == nullptr)
+    if (from_block == nullptr || to_block == nullptr || connection == nullptr)
     {
         throw 1;
+    }
+    else if (connection->get_from_id() != from_block->get_block()->get_id() || connection->get_to_id() != to_block->get_block()->get_id())
+    {
+        throw 2;
     }
 
     // Set the provided parent to help with destruction
@@ -32,6 +37,10 @@ void ConnectorObject::paint(
     if (isSelected())
     {
         painter->setPen(QPen(Qt::blue, 5.0));
+    }
+    else if (!get_name().isEmpty())
+    {
+        painter->setPen(QPen(Qt::cyan, 3.0));
     }
     else
     {
@@ -102,11 +111,11 @@ QRectF ConnectorObject::boundingRect() const
 
 bool ConnectorObject::isValidConnection() const
 {
-    if (from_port >= from_block->getNumPortsForType(BlockObject::PortType::OUTPUT))
+    if (get_from_port() >= from_block->getNumPortsForType(BlockObject::PortType::OUTPUT))
     {
         return false;
     }
-    else if (to_port >= to_block->getNumPortsForType(BlockObject::PortType::INPUT))
+    else if (get_to_port() >= to_block->getNumPortsForType(BlockObject::PortType::INPUT))
     {
         return false;
     }
@@ -128,12 +137,22 @@ const BlockObject* ConnectorObject::get_to_block() const
 
 size_t ConnectorObject::get_from_port() const
 {
-    return from_port;
+    return connection->get_from_port();
 }
 
 size_t ConnectorObject::get_to_port() const
 {
-    return to_port;
+    return connection->get_to_port();
+}
+
+void ConnectorObject::set_name(const QString s)
+{
+    connection->set_name(s.toStdString());
+}
+
+QString ConnectorObject::get_name() const
+{
+    return QString(connection->get_name().c_str());
 }
 
 void ConnectorObject::blockLocationUpdated()
@@ -143,8 +162,8 @@ void ConnectorObject::blockLocationUpdated()
         return;
     }
 
-    loc_to = to_block->mapToScene(to_block->getInputPortLocation(to_port));
-    loc_from = from_block->mapToScene(from_block->getOutputPortLocation(from_port));
+    loc_to = to_block->mapToScene(to_block->getInputPortLocation(get_to_port()));
+    loc_from = from_block->mapToScene(from_block->getOutputPortLocation(get_from_port()));
 
     setVisible(false);
     setPos(std::min(loc_from.x(), loc_to.x()), std::min(loc_from.y(), loc_to.y()));

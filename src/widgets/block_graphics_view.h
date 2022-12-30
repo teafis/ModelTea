@@ -63,10 +63,9 @@ protected:
         const BlockObject* block);
 
     void addConnectionItem(
+        const std::shared_ptr<tmdl::Connection> connection,
         const BlockObject* from_block,
-        const size_t from_port,
-        const BlockObject* to_block,
-        const size_t to_port);
+        const BlockObject* to_block);
 
 public:
     std::shared_ptr<tmdl::Model> get_model() const;

@@ -119,7 +119,7 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::TrigSin::get_execut
         throw ModelException("cannot execute with incomplete input parameters");
     }
 
-    const auto inputValue = manager.get_ptr(connections.get_connection_to(get_id(), 0));
+    const auto inputValue = manager.get_ptr(*connections.get_connection_to(get_id(), 0));
     const auto outputValue = manager.get_ptr(VariableIdentifier
     {
         .block_id = get_id(),
@@ -160,7 +160,7 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::TrigCos::get_execut
         throw ModelException("cannot execute with incomplete input parameters");
     }
 
-    const auto inputValue = manager.get_ptr(connections.get_connection_to(get_id(), 0));
+    const auto inputValue = manager.get_ptr(*connections.get_connection_to(get_id(), 0));
     const auto outputValue = manager.get_ptr(VariableIdentifier
     {
         .block_id = get_id(),

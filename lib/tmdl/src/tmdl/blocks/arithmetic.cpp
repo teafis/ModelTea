@@ -240,8 +240,8 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::ArithmeticBase::get
     std::vector<std::shared_ptr<const ValueBox>> input_values;
     for (size_t i = 0; i < _inputTypes.size(); ++i)
     {
-        const auto& c = connections.get_connection_to(get_id(), i);
-        input_values.push_back(manager.get_ptr(c));
+        const auto c = connections.get_connection_to(get_id(), i);
+        input_values.push_back(manager.get_ptr(*c));
     }
 
     auto output_value = manager.get_ptr(VariableIdentifier

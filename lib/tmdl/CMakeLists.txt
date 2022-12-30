@@ -44,6 +44,7 @@ set(
     src/tmdl/blocks/trig.hpp src/tmdl/blocks/trig.cpp
     src/tmdl/libraries/model_library.hpp src/tmdl/libraries/model_library.cpp
     src/tmdl/libraries/stdlib.hpp src/tmdl/libraries/stdlib.cpp
+    src/tmdl/util/identifiers.hpp src/tmdl/util/identifiers.cpp
 )
 
 # Define the library

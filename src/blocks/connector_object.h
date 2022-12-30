@@ -4,10 +4,11 @@
 #define CONNECTING_LINE_H
 
 #include <QGraphicsObject>
+#include <memory>
 
 #include "blocks/block_object.h"
 
-#include <QPainter>
+#include <tmdl/model.hpp>
 
 class ConnectorObject : public QGraphicsObject
 {
@@ -15,10 +16,9 @@ class ConnectorObject : public QGraphicsObject
 
 public:
     ConnectorObject(
+        std::shared_ptr<tmdl::Connection> connection,
         const BlockObject* from_block,
-        const size_t from_port,
-        const BlockObject* to_block,
-        const size_t to_port);
+        const BlockObject* to_block);
 
     virtual void paint(
         QPainter* painter,
@@ -39,6 +39,10 @@ public:
 
     size_t get_to_port() const;
 
+    void set_name(const QString s);
+
+    QString get_name() const;
+
 public slots:
     void blockLocationUpdated();
 
@@ -46,11 +50,10 @@ protected:
     QVector<QPointF> getLinePoints() const;
 
 protected:
+    const std::shared_ptr<tmdl::Connection> connection;
+
     const BlockObject* from_block;
     const BlockObject* to_block;
-
-    const size_t from_port;
-    const size_t to_port;
 
     QPointF loc_from;
     QPointF loc_to;

@@ -41,7 +41,7 @@ public:
 
     void remove_block(const size_t id);
 
-    void add_connection(Connection connection);
+    void add_connection(const std::shared_ptr<Connection> connection);
 
     void remove_connection(const size_t to_block, const size_t to_port);
 
@@ -83,9 +83,6 @@ public:
     std::shared_ptr<BlockInterface> get_block(const size_t id) const;
 
     std::vector<std::shared_ptr<BlockInterface>> get_blocks() const;
-
-public:
-    static bool name_is_valid(const std::string& s);
 
 protected:
     std::string name;

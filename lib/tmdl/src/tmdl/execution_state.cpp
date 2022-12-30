@@ -2,11 +2,25 @@
 
 #include "execution_state.hpp"
 
+#include <algorithm>
+
+
 void tmdl::ExecutionState::reset()
 {
     iterations = 0;
     state.set_time(0.0);
     model->reset();
+}
+
+std::vector<std::string> tmdl::ExecutionState::get_variable_names() const
+{
+    std::vector<std::string> names;
+    for (const auto& it : named_variables)
+    {
+        names.push_back(it.first);
+    }
+    std::sort(names.begin(), names.end());
+    return names;
 }
 
 tmdl::ExecutionState tmdl::ExecutionState::from_model(
@@ -41,6 +55,7 @@ tmdl::ExecutionState tmdl::ExecutionState::from_model(
     {
         .model = model->get_execution_interface(0, connections, *manager),
         .variables = manager,
+        .named_variables = {},
         .state = tmdl::SimState(dt),
         .iterations = 0
     };

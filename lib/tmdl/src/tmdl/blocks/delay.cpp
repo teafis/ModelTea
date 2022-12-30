@@ -149,10 +149,10 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Delay::get_executio
         throw ModelException("cannot build executor with error");
     }
 
-    auto input_value = manager.get_ptr(connections.get_connection_to(get_id(), 0));
+    auto input_value = manager.get_ptr(*connections.get_connection_to(get_id(), 0));
 
-    auto input_value_reset_flag = std::dynamic_pointer_cast<const ValueBoxType<bool>>(manager.get_ptr(connections.get_connection_to(get_id(), 1)));
-    auto input_value_reset_value = manager.get_ptr(connections.get_connection_to(get_id(), 2));
+    auto input_value_reset_flag = std::dynamic_pointer_cast<const ValueBoxType<bool>>(manager.get_ptr(*connections.get_connection_to(get_id(), 1)));
+    auto input_value_reset_value = manager.get_ptr(*connections.get_connection_to(get_id(), 2));
 
     auto output_value = manager.get_ptr(VariableIdentifier
     {

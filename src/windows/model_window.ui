@@ -62,7 +62,7 @@
     </property>
     <addaction name="actionModelUpdate"/>
     <addaction name="actionModelBuildExecutor"/>
-    <addaction name="actionModelShowErrors"/>
+    <addaction name="actionModelShowDiagnostics"/>
     <addaction name="actionModelParameters"/>
    </widget>
    <widget class="QMenu" name="menuSim">
@@ -186,9 +186,9 @@
     <string>Clear</string>
    </property>
   </action>
-  <action name="actionModelShowErrors">
+  <action name="actionModelShowDiagnostics">
    <property name="text">
-    <string>Show Errors</string>
+    <string>Show Diagnostics</string>
    </property>
   </action>
   <action name="actionModelParameters">
@@ -349,10 +349,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionModelShowErrors</sender>
+   <sender>actionModelShowDiagnostics</sender>
    <signal>triggered()</signal>
    <receiver>ModelWindow</receiver>
-   <slot>showErrors()</slot>
+   <slot>showDiagnostics()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -451,8 +451,8 @@
    <slot>closeModel()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>78</x>
-     <y>96</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>436</x>
@@ -481,7 +481,7 @@
   <slot>saveModel()</slot>
   <slot>openModel()</slot>
   <slot>saveModelAs()</slot>
-  <slot>showErrors()</slot>
+  <slot>showDiagnostics()</slot>
   <slot>generateExecutor()</slot>
   <slot>stepExecutor()</slot>
   <slot>clearExecutor()</slot>

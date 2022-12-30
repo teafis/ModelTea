@@ -171,8 +171,8 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::RelationalBase::get
         throw ModelException("cannot generate a model with an error");
     }
 
-    std::shared_ptr<const ValueBox> input_a = manager.get_ptr(connections.get_connection_to(get_id(), 0));
-    std::shared_ptr<const ValueBox> input_b = manager.get_ptr(connections.get_connection_to(get_id(), 1));
+    std::shared_ptr<const ValueBox> input_a = manager.get_ptr(*connections.get_connection_to(get_id(), 0));
+    std::shared_ptr<const ValueBox> input_b = manager.get_ptr(*connections.get_connection_to(get_id(), 1));
 
     auto output_value = std::dynamic_pointer_cast<ValueBoxType<bool>>(manager.get_ptr(VariableIdentifier
     {

@@ -3,6 +3,8 @@
 #ifndef SIMEVENT_H
 #define SIMEVENT_H
 
+#include <cstddef>
+
 class SimEvent
 {
 public:

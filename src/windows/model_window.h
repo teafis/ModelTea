@@ -31,9 +31,9 @@ public:
     void keyPressEvent(QKeyEvent *event) override;
 
 protected slots:
-    void updateMenuBars();
+    void updateWindowItems();
 
-    void updateTitle();
+    void setChangedFlag();
 
 public slots:
     void newModel();
@@ -50,7 +50,7 @@ protected:
     void changeModel(std::shared_ptr<tmdl::Model> model);
 
 public slots:
-    void showErrors();
+    void showDiagnostics();
 
     void generateExecutor();
 

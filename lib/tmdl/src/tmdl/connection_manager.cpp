@@ -6,20 +6,25 @@
 
 #include <algorithm>
 
-std::vector<tmdl::Connection>::const_iterator get_iter_for_block(
-    const std::vector<tmdl::Connection>& connections,
+std::vector<std::shared_ptr<tmdl::Connection>>::const_iterator get_iter_for_block(
+    const std::vector<std::shared_ptr<tmdl::Connection>>& connections,
     const size_t to_block,
     const size_t to_port)
 {
-    return std::find_if(connections.begin(), connections.end(), [to_block,to_port](const tmdl::Connection& c)
+    return std::find_if(connections.begin(), connections.end(), [to_block,to_port](const std::shared_ptr<const tmdl::Connection>& c)
     {
-        return c.get_to_id() == to_block && c.get_to_port() == to_port;
+        return c->get_to_id() == to_block && c->get_to_port() == to_port;
     });
 }
 
-void tmdl::ConnectionManager::add_connection(const Connection& c)
+void tmdl::ConnectionManager::add_connection(const std::shared_ptr<Connection> c)
 {
-    const auto it = get_iter_for_block(connections, c.get_to_id(), c.get_to_port());
+    if (c == nullptr)
+    {
+        throw ModelException("cannot add a null connection");
+    }
+
+    const auto it = get_iter_for_block(connections, c->get_to_id(), c->get_to_port());
 
     if (it != connections.end())
     {
@@ -36,9 +41,9 @@ void tmdl::ConnectionManager::remove_block(const size_t block_id)
     size_t i = 0;
     while (i < connections.size())
     {
-        const Connection& c = connections[i];
+        const auto& c = connections[i];
 
-        if (c.get_to_id() == block_id || c.get_from_id() == block_id)
+        if (c->get_to_id() == block_id || c->get_from_id() == block_id)
         {
             connections.erase(connections.begin() + i);
         }
@@ -63,7 +68,7 @@ void tmdl::ConnectionManager::remove_connection(const size_t to_block, const siz
     }
 }
 
-const tmdl::Connection& tmdl::ConnectionManager::get_connection_to(const size_t to_block, const size_t to_port) const
+std::shared_ptr<tmdl::Connection> tmdl::ConnectionManager::get_connection_to(const size_t to_block, const size_t to_port) const
 {
     const auto it = get_iter_for_block(connections, to_block, to_port);
 
@@ -82,22 +87,30 @@ bool tmdl::ConnectionManager::has_connection_to(const size_t to_block, const siz
     return get_iter_for_block(connections, to_block, to_port) != connections.end();
 }
 
-const std::vector<tmdl::Connection>& tmdl::ConnectionManager::get_connections() const
+std::vector<std::shared_ptr<const tmdl::Connection>> tmdl::ConnectionManager::get_connections() const
 {
-    return connections;
+    std::vector<std::shared_ptr<const tmdl::Connection>> out(connections.begin(), connections.end());
+    return out;
 }
 
 void tmdl::to_json(nlohmann::json& j, const ConnectionManager& cm)
 {
-    j = cm.get_connections();
+    std::vector<tmdl::Connection> conn;
+
+    for (const auto& c : cm.get_connections())
+    {
+        conn.push_back(*c);
+    }
+
+    j = conn;
 }
 
 void tmdl::from_json(const nlohmann::json& j, ConnectionManager& cm)
 {
     for (const auto& i : j)
     {
-        tmdl::Connection c(0, 0, 0, 0);
-        from_json(i, c);
+        std::shared_ptr<tmdl::Connection> c = std::make_shared<tmdl::Connection>(0, 0, 0, 0);
+        from_json(i, *c);
         cm.add_connection(c);
     }
 }

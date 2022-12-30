@@ -249,8 +249,8 @@ std::shared_ptr<BlockExecutionInterface> Limiter::get_execution_interface(
 
     if (dynamicLimiter->get_value().value.tf)
     {
-        maxValue = manager.get_ptr(connections.get_connection_to(get_id(), 1));
-        minValue = manager.get_ptr(connections.get_connection_to(get_id(), 2));
+        maxValue = manager.get_ptr(*connections.get_connection_to(get_id(), 1));
+        minValue = manager.get_ptr(*connections.get_connection_to(get_id(), 2));
     }
     else
     {
@@ -258,7 +258,7 @@ std::shared_ptr<BlockExecutionInterface> Limiter::get_execution_interface(
         minValue = prmMinValue->get_value().to_box();
     }
 
-    const auto inputPointer = manager.get_ptr(connections.get_connection_to(get_id(), 0));
+    const auto inputPointer = manager.get_ptr(*connections.get_connection_to(get_id(), 0));
 
     const auto vidOutput = VariableIdentifier {
         .block_id = get_id(),

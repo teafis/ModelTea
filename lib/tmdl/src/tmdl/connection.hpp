@@ -35,13 +35,21 @@ public:
 
     size_t get_to_port() const;
 
+    const std::string& get_name() const;
+
+    void set_name(const std::string& n);
+
     bool operator==(const Connection& other) const = default;
+
+public:
+    static bool is_valid_name(const std::string& n);
 
 protected:
     size_t from_id;
     size_t from_port;
     size_t to_id;
     size_t to_port;
+    std::string name;
 
 public:
     friend void from_json(const nlohmann::json&, tmdl::Connection&);

@@ -8,6 +8,8 @@
 
 #include <algorithm>
 
+#include <fmt/format.h>
+
 
 tmdl::LibraryManager& tmdl::LibraryManager::get_instance()
 {
@@ -79,7 +81,7 @@ std::shared_ptr<tmdl::BlockInterface> tmdl::LibraryManager::make_block(const std
         }
     }
 
-    throw ModelException("unable to create block with name");
+    throw ModelException(fmt::format("no block with name `{}` found", name));
 }
 
 std::shared_ptr<tmdl::ModelLibrary> tmdl::LibraryManager::default_model_library() const

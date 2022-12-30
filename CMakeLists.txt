@@ -35,6 +35,7 @@ set(PROJECT_SOURCESS
     src/dialogs/model_diagnostics_dialog.h src/dialogs/model_diagnostics_dialog.cpp src/dialogs/model_diagnostics_dialog.ui
     src/dialogs/block_selector_dialog.h src/dialogs/block_selector_dialog.cpp src/dialogs/block_selector_dialog.ui
     src/dialogs/block_parameters_dialog.h src/dialogs/block_parameters_dialog.cpp src/dialogs/block_parameters_dialog.ui
+    src/dialogs/connection_parameters_dialog.h src/dialogs/connection_parameters_dialog.cpp src/dialogs/connection_parameters_dialog.ui
     src/events/sim_event.h src/events/sim_event.cpp
     src/models/plot_variable_selection_model.h src/models/plot_variable_selection_model.cpp
     src/widgets/block_graphics_view.h src/widgets/block_graphics_view.cpp

@@ -26,27 +26,90 @@ ModelWindow::ModelWindow(QWidget *parent) :
 {
     // Setup the main UI
     ui->setupUi(this);
-    connect(ui->block_graphics, &BlockGraphicsView::modelChanged, [this]() { changeFlag = true; updateTitle(); });
-    connect(this, &ModelWindow::modelChanged, [this]() { changeFlag = true; updateTitle(); });
+    connect(ui->block_graphics, &BlockGraphicsView::modelChanged, this, &ModelWindow::setChangedFlag);
+    connect(this, &ModelWindow::modelChanged, this, &ModelWindow::setChangedFlag);
 
     // Update the menu items
-    updateMenuBars();
-    updateTitle();
+    updateWindowItems();
 }
+
+ModelWindow::~ModelWindow()
+{
+    delete ui;
+}
+
+void ModelWindow::closeEvent(QCloseEvent* event)
+{
+    if (changeFlag)
+    {
+        const QMessageBox::StandardButton reply = QMessageBox::question(
+            this, "Quit?", "Model has unsaved changes - confirm exit?",
+            QMessageBox::Yes | QMessageBox::No);
+
+        if (reply == QMessageBox::No)
+        {
+            event->ignore();
+            return;
+        }
+    }
+
+    clearExecutor();
+
+    std::array<QWidget*, 3> windows = {
+        window_diagnostics,
+        window_library,
+        window_plot
+    };
+
+    for (auto& w : windows)
+    {
+        if (w != nullptr)
+        {
+            w->close();
+        }
+    }
+
+    window_diagnostics = nullptr;
+    window_library = nullptr;
+    window_plot = nullptr;
+
+    tmdl::LibraryManager::get_instance().default_model_library()->close_empty_models();
+}
+
 
 void ModelWindow::keyPressEvent(QKeyEvent* event)
 {
+    const bool onlyControl = (event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier;
+
     switch (event->key())
     {
     case Qt::Key_S:
         stepExecutor();
+        break;
+    case Qt::Key_L:
+        if (onlyControl)
+        {
+            showLibrary();
+        }
+        break;
+    case Qt::Key_D:
+        if (onlyControl)
+        {
+            showDiagnostics();
+        }
+        break;
+    case Qt::Key_E:
+        if (onlyControl)
+        {
+            showModelParameters();
+        }
         break;
     default:
         event->ignore();
     }
 }
 
-void ModelWindow::updateMenuBars()
+void ModelWindow::updateWindowItems()
 {
     const bool generatedAvailable = executor != nullptr;
 
@@ -55,14 +118,17 @@ void ModelWindow::updateMenuBars()
     ui->menuSim->setEnabled(generatedAvailable);
 
     ui->block_graphics->setEnabled(!generatedAvailable);
-}
 
-void ModelWindow::updateTitle()
-{
     QString windowTitle = QString("%1%2")
         .arg(ui->block_graphics->get_model()->get_name().c_str())
         .arg(changeFlag ? "*" : "");
     setWindowTitle(windowTitle);
+}
+
+void ModelWindow::setChangedFlag()
+{
+    changeFlag = true;
+    updateWindowItems();
 }
 
 void ModelWindow::newModel()
@@ -95,7 +161,7 @@ void ModelWindow::saveModel()
         file.write(QString(oss.str().c_str()).toUtf8());
         file.close();
         changeFlag = false;
-        updateTitle();
+        updateWindowItems();
     }
 }
 
@@ -131,7 +197,16 @@ void ModelWindow::openModel()
             iss >> j;
 
             std::shared_ptr<tmdl::Model> mdl = std::make_shared<tmdl::Model>("tmp");
-            tmdl::from_json(j["model"], *mdl);
+
+            try
+            {
+                tmdl::from_json(j["model"], *mdl);
+            }
+            catch (const tmdl::ModelException& ex)
+            {
+                QMessageBox::warning(this, "error", ex.what().c_str());
+                return;
+            }
 
             const auto mdl_library = tmdl::LibraryManager::get_instance().default_model_library();
 
@@ -155,7 +230,7 @@ void ModelWindow::openModel()
 
         filename = openName;
         changeFlag = false;
-        updateTitle();
+        updateWindowItems();
 
         if (window_diagnostics != nullptr)
         {
@@ -229,7 +304,7 @@ void ModelWindow::changeModel(std::shared_ptr<tmdl::Model> model)
     }
 }
 
-void ModelWindow::showErrors()
+void ModelWindow::showDiagnostics()
 {
     if (window_diagnostics == nullptr)
     {
@@ -267,10 +342,30 @@ void ModelWindow::generateExecutor()
                 .output_port_num = i
             };
 
-            executor->variables->set_name_for_variable(fmt::format("*Output {} ({})", i, outer_id.to_string()), outer_id);
+            const std::string varname = fmt::format("*Output {} ({})", i, outer_id.to_string());
+            executor->named_variables[varname] = executor->variables->get_ptr(outer_id);
         }
 
-        updateMenuBars();
+        auto model_exec = std::dynamic_pointer_cast<tmdl::ModelExecutionInterface>(executor->model);
+
+        if (model_exec == nullptr)
+        {
+            throw 1;
+        }
+
+        for (auto& c : model->get_connection_manager().get_connections())
+        {
+            const auto& varname = c->get_name();
+
+            if (varname.empty())
+            {
+                continue;
+            }
+
+            executor->named_variables[varname] = model_exec->get_variable_manager()->get_ptr(*c);
+        }
+
+        updateWindowItems();
     }
     catch (const tmdl::ModelException& ex)
     {
@@ -299,12 +394,21 @@ void ModelWindow::stepExecutor()
     emit executorEvent(SimEvent(SimEvent::EventType::Step));
 }
 
+void ModelWindow::resetExecutor()
+{
+    if (executor != nullptr)
+    {
+        executor->reset();
+        emit executorEvent(SimEvent(SimEvent::EventType::Reset));
+    }
+}
+
 void ModelWindow::clearExecutor()
 {
     if (executor != nullptr)
     {
         executor = nullptr;
-        updateMenuBars();
+        updateWindowItems();
         emit executorEvent(SimEvent(SimEvent::EventType::Close));
     }
 
@@ -312,15 +416,6 @@ void ModelWindow::clearExecutor()
     {
         window_plot->close();
         window_plot = nullptr;
-    }
-}
-
-void ModelWindow::resetExecutor()
-{
-    if (executor != nullptr)
-    {
-        executor->reset();
-        emit executorEvent(SimEvent(SimEvent::EventType::Reset));
     }
 }
 
@@ -382,45 +477,4 @@ void ModelWindow::addBlock(QString l, QString s)
     // Initialze the block
     const auto tmp = tmdl::LibraryManager::get_instance().get_library(l.toStdString())->create_block(s.toStdString());
     ui->block_graphics->addBlock(tmp);
-}
-
-ModelWindow::~ModelWindow()
-{
-    delete ui;
-}
-
-void ModelWindow::closeEvent(QCloseEvent* event)
-{
-    if (changeFlag)
-    {
-        const QMessageBox::StandardButton reply = QMessageBox::question(
-            this, "Quit?", "Model has unsaved changes - confirm exit?",
-            QMessageBox::Yes | QMessageBox::No);
-
-        if (reply == QMessageBox::No)
-        {
-            event->ignore();
-            return;
-        }
-    }
-
-    std::array<QWidget*, 3> windows = {
-        window_diagnostics,
-        window_library,
-        window_plot
-    };
-
-    for (auto& w : windows)
-    {
-        if (w != nullptr)
-        {
-            w->close();
-        }
-    }
-
-    window_diagnostics = nullptr;
-    window_library = nullptr;
-    window_plot = nullptr;
-
-    tmdl::LibraryManager::get_instance().default_model_library()->close_empty_models();
 }

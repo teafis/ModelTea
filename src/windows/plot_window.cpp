@@ -23,7 +23,7 @@ PlotWindow::PlotWindow(
     y_min = -1.0;
     y_max = 1.0;
 
-    const auto& names = execution_state->variables->get_names();
+    const auto names = execution_state->get_variable_names();
 
     list_model = new PlotVariableSelectionModel(this);
 
@@ -38,7 +38,7 @@ PlotWindow::PlotWindow(
 
         list_model->addItem(ItemSelector
         {
-            .vid = execution_state->variables->get_identifier(n),
+            .var = execution_state->named_variables[n],
             .name = name,
             .series = s
         });
@@ -108,11 +108,11 @@ void PlotWindow::executorEvent(SimEvent event)
 {
     if (event.event() == SimEvent::EventType::Step)
     {
-        const auto& names = execution_state->variables->get_names();
+        const auto& names = execution_state->get_variable_names();
 
         for (size_t i = 0; i < names.size(); ++i)
         {
-            auto var = execution_state->variables->get_ptr(names[i]);
+            auto var = execution_state->named_variables[names[i]];
 
             const auto double_val = double_from_variable(var);
 

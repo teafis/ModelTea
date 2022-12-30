@@ -26,6 +26,7 @@
 #include "state/mouse/port_drag_state.h"
 
 #include "dialogs/block_parameters_dialog.h"
+#include "dialogs/connection_parameters_dialog.h"
 
 #include <nlohmann/json.hpp>
 
@@ -159,7 +160,7 @@ void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
 
         if (portDragState->is_complete())
         {
-            const tmdl::Connection conn(
+            const auto conn = std::make_shared<tmdl::Connection>(
                 portDragState->get_output().block->get_block()->get_id(),
                 portDragState->get_output().port_count,
                 portDragState->get_input().block->get_block()->get_id(),
@@ -177,10 +178,9 @@ void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
             }
 
             addConnectionItem(
+                conn,
                 portDragState->get_output().block,
-                portDragState->get_output().port_count,
-                portDragState->get_input().block,
-                portDragState->get_input().port_count);
+                portDragState->get_input().block);
 
             const auto& items = scene()->items();
             for (auto* i : qAsConst(items))
@@ -240,7 +240,12 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
         }
         else if (ConnectorObject* conn = findConnectorForMousePress(mappedPos); conn != nullptr)
         {
-            // Set name?
+            auto dialog = new ConnectionParametersDialog(conn, this);
+            if (dialog->exec())
+            {
+                conn->update();
+                emit modelChanged();
+            }
         }
     }
 }
@@ -380,17 +385,15 @@ bool BlockGraphicsView::blockBodyContainsMouse(
 }
 
 void BlockGraphicsView::addConnectionItem(
+    const std::shared_ptr<tmdl::Connection> connection,
     const BlockObject* from_block,
-    const size_t from_port,
-    const BlockObject* to_block,
-    const size_t to_port)
+    const BlockObject* to_block)
 {
     // Construct the connector object
     ConnectorObject* conn_obj = new ConnectorObject(
+        connection,
         from_block,
-        from_port,
-        to_block,
-        to_port);
+        to_block);
     conn_obj->blockLocationUpdated();
 
     // Connect up location and destroyed items
@@ -465,13 +468,13 @@ void BlockGraphicsView::set_model(std::shared_ptr<tmdl::Model> mdl)
             BlockObject* tmp = dynamic_cast<BlockObject*>(*it);
             if (tmp == nullptr) continue;
 
-            if (tmp->get_block()->get_id() == conn.get_from_id())
+            if (tmp->get_block()->get_id() == conn->get_from_id())
             {
                 if (from_block != nullptr) throw 1;
                 from_block = tmp;
             }
 
-            if (tmp->get_block()->get_id() == conn.get_to_id())
+            if (tmp->get_block()->get_id() == conn->get_to_id())
             {
                 if (to_block != nullptr) throw 1;
                 to_block = tmp;
@@ -481,7 +484,7 @@ void BlockGraphicsView::set_model(std::shared_ptr<tmdl::Model> mdl)
         if (from_block == nullptr || to_block == nullptr) throw 2;
 
         // Construct the connector object
-        addConnectionItem(from_block, conn.get_from_port(), to_block, conn.get_to_port());
+        addConnectionItem(cm.get_connection_to(conn->get_to_id(), conn->get_to_port()), from_block, to_block);
     }
 
     // Update the model

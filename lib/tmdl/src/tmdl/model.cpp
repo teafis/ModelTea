@@ -7,6 +7,8 @@
 
 #include "library_manager.hpp"
 
+#include "util/identifiers.hpp"
+
 #include <fmt/format.h>
 
 
@@ -78,7 +80,7 @@ protected:
 
 Model::Model(const std::string& name) : name(name), description("user-defined model block")
 {
-    if (!name_is_valid(name))
+    if (!is_valid_identifier(name))
     {
         throw ModelException(fmt::format("cannot construct block due to invalid name '{}'", name));
     }
@@ -136,27 +138,32 @@ void Model::remove_block(const size_t id)
     // Set any inputs that have the current id value
     for (auto& c : connections.get_connections())
     {
-        if (c.get_from_id() != id) continue;
+        if (c->get_from_id() != id) continue;
 
-        get_block(c.get_to_id())->set_input_type(c.get_to_port(), DataType::UNKNOWN);
+        get_block(c->get_to_id())->set_input_type(c->get_to_port(), DataType::UNKNOWN);
     }
 
     // Remove references to the block ID
     connections.remove_block(id);
 }
 
-void Model::add_connection(const Connection connection)
+void Model::add_connection(const std::shared_ptr<Connection> connection)
 {
-    std::shared_ptr<const BlockInterface> from_block = get_block(connection.get_from_id());
-    std::shared_ptr<BlockInterface> to_block = get_block(connection.get_to_id());
+    if (connection == nullptr)
+    {
+        throw ModelException("cannot add a null connection");
+    }
 
-    if (connection.get_from_port() < from_block->get_num_outputs() &&
-        connection.get_to_port() < to_block->get_num_inputs())
+    std::shared_ptr<const BlockInterface> from_block = get_block(connection->get_from_id());
+    std::shared_ptr<BlockInterface> to_block = get_block(connection->get_to_id());
+
+    if (connection->get_from_port() < from_block->get_num_outputs() &&
+        connection->get_to_port() < to_block->get_num_inputs())
     {
         connections.add_connection(connection);
         to_block->set_input_type(
-            connection.get_to_port(),
-            from_block->get_output_type(connection.get_from_port()));
+            connection->get_to_port(),
+            from_block->get_output_type(connection->get_from_port()));
 
         to_block->update_block();
     }
@@ -164,19 +171,19 @@ void Model::add_connection(const Connection connection)
     {
         throw ModelException(fmt::format(
             "from ({} < {}) / to ({} < {}) block and port number mismatch",
-            connection.get_from_port(), from_block->get_num_outputs(),
-            connection.get_to_port(), to_block->get_num_inputs()));
+            connection->get_from_port(), from_block->get_num_outputs(),
+            connection->get_to_port(), to_block->get_num_inputs()));
     }
 }
 
 void Model::remove_connection(const size_t to_block, const size_t to_port)
 {
-    const auto& c = connections.get_connection_to(to_block, to_port);
+    const auto c = connections.get_connection_to(to_block, to_port);
 
-    auto blk = get_block(c.get_to_id());
-    if (c.get_to_port() < blk->get_num_inputs())
+    auto blk = get_block(c->get_to_id());
+    if (c->get_to_port() < blk->get_num_inputs())
     {
-        blk->set_input_type(c.get_to_port(), DataType::UNKNOWN);
+        blk->set_input_type(c->get_to_port(), DataType::UNKNOWN);
     }
 
     connections.remove_connection(to_block, to_port);
@@ -189,7 +196,7 @@ std::string Model::get_name() const
 
 void Model::set_name(const std::string& s)
 {
-    if (!name_is_valid(s))
+    if (!is_valid_identifier(s))
     {
         throw ModelException(fmt::format("provided model name '{}' is not valid", s));
     }
@@ -231,12 +238,12 @@ bool Model::update_block()
         // Update any port types
         for (const auto& c : connections.get_connections())
         {
-            std::shared_ptr<const BlockInterface> from_blk = get_block(c.get_from_id());
-            std::shared_ptr<BlockInterface> to_blk = get_block(c.get_to_id());
+            std::shared_ptr<const BlockInterface> from_blk = get_block(c->get_from_id());
+            std::shared_ptr<BlockInterface> to_blk = get_block(c->get_to_id());
 
             to_blk->set_input_type(
-                c.get_to_port(),
-                from_blk->get_output_type(c.get_from_port()));
+                c->get_to_port(),
+                from_blk->get_output_type(c->get_from_port()));
         }
 
         // Check each port for updates
@@ -364,7 +371,7 @@ std::shared_ptr<ModelExecutionInterface> Model::get_execution_interface(
                 // Skip if the input port is a delayed input, but after need to check
                 // connections to ensure that all blocks are connected
                 const auto from_conn = connections.get_connection_to(id, port);
-                const auto from_block = get_block(from_conn.get_from_id());
+                const auto from_block = get_block(from_conn->get_from_id());
 
                 if (from_block->outputs_are_delayed())
                 {
@@ -372,13 +379,13 @@ std::shared_ptr<ModelExecutionInterface> Model::get_execution_interface(
                 }
 
                 // Grab the port
-                const auto& conn = connections.get_connection_to(id, port);
+                const auto conn = connections.get_connection_to(id, port);
 
                 // Check if the from block is already in the execution order
                 const auto from_it = std::find(
                     order_values.begin(),
                     order_values.end(),
-                    conn.get_from_id());
+                    conn->get_from_id());
 
                 if (from_it == order_values.end())
                 {
@@ -424,11 +431,11 @@ std::shared_ptr<ModelExecutionInterface> Model::get_execution_interface(
 
         const auto ptr_val = outer_variables.get_ptr(outer_id);
 
-        const auto& c = connections.get_connection_to(output_ids[i], 0);
+        const auto c = connections.get_connection_to(output_ids[i], 0);
         const auto inner_id = VariableIdentifier
         {
-            .block_id = c.get_from_id(),
-            .output_port_num = c.get_from_port()
+            .block_id = c->get_from_id(),
+            .output_port_num = c->get_from_port()
         };
 
         variables->add_variable(inner_id, ptr_val);
@@ -437,8 +444,8 @@ std::shared_ptr<ModelExecutionInterface> Model::get_execution_interface(
     // Add input port types
     for (size_t i = 0; i < input_ids.size(); ++i)
     {
-        const auto& outer_connection = outer_connections.get_connection_to(block_id, i);
-        const auto ptr_val = outer_variables.get_ptr(outer_connection);
+        const auto outer_connection = outer_connections.get_connection_to(block_id, i);
+        const auto ptr_val = outer_variables.get_ptr(*outer_connection);
 
         const auto inner_id = VariableIdentifier
         {
@@ -544,19 +551,6 @@ std::vector<std::shared_ptr<BlockInterface>> Model::get_blocks() const
     }
 
     return retval;
-}
-
-bool tmdl::Model::name_is_valid(const std::string& s)
-{
-    for (const auto c : s)
-    {
-        if (!std::isalnum(c) && c != '_')
-        {
-            return false;
-        }
-    }
-
-    return s.size() > 0 && std::isalpha(s[0]);
 }
 
 struct SaveParameter

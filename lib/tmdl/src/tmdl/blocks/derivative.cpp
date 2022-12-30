@@ -146,8 +146,8 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Derivative::get_exe
         throw ModelException("cannot creator interface with an error");
     }
 
-    auto in_value = manager.get_ptr(connections.get_connection_to(get_id(), 0));
-    auto in_reset_flag = std::dynamic_pointer_cast<const ValueBoxType<bool>>(manager.get_ptr(connections.get_connection_to(get_id(), 1)));
+    auto in_value = manager.get_ptr(*connections.get_connection_to(get_id(), 0));
+    auto in_reset_flag = std::dynamic_pointer_cast<const ValueBoxType<bool>>(manager.get_ptr(*connections.get_connection_to(get_id(), 1)));
 
     auto out_value = manager.get_ptr(VariableIdentifier {
         .block_id = get_id(),

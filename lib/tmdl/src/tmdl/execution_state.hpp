@@ -3,8 +3,11 @@
 #ifndef TF_MODEL_EXECUTION_STATE_HPP
 #define TF_MODEL_EXECUTION_STATE_HPP
 
-#include <memory>
 #include <cstdint>
+
+#include <memory>
+#include <string>
+#include <unordered_map>
 
 #include "block_interface.hpp"
 #include "model.hpp"
@@ -17,10 +20,13 @@ struct ExecutionState
 {
     std::shared_ptr<BlockExecutionInterface> model;
     std::shared_ptr<VariableManager> variables;
+    std::unordered_map<std::string, std::shared_ptr<const ValueBox>> named_variables;
     SimState state;
     uint64_t iterations;
 
     void reset();
+
+    std::vector<std::string> get_variable_names() const;
 
     static ExecutionState from_model(
         const std::shared_ptr<Model> model,

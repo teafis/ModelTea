@@ -39,6 +39,20 @@
     <widget class="QPlainTextEdit" name="descriptionTextEdit"/>
    </item>
    <item>
+    <layout class="QHBoxLayout" name="dtLayout">
+     <item>
+      <widget class="QLabel" name="dtLabel">
+       <property name="text">
+        <string>Preferred Delta-T</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="dtLineEdit"/>
+     </item>
+    </layout>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

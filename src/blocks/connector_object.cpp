@@ -179,6 +179,8 @@ QVector<QPointF> ConnectorObject::getLinePoints() const
 {
     const auto halfway = (loc_from + loc_to) / 2.0;
 
+
+
     return {
         loc_from,
         QPointF(halfway.x(), loc_from.y()),

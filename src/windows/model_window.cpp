@@ -357,7 +357,7 @@ void ModelWindow::generateExecutor()
 
     try
     {
-        executor = std::make_shared<tmdl::ExecutionState>(tmdl::ExecutionState::from_model(model, 0.1));
+        executor = std::make_shared<tmdl::ExecutionState>(tmdl::ExecutionState::from_model(model, model->get_preferred_dt()));
 
         for (size_t i = 0; i < model->get_num_outputs(); ++i)
         {

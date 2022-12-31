@@ -78,7 +78,7 @@ protected:
 
 /* ==================== MODEL ==================== */
 
-Model::Model(const std::string& name) : name(name), description("user-defined model block")
+Model::Model(const std::string& name) : name(name), description("user-defined model block"), preferred_dt(0.1)
 {
     if (!is_valid_identifier(name))
     {
@@ -211,6 +211,21 @@ std::string Model::get_description() const
 void Model::set_description(const std::string& s)
 {
     description = s;
+}
+
+double Model::get_preferred_dt() const
+{
+    return preferred_dt;
+}
+
+void Model::set_preferred_dt(const double dt)
+{
+    if (dt < 1e-6)
+    {
+        throw ModelException(fmt::format("A preferred dt of {} is too small for the current model", dt));
+    }
+
+    preferred_dt = dt;
 }
 
 size_t Model::get_num_inputs() const
@@ -615,6 +630,7 @@ void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m)
 {
     j["name"] = m.name;
     j["description"] = m.description;
+    j["preferred_dt"] = m.preferred_dt;
     j["output_ids"] = m.output_ids;
     j["input_ids"] = m.input_ids;
     j["connections"] = m.connections;
@@ -657,6 +673,14 @@ void tmdl::from_json(const nlohmann::json& j, tmdl::Model& m)
     m.set_name(temp_name);
 
     j.at("description").get_to(m.description);
+
+    if (j.contains("preferred_dt"))
+    {
+        double dt;
+        j.at("preferred_dt").get_to(dt);
+        m.set_preferred_dt(dt);
+    }
+
     j.at("output_ids").get_to(m.output_ids);
     j.at("input_ids").get_to(m.input_ids);
     from_json(j.at("connections"), m.connections);

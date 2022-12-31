@@ -54,6 +54,10 @@ public:
 
     void set_description(const std::string& s);
 
+    double get_preferred_dt() const;
+
+    void set_preferred_dt(const double dt);
+
     size_t get_num_inputs() const;
 
     size_t get_num_outputs() const;
@@ -95,6 +99,7 @@ protected:
     ConnectionManager connections;
     std::vector<size_t> input_ids;
     std::vector<size_t> output_ids;
+    double preferred_dt;
 
 public:
     friend void to_json(nlohmann::json&, const Model&);

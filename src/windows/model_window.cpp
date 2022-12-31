@@ -18,16 +18,28 @@
 
 #include <fmt/format.h>
 
+#include "../managers/executor_manager.h"
+#include "../managers/window_manager.h"
 
-ModelWindow::ModelWindow(QWidget *parent) :
+
+ModelWindow::ModelWindow(size_t wid, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ModelWindow),
+    window_id(wid),
     changeFlag(false)
 {
     // Setup the main UI
     ui->setupUi(this);
     connect(ui->block_graphics, &BlockGraphicsView::modelChanged, this, &ModelWindow::setChangedFlag);
     connect(this, &ModelWindow::modelChanged, this, &ModelWindow::setChangedFlag);
+
+    // Connect the manager parameter
+    connect(
+        &ExecutorManager::instance(), &ExecutorManager::executorFlagChanged,
+        this, &ModelWindow::executorFlagSet);
+
+    // Add to window manager
+    WindowManager::instance().register_id(window_id, this);
 
     // Update the menu items
     updateWindowItems();
@@ -74,6 +86,7 @@ void ModelWindow::closeEvent(QCloseEvent* event)
     window_plot = nullptr;
 
     tmdl::LibraryManager::get_instance().default_model_library()->close_empty_models();
+    WindowManager::instance().clear_id(window_id);
 }
 
 
@@ -113,6 +126,9 @@ void ModelWindow::updateWindowItems()
 {
     const bool generatedAvailable = executor != nullptr;
 
+    const auto executorWindow = ExecutorManager::instance().windowExecutor();
+    const bool otherExecutorExists = executorWindow.has_value() && *executorWindow != window_id;
+
     ui->menuModel->setEnabled(!generatedAvailable);
     ui->menuBlocks->setEnabled(!generatedAvailable);
     ui->menuSim->setEnabled(generatedAvailable);
@@ -123,6 +139,8 @@ void ModelWindow::updateWindowItems()
         .arg(ui->block_graphics->get_model()->get_name().c_str())
         .arg(changeFlag ? "*" : "");
     setWindowTitle(windowTitle);
+
+    setEnabled(!otherExecutorExists);
 }
 
 void ModelWindow::setChangedFlag()
@@ -133,7 +151,7 @@ void ModelWindow::setChangedFlag()
 
 void ModelWindow::newModel()
 {
-    auto* window = new ModelWindow();
+    auto* window = new ModelWindow(WindowManager::instance().next_id());
     window->show();
 }
 
@@ -205,6 +223,12 @@ void ModelWindow::openModel()
             catch (const tmdl::ModelException& ex)
             {
                 QMessageBox::warning(this, "error", ex.what().c_str());
+                return;
+            }
+
+            if (WindowManager::instance().model_open(mdl->get_name()))
+            {
+                QMessageBox::warning(this, "error", fmt::format("Model `{}` is already open", mdl->get_name()).c_str());
                 return;
             }
 
@@ -365,6 +389,8 @@ void ModelWindow::generateExecutor()
             executor->named_variables[varname] = model_exec->get_variable_manager()->get_ptr(*c);
         }
 
+        ExecutorManager::instance().setWindowExecutor(window_id);
+
         updateWindowItems();
     }
     catch (const tmdl::ModelException& ex)
@@ -417,6 +443,8 @@ void ModelWindow::clearExecutor()
         window_plot->close();
         window_plot = nullptr;
     }
+
+    ExecutorManager::instance().reset();
 }
 
 void ModelWindow::showLibrary()
@@ -477,4 +505,14 @@ void ModelWindow::addBlock(QString l, QString s)
     // Initialze the block
     const auto tmp = tmdl::LibraryManager::get_instance().get_library(l.toStdString())->create_block(s.toStdString());
     ui->block_graphics->addBlock(tmp);
+}
+
+void ModelWindow::executorFlagSet()
+{
+    updateWindowItems();
+}
+
+QString ModelWindow::currentModel() const
+{
+    return QString(ui->block_graphics->get_model()->get_name().c_str());
 }

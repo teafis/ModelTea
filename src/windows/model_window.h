@@ -23,7 +23,7 @@ class ModelWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    ModelWindow(QWidget *parent = nullptr);
+    ModelWindow(const size_t wid = 0, QWidget *parent = nullptr);
     ~ModelWindow();
 
     void closeEvent(QCloseEvent* event) override;
@@ -68,6 +68,12 @@ public slots:
 
     void addBlock(QString l, QString s);
 
+private slots:
+    void executorFlagSet();
+
+public:
+    QString currentModel() const;
+
 signals:
     void executorEvent(SimEvent event);
 
@@ -83,6 +89,7 @@ private:
 
     std::shared_ptr<tmdl::ExecutionState> executor;
 
+    const size_t window_id;
     bool changeFlag;
 };
 

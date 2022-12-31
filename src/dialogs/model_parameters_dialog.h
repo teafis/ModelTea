@@ -20,8 +20,7 @@ public:
     explicit ModelParametersDialog(std::shared_ptr<tmdl::Model> model, QWidget* parent = nullptr);
     ~ModelParametersDialog();
 
-protected slots:
-    void onAccept();
+    virtual void accept() override;
 
 private:
     Ui::ModelParametersDialog *ui;

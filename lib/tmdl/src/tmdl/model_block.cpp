@@ -90,9 +90,6 @@ std::unique_ptr<const tmdl::BlockError> tmdl::ModelBlock::has_error() const
     for (const auto& it : portvec)
     {
         const auto& [vec, dt_func, size_func] = it;
-        //const auto& vec = std::get<0>(it);
-        //const auto dt_func = std::get<1>(it);
-        //const auto size_func = std::get<2>(it);
 
         if (vec.size() != size_func())
         {

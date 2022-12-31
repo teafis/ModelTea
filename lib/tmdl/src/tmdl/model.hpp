@@ -48,15 +48,19 @@ public:
 public:
     std::string get_name() const;
 
-    void set_name(const std::string& s); // TODO
+    void set_name(const std::string& s);
 
     std::string get_description() const;
 
-    void set_description(const std::string& s); // TODO
+    void set_description(const std::string& s);
+
+    size_t get_num_inputs() const;
 
     size_t get_num_outputs() const;
 
-    size_t get_num_inputs() const;
+    const std::vector<size_t>& get_input_ids() const;
+
+    const std::vector<size_t>& get_output_ids() const;
 
     DataType get_input_datatype(const size_t port) const;
 

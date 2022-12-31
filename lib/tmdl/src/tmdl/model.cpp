@@ -223,6 +223,16 @@ size_t Model::get_num_outputs() const
     return output_ids.size();
 }
 
+const std::vector<size_t>& Model::get_input_ids() const
+{
+    return input_ids;
+}
+
+const std::vector<size_t>& Model::get_output_ids() const
+{
+    return output_ids;
+}
+
 bool Model::update_block()
 {
     bool any_updated = true;

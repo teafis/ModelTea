@@ -366,7 +366,7 @@ void ModelWindow::generateExecutor()
                 .output_port_num = i
             };
 
-            const std::string varname = fmt::format("*Output {} ({})", i, outer_id.to_string());
+            const std::string varname = fmt::format("*Output {} ({})", i, model->get_output_ids()[i]);
             executor->named_variables[varname] = executor->variables->get_ptr(outer_id);
         }
 

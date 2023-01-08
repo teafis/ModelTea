@@ -15,6 +15,7 @@
 
 #include <tmdl/model_exception.hpp>
 #include <tmdl/library_manager.hpp>
+#include <tmdl/model_block.hpp>
 
 #include <fmt/format.h>
 
@@ -494,16 +495,10 @@ void ModelWindow::addBlock(QString l, QString s)
         return;
     }
 
-    // Ensure that the block isn't the current block
-    const auto model = ui->block_graphics->get_model();
-    if (s.toStdString() == model->get_name())
-    {
-        QMessageBox::warning(this, "Block Addition", "Cannot add recursive element of same block");
-        return;
-    }
-
     // Initialze the block
     const auto tmp = tmdl::LibraryManager::get_instance().get_library(l.toStdString())->create_block(s.toStdString());
+
+    // Add the block
     ui->block_graphics->addBlock(tmp);
 }
 

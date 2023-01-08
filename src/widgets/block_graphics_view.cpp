@@ -499,7 +499,15 @@ void BlockGraphicsView::addBlock(std::shared_ptr<tmdl::BlockInterface> blk)
     }
 
     // Add the block to the model
-    model->add_block(blk);
+    try
+    {
+        model->add_block(blk);
+    }
+    catch (const tmdl::ModelException& ex)
+    {
+        QMessageBox::warning(this, "error", ex.what().c_str());
+        return;
+    }
 
     // Create the block object
     BlockObject* block_obj = new BlockObject(blk);

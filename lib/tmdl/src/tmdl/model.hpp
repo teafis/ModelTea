@@ -74,6 +74,10 @@ public:
 
     std::unique_ptr<const BlockError> has_error() const;
 
+protected:
+    std::unique_ptr<const BlockError> own_error() const;
+
+public:
     std::shared_ptr<ModelExecutionInterface> get_execution_interface(
         const size_t block_id,
         const ConnectionManager& connections,
@@ -91,6 +95,8 @@ public:
     std::shared_ptr<BlockInterface> get_block(const size_t id) const;
 
     std::vector<std::shared_ptr<BlockInterface>> get_blocks() const;
+
+    bool contains_model_name(const std::string& name) const;
 
 protected:
     std::string name;

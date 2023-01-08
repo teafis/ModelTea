@@ -5,6 +5,8 @@
 #include "blocks/io_ports.hpp"
 #include "model_exception.hpp"
 
+#include "model_block.hpp"
+
 #include "library_manager.hpp"
 
 #include "util/identifiers.hpp"
@@ -96,6 +98,16 @@ void Model::add_block(const std::shared_ptr<BlockInterface> block, const size_t 
     if (blocks.find(id) != blocks.end())
     {
         throw ModelException(fmt::format("block already contains provided ID {}", id));
+    }
+
+    // Check if the block is a model pointer value, and if so, prevent recursive additions
+    const auto mdl_ptr = std::dynamic_pointer_cast<ModelBlock>(block);
+    if (mdl_ptr)
+    {
+        if (mdl_ptr->get_name() == get_name() || mdl_ptr->get_model()->contains_model_name(get_name()))
+        {
+            throw ModelException(fmt::format("cannot have recursive model with name {}", mdl_ptr->get_name()));
+        }
     }
 
     if (const auto ptr = std::dynamic_pointer_cast<InputPort>(block); ptr != nullptr)
@@ -302,6 +314,39 @@ std::unique_ptr<const BlockError> Model::has_error() const
         if (blk_error != nullptr)
         {
             return blk_error;
+        }
+    }
+
+    return own_error();
+}
+
+std::unique_ptr<const BlockError> Model::own_error() const
+{
+    for (const auto& b : blocks)
+    {
+        const auto blk = b.second;
+
+        const auto mdl_test = std::dynamic_pointer_cast<ModelBlock>(blk);
+
+        if (mdl_test && mdl_test->get_model()->contains_model_name(get_name()))
+        {
+            return std::make_unique<BlockError>(BlockError
+            {
+                .id = 0,
+                .message = fmt::format("model {} contains recursive reference to itself", get_name())
+            });
+        }
+
+        for (size_t i = 0; i < blk->get_num_inputs(); ++i)
+        {
+            if (!connections.has_connection_to(blk->get_id(), i))
+            {
+                return std::make_unique<BlockError>(BlockError
+                {
+                    .id = 0,
+                    .message = fmt::format("missing input connection to {} port {}", blk->get_id(), i)
+                });
+            }
         }
     }
 
@@ -537,6 +582,12 @@ std::vector<std::unique_ptr<const BlockError>> Model::get_all_errors() const
         }
     }
 
+    auto oe = own_error();
+    if (oe != nullptr)
+    {
+        error_vals.push_back(std::move(oe));
+    }
+
     return error_vals;
 }
 
@@ -576,6 +627,25 @@ std::vector<std::shared_ptr<BlockInterface>> Model::get_blocks() const
     }
 
     return retval;
+}
+
+bool Model::contains_model_name(const std::string& n) const
+{
+    if (n == name)
+    {
+        return true;
+    }
+
+    for (const auto& b : blocks)
+    {
+        const auto mdl = std::dynamic_pointer_cast<ModelBlock>(b.second);
+        if (mdl && mdl->get_name() == n)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 struct SaveParameter

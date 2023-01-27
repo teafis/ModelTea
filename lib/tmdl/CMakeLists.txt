@@ -45,6 +45,7 @@ set(
     src/tmdl/libraries/model_library.hpp src/tmdl/libraries/model_library.cpp
     src/tmdl/libraries/stdlib.hpp src/tmdl/libraries/stdlib.cpp
     src/tmdl/util/identifiers.hpp src/tmdl/util/identifiers.cpp
+    src/tmdl/codegen/code_generator.hpp
 )
 
 # Define the library

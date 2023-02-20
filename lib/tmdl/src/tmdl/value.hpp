@@ -33,7 +33,7 @@ struct data_type_t
 template<>
 struct data_type_t<DataType::SINGLE>
 {
-    using value = float;
+    using type = float;
     static const bool has_value = true;
     static const bool is_numeric = true;
 };
@@ -41,7 +41,7 @@ struct data_type_t<DataType::SINGLE>
 template<>
 struct data_type_t<DataType::DOUBLE>
 {
-    using value = double;
+    using type = double;
     static const bool has_value = true;
     static const bool is_numeric = true;
 };
@@ -49,7 +49,7 @@ struct data_type_t<DataType::DOUBLE>
 template<>
 struct data_type_t<DataType::INT32>
 {
-    using value = int32_t;
+    using type = int32_t;
     static const bool has_value = true;
     static const bool is_numeric = true;
 };
@@ -57,7 +57,7 @@ struct data_type_t<DataType::INT32>
 template<>
 struct data_type_t<DataType::UINT32>
 {
-    using value = uint32_t;
+    using type = uint32_t;
     static const bool has_value = true;
     static const bool is_numeric = true;
 };
@@ -65,7 +65,7 @@ struct data_type_t<DataType::UINT32>
 template<>
 struct data_type_t<DataType::BOOLEAN>
 {
-    using value = bool;
+    using type = bool;
     static const bool has_value = true;
     static const bool is_numeric = false;
 };
@@ -74,26 +74,33 @@ std::string data_type_to_string(const DataType dtype);
 
 DataType data_type_from_string(const std::string& s);
 
-struct ValueBox
+struct ModelValue
 {
-    virtual ~ValueBox()
+    virtual ~ModelValue()
     {
         // Empty Destructor
     }
 };
 
-template <typename T>
-struct ValueBoxType : public ValueBox
+template <DataType DT>
+struct ModelValueBox : public ModelValue
 {
-    ValueBoxType(const T inval)
+    using type_t = data_type_t<DT>::type;
+
+    ModelValueBox() : value{}
     {
-        value = inval;
+        // Empty Constructor
     }
 
-    T value;
+    ModelValueBox(const type_t inval) : value{inval}
+    {
+        // Empty Constructor
+    }
+
+    type_t value;
 };
 
-std::shared_ptr<ValueBox> make_shared_default_value(const DataType dtype);
+std::shared_ptr<ModelValue> make_shared_default_value(const DataType dtype);
 
 }
 

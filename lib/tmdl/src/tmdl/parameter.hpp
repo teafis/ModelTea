@@ -47,7 +47,7 @@ struct ParameterValue
 
     void convert(const DataType t);
 
-    std::shared_ptr<ValueBox> to_box() const;
+    std::shared_ptr<ModelValue> to_box() const;
 
     static ParameterValue from_string(const std::string& s, const Type t);
 };

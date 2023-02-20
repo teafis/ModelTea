@@ -45,18 +45,18 @@ class VariableManager
 public:
     void add_variable(
         const VariableIdentifier id,
-        const std::shared_ptr<ValueBox> value);
+        const std::shared_ptr<ModelValue> value);
 
-    std::shared_ptr<ValueBox> get_ptr(const VariableIdentifier& id) const;
+    std::shared_ptr<ModelValue> get_ptr(const VariableIdentifier& id) const;
 
-    std::shared_ptr<ValueBox> get_ptr(const Connection& c) const;
+    std::shared_ptr<ModelValue> get_ptr(const Connection& c) const;
 
     bool has_variable(const VariableIdentifier& id) const;
 
     bool has_variable(const Connection& c) const;
 
 protected:
-    std::unordered_map<VariableIdentifier, std::shared_ptr<ValueBox>> variables;
+    std::unordered_map<VariableIdentifier, std::shared_ptr<ModelValue>> variables;
 };
 
 }

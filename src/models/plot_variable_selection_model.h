@@ -12,7 +12,7 @@
 
 struct ItemSelector
 {
-    std::shared_ptr<const tmdl::ValueBox> var;
+    std::shared_ptr<const tmdl::ModelValue> var;
     QString name;
     QLineSeries* series;
 };

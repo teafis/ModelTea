@@ -10,19 +10,22 @@ using namespace tmdl;
 using namespace tmdl::stdlib;
 
 
-template <typename T>
+template <tmdl::DataType DT>
 class LimiterExecutor : public BlockExecutionInterface
 {
+protected:
+    using limit_t = tmdl::data_type_t<DT>::type;
+
 public:
     LimiterExecutor(
-        std::shared_ptr<const ValueBox> ptr_input,
-        std::shared_ptr<const ValueBox> val_min,
-        std::shared_ptr<const ValueBox> val_max,
-        std::shared_ptr<ValueBox> ptr_output) :
-        _ptr_input(std::dynamic_pointer_cast<const ValueBoxType<T>>(ptr_input)),
-        _ptr_output(std::dynamic_pointer_cast<ValueBoxType<T>>(ptr_output)),
-        _val_min(std::dynamic_pointer_cast<const ValueBoxType<T>>(val_min)),
-        _val_max(std::dynamic_pointer_cast<const ValueBoxType<T>>(val_max))
+        std::shared_ptr<const ModelValue> ptr_input,
+        std::shared_ptr<const ModelValue> val_min,
+        std::shared_ptr<const ModelValue> val_max,
+        std::shared_ptr<ModelValue> ptr_output) :
+        _ptr_input(std::dynamic_pointer_cast<const ModelValueBox<DT>>(ptr_input)),
+        _ptr_output(std::dynamic_pointer_cast<ModelValueBox<DT>>(ptr_output)),
+        _val_min(std::dynamic_pointer_cast<const ModelValueBox<DT>>(val_min)),
+        _val_max(std::dynamic_pointer_cast<const ModelValueBox<DT>>(val_max))
     {
         if (_ptr_input == nullptr || _ptr_output == nullptr || _val_min == nullptr || _val_max == nullptr)
         {
@@ -33,7 +36,7 @@ public:
 public:
     void step(const SimState&) override
     {
-        const T current = _ptr_input->value;
+        const limit_t current = _ptr_input->value;
         if (current < _val_min->value)
         {
             _ptr_output->value = _val_min->value;
@@ -49,10 +52,10 @@ public:
     }
 
 protected:
-    std::shared_ptr<const ValueBoxType<T>> _ptr_input;
-    std::shared_ptr<ValueBoxType<T>> _ptr_output;
-    std::shared_ptr<const ValueBoxType<T>> _val_min;
-    std::shared_ptr<const ValueBoxType<T>> _val_max;
+    std::shared_ptr<const ModelValueBox<DT>> _ptr_input;
+    std::shared_ptr<ModelValueBox<DT>> _ptr_output;
+    std::shared_ptr<const ModelValueBox<DT>> _val_min;
+    std::shared_ptr<const ModelValueBox<DT>> _val_max;
 };
 
 Limiter::Limiter()
@@ -244,8 +247,8 @@ std::shared_ptr<BlockExecutionInterface> Limiter::get_execution_interface(
         throw ModelException("cannot execute with incomplete input parameters");
     }
 
-    std::shared_ptr<ValueBox> maxValue;
-    std::shared_ptr<ValueBox> minValue;
+    std::shared_ptr<ModelValue> maxValue;
+    std::shared_ptr<ModelValue> minValue;
 
     if (dynamicLimiter->get_value().value.tf)
     {
@@ -270,25 +273,25 @@ std::shared_ptr<BlockExecutionInterface> Limiter::get_execution_interface(
     switch (input_type)
     {
     case DataType::DOUBLE:
-        return std::make_shared<LimiterExecutor<double>>(
+        return std::make_shared<LimiterExecutor<DataType::DOUBLE>>(
             inputPointer,
             minValue,
             maxValue,
             outputPointer);
     case DataType::SINGLE:
-        return std::make_shared<LimiterExecutor<float>>(
+        return std::make_shared<LimiterExecutor<DataType::SINGLE>>(
             inputPointer,
             minValue,
             maxValue,
             outputPointer);
     case DataType::INT32:
-        return std::make_shared<LimiterExecutor<int32_t>>(
+        return std::make_shared<LimiterExecutor<DataType::INT32>>(
             inputPointer,
             minValue,
             maxValue,
             outputPointer);
     case DataType::UINT32:
-        return std::make_shared<LimiterExecutor<uint32_t>>(
+        return std::make_shared<LimiterExecutor<DataType::UINT32>>(
             inputPointer,
             minValue,
             maxValue,

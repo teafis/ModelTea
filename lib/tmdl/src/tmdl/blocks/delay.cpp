@@ -4,19 +4,19 @@
 
 #include "../model_exception.hpp"
 
-template <typename T>
+template <tmdl::DataType DT>
 class DelayExecutor : public tmdl::BlockExecutionInterface
 {
 public:
     DelayExecutor(
-        const std::shared_ptr<const tmdl::ValueBox> input,
-        const std::shared_ptr<tmdl::ValueBox> output,
-        const std::shared_ptr<const tmdl::ValueBoxType<bool>> reset_flag,
-        const std::shared_ptr<const tmdl::ValueBox> reset_value) :
-        _input(std::dynamic_pointer_cast<const tmdl::ValueBoxType<T>>(input)),
-        _output(std::dynamic_pointer_cast<tmdl::ValueBoxType<T>>(output)),
+        const std::shared_ptr<const tmdl::ModelValue> input,
+        const std::shared_ptr<tmdl::ModelValue> output,
+        const std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> reset_flag,
+        const std::shared_ptr<const tmdl::ModelValue> reset_value) :
+        _input(std::dynamic_pointer_cast<const tmdl::ModelValueBox<DT>>(input)),
+        _output(std::dynamic_pointer_cast<tmdl::ModelValueBox<DT>>(output)),
         _reset_flag(reset_flag),
-        _reset_value(std::dynamic_pointer_cast<const tmdl::ValueBoxType<T>>(reset_value))
+        _reset_value(std::dynamic_pointer_cast<const tmdl::ModelValueBox<DT>>(reset_value))
     {
         if (_input == nullptr || _output == nullptr || _reset_flag == nullptr || _reset_value == nullptr)
         {
@@ -45,10 +45,10 @@ public:
     }
 
 protected:
-    std::shared_ptr<const tmdl::ValueBoxType<T>> _input;
-    std::shared_ptr<tmdl::ValueBoxType<T>> _output;
-    std::shared_ptr<const tmdl::ValueBoxType<bool>> _reset_flag;
-    std::shared_ptr<const tmdl::ValueBoxType<T>> _reset_value;
+    std::shared_ptr<const tmdl::ModelValueBox<DT>> _input;
+    std::shared_ptr<tmdl::ModelValueBox<DT>> _output;
+    std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> _reset_flag;
+    std::shared_ptr<const tmdl::ModelValueBox<DT>> _reset_value;
 };
 
 tmdl::stdlib::Delay::Delay()
@@ -151,7 +151,7 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Delay::get_executio
 
     auto input_value = manager.get_ptr(*connections.get_connection_to(get_id(), 0));
 
-    auto input_value_reset_flag = std::dynamic_pointer_cast<const ValueBoxType<bool>>(manager.get_ptr(*connections.get_connection_to(get_id(), 1)));
+    auto input_value_reset_flag = std::dynamic_pointer_cast<const ModelValueBox<DataType::BOOLEAN>>(manager.get_ptr(*connections.get_connection_to(get_id(), 1)));
     auto input_value_reset_value = manager.get_ptr(*connections.get_connection_to(get_id(), 2));
 
     auto output_value = manager.get_ptr(VariableIdentifier
@@ -163,15 +163,15 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Delay::get_executio
     switch (output_port)
     {
     case DataType::DOUBLE:
-        return std::make_shared<DelayExecutor<double>>(input_value, output_value, input_value_reset_flag, input_value_reset_value);
+        return std::make_shared<DelayExecutor<DataType::DOUBLE>>(input_value, output_value, input_value_reset_flag, input_value_reset_value);
     case DataType::SINGLE:
-        return std::make_shared<DelayExecutor<float>>(input_value, output_value, input_value_reset_flag, input_value_reset_value);
+        return std::make_shared<DelayExecutor<DataType::SINGLE>>(input_value, output_value, input_value_reset_flag, input_value_reset_value);
     case DataType::BOOLEAN:
-        return std::make_shared<DelayExecutor<bool>>(input_value, output_value, input_value_reset_flag, input_value_reset_value);
+        return std::make_shared<DelayExecutor<DataType::BOOLEAN>>(input_value, output_value, input_value_reset_flag, input_value_reset_value);
     case DataType::INT32:
-        return std::make_shared<DelayExecutor<int32_t>>(input_value, output_value, input_value_reset_flag, input_value_reset_value);
+        return std::make_shared<DelayExecutor<DataType::INT32>>(input_value, output_value, input_value_reset_flag, input_value_reset_value);
     case DataType::UINT32:
-        return std::make_shared<DelayExecutor<uint32_t>>(input_value, output_value, input_value_reset_flag, input_value_reset_value);
+        return std::make_shared<DelayExecutor<DataType::UINT32>>(input_value, output_value, input_value_reset_flag, input_value_reset_value);
     default:
         throw ModelException("unknown data type provided");
     }

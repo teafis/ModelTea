@@ -49,19 +49,21 @@ template <typename T>
 using rel_op_fn_t = bool (*)(const T&, const T&);
 
 //template <template <typename> class FCN, typename T>
-template <typename T>
+template <tmdl::DataType DT>
 struct RelationalExecutor : public tmdl::BlockExecutionInterface
 {
+    using input_type_t = tmdl::data_type_t<DT>::type;
+
     RelationalExecutor(
-        std::shared_ptr<const tmdl::ValueBox> inputA,
-        std::shared_ptr<const tmdl::ValueBox> inputB,
-        std::shared_ptr<tmdl::ValueBoxType<bool>> outputValue,
-        rel_op_fn_t<T> func) :
+        std::shared_ptr<const tmdl::ModelValue> inputA,
+        std::shared_ptr<const tmdl::ModelValue> inputB,
+        std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> outputValue,
+        rel_op_fn_t<input_type_t> func) :
         output_value(outputValue),
         func(func)
     {
-        input_a = std::dynamic_pointer_cast<const tmdl::ValueBoxType<T>>(inputA);
-        input_b = std::dynamic_pointer_cast<const tmdl::ValueBoxType<T>>(inputB);
+        input_a = std::dynamic_pointer_cast<const tmdl::ModelValueBox<DT>>(inputA);
+        input_b = std::dynamic_pointer_cast<const tmdl::ModelValueBox<DT>>(inputB);
 
         if (output_value == nullptr || input_a == nullptr || input_b == nullptr)
         {
@@ -79,10 +81,10 @@ struct RelationalExecutor : public tmdl::BlockExecutionInterface
     }
 
 protected:
-    std::shared_ptr<const tmdl::ValueBoxType<T>> input_a;
-    std::shared_ptr<const tmdl::ValueBoxType<T>> input_b;
-    std::shared_ptr<tmdl::ValueBoxType<bool>> output_value;
-    rel_op_fn_t<T> func;
+    std::shared_ptr<const tmdl::ModelValueBox<DT>> input_a;
+    std::shared_ptr<const tmdl::ModelValueBox<DT>> input_b;
+    std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> output_value;
+    rel_op_fn_t<input_type_t> func;
 };
 
 // Relational Base
@@ -171,10 +173,10 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::RelationalBase::get
         throw ModelException("cannot generate a model with an error");
     }
 
-    std::shared_ptr<const ValueBox> input_a = manager.get_ptr(*connections.get_connection_to(get_id(), 0));
-    std::shared_ptr<const ValueBox> input_b = manager.get_ptr(*connections.get_connection_to(get_id(), 1));
+    std::shared_ptr<const ModelValue> input_a = manager.get_ptr(*connections.get_connection_to(get_id(), 0));
+    std::shared_ptr<const ModelValue> input_b = manager.get_ptr(*connections.get_connection_to(get_id(), 1));
 
-    auto output_value = std::dynamic_pointer_cast<ValueBoxType<bool>>(manager.get_ptr(VariableIdentifier
+    auto output_value = std::dynamic_pointer_cast<ModelValueBox<DataType::BOOLEAN>>(manager.get_ptr(VariableIdentifier
     {
         .block_id = get_id(),
         .output_port_num = 0
@@ -185,31 +187,31 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::RelationalBase::get
     switch (_inputA)
     {
     case DataType::DOUBLE:
-        return std::make_shared<RelationalExecutor<double>>(
+        return std::make_shared<RelationalExecutor<DataType::DOUBLE>>(
             input_a,
             input_b,
             output_value,
             fcs.double_fcn);
     case DataType::SINGLE:
-        return std::make_shared<RelationalExecutor<float>>(
+        return std::make_shared<RelationalExecutor<DataType::SINGLE>>(
             input_a,
             input_b,
             output_value,
             fcs.float_fcn);
     case DataType::INT32:
-        return std::make_shared<RelationalExecutor<int32_t>>(
+        return std::make_shared<RelationalExecutor<DataType::INT32>>(
             input_a,
             input_b,
             output_value,
             fcs.i32_fcn);
     case DataType::UINT32:
-        return std::make_shared<RelationalExecutor<uint32_t>>(
+        return std::make_shared<RelationalExecutor<DataType::UINT32>>(
             input_a,
             input_b,
             output_value,
             fcs.u32_fcn);
     case DataType::BOOLEAN:
-        return std::make_shared<RelationalExecutor<bool>>(
+        return std::make_shared<RelationalExecutor<DataType::BOOLEAN>>(
             input_a,
             input_b,
             output_value,

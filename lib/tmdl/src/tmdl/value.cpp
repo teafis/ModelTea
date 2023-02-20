@@ -50,26 +50,26 @@ tmdl::DataType tmdl::data_type_from_string(const std::string& s)
     }
 }
 
-template <typename T>
-static std::shared_ptr<tmdl::ValueBox> get_default_shared()
+template <tmdl::DataType T>
+static std::shared_ptr<tmdl::ModelValue> get_default_shared()
 {
-    return std::make_shared<tmdl::ValueBoxType<T>>(T{});
+    return std::make_shared<tmdl::ModelValueBox<T>>();
 }
 
-std::shared_ptr<tmdl::ValueBox> tmdl::make_shared_default_value(const DataType dtype)
+std::shared_ptr<tmdl::ModelValue> tmdl::make_shared_default_value(const DataType dtype)
 {
     switch (dtype)
     {
     case DataType::BOOLEAN:
-        return get_default_shared<bool>();
+        return get_default_shared<DataType::BOOLEAN>();
     case DataType::SINGLE:
-        return get_default_shared<float>();
+        return get_default_shared<DataType::SINGLE>();
     case DataType::DOUBLE:
-        return get_default_shared<double>();
+        return get_default_shared<DataType::DOUBLE>();
     case DataType::INT32:
-        return get_default_shared<int32_t>();
+        return get_default_shared<DataType::INT32>();
     case DataType::UINT32:
-        return get_default_shared<uint32_t>();
+        return get_default_shared<DataType::UINT32>();
     default:
         throw ModelException("unable to construct value for type");
     }

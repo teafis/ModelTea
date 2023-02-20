@@ -6,20 +6,19 @@
 
 #include <concepts>
 
-template <typename T>
-concept Number = std::integral<T> || std::floating_point<T>;
-
-template <Number T>
+template <tmdl::DataType DT>
 struct IntegratorExecutor : public tmdl::BlockExecutionInterface
 {
+    static_assert(tmdl::data_type_t<DT>::is_numeric);
+
     IntegratorExecutor(
-        std::shared_ptr<const tmdl::ValueBox> input,
-        std::shared_ptr<const tmdl::ValueBox> reset_value,
-        std::shared_ptr<const tmdl::ValueBoxType<bool>> reset_flag,
-        std::shared_ptr<tmdl::ValueBox> output) :
-        _input(std::dynamic_pointer_cast<const tmdl::ValueBoxType<T>>(input)),
-        _reset_value(std::dynamic_pointer_cast<const tmdl::ValueBoxType<T>>(reset_value)),
-        _output(std::dynamic_pointer_cast<tmdl::ValueBoxType<T>>(output)),
+        std::shared_ptr<const tmdl::ModelValue> input,
+        std::shared_ptr<const tmdl::ModelValue> reset_value,
+        std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> reset_flag,
+        std::shared_ptr<tmdl::ModelValue> output) :
+        _input(std::dynamic_pointer_cast<const tmdl::ModelValueBox<DT>>(input)),
+        _reset_value(std::dynamic_pointer_cast<const tmdl::ModelValueBox<DT>>(reset_value)),
+        _output(std::dynamic_pointer_cast<tmdl::ModelValueBox<DT>>(output)),
         _reset_flag(reset_flag)
     {
         if (_input == nullptr || _reset_value == nullptr || _reset_flag == nullptr || _output == nullptr)
@@ -56,13 +55,13 @@ struct IntegratorExecutor : public tmdl::BlockExecutionInterface
     }
 
 protected:
-    std::shared_ptr<const tmdl::ValueBoxType<T>> _input;
-    std::shared_ptr<const tmdl::ValueBoxType<T>> _reset_value;
-    std::shared_ptr<tmdl::ValueBoxType<T>> _output;
+    std::shared_ptr<const tmdl::ModelValueBox<DT>> _input;
+    std::shared_ptr<const tmdl::ModelValueBox<DT>> _reset_value;
+    std::shared_ptr<tmdl::ModelValueBox<DT>> _output;
 
-    std::shared_ptr<const tmdl::ValueBoxType<bool>> _reset_flag;
+    std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> _reset_flag;
 
-    T state_value;
+    tmdl::data_type_t<DT>::type state_value;
 };
 
 tmdl::stdlib::Integrator::Integrator()
@@ -173,7 +172,7 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Integrator::get_exe
     }
 
     const auto in_value = manager.get_ptr(*connections.get_connection_to(get_id(), 0));
-    const auto in_reset_flag = std::dynamic_pointer_cast<const ValueBoxType<bool>>(manager.get_ptr(*connections.get_connection_to(get_id(), 1)));
+    const auto in_reset_flag = std::dynamic_pointer_cast<const ModelValueBox<DataType::BOOLEAN>>(manager.get_ptr(*connections.get_connection_to(get_id(), 1)));
     const auto in_reset_value = manager.get_ptr(*connections.get_connection_to(get_id(), 2));
 
     const auto out_value = manager.get_ptr(VariableIdentifier {
@@ -184,9 +183,9 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Integrator::get_exe
     switch (input_type)
     {
     case DataType::DOUBLE:
-        return std::make_shared<IntegratorExecutor<double>>(in_value, in_reset_value, in_reset_flag, out_value);
+        return std::make_shared<IntegratorExecutor<DataType::DOUBLE>>(in_value, in_reset_value, in_reset_flag, out_value);
     case DataType::SINGLE:
-        return std::make_shared<IntegratorExecutor<float>>(in_value, in_reset_value, in_reset_flag, out_value);
+        return std::make_shared<IntegratorExecutor<DataType::SINGLE>>(in_value, in_reset_value, in_reset_flag, out_value);
     default:
         throw ModelException("unable to create pointer value");
     }

@@ -20,7 +20,7 @@ struct ExecutionState
 {
     std::shared_ptr<BlockExecutionInterface> model;
     std::shared_ptr<VariableManager> variables;
-    std::unordered_map<std::string, std::shared_ptr<const ValueBox>> named_variables;
+    std::unordered_map<std::string, std::shared_ptr<const ModelValue>> named_variables;
     SimState state;
     uint64_t iterations;
 

@@ -89,14 +89,16 @@ tmdl::DataType tmdl::stdlib::Constant::get_output_type(const size_t port) const
     }
 }
 
-template <typename T>
+template <tmdl::DataType DT>
 struct ConstantExecutor : public tmdl::BlockExecutionInterface
 {
+    using type_t = tmdl::data_type_t<DT>::type;
+
     ConstantExecutor(
-        const T& value,
-        const std::shared_ptr<tmdl::ValueBox> ptr)
+        const type_t& value,
+        const std::shared_ptr<tmdl::ModelValue> ptr)
     {
-        const auto ptr_type = std::dynamic_pointer_cast<tmdl::ValueBoxType<T>>(ptr);
+        const auto ptr_type = std::dynamic_pointer_cast<tmdl::ModelValueBox<DT>>(ptr);
         if (ptr == nullptr)
         {
             throw tmdl::ModelException("provided output pointer cannot be null");
@@ -124,23 +126,23 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Constant::get_execu
     switch (param_dtype->get_value().value.dtype)
     {
     case DataType::DOUBLE:
-        return std::make_shared<ConstantExecutor<double>>(
+        return std::make_shared<ConstantExecutor<DataType::DOUBLE>>(
             param_value->get_value().value.f64,
             output_type);
     case DataType::SINGLE:
-        return std::make_shared<ConstantExecutor<float>>(
+        return std::make_shared<ConstantExecutor<DataType::SINGLE>>(
             param_value->get_value().value.f32,
             output_type);
     case DataType::BOOLEAN:
-        return std::make_shared<ConstantExecutor<bool>>(
+        return std::make_shared<ConstantExecutor<DataType::BOOLEAN>>(
             param_value->get_value().value.tf,
             output_type);
     case DataType::INT32:
-        return std::make_shared<ConstantExecutor<int32_t>>(
+        return std::make_shared<ConstantExecutor<DataType::INT32>>(
             param_value->get_value().value.i32,
             output_type);
     case DataType::UINT32:
-        return std::make_shared<ConstantExecutor<uint32_t>>(
+        return std::make_shared<ConstantExecutor<DataType::UINT32>>(
             param_value->get_value().value.u32,
             output_type);
     default:

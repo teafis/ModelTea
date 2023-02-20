@@ -73,15 +73,27 @@ tmdl::DataType tmdl::stdlib::TrigFunction::get_output_type(const size_t port) co
     }
 }
 
-template <typename T, T (FNC)(T)>
+template <typename T, T (FCN)(T)>
+static T arith_func(const T x)
+{
+    return FCN(x);
+}
+
+template <tmdl::DataType DT>
 class TrigExecutor : public tmdl::BlockExecutionInterface
 {
 public:
+    using val_t = tmdl::data_type_t<DT>::type;
+    using fcn_t = val_t (*)(val_t);
+
+public:
     TrigExecutor(
-        std::shared_ptr<const tmdl::ValueBox> ptr_input,
-        std::shared_ptr<tmdl::ValueBox> ptr_output) :
-        _ptr_input(std::dynamic_pointer_cast<const tmdl::ValueBoxType<T>>(ptr_input)),
-        _ptr_output(std::dynamic_pointer_cast<tmdl::ValueBoxType<T>>(ptr_output))
+        std::shared_ptr<const tmdl::ModelValue> ptr_input,
+        std::shared_ptr<tmdl::ModelValue> ptr_output,
+        fcn_t operation_func) :
+        _ptr_input(std::dynamic_pointer_cast<const tmdl::ModelValueBox<DT>>(ptr_input)),
+        _ptr_output(std::dynamic_pointer_cast<tmdl::ModelValueBox<DT>>(ptr_output)),
+        _operation_func(operation_func)
     {
         if (_ptr_input == nullptr || _ptr_output == nullptr)
         {
@@ -92,12 +104,13 @@ public:
 public:
     void step(const tmdl::SimState&) override
     {
-        _ptr_output->value = FNC(_ptr_input->value);
+        _ptr_output->value = _operation_func(_ptr_input->value);
     }
 
 protected:
-    const std::shared_ptr<const tmdl::ValueBoxType<T>> _ptr_input;
-    std::shared_ptr<tmdl::ValueBoxType<T>> _ptr_output;
+    const std::shared_ptr<const tmdl::ModelValueBox<DT>> _ptr_input;
+    const std::shared_ptr<tmdl::ModelValueBox<DT>> _ptr_output;
+    const fcn_t _operation_func;
 };
 
 std::string tmdl::stdlib::TrigSin::get_name() const
@@ -129,13 +142,15 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::TrigSin::get_execut
     switch (input_type)
     {
     case DataType::DOUBLE:
-        return std::make_shared<TrigExecutor<double, std::sin>>(
+        return std::make_shared<TrigExecutor<DataType::DOUBLE>>(
             inputValue,
-            outputValue);
+            outputValue,
+            arith_func<tmdl::data_type_t<DataType::DOUBLE>::type, std::sin>);
     case DataType::SINGLE:
-        return std::make_shared<TrigExecutor<float, std::sin>>(
+        return std::make_shared<TrigExecutor<DataType::SINGLE>>(
             inputValue,
-            outputValue);
+            outputValue,
+            arith_func<tmdl::data_type_t<DataType::SINGLE>::type, std::sin>);
     default:
         throw ModelException("unable to generate limitor executor");
     }
@@ -170,13 +185,15 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::TrigCos::get_execut
     switch (input_type)
     {
     case DataType::DOUBLE:
-        return std::make_shared<TrigExecutor<double, std::cos>>(
+        return std::make_shared<TrigExecutor<DataType::DOUBLE>>(
             inputValue,
-            outputValue);
+            outputValue,
+            arith_func<tmdl::data_type_t<DataType::DOUBLE>::type, std::cos>);
     case DataType::SINGLE:
-        return std::make_shared<TrigExecutor<float, std::cos>>(
+        return std::make_shared<TrigExecutor<DataType::SINGLE>>(
             inputValue,
-            outputValue);
+            outputValue,
+            arith_func<tmdl::data_type_t<DataType::SINGLE>::type, std::cos>);
     default:
         throw ModelException("unable to generate limitor executor");
     }

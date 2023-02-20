@@ -22,7 +22,7 @@ static tmdl::VariableIdentifier connection_to_variable_id(const tmdl::Connection
 }
 
 
-void tmdl::VariableManager::add_variable(const VariableIdentifier id, const std::shared_ptr<ValueBox> value)
+void tmdl::VariableManager::add_variable(const VariableIdentifier id, const std::shared_ptr<ModelValue> value)
 {
     const auto it = variables.find(id);
 
@@ -40,7 +40,7 @@ void tmdl::VariableManager::add_variable(const VariableIdentifier id, const std:
     }
 }
 
-std::shared_ptr<tmdl::ValueBox> tmdl::VariableManager::get_ptr(const VariableIdentifier& id) const
+std::shared_ptr<tmdl::ModelValue> tmdl::VariableManager::get_ptr(const VariableIdentifier& id) const
 {
     const auto it = variables.find(id);
     if (it != variables.end())
@@ -53,7 +53,7 @@ std::shared_ptr<tmdl::ValueBox> tmdl::VariableManager::get_ptr(const VariableIde
     }
 }
 
-std::shared_ptr<tmdl::ValueBox> tmdl::VariableManager::get_ptr(const Connection& c) const
+std::shared_ptr<tmdl::ModelValue> tmdl::VariableManager::get_ptr(const Connection& c) const
 {
     return get_ptr(connection_to_variable_id(c));
 }

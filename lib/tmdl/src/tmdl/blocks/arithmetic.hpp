@@ -11,15 +11,6 @@ namespace tmdl::stdlib
 class ArithmeticBase : public BlockInterface
 {
 public:
-    struct FunctionTypes
-    {
-        double (*double_fcn)(const double&, const double&);
-        float (*float_fcn)(const float&, const float&);
-        int32_t (*i32_fcn)(const int32_t&, const int32_t&);
-        uint32_t (*u32_fcn)(const uint32_t&, const uint32_t&);
-    };
-
-public:
     ArithmeticBase();
 
     size_t get_num_inputs() const override;
@@ -43,7 +34,9 @@ public:
         const VariableManager& manager) const override;
 
 protected:
-    virtual FunctionTypes get_application_functions() const = 0;
+    virtual std::shared_ptr<BlockExecutionInterface> get_application_functions(
+        const std::vector<std::shared_ptr<const ModelValue>>& input_values,
+        const std::shared_ptr<tmdl::ModelValue> output_value) const = 0;
 
 private:
     size_t currentPrmPortCount() const;
@@ -61,7 +54,10 @@ public:
 
     std::string get_description() const override;
 
-    FunctionTypes get_application_functions() const override;
+protected:
+    virtual std::shared_ptr<BlockExecutionInterface> get_application_functions(
+        const std::vector<std::shared_ptr<const ModelValue>>& input_values,
+        const std::shared_ptr<tmdl::ModelValue> output_value) const override;
 };
 
 class Subtraction : public ArithmeticBase
@@ -71,7 +67,10 @@ public:
 
     std::string get_description() const override;
 
-    FunctionTypes get_application_functions() const override;
+protected:
+    virtual std::shared_ptr<BlockExecutionInterface> get_application_functions(
+        const std::vector<std::shared_ptr<const ModelValue>>& input_values,
+        const std::shared_ptr<tmdl::ModelValue> output_value) const override;
 };
 
 class Multiplication : public ArithmeticBase
@@ -81,7 +80,10 @@ public:
 
     std::string get_description() const override;
 
-    FunctionTypes get_application_functions() const override;
+protected:
+    virtual std::shared_ptr<BlockExecutionInterface> get_application_functions(
+        const std::vector<std::shared_ptr<const ModelValue>>& input_values,
+        const std::shared_ptr<tmdl::ModelValue> output_value) const override;
 };
 
 class Division : public ArithmeticBase
@@ -91,7 +93,10 @@ public:
 
     std::string get_description() const override;
 
-    FunctionTypes get_application_functions() const override;
+protected:
+    virtual std::shared_ptr<BlockExecutionInterface> get_application_functions(
+        const std::vector<std::shared_ptr<const ModelValue>>& input_values,
+        const std::shared_ptr<tmdl::ModelValue> output_value) const override;
 };
 
 }

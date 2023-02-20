@@ -5,17 +5,17 @@
 #include "../model_exception.hpp"
 
 
-template <typename T>
+template <tmdl::DataType DT>
 class DerivativeExecutor : public tmdl::BlockExecutionInterface
 {
 public:
     DerivativeExecutor(
-        std::shared_ptr<const tmdl::ValueBox> input,
-        std::shared_ptr<tmdl::ValueBox> output,
-        std::shared_ptr<const tmdl::ValueBoxType<bool>> reset_flag) :
-        _input(std::dynamic_pointer_cast<const tmdl::ValueBoxType<T>>(input)),
+        std::shared_ptr<const tmdl::ModelValue> input,
+        std::shared_ptr<tmdl::ModelValue> output,
+        std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> reset_flag) :
+        _input(std::dynamic_pointer_cast<const tmdl::ModelValueBox<DT>>(input)),
         _reset_flag(reset_flag),
-        _output(std::dynamic_pointer_cast<tmdl::ValueBoxType<T>>(output))
+        _output(std::dynamic_pointer_cast<tmdl::ModelValueBox<DT>>(output))
     {
         if (_input == nullptr || _output == nullptr || _reset_flag == nullptr)
         {
@@ -45,10 +45,10 @@ public:
     }
 
 protected:
-    std::shared_ptr<const tmdl::ValueBoxType<T>> _input;
-    std::shared_ptr<const tmdl::ValueBoxType<bool>> _reset_flag;
-    std::shared_ptr<tmdl::ValueBoxType<T>> _output;
-    T last_val;
+    std::shared_ptr<const tmdl::ModelValueBox<DT>> _input;
+    std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> _reset_flag;
+    std::shared_ptr<tmdl::ModelValueBox<DT>> _output;
+    tmdl::data_type_t<DT>::type last_val;
 };
 
 
@@ -147,7 +147,7 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Derivative::get_exe
     }
 
     auto in_value = manager.get_ptr(*connections.get_connection_to(get_id(), 0));
-    auto in_reset_flag = std::dynamic_pointer_cast<const ValueBoxType<bool>>(manager.get_ptr(*connections.get_connection_to(get_id(), 1)));
+    auto in_reset_flag = std::dynamic_pointer_cast<const ModelValueBox<DataType::BOOLEAN>>(manager.get_ptr(*connections.get_connection_to(get_id(), 1)));
 
     auto out_value = manager.get_ptr(VariableIdentifier {
         .block_id = get_id(),
@@ -157,9 +157,9 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Derivative::get_exe
     switch (input_type)
     {
     case DataType::DOUBLE:
-        return std::make_shared<DerivativeExecutor<double>>(in_value, out_value, in_reset_flag);
+        return std::make_shared<DerivativeExecutor<DataType::DOUBLE>>(in_value, out_value, in_reset_flag);
     case DataType::SINGLE:
-        return std::make_shared<DerivativeExecutor<float>>(in_value, out_value, in_reset_flag);
+        return std::make_shared<DerivativeExecutor<DataType::SINGLE>>(in_value, out_value, in_reset_flag);
     default:
         throw ModelException("unable to create pointer value");
     }

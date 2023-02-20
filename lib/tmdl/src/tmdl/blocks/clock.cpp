@@ -8,7 +8,7 @@ class ClockExecutor : public tmdl::BlockExecutionInterface
 {
 public:
     ClockExecutor(
-        std::shared_ptr<tmdl::ValueBoxType<double>> ptr_output) :
+        std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>> ptr_output) :
         output_value(ptr_output)
     {
         if (ptr_output == nullptr)
@@ -24,7 +24,7 @@ public:
     }
 
 protected:
-    std::shared_ptr<tmdl::ValueBoxType<double>> output_value;
+    std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>> output_value;
 };
 
 
@@ -91,7 +91,7 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Clock::get_executio
         .output_port_num = 0
     };
 
-    auto ptr = std::dynamic_pointer_cast<ValueBoxType<double>>(manager.get_ptr(vid));
+    auto ptr = std::dynamic_pointer_cast<ModelValueBox<DataType::DOUBLE>>(manager.get_ptr(vid));
 
     return std::make_shared<ClockExecutor>(ptr);
 }

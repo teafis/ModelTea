@@ -36,7 +36,7 @@ tmdl::ExecutionState tmdl::ExecutionState::from_model(
     {
         const auto pv = model->get_output_datatype(i);
 
-        const std::shared_ptr<tmdl::ModelValue> value = tmdl::make_shared_default_value(pv);
+        const std::shared_ptr<tmdl::ModelValue> value = tmdl::make_default_value(pv);
 
         const auto vid = tmdl::VariableIdentifier
         {

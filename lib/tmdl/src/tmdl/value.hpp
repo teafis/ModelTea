@@ -100,7 +100,13 @@ struct ModelValueBox : public ModelValue
     type_t value;
 };
 
-std::shared_ptr<ModelValue> make_shared_default_value(const DataType dtype);
+template <DataType DT>
+std::shared_ptr<ModelValue> make_default_value()
+{
+    return std::make_shared<tmdl::ModelValueBox<DT>>();
+}
+
+std::shared_ptr<ModelValue> make_default_value(const DataType dtype);
 
 }
 

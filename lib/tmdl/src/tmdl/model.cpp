@@ -543,7 +543,7 @@ std::shared_ptr<ModelExecutionInterface> Model::get_execution_interface(
             if (!variables->has_variable(vid))
             {
                 const auto pv = get_block(vid.block_id)->get_output_type(vid.output_port_num);
-                variables->add_variable(vid, make_shared_default_value(pv));
+                variables->add_variable(vid, make_default_value(pv));
             }
         }
     }

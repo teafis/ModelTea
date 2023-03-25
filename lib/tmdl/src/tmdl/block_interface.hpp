@@ -16,6 +16,8 @@
 #include "connection_manager.hpp"
 #include "variable_manager.hpp"
 
+#include "codegen/component.hpp"
+
 
 namespace tmdl
 {
@@ -99,6 +101,8 @@ public:
     virtual void reset();
 
     virtual void close();
+
+    virtual std::unique_ptr<codegen::CodeComponent> generate_code_component();
 };
 
 

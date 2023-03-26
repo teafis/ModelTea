@@ -4,7 +4,7 @@
 
 #include "../model_exception.hpp"
 
-#include <sstream>
+#include <tmdlstd/const.hpp>
 
 
 tmdl::stdlib::Constant::Constant() :
@@ -104,8 +104,12 @@ struct ConstantExecutor : public tmdl::BlockExecutionInterface
             throw tmdl::ModelException("provided output pointer cannot be null");
         }
 
-        ptr_type->value = value;
+        block = std::make_unique<tmdlstd::const_block<type_t>>(value);
+
+        ptr_type->value = block->s_out.val;
     }
+
+    std::unique_ptr<tmdlstd::const_block<type_t>> block;
 };
 
 std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Constant::get_execution_interface(

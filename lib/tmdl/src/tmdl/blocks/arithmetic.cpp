@@ -108,7 +108,6 @@ protected:
     std::vector<std::shared_ptr<const tmdl::ModelValueBox<DT>>> input_values;
     std::vector<const type_t*> input_value_ptr_array;
     std::shared_ptr<tmdl::ModelValueBox<DT>> output_value;
-    //Operator<DT, OP> op;
 
     tmdlstd::arith_block<type_t, OP> block;
 };

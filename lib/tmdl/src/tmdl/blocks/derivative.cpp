@@ -4,11 +4,15 @@
 
 #include "../model_exception.hpp"
 
+#include <tmdlstd/derivative.hpp>
+
 
 template <tmdl::DataType DT>
 class DerivativeExecutor : public tmdl::BlockExecutionInterface
 {
 public:
+    using type_t = tmdl::data_type_t<DT>::type;
+
     DerivativeExecutor(
         std::shared_ptr<const tmdl::ModelValue> input,
         std::shared_ptr<tmdl::ModelValue> output,
@@ -23,32 +27,38 @@ public:
         }
     }
 
-    void init() override
+    void init(const tmdl::SimState& s) override
     {
-        reset();
+        block = std::make_unique<tmdlstd::derivative_block<type_t>>(s.get_dt());
+
+        block->s_in.input_value = &_input->value;
+        block->s_in.reset_flag = &_reset_flag->value;
+
+        block->init();
     }
 
-    void step(const tmdl::SimState& s) override
+    void step(const tmdl::SimState&) override
     {
-        if (_reset_flag->value)
-        {
-            reset();
-        }
-
-        _output->value = (_input->value - last_val) / s.get_dt();
-        last_val = _input->value;
+        block->step();
+        _output->value = block->s_out.output_value;
     }
 
-    void reset() override
+    void reset(const tmdl::SimState&) override
     {
-        last_val = _input->value;
+        block->reset();
+    }
+
+    void close() override
+    {
+        block = nullptr;
     }
 
 protected:
     std::shared_ptr<const tmdl::ModelValueBox<DT>> _input;
     std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> _reset_flag;
     std::shared_ptr<tmdl::ModelValueBox<DT>> _output;
-    tmdl::data_type_t<DT>::type last_val;
+
+    std::unique_ptr<tmdlstd::derivative_block<type_t>> block;
 };
 
 

@@ -15,6 +15,10 @@ set(
     TEAFIS_STD_MODEL_SOURCES
     src/tmdlstd/arith.hpp
     src/tmdlstd/clock.hpp src/tmdlstd/clock.cpp
+    src/tmdlstd/const.hpp
+    src/tmdlstd/delay.hpp
+    src/tmdlstd/derivative.hpp
+    src/tmdlstd/integrator.hpp
 )
 
 # Define the library

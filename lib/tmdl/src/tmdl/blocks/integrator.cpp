@@ -2,14 +2,17 @@
 
 #include "integrator.hpp"
 
+#include <memory>
+
 #include "../model_exception.hpp"
 
-#include <concepts>
+#include <tmdlstd/integrator.hpp>
 
 template <tmdl::DataType DT>
 struct IntegratorExecutor : public tmdl::BlockExecutionInterface
 {
     static_assert(tmdl::data_type_t<DT>::is_numeric);
+    using type_t = tmdl::data_type_t<DT>::type;
 
     IntegratorExecutor(
         std::shared_ptr<const tmdl::ModelValue> input,
@@ -27,31 +30,31 @@ struct IntegratorExecutor : public tmdl::BlockExecutionInterface
         }
     }
 
-    void init() override
+    void init(const tmdl::SimState& s) override
     {
-        reset();
+        block = std::make_unique<tmdlstd::integrator_block<type_t>>(s.get_dt());
+
+        block->s_in.input_value = &_input->value;
+        block->s_in.reset_value = &_reset_value->value;
+        block->s_in.reset_flag = &_reset_flag->value;
+
+        block->init();
     }
 
-    void step(const tmdl::SimState& state) override
+    void step(const tmdl::SimState&) override
     {
-        if (_reset_flag->value)
-        {
-            reset();
-        }
-        else
-        {
-            state_value += _input->value * state.get_dt();
-        }
+        block->step();
+        _output->value = block->s_out.output_value;
     }
 
-    void post_step(const tmdl::SimState&) override
+    void reset(const tmdl::SimState&) override
     {
-        _output->value = state_value;
+        block->reset();
     }
 
-    void reset() override
+    void close() override
     {
-        state_value = _reset_value->value;
+        block = nullptr;
     }
 
 protected:
@@ -61,7 +64,7 @@ protected:
 
     std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> _reset_flag;
 
-    tmdl::data_type_t<DT>::type state_value;
+    std::unique_ptr<tmdlstd::integrator_block<type_t>> block;
 };
 
 tmdl::stdlib::Integrator::Integrator()

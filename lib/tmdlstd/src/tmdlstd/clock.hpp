@@ -17,9 +17,11 @@ struct clock_block
 
     void reset();
 
-    void post_step();
+    void step();
 
     output_t s_out;
+
+private:
     const double dt;
 };
 

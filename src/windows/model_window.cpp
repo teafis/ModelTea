@@ -359,6 +359,7 @@ void ModelWindow::generateExecutor()
     try
     {
         executor = std::make_shared<tmdl::ExecutionState>(tmdl::ExecutionState::from_model(model, model->get_preferred_dt()));
+        executor->init();
 
         for (size_t i = 0; i < model->get_num_outputs(); ++i)
         {
@@ -368,14 +369,7 @@ void ModelWindow::generateExecutor()
             };
 
             const std::string varname = fmt::format("*Output {} ({})", i, model->get_output_ids()[i]);
-            executor->named_variables[varname] = executor->variables->get_ptr(outer_id);
-        }
-
-        auto model_exec = std::dynamic_pointer_cast<tmdl::ModelExecutionInterface>(executor->model);
-
-        if (model_exec == nullptr)
-        {
-            throw 1;
+            executor->add_name_to_variable(varname, outer_id);
         }
 
         for (auto& c : model->get_connection_manager().get_connections())
@@ -387,7 +381,7 @@ void ModelWindow::generateExecutor()
                 continue;
             }
 
-            executor->named_variables[varname] = model_exec->get_variable_manager()->get_ptr(*c);
+            executor->add_name_to_interior_variable(varname, *c);
         }
 
         ExecutorManager::instance().setWindowExecutor(window_id);
@@ -411,8 +405,7 @@ void ModelWindow::stepExecutor()
         return;
     }
 
-    executor->iterations += 1;
-    executor->model->step(executor->state);
+    executor->step();
 
     emit executorEvent(SimEvent(SimEvent::EventType::Step));
 }

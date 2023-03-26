@@ -23,21 +23,23 @@ public:
     }
 
 public:
-    void step(const tmdl::SimState& s) override
+    void init(const tmdl::SimState& s) override
     {
-        if (!block)
-        {
-            block = std::make_unique<tmdlstd::clock_block>(s.get_dt());
-        }
+        block = std::make_unique<tmdlstd::clock_block>(s.get_dt());
+    }
+
+    void step(const tmdl::SimState&) override
+    {
+        block->step();
         output_value->value = block->s_out.val;
     }
 
-    void post_step(const tmdl::SimState&) override
+    void reset(const tmdl::SimState&) override
     {
-        block->post_step();
+        block->reset();
     }
 
-    void reset() override
+    void close() override
     {
         block = nullptr;
     }

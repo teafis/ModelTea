@@ -4,10 +4,14 @@
 
 #include "../model_exception.hpp"
 
+#include <tmdlstd/delay.hpp>
+
 template <tmdl::DataType DT>
 class DelayExecutor : public tmdl::BlockExecutionInterface
 {
 public:
+    using type_t = tmdl::data_type_t<DT>::type;
+
     DelayExecutor(
         const std::shared_ptr<const tmdl::ModelValue> input,
         const std::shared_ptr<tmdl::ModelValue> output,
@@ -22,29 +26,31 @@ public:
         {
             throw tmdl::ModelException("input values must be non-null");
         }
+
+        block.s_in.input_value = &_input->value;
+        block.s_in.reset_value = &_reset_value->value;
+        block.s_in.reset_flag = &_reset_flag->value;
     }
 
-    void init() override
+    void init(const tmdl::SimState&) override
     {
-        reset();
+        block.init();
     }
 
     void step(const tmdl::SimState&) override
     {
-        // Do Nothing -> Reset?
+        block.step();
+        _output->value = block.s_out.output_value;
     }
 
-    void reset() override
+    void reset(const tmdl::SimState&) override
     {
-        _output->value = _reset_value->value;
-    }
-
-    void post_step(const tmdl::SimState&) override
-    {
-        _output->value = _input->value;
+        block.reset();
     }
 
 protected:
+    tmdlstd::delay_block<type_t> block;
+
     std::shared_ptr<const tmdl::ModelValueBox<DT>> _input;
     std::shared_ptr<tmdl::ModelValueBox<DT>> _output;
     std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> _reset_flag;

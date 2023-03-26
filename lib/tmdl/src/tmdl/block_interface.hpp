@@ -92,13 +92,11 @@ protected:
 class BlockExecutionInterface
 {
 public:
-    virtual void init();
+    virtual void init(const SimState&);
 
     virtual void step(const SimState&);
 
-    virtual void post_step(const SimState&);
-
-    virtual void reset();
+    virtual void reset(const SimState&);
 
     virtual void close();
 

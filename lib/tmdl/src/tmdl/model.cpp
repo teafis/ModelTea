@@ -30,11 +30,11 @@ public:
         // Empty Constructor?
     }
 
-    void init() override
+    void init(const SimState& s) override
     {
         for (const auto& b : blocks)
         {
-            b->init();
+            b->init(s);
         }
     }
 
@@ -44,18 +44,13 @@ public:
         {
             b->step(state);
         }
-
-        for (const auto& b : blocks)
-        {
-            b->post_step(state);
-        }
     }
 
-    void reset() override
+    void reset(const SimState& s) override
     {
         for (const auto& b : blocks)
         {
-            b->reset();
+            b->reset(s);
         }
     }
 
@@ -560,9 +555,6 @@ std::shared_ptr<ModelExecutionInterface> Model::get_execution_interface(
 
     // Create the executor
     auto model_exec = std::make_shared<ModelExecutor>(variables, interface_order);
-
-    // Reset the model executor
-    model_exec->reset();
 
     // Return result
     return model_exec;

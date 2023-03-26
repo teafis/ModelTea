@@ -12,7 +12,7 @@ void tmdlstd::clock_block::reset()
     s_out.val = 0.0;
 }
 
-void tmdlstd::clock_block::post_step()
+void tmdlstd::clock_block::step()
 {
     s_out.val += dt;
 }

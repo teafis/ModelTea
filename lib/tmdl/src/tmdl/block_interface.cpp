@@ -60,7 +60,7 @@ std::unique_ptr<const tmdl::BlockError> tmdl::BlockInterface::make_error(const s
     });
 }
 
-void tmdl::BlockExecutionInterface::init()
+void tmdl::BlockExecutionInterface::init(const SimState&)
 {
     // Empty Init
 }
@@ -70,12 +70,7 @@ void tmdl::BlockExecutionInterface::step(const SimState&)
     // Empty Step
 }
 
-void tmdl::BlockExecutionInterface::post_step(const SimState&)
-{
-    // Empty post-step
-}
-
-void tmdl::BlockExecutionInterface::reset()
+void tmdl::BlockExecutionInterface::reset(const SimState&)
 {
     // Empty Reset
 }

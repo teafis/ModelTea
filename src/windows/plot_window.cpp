@@ -38,7 +38,7 @@ PlotWindow::PlotWindow(
 
         list_model->addItem(ItemSelector
         {
-            .var = execution_state->named_variables[n],
+            .var = execution_state->get_variable_for_name(n),
             .name = name,
             .series = s
         });
@@ -112,11 +112,12 @@ void PlotWindow::executorEvent(SimEvent event)
 
         for (size_t i = 0; i < names.size(); ++i)
         {
-            auto var = execution_state->named_variables[names[i]];
+            const auto& n = names[i];
+            auto var = execution_state->get_variable_for_name(n);
 
             const auto double_val = double_from_variable(var);
 
-            const auto t = execution_state->iterations * execution_state->state.get_dt();
+            const auto t = execution_state->get_current_time();
 
             series[i]->append(t, *double_val);
             ui->chartView->chart()->axes(Qt::Horizontal)[0]->setRange(0.0, t);

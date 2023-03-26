@@ -19,6 +19,9 @@ set(
     src/tmdlstd/delay.hpp
     src/tmdlstd/derivative.hpp
     src/tmdlstd/integrator.hpp
+    src/tmdlstd/limiter.hpp
+    src/tmdlstd/relational.hpp
+    src/tmdlstd/trig.hpp
 )
 
 # Define the library

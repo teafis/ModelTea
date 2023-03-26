@@ -6,6 +6,8 @@
 
 #include <algorithm>
 
+#include <tmdlstd/limiter.hpp>
+
 using namespace tmdl;
 using namespace tmdl::stdlib;
 
@@ -31,24 +33,17 @@ public:
         {
             throw ModelException("input pointers cannot be null");
         }
+
+        block.s_in.input_value = &_ptr_input->value;
+        block.s_in.limit_lower = &_val_min->value;
+        block.s_in.limit_upper = &_val_max->value;
     }
 
 public:
     void step(const SimState&) override
     {
-        const limit_t current = _ptr_input->value;
-        if (current < _val_min->value)
-        {
-            _ptr_output->value = _val_min->value;
-        }
-        else if (current > _val_max->value)
-        {
-            _ptr_output->value = _val_max->value;
-        }
-        else
-        {
-            _ptr_output->value = current;
-        }
+        block.step();
+        _ptr_output->value = block.s_out.output_value;
     }
 
 protected:
@@ -56,6 +51,8 @@ protected:
     std::shared_ptr<ModelValueBox<DT>> _ptr_output;
     std::shared_ptr<const ModelValueBox<DT>> _val_min;
     std::shared_ptr<const ModelValueBox<DT>> _val_max;
+
+    tmdlstd::limiter_block<limit_t> block;
 };
 
 Limiter::Limiter()

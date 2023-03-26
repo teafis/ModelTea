@@ -4,6 +4,8 @@
 
 #include "../model_exception.hpp"
 
+#include <tmdlstd/trig.hpp>
+
 
 tmdl::stdlib::TrigFunction::TrigFunction()
 {
@@ -73,45 +75,72 @@ tmdl::DataType tmdl::stdlib::TrigFunction::get_output_type(const size_t port) co
     }
 }
 
-template <typename T, T (FCN)(T)>
-static T arith_func(const T x)
-{
-    return FCN(x);
-}
-
-template <tmdl::DataType DT>
+template <tmdl::DataType DT, tmdlstd::TrigFunction FCN>
 class TrigExecutor : public tmdl::BlockExecutionInterface
 {
 public:
     using val_t = tmdl::data_type_t<DT>::type;
-    using fcn_t = val_t (*)(val_t);
 
 public:
     TrigExecutor(
         std::shared_ptr<const tmdl::ModelValue> ptr_input,
-        std::shared_ptr<tmdl::ModelValue> ptr_output,
-        fcn_t operation_func) :
+        std::shared_ptr<tmdl::ModelValue> ptr_output) :
         _ptr_input(std::dynamic_pointer_cast<const tmdl::ModelValueBox<DT>>(ptr_input)),
-        _ptr_output(std::dynamic_pointer_cast<tmdl::ModelValueBox<DT>>(ptr_output)),
-        _operation_func(operation_func)
+        _ptr_output(std::dynamic_pointer_cast<tmdl::ModelValueBox<DT>>(ptr_output))
     {
         if (_ptr_input == nullptr || _ptr_output == nullptr)
         {
             throw tmdl::ModelException("input pointers cannot be null");
         }
+
+        block.s_in.value = &_ptr_input->value;
     }
 
 public:
     void step(const tmdl::SimState&) override
     {
-        _ptr_output->value = _operation_func(_ptr_input->value);
+        block.step();
+        _ptr_output->value = block.s_out.value;
     }
 
 protected:
     const std::shared_ptr<const tmdl::ModelValueBox<DT>> _ptr_input;
     const std::shared_ptr<tmdl::ModelValueBox<DT>> _ptr_output;
-    const fcn_t _operation_func;
+    tmdlstd::trig_block<val_t, FCN> block;
 };
+
+template <tmdlstd::TrigFunction FCN>
+static std::shared_ptr<tmdl::BlockExecutionInterface> generate_exec_interface(
+    const tmdl::stdlib::TrigFunction* model,
+    const tmdl::ConnectionManager& connections,
+    const tmdl::VariableManager& manager)
+{
+    if (model->has_error() != nullptr)
+    {
+        throw tmdl::ModelException("cannot execute with incomplete input parameters");
+    }
+
+    const auto inputValue = manager.get_ptr(*connections.get_connection_to(model->get_id(), 0));
+    const auto outputValue = manager.get_ptr(tmdl::VariableIdentifier
+    {
+        .block_id = model->get_id(),
+        .output_port_num = 0
+    });
+
+    switch (inputValue->get_data_type())
+    {
+    case tmdl::DataType::DOUBLE:
+        return std::make_shared<TrigExecutor<tmdl::DataType::DOUBLE, FCN>>(
+            inputValue,
+            outputValue);
+    case tmdl::DataType::SINGLE:
+        return std::make_shared<TrigExecutor<tmdl::DataType::SINGLE, FCN>>(
+            inputValue,
+            outputValue);
+    default:
+        throw tmdl::ModelException("unable to generate limitor executor");
+    }
+}
 
 std::string tmdl::stdlib::TrigSin::get_name() const
 {
@@ -127,33 +156,7 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::TrigSin::get_execut
     const ConnectionManager& connections,
     const VariableManager& manager) const
 {
-    if (has_error() != nullptr)
-    {
-        throw ModelException("cannot execute with incomplete input parameters");
-    }
-
-    const auto inputValue = manager.get_ptr(*connections.get_connection_to(get_id(), 0));
-    const auto outputValue = manager.get_ptr(VariableIdentifier
-    {
-        .block_id = get_id(),
-        .output_port_num = 0
-    });
-
-    switch (input_type)
-    {
-    case DataType::DOUBLE:
-        return std::make_shared<TrigExecutor<DataType::DOUBLE>>(
-            inputValue,
-            outputValue,
-            arith_func<tmdl::data_type_t<DataType::DOUBLE>::type, std::sin>);
-    case DataType::SINGLE:
-        return std::make_shared<TrigExecutor<DataType::SINGLE>>(
-            inputValue,
-            outputValue,
-            arith_func<tmdl::data_type_t<DataType::SINGLE>::type, std::sin>);
-    default:
-        throw ModelException("unable to generate limitor executor");
-    }
+    return generate_exec_interface<tmdlstd::TrigFunction::SIN>(this, connections, manager);
 }
 
 std::string tmdl::stdlib::TrigCos::get_name() const
@@ -170,31 +173,5 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::TrigCos::get_execut
     const ConnectionManager& connections,
     const VariableManager& manager) const
 {
-    if (has_error() != nullptr)
-    {
-        throw ModelException("cannot execute with incomplete input parameters");
-    }
-
-    const auto inputValue = manager.get_ptr(*connections.get_connection_to(get_id(), 0));
-    const auto outputValue = manager.get_ptr(VariableIdentifier
-    {
-        .block_id = get_id(),
-        .output_port_num = 0
-    });
-
-    switch (input_type)
-    {
-    case DataType::DOUBLE:
-        return std::make_shared<TrigExecutor<DataType::DOUBLE>>(
-            inputValue,
-            outputValue,
-            arith_func<tmdl::data_type_t<DataType::DOUBLE>::type, std::cos>);
-    case DataType::SINGLE:
-        return std::make_shared<TrigExecutor<DataType::SINGLE>>(
-            inputValue,
-            outputValue,
-            arith_func<tmdl::data_type_t<DataType::SINGLE>::type, std::cos>);
-    default:
-        throw ModelException("unable to generate limitor executor");
-    }
+    return generate_exec_interface<tmdlstd::TrigFunction::COS>(this, connections, manager);
 }

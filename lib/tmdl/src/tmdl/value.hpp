@@ -76,6 +76,8 @@ DataType data_type_from_string(const std::string& s);
 
 struct ModelValue
 {
+    virtual DataType get_data_type() const = 0;
+
     virtual ~ModelValue()
     {
         // Empty Destructor
@@ -95,6 +97,11 @@ struct ModelValueBox : public ModelValue
     ModelValueBox(const type_t inval) : value{inval}
     {
         // Empty Constructor
+    }
+
+    virtual DataType get_data_type() const override
+    {
+        return DT;
     }
 
     type_t value;

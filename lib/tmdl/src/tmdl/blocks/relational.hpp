@@ -37,13 +37,6 @@ public:
 
     DataType get_output_type(const size_t port) const override;
 
-    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
-        const ConnectionManager& connections,
-        const VariableManager& manager) const override;
-
-protected:
-    virtual FunctionTypes get_application_functions() const = 0;
-
 protected:
     DataType _inputA;
     DataType _inputB;
@@ -57,7 +50,9 @@ public:
 
     std::string get_description() const override;
 
-    FunctionTypes get_application_functions() const override;
+    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
+        const ConnectionManager& connections,
+        const VariableManager& manager) const override;
 };
 
 class GreaterThanEqual : public RelationalBase
@@ -67,7 +62,9 @@ public:
 
     std::string get_description() const override;
 
-    FunctionTypes get_application_functions() const override;
+    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
+        const ConnectionManager& connections,
+        const VariableManager& manager) const override;
 };
 
 class LessThan : public RelationalBase
@@ -77,7 +74,9 @@ public:
 
     std::string get_description() const override;
 
-    FunctionTypes get_application_functions() const override;
+    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
+        const ConnectionManager& connections,
+        const VariableManager& manager) const override;
 };
 
 class LessThanEqual : public RelationalBase
@@ -87,7 +86,9 @@ public:
 
     std::string get_description() const override;
 
-    FunctionTypes get_application_functions() const override;
+    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
+        const ConnectionManager& connections,
+        const VariableManager& manager) const override;
 };
 
 class Equal : public RelationalBase
@@ -97,7 +98,9 @@ public:
 
     std::string get_description() const override;
 
-    FunctionTypes get_application_functions() const override;
+    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
+        const ConnectionManager& connections,
+        const VariableManager& manager) const override;
 };
 
 class NotEqual : public RelationalBase
@@ -107,7 +110,9 @@ public:
 
     std::string get_description() const override;
 
-    FunctionTypes get_application_functions() const override;
+    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
+        const ConnectionManager& connections,
+        const VariableManager& manager) const override;
 };
 
 }

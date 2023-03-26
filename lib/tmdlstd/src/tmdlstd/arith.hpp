@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 #ifndef TMDL_STDLIB_ARITH_H
 #define TMDL_STDLIB_ARITH_H
 

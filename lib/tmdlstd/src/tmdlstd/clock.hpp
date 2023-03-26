@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 #ifndef TMDL_STDLIB_CLOCK_H
 #define TMDL_STDLIB_CLOCK_H
 
@@ -11,20 +13,11 @@ struct clock_block
         double val;
     };
 
-    clock_block(const double dt) : dt(dt)
-    {
-        reset();
-    }
+    clock_block(const double dt);
 
-    void reset()
-    {
-        s_out.val = 0.0;
-    }
+    void reset();
 
-    void post_step()
-    {
-        s_out.val += dt;
-    }
+    void post_step();
 
     output_t s_out;
     const double dt;

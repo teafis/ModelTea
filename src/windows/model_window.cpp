@@ -223,7 +223,7 @@ void ModelWindow::openModel()
             }
             catch (const tmdl::ModelException& ex)
             {
-                QMessageBox::warning(this, "error", ex.what().c_str());
+                QMessageBox::warning(this, "error", ex.what());
                 return;
             }
 
@@ -279,7 +279,7 @@ void ModelWindow::closeModel()
     }
     catch (const tmdl::ModelException& ex)
     {
-        QMessageBox::warning(this, "error", ex.what().c_str());
+        QMessageBox::warning(this, "error", ex.what());
 
         auto model_ptr = weak_val.lock();
         if (model_ptr && mdl_library->has_block(name))
@@ -396,7 +396,7 @@ void ModelWindow::generateExecutor()
     }
     catch (const tmdl::ModelException& ex)
     {
-        QMessageBox::warning(this, "Parameter Error", ex.what().c_str());
+        QMessageBox::warning(this, "Parameter Error", ex.what());
         executor = nullptr;
         return;
     }

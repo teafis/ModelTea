@@ -7,73 +7,13 @@
 #include <concepts>
 #include <memory>
 
+#include <fmt/format.h>
+
+#include <tmdlstd/arith_block.hpp>
+
 // Arithmetic Executor
 
-enum class OperatorType
-{
-    ADDITION,
-    SUBTRACTION,
-    MULTIPLICATION,
-    DIVISION,
-};
-
-template <tmdl::DataType DT, OperatorType OP>
-class Operator
-{
-public:
-    using type_t = tmdl::data_type_t<DT>::type;
-
-    static_assert(tmdl::data_type_t<DT>::is_numeric);
-
-    void apply(const type_t& x)
-    {
-        if (is_first)
-        {
-            current = x;
-            is_first = false;
-        }
-        else
-        {
-            if constexpr (OP == OperatorType::ADDITION)
-            {
-                current += x;
-            }
-            else if constexpr (OP == OperatorType::SUBTRACTION)
-            {
-                current -= x;
-            }
-            else if constexpr (OP == OperatorType::MULTIPLICATION)
-            {
-                current *= x;
-            }
-            else if constexpr (OP == OperatorType::DIVISION)
-            {
-                current /= x;
-            }
-            else
-            {
-                //static_assert(false);
-            }
-        }
-    }
-
-    void reset()
-    {
-        is_first = true;
-        current = type_t{};
-    }
-
-    type_t get_value() const
-    {
-        return current;
-    }
-
-protected:
-    bool is_first = true;
-    type_t current{};
-};
-
-template <tmdl::DataType DT, OperatorType OP>
+template <tmdl::DataType DT, tmdlstd::ArithType OP>
 struct ArithmeticExecutor : public tmdl::BlockExecutionInterface
 {
     using type_t = tmdl::data_type_t<DT>::type;
@@ -98,25 +38,79 @@ struct ArithmeticExecutor : public tmdl::BlockExecutionInterface
             }
 
             input_values.push_back(ptr);
+            input_value_ptr_array.push_back(&ptr->value);
         }
+
+        block.s_in.vals = input_value_ptr_array.data();
+        block.s_in.size = input_value_ptr_array.size();
     }
 
     void step(const tmdl::SimState&) override
     {
-        op.reset();
+        block.step();
+        output_value->value = block.s_out.val;
+    }
 
-        for (const auto& p : input_values)
+    /*
+    std::unique_ptr<tmdl::codegen::CodeComponent> generate_code_component() const override
+    {
+        return nullptr;
+    }
+    */
+
+protected:
+    /*
+    struct CodegenComponent : public tmdl::codegen::CodeComponent
+    {
+        std::string get_file_name() const override
         {
-            op.apply(p->value);
+            return "tmdlstd/arith_block.hpp";
         }
 
-        output_value->value = op.get_value();
-    }
+        std::string get_type_name() const override
+        {
+            return fmt::format("tmdlstd::arith_block<{}, {}, {}>", tmdl::data_type_to_string(DT), input_values.size(), std::toupper(name_for_type()));
+        }
+
+        std::optional<std::string> get_function_name(tmdl::codegen::FunctionType ft) const override
+        {
+            if (ft == tmdl::codegen::FunctionType::STEP)
+            {
+                return "step";
+            }
+            else
+            {
+                return {};
+            }
+        }
+
+    protected:
+        std::string name_for_type() const
+        {
+            switch (OP)
+            {
+            case tmdlstd::ArithType::ADD:
+                return "add";
+            case tmdlstd::ArithType::SUB:
+                return "sub";
+            case tmdlstd::ArithType::MUL:
+                return "mul";
+            case tmdlstd::ArithType::DIV:
+                return "div";
+            default:
+                throw tmdl::ModelException("unknown provided parameter");
+            }
+        }
+    };
+    */
 
 protected:
     std::vector<std::shared_ptr<const tmdl::ModelValueBox<DT>>> input_values;
+    std::vector<const type_t*> input_value_ptr_array;
     std::shared_ptr<tmdl::ModelValueBox<DT>> output_value;
-    Operator<DT, OP> op;
+    //Operator<DT, OP> op;
+
+    tmdlstd::arith_block<type_t, OP> block;
 };
 
 // Arithmetic Base
@@ -224,7 +218,7 @@ tmdl::DataType tmdl::stdlib::ArithmeticBase::get_output_type(const size_t port) 
     }
 }
 
-template <OperatorType OP>
+template <tmdlstd::ArithType OP>
 std::shared_ptr<tmdl::BlockExecutionInterface> generate_executor(
     const tmdl::DataType output_type,
     const std::vector<std::shared_ptr<const tmdl::ModelValue>>& input_values,
@@ -299,7 +293,7 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Addition::get_appli
     const std::vector<std::shared_ptr<const ModelValue>>& input_values,
     const std::shared_ptr<tmdl::ModelValue> output_value) const
 {
-    return generate_executor<OperatorType::ADDITION>(_outputPort, input_values, output_value);
+    return generate_executor<tmdlstd::ArithType::ADD>(_outputPort, input_values, output_value);
 }
 
 // Subtraction Block
@@ -318,7 +312,7 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Subtraction::get_ap
     const std::vector<std::shared_ptr<const ModelValue>>& input_values,
     const std::shared_ptr<tmdl::ModelValue> output_value) const
 {
-    return generate_executor<OperatorType::SUBTRACTION>(_outputPort, input_values, output_value);
+    return generate_executor<tmdlstd::ArithType::SUB>(_outputPort, input_values, output_value);
 }
 
 // Product Block
@@ -337,7 +331,7 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Multiplication::get
     const std::vector<std::shared_ptr<const ModelValue>>& input_values,
     const std::shared_ptr<tmdl::ModelValue> output_value) const
 {
-    return generate_executor<OperatorType::MULTIPLICATION>(_outputPort, input_values, output_value);
+    return generate_executor<tmdlstd::ArithType::MUL>(_outputPort, input_values, output_value);
 }
 
 // Division Block
@@ -356,5 +350,5 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Division::get_appli
     const std::vector<std::shared_ptr<const ModelValue>>& input_values,
     const std::shared_ptr<tmdl::ModelValue> output_value) const
 {
-    return generate_executor<OperatorType::DIVISION>(_outputPort, input_values, output_value);
+    return generate_executor<tmdlstd::ArithType::DIV>(_outputPort, input_values, output_value);
 }

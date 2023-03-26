@@ -60,7 +60,7 @@ void ModelParametersDialog::accept()
         model->set_description(orig_desc);
         model->set_preferred_dt(orig_dt);
 
-        QMessageBox::warning(this, "error", QString("%1").arg(ex.what().c_str()));
+        QMessageBox::warning(this, "error", QString("%1").arg(ex.what()));
         return;
     }
 

@@ -85,7 +85,7 @@ void tmdl::BlockExecutionInterface::close()
     // Empty Close
 }
 
-std::unique_ptr<tmdl::codegen::CodeComponent> tmdl::BlockExecutionInterface::generate_code_component()
+std::unique_ptr<tmdl::codegen::CodeComponent> tmdl::BlockExecutionInterface::generate_code_component() const
 {
     // Not implemented -> TODO - remove and replace with pure virtual
     throw 0;

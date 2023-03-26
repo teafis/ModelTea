@@ -7,9 +7,9 @@ tmdl::ModelException::ModelException(const std::string& msg) : _msg(msg)
     // Empty Constructor
 }
 
-const std::string& tmdl::ModelException::what() const
+const char* tmdl::ModelException::what() const noexcept
 {
-    return _msg;
+    return _msg.c_str();
 }
 
 tmdl::ModelException::~ModelException()

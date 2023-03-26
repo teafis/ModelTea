@@ -40,7 +40,7 @@ void ParameterNumericWidget::textChanged()
     catch (const tmdl::ModelException& ex)
     {
         auto* msg = new QMessageBox(this);
-        msg->setText(ex.what().c_str());
+        msg->setText(ex.what());
         msg->setWindowTitle("Parameter Error");
         msg->exec();
         return;

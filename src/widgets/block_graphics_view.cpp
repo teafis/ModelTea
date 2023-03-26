@@ -172,7 +172,7 @@ void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
             }
             catch (const tmdl::ModelException& ex)
             {
-                QMessageBox::warning(this, "error", ex.what().c_str());
+                QMessageBox::warning(this, "error", ex.what());
                 mouseState = nullptr;
                 return;
             }
@@ -505,7 +505,7 @@ void BlockGraphicsView::addBlock(std::shared_ptr<tmdl::BlockInterface> blk)
     }
     catch (const tmdl::ModelException& ex)
     {
-        QMessageBox::warning(this, "error", ex.what().c_str());
+        QMessageBox::warning(this, "error", ex.what());
         return;
     }
 

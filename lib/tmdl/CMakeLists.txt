@@ -5,17 +5,11 @@ cmake_minimum_required(VERSION 3.18)
 set(VCPKG_FEATURE_FLAGS "versions")
 
 # Define the project information
-project (
+project(
     tmdl
     VERSION 0.1
     LANGUAGES CXX
 )
-
-# Define the C++ Standard Required
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set(
     TEAFIS_MODEL_SOURCES
@@ -56,8 +50,15 @@ add_library(
     ${TEAFIS_MODEL_SOURCES}
 )
 
+# Define the C++ Standard Required
+set_property(TARGET tmdl PROPERTY CXX_STANDARD 20)
+set_property(TARGET tmdl PROPERTY CXX_STANDARD_REQUIRED ON)
+
+# Link Libraries
 target_link_libraries(tmdl PUBLIC nlohmann_json::nlohmann_json)
 target_link_libraries(tmdl PUBLIC fmt::fmt)
+
+target_link_libraries(tmdl PRIVATE tmdlstd)
 
 # Include Directories
 target_include_directories(tmdl PUBLIC src)
@@ -69,10 +70,10 @@ else()
     target_compile_options(tmdl PUBLIC -Wall -Wextra -pedantic -Werror)
 
     if (TEAFIS_USE_ASAN)
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak")
+        set_property(TARGET tmdl PROPERTY CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak")
     endif()
 
     if (TEAFIS_USE_LSAN)
-        set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak")
+        set_property(TARGET tmdl PROPERTY CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak")
     endif()
 endif()

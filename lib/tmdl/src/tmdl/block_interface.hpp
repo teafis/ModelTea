@@ -102,7 +102,7 @@ public:
 
     virtual void close();
 
-    virtual std::unique_ptr<codegen::CodeComponent> generate_code_component();
+    virtual std::unique_ptr<codegen::CodeComponent> generate_code_component() const;
 };
 
 

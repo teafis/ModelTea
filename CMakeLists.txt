@@ -12,15 +12,6 @@ set(VCPKG_FEATURE_FLAGS "versions")
 
 project(ModelTea VERSION 0.1 LANGUAGES CXX)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets Charts REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Charts REQUIRED)
 
@@ -65,7 +56,15 @@ else()
     )
 endif()
 
+set_property(TARGET ModelTea PROPERTY AUTOUIC ON)
+set_property(TARGET ModelTea PROPERTY AUTOMOC ON)
+set_property(TARGET ModelTea PROPERTY AUTORCC ON)
+
+set_property(TARGET ModelTea PROPERTY CXX_STANDARD 20)
+set_property(TARGET ModelTea PROPERTY CXX_STANDARD_REQUIRED ON)
+
 add_subdirectory(lib/tmdl)
+add_subdirectory(lib/tmdlstd)
 
 target_include_directories(ModelTea PRIVATE src/)
 

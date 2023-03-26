@@ -44,7 +44,7 @@ struct IntegratorExecutor : public tmdl::BlockExecutionInterface
         }
     }
 
-    void post_step() override
+    void post_step(const tmdl::SimState&) override
     {
         _output->value = state_value;
     }

@@ -70,7 +70,7 @@ void tmdl::BlockExecutionInterface::step(const SimState&)
     // Empty Step
 }
 
-void tmdl::BlockExecutionInterface::post_step()
+void tmdl::BlockExecutionInterface::post_step(const SimState&)
 {
     // Empty post-step
 }

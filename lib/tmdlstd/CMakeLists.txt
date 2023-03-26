@@ -13,7 +13,8 @@ project (
 
 set(
     TEAFIS_STD_MODEL_SOURCES
-    src/tmdlstd/arith_block.hpp
+    src/tmdlstd/arith.hpp
+    src/tmdlstd/clock.hpp
 )
 
 # Define the library

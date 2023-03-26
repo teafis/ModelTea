@@ -8,7 +8,6 @@
 void tmdl::ExecutionState::reset()
 {
     iterations = 0;
-    state.set_time(0.0);
     model->reset();
 }
 

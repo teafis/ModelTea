@@ -411,10 +411,6 @@ void ModelWindow::stepExecutor()
         return;
     }
 
-    if (executor->iterations != 0)
-    {
-        executor->state.set_time(executor->state.get_time() + executor->state.get_dt());
-    }
     executor->iterations += 1;
     executor->model->step(executor->state);
 

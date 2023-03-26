@@ -47,7 +47,7 @@ public:
 
         for (const auto& b : blocks)
         {
-            b->post_step();
+            b->post_step(state);
         }
     }
 

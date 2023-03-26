@@ -46,9 +46,9 @@ public:
         std::vector<std::string> fields;
     };
 
-    virtual const InterfaceDefinition& get_input_type() const = 0;
+    virtual std::optional<const InterfaceDefinition&> get_input_type() const = 0;
 
-    virtual const InterfaceDefinition& get_output_type() const = 0;
+    virtual std::optional<const InterfaceDefinition&> get_output_type() const = 0;
 
     virtual void write_code(CodeType type, std::filesystem::path folder) const = 0;
 

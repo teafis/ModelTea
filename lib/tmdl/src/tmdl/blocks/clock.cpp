@@ -1,15 +1,20 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
+#include <memory>
+
 #include "clock.hpp"
 
 #include "../model_exception.hpp"
+
+#include "tmdlstd/clock.hpp"
 
 class ClockExecutor : public tmdl::BlockExecutionInterface
 {
 public:
     ClockExecutor(
         std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>> ptr_output) :
-        output_value(ptr_output)
+        output_value(ptr_output),
+        block(nullptr)
     {
         if (ptr_output == nullptr)
         {
@@ -20,11 +25,26 @@ public:
 public:
     void step(const tmdl::SimState& s) override
     {
-        output_value->value = s.get_time();
+        if (!block)
+        {
+            block = std::make_unique<tmdlstd::clock_block>(s.get_dt());
+        }
+        output_value->value = block->s_out.val;
+    }
+
+    void post_step(const tmdl::SimState&) override
+    {
+        block->post_step();
+    }
+
+    void reset() override
+    {
+        block = nullptr;
     }
 
 protected:
     std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>> output_value;
+    std::unique_ptr<tmdlstd::clock_block> block;
 };
 
 

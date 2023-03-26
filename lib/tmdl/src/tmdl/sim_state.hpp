@@ -11,14 +11,9 @@ class SimState
 public:
     SimState(const double dt);
 
-    double get_time() const;
-
     double get_dt() const;
 
-    void set_time(const double& t);
-
 private:
-    double time;
     double dt;
 };
 

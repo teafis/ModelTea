@@ -8,7 +8,6 @@
 
 
 tmdl::SimState::SimState(const double dt) :
-    time(0.0),
     dt(dt)
 {
     if (dt <= 0.0)
@@ -17,17 +16,7 @@ tmdl::SimState::SimState(const double dt) :
     }
 }
 
-double tmdl::SimState::get_time() const
-{
-    return time;
-}
-
 double tmdl::SimState::get_dt() const
 {
     return dt;
-}
-
-void tmdl::SimState::set_time(const double& t)
-{
-    time = t;
 }

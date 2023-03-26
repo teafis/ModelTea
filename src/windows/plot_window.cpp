@@ -116,7 +116,7 @@ void PlotWindow::executorEvent(SimEvent event)
 
             const auto double_val = double_from_variable(var);
 
-            const auto t = execution_state->state.get_time();
+            const auto t = execution_state->iterations * execution_state->state.get_dt();
 
             series[i]->append(t, *double_val);
             ui->chartView->chart()->axes(Qt::Horizontal)[0]->setRange(0.0, t);

@@ -96,7 +96,7 @@ public:
 
     virtual void step(const SimState&);
 
-    virtual void post_step();
+    virtual void post_step(const SimState&);
 
     virtual void reset();
 

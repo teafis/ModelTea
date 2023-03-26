@@ -1,5 +1,5 @@
-#ifndef TMDL_STDLIB_ARITH_BLOCK_H
-#define TMDL_STDLIB_ARITH_BLOCK_H
+#ifndef TMDL_STDLIB_ARITH_H
+#define TMDL_STDLIB_ARITH_H
 
 namespace tmdlstd
 {
@@ -65,4 +65,4 @@ struct arith_block
 
 }
 
-#endif // TMDL_STDLIB_ARITH_BLOCK_H
+#endif // TMDL_STDLIB_ARITH_H

@@ -39,7 +39,7 @@ public:
         _output->value = _reset_value->value;
     }
 
-    void post_step() override
+    void post_step(const tmdl::SimState&) override
     {
         _output->value = _input->value;
     }

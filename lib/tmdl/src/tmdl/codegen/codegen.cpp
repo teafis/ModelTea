@@ -1,18 +1,18 @@
 #include "codegen.hpp"
 
-tmdl::codegen::CodegenError::CodegenError(const std::string& msg) : msg(msg)
+tmdl::codegen::CodegenError::CodegenError(const std::string& msg) : _msg(msg)
 {
     // Empty Constructor
 }
 
 const char* tmdl::codegen::CodegenError::what() const noexcept
 {
-    return msg.c_str();
+    return _msg.c_str();
 }
 
-std::string tmdl::codegen::get_datatype_name(const CodeType code, const tmdl::DataType datatype)
+std::string tmdl::codegen::get_datatype_name(const Language code, const tmdl::DataType datatype)
 {
-    if (code == CodeType::CPP)
+    if (code == Language::CPP)
     {
         switch (datatype)
         {

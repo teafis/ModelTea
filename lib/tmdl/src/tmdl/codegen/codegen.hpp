@@ -3,7 +3,6 @@
 #ifndef TF_MODEL_CODEGEN_HPP
 #define TF_MODEL_CODEGEN_HPP
 
-#include <exception>
 #include <string>
 
 #include "../value.hpp"
@@ -11,32 +10,39 @@
 namespace tmdl::codegen
 {
 
-enum class CodeType
+enum class Language
 {
     CPP = 0,
 };
 
-enum class FunctionType
+enum class CodeSection
+{
+    BLOCK_INIT = 0,
+    BLOCK_CLOSE,
+    DEFINITION,
+    DECLARATION,
+};
+
+enum class BlockFunction
 {
     INIT = 0,
     CLOSE,
     RESET,
     STEP,
-    POST_STEP,
 };
 
-class CodegenError : public std::exception
+class CodegenError
 {
 public:
     CodegenError(const std::string& msg);
 
-    virtual const char* what() const noexcept override;
+    virtual const char* what() const noexcept;
 
 protected:
-    const std::string msg;
+    const std::string _msg;
 };
 
-std::string get_datatype_name(CodeType code, tmdl::DataType datatype);
+std::string get_datatype_name(Language code, tmdl::DataType datatype);
 
 }
 

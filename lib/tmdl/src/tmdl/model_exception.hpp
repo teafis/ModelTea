@@ -4,18 +4,17 @@
 #define TF_MODEL_EXCEPTION_HPP
 
 #include <string>
-#include <exception>
 
 
 namespace tmdl
 {
 
-class ModelException : public std::exception
+class ModelException
 {
 public:
     ModelException(const std::string& msg);
 
-    const char* what() const noexcept override;
+    const char* what() const noexcept;
 
     virtual ~ModelException();
 

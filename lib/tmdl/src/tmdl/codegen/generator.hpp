@@ -14,9 +14,15 @@ namespace tmdl::codegen
 class CodeGenerator
 {
 public:
+    Language get_language() const
+    {
+        return Language::CPP;
+    }
 
 private:
     std::unordered_map<std::string, std::unique_ptr<CodeComponent>> components;
+
+    size_t var_count = 0;
 };
 
 }

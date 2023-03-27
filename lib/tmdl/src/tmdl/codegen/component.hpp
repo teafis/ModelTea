@@ -13,52 +13,65 @@
 namespace tmdl::codegen
 {
 
+class InterfaceDefinition
+{
+public:
+    InterfaceDefinition(const std::string& type_name, const std::vector<std::string>& fields) :
+        name(type_name),
+        fields(fields)
+    {
+        // Empty Constructor
+    }
+
+    const std::string& get_name() const
+    {
+        return name;
+    }
+
+    size_t get_size() const
+    {
+        return fields.size();
+    }
+
+    const std::string& get_field(const size_t i) const
+    {
+        return fields.at(i);
+    }
+
+protected:
+    std::string name;
+    std::vector<std::string> fields;
+};
+
 class CodeComponent
 {
 public:
-    class InterfaceDefinition
+    CodeComponent(const std::string& name) : _variable_name(name)
     {
-    public:
-        InterfaceDefinition(const std::string& type_name, const std::vector<std::string>& fields) :
-            name(type_name),
-            fields(fields)
-        {
-            // Empty Constructor
-        }
+        // Empty Constructor
+    }
 
-        const std::string& get_name() const
-        {
-            return name;
-        }
+    virtual std::optional<const InterfaceDefinition> get_input_type() const = 0;
 
-        size_t get_size() const
-        {
-            return fields.size();
-        }
+    virtual std::optional<const InterfaceDefinition> get_output_type() const = 0;
 
-        const std::string& get_field(const size_t i) const
-        {
-            return fields.at(i);
-        }
-
-    protected:
-        std::string name;
-        std::vector<std::string> fields;
-    };
-
-    virtual std::optional<const InterfaceDefinition&> get_input_type() const = 0;
-
-    virtual std::optional<const InterfaceDefinition&> get_output_type() const = 0;
-
-    virtual void write_code(CodeType type, std::filesystem::path folder) const = 0;
+    std::vector<std::string> write_code(Language type, CodeSection section) const;
 
     virtual std::string get_file_name() const = 0;
 
     virtual std::string get_type_name() const = 0;
 
-    virtual std::string get_input_struct_name() const = 0;
+    std::string get_varname() const
+    {
+        return _variable_name;
+    }
 
-    virtual std::optional<std::string> get_function_name(FunctionType ft) const = 0;
+    virtual std::optional<std::string> get_function_name(BlockFunction ft) const = 0;
+
+protected:
+    virtual std::vector<std::string> write_cpp_code(CodeSection section) const;
+
+    std::string _variable_name;
 };
 
 }

@@ -51,12 +51,77 @@ struct ArithmeticExecutor : public tmdl::BlockExecutionInterface
         output_value->value = block.s_out.val;
     }
 
-    /*
+protected:
+    struct ArithCodeComp : public tmdl::codegen::CodeComponent
+    {
+        ArithCodeComp(size_t size, tmdl::DataType dt) : _size(size), _dt(dt)
+        {
+            // Empty Constructor
+        }
+
+        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+        {
+            std::vector<std::string> num_fields;
+
+            for (size_t i = 0; i < _size; ++i)
+            {
+                num_fields.push_back(fmt::format("vals[{}]", i));
+            }
+
+            return tmdl::codegen::InterfaceDefinition("input_t", {});
+        }
+
+        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+        {
+            return tmdl::codegen::InterfaceDefinition("output_t", {});
+        }
+
+        virtual std::string get_file_name() const override
+        {
+            return "tmdlstd/arith.hpp";
+        }
+
+        virtual std::string get_type_name() const override
+        {
+            return fmt::format("tmdlstd::arith_block<{}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, _dt));
+        }
+
+        virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const
+        {
+            if (ft == tmdl::codegen::BlockFunction::STEP)
+            {
+                return "step";
+            }
+            else
+            {
+                return {};
+            }
+        }
+
+    protected:
+        virtual std::vector<std::string> write_cpp_code(tmdl::codegen::CodeSection section) const override
+        {
+            if (section == tmdl::codegen::CodeSection::BLOCK_INIT)
+            {
+                std::string _varname_block = "block_test";
+                return {
+                    fmt::format("T* {}_tmp_var[{}];", _varname_block, _size),
+                    fmt::format("{}.vals = {}_tmp_var;", _varname_block, _varname_block),
+                };
+            }
+
+            return {};
+        }
+
+        const size_t _size;
+        const tmdl::DataType _dt;
+    };
+
+public:
     std::unique_ptr<tmdl::codegen::CodeComponent> generate_code_component() const override
     {
         return nullptr;
     }
-    */
 
 protected:
     /*

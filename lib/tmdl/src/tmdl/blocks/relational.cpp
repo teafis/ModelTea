@@ -11,7 +11,7 @@
 
 // Relational Executor
 
-template <tmdl::DataType DT, tmdlstd::RelationalOperator OP>
+template <tmdl::DataType DT, tmdl::stdlib::RelationalOperator OP>
 struct RelationalExecutor : public tmdl::BlockExecutionInterface
 {
     using type_t = tmdl::data_type_t<DT>::type;
@@ -45,34 +45,34 @@ protected:
     std::shared_ptr<const tmdl::ModelValueBox<DT>> input_b;
     std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> output_value;
 
-    tmdlstd::relational_block<type_t, OP> block;
+    tmdl::stdlib::relational_block<type_t, OP> block;
 };
 
 // Relational Base
 
-tmdl::stdlib::RelationalBase::RelationalBase()
+tmdl::blocks::RelationalBase::RelationalBase()
 {
     _inputA = DataType::UNKNOWN;
     _inputB = DataType::UNKNOWN;
     _outputPort = DataType::BOOLEAN;
 }
 
-size_t tmdl::stdlib::RelationalBase::get_num_inputs() const
+size_t tmdl::blocks::RelationalBase::get_num_inputs() const
 {
     return 2;
 }
 
-size_t tmdl::stdlib::RelationalBase::get_num_outputs() const
+size_t tmdl::blocks::RelationalBase::get_num_outputs() const
 {
     return 1;
 }
 
-bool tmdl::stdlib::RelationalBase::update_block()
+bool tmdl::blocks::RelationalBase::update_block()
 {
     return false;
 }
 
-std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::RelationalBase::has_error() const
+std::unique_ptr<const tmdl::BlockError> tmdl::blocks::RelationalBase::has_error() const
 {
     if (_inputA != _inputB)
     {
@@ -103,7 +103,7 @@ std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::RelationalBase::has_error(
     return nullptr;
 }
 
-void tmdl::stdlib::RelationalBase::set_input_type(
+void tmdl::blocks::RelationalBase::set_input_type(
     const size_t port,
     const DataType type)
 {
@@ -120,7 +120,7 @@ void tmdl::stdlib::RelationalBase::set_input_type(
     }
 }
 
-tmdl::DataType tmdl::stdlib::RelationalBase::get_output_type(const size_t port) const
+tmdl::DataType tmdl::blocks::RelationalBase::get_output_type(const size_t port) const
 {
     if (port == 0)
     {
@@ -132,9 +132,9 @@ tmdl::DataType tmdl::stdlib::RelationalBase::get_output_type(const size_t port) 
     }
 }
 
-template<tmdlstd::RelationalOperator OP>
+template<tmdl::stdlib::RelationalOperator OP>
 static std::shared_ptr<tmdl::BlockExecutionInterface> generate_execution_interface(
-    const tmdl::stdlib::RelationalBase* model,
+    const tmdl::blocks::RelationalBase* model,
     const tmdl::ConnectionManager& connections,
     const tmdl::VariableManager& manager)
 {
@@ -186,114 +186,114 @@ static std::shared_ptr<tmdl::BlockExecutionInterface> generate_execution_interfa
 
 // GreaterThan Block
 
-std::string tmdl::stdlib::GreaterThan::get_name() const
+std::string tmdl::blocks::GreaterThan::get_name() const
 {
     return ">";
 }
 
-std::string tmdl::stdlib::GreaterThan::get_description() const
+std::string tmdl::blocks::GreaterThan::get_description() const
 {
     return get_name();
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::GreaterThan::get_execution_interface(
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::GreaterThan::get_execution_interface(
     const ConnectionManager& connections,
     const VariableManager& manager) const
 {
-    return generate_execution_interface<tmdlstd::RelationalOperator::GREATER_THAN>(this, connections, manager);
+    return generate_execution_interface<tmdl::stdlib::RelationalOperator::GREATER_THAN>(this, connections, manager);
 }
 
 // GreaterThanEqual Block
 
-std::string tmdl::stdlib::GreaterThanEqual::get_name() const
+std::string tmdl::blocks::GreaterThanEqual::get_name() const
 {
     return ">=";
 }
 
-std::string tmdl::stdlib::GreaterThanEqual::get_description() const
+std::string tmdl::blocks::GreaterThanEqual::get_description() const
 {
     return get_name();
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::GreaterThanEqual::get_execution_interface(
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::GreaterThanEqual::get_execution_interface(
     const ConnectionManager& connections,
     const VariableManager& manager) const
 {
-    return generate_execution_interface<tmdlstd::RelationalOperator::GREATER_THAN_EQUAL>(this, connections, manager);
+    return generate_execution_interface<tmdl::stdlib::RelationalOperator::GREATER_THAN_EQUAL>(this, connections, manager);
 }
 
 // LessThan Block
 
-std::string tmdl::stdlib::LessThan::get_name() const
+std::string tmdl::blocks::LessThan::get_name() const
 {
     return "<";
 }
 
-std::string tmdl::stdlib::LessThan::get_description() const
+std::string tmdl::blocks::LessThan::get_description() const
 {
     return get_name();
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::LessThan::get_execution_interface(
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::LessThan::get_execution_interface(
     const ConnectionManager& connections,
     const VariableManager& manager) const
 {
-    return generate_execution_interface<tmdlstd::RelationalOperator::LESS_THAN>(this, connections, manager);
+    return generate_execution_interface<tmdl::stdlib::RelationalOperator::LESS_THAN>(this, connections, manager);
 }
 
 // LessThanEqual Block
 
-std::string tmdl::stdlib::LessThanEqual::get_name() const
+std::string tmdl::blocks::LessThanEqual::get_name() const
 {
     return "<=";
 }
 
-std::string tmdl::stdlib::LessThanEqual::get_description() const
+std::string tmdl::blocks::LessThanEqual::get_description() const
 {
     return get_name();
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::LessThanEqual::get_execution_interface(
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::LessThanEqual::get_execution_interface(
     const ConnectionManager& connections,
     const VariableManager& manager) const
 {
-    return generate_execution_interface<tmdlstd::RelationalOperator::LESS_THAN_EQUAL>(this, connections, manager);
+    return generate_execution_interface<tmdl::stdlib::RelationalOperator::LESS_THAN_EQUAL>(this, connections, manager);
 }
 
 // Equal Block
 
-std::string tmdl::stdlib::Equal::get_name() const
+std::string tmdl::blocks::Equal::get_name() const
 {
     return "==";
 }
 
-std::string tmdl::stdlib::Equal::get_description() const
+std::string tmdl::blocks::Equal::get_description() const
 {
     return get_name();
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Equal::get_execution_interface(
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Equal::get_execution_interface(
     const ConnectionManager& connections,
     const VariableManager& manager) const
 {
-    return generate_execution_interface<tmdlstd::RelationalOperator::EQUAL>(this, connections, manager);
+    return generate_execution_interface<tmdl::stdlib::RelationalOperator::EQUAL>(this, connections, manager);
 }
 
 // NotEqual Block
 
-std::string tmdl::stdlib::NotEqual::get_name() const
+std::string tmdl::blocks::NotEqual::get_name() const
 {
     return "!=";
 }
 
-std::string tmdl::stdlib::NotEqual::get_description() const
+std::string tmdl::blocks::NotEqual::get_description() const
 {
     return get_name();
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::NotEqual::get_execution_interface(
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::NotEqual::get_execution_interface(
     const ConnectionManager& connections,
     const VariableManager& manager) const
 {
-    return generate_execution_interface<tmdlstd::RelationalOperator::NOT_EQUAL>(this, connections, manager);
+    return generate_execution_interface<tmdl::stdlib::RelationalOperator::NOT_EQUAL>(this, connections, manager);
 }

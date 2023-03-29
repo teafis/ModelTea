@@ -21,7 +21,7 @@ tmdl::LibraryManager::LibraryManager()
 {
     model_library = std::make_shared<ModelLibrary>();
 
-    register_library("stdlib", std::make_shared<tmdl::stdlib::StandardLibrary>());
+    register_library("stdlib", std::make_shared<tmdl::blocks::StandardLibrary>());
     register_library("models", model_library);
 }
 

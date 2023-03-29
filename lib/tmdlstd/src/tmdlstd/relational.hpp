@@ -3,7 +3,7 @@
 #ifndef TMDL_STDLIB_RELATIONAL_H
 #define TMDL_STDLIB_RELATIONAL_H
 
-namespace tmdlstd
+namespace tmdl::stdlib
 {
 
 enum class RelationalOperator

@@ -7,7 +7,7 @@
 
 #include <cmath>
 
-namespace tmdl::stdlib
+namespace tmdl::blocks
 {
 
 class TrigFunction : public BlockInterface

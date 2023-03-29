@@ -32,7 +32,7 @@ struct IntegratorExecutor : public tmdl::BlockExecutionInterface
 
     void init(const tmdl::SimState& s) override
     {
-        block = std::make_unique<tmdlstd::integrator_block<type_t>>(s.get_dt());
+        block = std::make_unique<tmdl::stdlib::integrator_block<type_t>>(s.get_dt());
 
         block->s_in.input_value = &_input->value;
         block->s_in.reset_value = &_reset_value->value;
@@ -64,37 +64,37 @@ protected:
 
     std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> _reset_flag;
 
-    std::unique_ptr<tmdlstd::integrator_block<type_t>> block;
+    std::unique_ptr<tmdl::stdlib::integrator_block<type_t>> block;
 };
 
-tmdl::stdlib::Integrator::Integrator()
+tmdl::blocks::Integrator::Integrator()
 {
     input_type = DataType::UNKNOWN;
     input_reset_flag_type = DataType::UNKNOWN;
     input_reset_value_type = DataType::UNKNOWN;
 }
 
-std::string tmdl::stdlib::Integrator::get_name() const
+std::string tmdl::blocks::Integrator::get_name() const
 {
     return "integrator";
 }
 
-std::string tmdl::stdlib::Integrator::get_description() const
+std::string tmdl::blocks::Integrator::get_description() const
 {
     return "integrates the provided values, or resets to the provided value";
 }
 
-size_t tmdl::stdlib::Integrator::get_num_inputs() const
+size_t tmdl::blocks::Integrator::get_num_inputs() const
 {
     return 3;
 }
 
-size_t tmdl::stdlib::Integrator::get_num_outputs() const
+size_t tmdl::blocks::Integrator::get_num_outputs() const
 {
     return 1;
 }
 
-bool tmdl::stdlib::Integrator::update_block()
+bool tmdl::blocks::Integrator::update_block()
 {
     if (output_port != input_type)
     {
@@ -105,7 +105,7 @@ bool tmdl::stdlib::Integrator::update_block()
     return false;
 }
 
-std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::Integrator::has_error() const
+std::unique_ptr<const tmdl::BlockError> tmdl::blocks::Integrator::has_error() const
 {
     if (input_type != DataType::DOUBLE && input_type != DataType::SINGLE)
     {
@@ -127,7 +127,7 @@ std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::Integrator::has_error() co
     return nullptr;
 }
 
-void tmdl::stdlib::Integrator::set_input_type(
+void tmdl::blocks::Integrator::set_input_type(
     const size_t port,
     const DataType type)
 {
@@ -147,7 +147,7 @@ void tmdl::stdlib::Integrator::set_input_type(
     }
 }
 
-tmdl::DataType tmdl::stdlib::Integrator::get_output_type(const size_t port) const
+tmdl::DataType tmdl::blocks::Integrator::get_output_type(const size_t port) const
 {
     if (port == 0)
     {
@@ -159,12 +159,12 @@ tmdl::DataType tmdl::stdlib::Integrator::get_output_type(const size_t port) cons
     }
 }
 
-bool tmdl::stdlib::Integrator::outputs_are_delayed() const
+bool tmdl::blocks::Integrator::outputs_are_delayed() const
 {
     return true;
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Integrator::get_execution_interface(
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Integrator::get_execution_interface(
     const ConnectionManager& connections,
     const VariableManager& manager) const
 {

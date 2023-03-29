@@ -9,7 +9,7 @@
 #include <tmdlstd/limiter.hpp>
 
 using namespace tmdl;
-using namespace tmdl::stdlib;
+using namespace tmdl::blocks;
 
 
 template <tmdl::DataType DT>
@@ -52,7 +52,7 @@ protected:
     std::shared_ptr<const ModelValueBox<DT>> _val_min;
     std::shared_ptr<const ModelValueBox<DT>> _val_max;
 
-    tmdlstd::limiter_block<limit_t> block;
+    tmdl::stdlib::limiter_block<limit_t> block;
 };
 
 Limiter::Limiter()

@@ -7,22 +7,22 @@
 #include <tmdlstd/trig.hpp>
 
 
-tmdl::stdlib::TrigFunction::TrigFunction()
+tmdl::blocks::TrigFunction::TrigFunction()
 {
     input_type = DataType::UNKNOWN;
 }
 
-size_t tmdl::stdlib::TrigFunction::get_num_inputs() const
+size_t tmdl::blocks::TrigFunction::get_num_inputs() const
 {
     return 1;
 }
 
-size_t tmdl::stdlib::TrigFunction::get_num_outputs() const
+size_t tmdl::blocks::TrigFunction::get_num_outputs() const
 {
     return 1;
 }
 
-bool tmdl::stdlib::TrigFunction::update_block()
+bool tmdl::blocks::TrigFunction::update_block()
 {
     if (input_type != output_port)
     {
@@ -35,7 +35,7 @@ bool tmdl::stdlib::TrigFunction::update_block()
     }
 }
 
-std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::TrigFunction::has_error() const
+std::unique_ptr<const tmdl::BlockError> tmdl::blocks::TrigFunction::has_error() const
 {
     if (input_type != output_port)
     {
@@ -49,7 +49,7 @@ std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::TrigFunction::has_error() 
     return nullptr;
 }
 
-void tmdl::stdlib::TrigFunction::set_input_type(
+void tmdl::blocks::TrigFunction::set_input_type(
     const size_t port,
     const DataType type)
 {
@@ -63,7 +63,7 @@ void tmdl::stdlib::TrigFunction::set_input_type(
     }
 }
 
-tmdl::DataType tmdl::stdlib::TrigFunction::get_output_type(const size_t port) const
+tmdl::DataType tmdl::blocks::TrigFunction::get_output_type(const size_t port) const
 {
     if (port == 0)
     {
@@ -75,7 +75,7 @@ tmdl::DataType tmdl::stdlib::TrigFunction::get_output_type(const size_t port) co
     }
 }
 
-template <tmdl::DataType DT, tmdlstd::TrigFunction FCN>
+template <tmdl::DataType DT, tmdl::stdlib::TrigFunction FCN>
 class TrigExecutor : public tmdl::BlockExecutionInterface
 {
 public:
@@ -106,12 +106,12 @@ public:
 protected:
     const std::shared_ptr<const tmdl::ModelValueBox<DT>> _ptr_input;
     const std::shared_ptr<tmdl::ModelValueBox<DT>> _ptr_output;
-    tmdlstd::trig_block<val_t, FCN> block;
+    tmdl::stdlib::trig_block<val_t, FCN> block;
 };
 
-template <tmdlstd::TrigFunction FCN>
+template <tmdl::stdlib::TrigFunction FCN>
 static std::shared_ptr<tmdl::BlockExecutionInterface> generate_exec_interface(
-    const tmdl::stdlib::TrigFunction* model,
+    const tmdl::blocks::TrigFunction* model,
     const tmdl::ConnectionManager& connections,
     const tmdl::VariableManager& manager)
 {
@@ -142,36 +142,36 @@ static std::shared_ptr<tmdl::BlockExecutionInterface> generate_exec_interface(
     }
 }
 
-std::string tmdl::stdlib::TrigSin::get_name() const
+std::string tmdl::blocks::TrigSin::get_name() const
 {
     return "sin";
 }
 
-std::string tmdl::stdlib::TrigSin::get_description() const
+std::string tmdl::blocks::TrigSin::get_description() const
 {
     return "computes the sin of the input parameter";
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::TrigSin::get_execution_interface(
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::TrigSin::get_execution_interface(
     const ConnectionManager& connections,
     const VariableManager& manager) const
 {
-    return generate_exec_interface<tmdlstd::TrigFunction::SIN>(this, connections, manager);
+    return generate_exec_interface<tmdl::stdlib::TrigFunction::SIN>(this, connections, manager);
 }
 
-std::string tmdl::stdlib::TrigCos::get_name() const
+std::string tmdl::blocks::TrigCos::get_name() const
 {
     return "cos";
 }
 
-std::string tmdl::stdlib::TrigCos::get_description() const
+std::string tmdl::blocks::TrigCos::get_description() const
 {
     return "computes the cos of the input parameter";
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::TrigCos::get_execution_interface(
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::TrigCos::get_execution_interface(
     const ConnectionManager& connections,
     const VariableManager& manager) const
 {
-    return generate_exec_interface<tmdlstd::TrigFunction::COS>(this, connections, manager);
+    return generate_exec_interface<tmdl::stdlib::TrigFunction::COS>(this, connections, manager);
 }

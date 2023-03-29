@@ -25,7 +25,7 @@ public:
 public:
     void init(const tmdl::SimState& s) override
     {
-        block = std::make_unique<tmdlstd::clock_block>(s.get_dt());
+        block = std::make_unique<tmdl::stdlib::clock_block>(s.get_dt());
     }
 
     void step(const tmdl::SimState&) override
@@ -46,53 +46,53 @@ public:
 
 protected:
     std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>> output_value;
-    std::unique_ptr<tmdlstd::clock_block> block;
+    std::unique_ptr<tmdl::stdlib::clock_block> block;
 };
 
 
-tmdl::stdlib::Clock::Clock()
+tmdl::blocks::Clock::Clock()
 {
     // Empty Constructor
 }
 
-std::string tmdl::stdlib::Clock::get_name() const
+std::string tmdl::blocks::Clock::get_name() const
 {
     return "clock";
 }
 
-std::string tmdl::stdlib::Clock::get_description() const
+std::string tmdl::blocks::Clock::get_description() const
 {
     return "Clock to provide the current time in seconds";
 }
 
-size_t tmdl::stdlib::Clock::get_num_inputs() const
+size_t tmdl::blocks::Clock::get_num_inputs() const
 {
     return 0;
 }
 
-size_t tmdl::stdlib::Clock::get_num_outputs() const
+size_t tmdl::blocks::Clock::get_num_outputs() const
 {
     return 1;
 }
 
-bool tmdl::stdlib::Clock::update_block()
+bool tmdl::blocks::Clock::update_block()
 {
     return false;
 }
 
-std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::Clock::has_error() const
+std::unique_ptr<const tmdl::BlockError> tmdl::blocks::Clock::has_error() const
 {
     return nullptr;
 }
 
-void tmdl::stdlib::Clock::set_input_type(
+void tmdl::blocks::Clock::set_input_type(
     const size_t,
     const DataType)
 {
     throw ModelException("no input ports for clock");
 }
 
-tmdl::DataType tmdl::stdlib::Clock::get_output_type(const size_t port) const
+tmdl::DataType tmdl::blocks::Clock::get_output_type(const size_t port) const
 {
     if (port == 0)
     {
@@ -104,7 +104,7 @@ tmdl::DataType tmdl::stdlib::Clock::get_output_type(const size_t port) const
     }
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Clock::get_execution_interface(
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Clock::get_execution_interface(
     const ConnectionManager& /* connections */,
     const VariableManager& manager) const
 {

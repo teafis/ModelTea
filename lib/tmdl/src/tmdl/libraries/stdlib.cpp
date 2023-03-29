@@ -23,7 +23,7 @@ std::shared_ptr<tmdl::BlockInterface> make_block()
     return std::make_shared<T>();
 }
 
-tmdl::stdlib::StandardLibrary::StandardLibrary()
+tmdl::blocks::StandardLibrary::StandardLibrary()
 {
     block_map = {
         {"limiter", &make_block<Limiter>},
@@ -49,18 +49,18 @@ tmdl::stdlib::StandardLibrary::StandardLibrary()
     };
 }
 
-bool tmdl::stdlib::StandardLibrary::has_block(const std::string& name) const
+bool tmdl::blocks::StandardLibrary::has_block(const std::string& name) const
 {
     const auto it = block_map.find(name);
     return it != block_map.end();
 }
 
-std::string tmdl::stdlib::StandardLibrary::get_library_name() const
+std::string tmdl::blocks::StandardLibrary::get_library_name() const
 {
     return "stdlib";
 }
 
-std::vector<std::string> tmdl::stdlib::StandardLibrary::get_block_names() const
+std::vector<std::string> tmdl::blocks::StandardLibrary::get_block_names() const
 {
     std::vector<std::string> keys;
     for (const auto& i : block_map)
@@ -71,12 +71,12 @@ std::vector<std::string> tmdl::stdlib::StandardLibrary::get_block_names() const
     return keys;
 }
 
-bool tmdl::stdlib::StandardLibrary::has_block(const std::string name) const
+bool tmdl::blocks::StandardLibrary::has_block(const std::string name) const
 {
     return block_map.find(name) != block_map.end();
 }
 
-std::shared_ptr<tmdl::BlockInterface> tmdl::stdlib::StandardLibrary::create_block(const std::string& name) const
+std::shared_ptr<tmdl::BlockInterface> tmdl::blocks::StandardLibrary::create_block(const std::string& name) const
 {
     auto it = block_map.find(name);
 

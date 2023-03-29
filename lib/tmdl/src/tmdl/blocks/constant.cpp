@@ -7,34 +7,34 @@
 #include <tmdlstd/const.hpp>
 
 
-tmdl::stdlib::Constant::Constant() :
+tmdl::blocks::Constant::Constant() :
     param_dtype(std::make_shared<Parameter>("dtype", "data type", ParameterValue::from_string("", ParameterValue::Type::DATA_TYPE))),
     param_value(std::make_shared<Parameter>("value", "Constant Value", ParameterValue::from_string("", ParameterValue::Type::UNKNOWN)))
 {
     // Empty Constructor
 }
 
-std::string tmdl::stdlib::Constant::get_name() const
+std::string tmdl::blocks::Constant::get_name() const
 {
     return "constant";
 }
 
-std::string tmdl::stdlib::Constant::get_description() const
+std::string tmdl::blocks::Constant::get_description() const
 {
     return "Provides a constant value output";
 }
 
-size_t tmdl::stdlib::Constant::get_num_inputs() const
+size_t tmdl::blocks::Constant::get_num_inputs() const
 {
     return 0;
 }
 
-size_t tmdl::stdlib::Constant::get_num_outputs() const
+size_t tmdl::blocks::Constant::get_num_outputs() const
 {
     return 1;
 }
 
-bool tmdl::stdlib::Constant::update_block()
+bool tmdl::blocks::Constant::update_block()
 {
     if (param_dtype->get_value().value.dtype != output_port)
     {
@@ -52,7 +52,7 @@ bool tmdl::stdlib::Constant::update_block()
     return false;
 }
 
-std::vector<std::shared_ptr<tmdl::Parameter>> tmdl::stdlib::Constant::get_parameters() const
+std::vector<std::shared_ptr<tmdl::Parameter>> tmdl::blocks::Constant::get_parameters() const
 {
     return {
         param_dtype,
@@ -60,7 +60,7 @@ std::vector<std::shared_ptr<tmdl::Parameter>> tmdl::stdlib::Constant::get_parame
     };
 }
 
-std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::Constant::has_error() const
+std::unique_ptr<const tmdl::BlockError> tmdl::blocks::Constant::has_error() const
 {
     if (param_dtype->get_value().value.dtype == DataType::UNKNOWN)
     {
@@ -70,14 +70,14 @@ std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::Constant::has_error() cons
     return nullptr;
 }
 
-void tmdl::stdlib::Constant::set_input_type(
+void tmdl::blocks::Constant::set_input_type(
     const size_t,
     const DataType)
 {
     throw ModelException("input port out of range");
 }
 
-tmdl::DataType tmdl::stdlib::Constant::get_output_type(const size_t port) const
+tmdl::DataType tmdl::blocks::Constant::get_output_type(const size_t port) const
 {
     if (port == 0)
     {
@@ -104,15 +104,15 @@ struct ConstantExecutor : public tmdl::BlockExecutionInterface
             throw tmdl::ModelException("provided output pointer cannot be null");
         }
 
-        block = std::make_unique<tmdlstd::const_block<type_t>>(value);
+        block = std::make_unique<tmdl::stdlib::const_block<type_t>>(value);
 
         ptr_type->value = block->s_out.val;
     }
 
-    std::unique_ptr<tmdlstd::const_block<type_t>> block;
+    std::unique_ptr<tmdl::stdlib::const_block<type_t>> block;
 };
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Constant::get_execution_interface(
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Constant::get_execution_interface(
     const ConnectionManager&,
     const VariableManager& manager) const
 {

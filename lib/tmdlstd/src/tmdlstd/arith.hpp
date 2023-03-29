@@ -5,7 +5,7 @@
 
 #include <array>
 
-namespace tmdlstd
+namespace tmdl::stdlib
 {
 
 enum class ArithType

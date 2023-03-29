@@ -13,7 +13,7 @@
 
 // Arithmetic Executor
 
-template <tmdl::DataType DT, tmdlstd::ArithType OP>
+template <tmdl::DataType DT, tmdl::stdlib::ArithType OP>
 struct ArithmeticExecutor : public tmdl::BlockExecutionInterface
 {
     using type_t = tmdl::data_type_t<DT>::type;
@@ -101,15 +101,7 @@ protected:
     protected:
         virtual std::vector<std::string> write_cpp_code(tmdl::codegen::CodeSection section) const override
         {
-            if (section == tmdl::codegen::CodeSection::BLOCK_INIT)
-            {
-                std::string _varname_block = "block_test";
-                return {
-                    fmt::format("T* {}_tmp_var[{}];", _varname_block, _size),
-                    fmt::format("{}.vals = {}_tmp_var;", _varname_block, _varname_block),
-                };
-            }
-
+            (void)section;
             return {};
         }
 
@@ -174,33 +166,33 @@ protected:
     std::vector<const type_t*> input_value_ptr_array;
     std::shared_ptr<tmdl::ModelValueBox<DT>> output_value;
 
-    tmdlstd::arith_block_dynamic<type_t, OP> block;
+    tmdl::stdlib::arith_block_dynamic<type_t, OP> block;
 };
 
 // Arithmetic Base
 
-tmdl::stdlib::ArithmeticBase::ArithmeticBase() :
+tmdl::blocks::ArithmeticBase::ArithmeticBase() :
     _prmNumInputPorts(std::make_shared<Parameter>("num_inputs", "number of input ports", ParameterValue::from_string("2", ParameterValue::Type::UINT32)))
 {
     _inputTypes.resize(currentPrmPortCount(), DataType::UNKNOWN);
 }
 
-size_t tmdl::stdlib::ArithmeticBase::get_num_inputs() const
+size_t tmdl::blocks::ArithmeticBase::get_num_inputs() const
 {
     return currentPrmPortCount();
 }
 
-size_t tmdl::stdlib::ArithmeticBase::get_num_outputs() const
+size_t tmdl::blocks::ArithmeticBase::get_num_outputs() const
 {
     return 1;
 }
 
-std::vector<std::shared_ptr<tmdl::Parameter>> tmdl::stdlib::ArithmeticBase::get_parameters() const
+std::vector<std::shared_ptr<tmdl::Parameter>> tmdl::blocks::ArithmeticBase::get_parameters() const
 {
     return { _prmNumInputPorts };
 }
 
-bool tmdl::stdlib::ArithmeticBase::update_block()
+bool tmdl::blocks::ArithmeticBase::update_block()
 {
     auto firstType = DataType::UNKNOWN;
 
@@ -230,7 +222,7 @@ bool tmdl::stdlib::ArithmeticBase::update_block()
     return updated;
 }
 
-std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::ArithmeticBase::has_error() const
+std::unique_ptr<const tmdl::BlockError> tmdl::blocks::ArithmeticBase::has_error() const
 {
     if (currentPrmPortCount() < 1)
     {
@@ -254,7 +246,7 @@ std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::ArithmeticBase::has_error(
     return nullptr;
 }
 
-void tmdl::stdlib::ArithmeticBase::set_input_type(
+void tmdl::blocks::ArithmeticBase::set_input_type(
     const size_t port,
     const DataType type)
 {
@@ -270,7 +262,7 @@ void tmdl::stdlib::ArithmeticBase::set_input_type(
     }
 }
 
-tmdl::DataType tmdl::stdlib::ArithmeticBase::get_output_type(const size_t port) const
+tmdl::DataType tmdl::blocks::ArithmeticBase::get_output_type(const size_t port) const
 {
     if (port == 0)
     {
@@ -282,7 +274,7 @@ tmdl::DataType tmdl::stdlib::ArithmeticBase::get_output_type(const size_t port) 
     }
 }
 
-template <tmdlstd::ArithType OP>
+template <tmdl::stdlib::ArithType OP>
 std::shared_ptr<tmdl::BlockExecutionInterface> generate_executor(
     const tmdl::DataType output_type,
     const std::vector<std::shared_ptr<const tmdl::ModelValue>>& input_values,
@@ -311,7 +303,7 @@ std::shared_ptr<tmdl::BlockExecutionInterface> generate_executor(
     }
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::ArithmeticBase::get_execution_interface(
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::ArithmeticBase::get_execution_interface(
     const ConnectionManager& connections,
     const VariableManager& manager) const
 {
@@ -336,83 +328,83 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::ArithmeticBase::get
     return get_application_functions(input_values, output_value);
 }
 
-size_t tmdl::stdlib::ArithmeticBase::currentPrmPortCount() const
+size_t tmdl::blocks::ArithmeticBase::currentPrmPortCount() const
 {
     return _prmNumInputPorts->get_value().value.u32;
 }
 
 // Addition Block
 
-std::string tmdl::stdlib::Addition::get_name() const
+std::string tmdl::blocks::Addition::get_name() const
 {
     return "+";
 }
 
-std::string tmdl::stdlib::Addition::get_description() const
+std::string tmdl::blocks::Addition::get_description() const
 {
     return "adds the provided inputs together";
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Addition::get_application_functions(
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Addition::get_application_functions(
     const std::vector<std::shared_ptr<const ModelValue>>& input_values,
     const std::shared_ptr<tmdl::ModelValue> output_value) const
 {
-    return generate_executor<tmdlstd::ArithType::ADD>(_outputPort, input_values, output_value);
+    return generate_executor<tmdl::stdlib::ArithType::ADD>(_outputPort, input_values, output_value);
 }
 
 // Subtraction Block
 
-std::string tmdl::stdlib::Subtraction::get_name() const
+std::string tmdl::blocks::Subtraction::get_name() const
 {
     return "-";
 }
 
-std::string tmdl::stdlib::Subtraction::get_description() const
+std::string tmdl::blocks::Subtraction::get_description() const
 {
     return "subtracts the Multiplicationd inputs together";
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Subtraction::get_application_functions(
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Subtraction::get_application_functions(
     const std::vector<std::shared_ptr<const ModelValue>>& input_values,
     const std::shared_ptr<tmdl::ModelValue> output_value) const
 {
-    return generate_executor<tmdlstd::ArithType::SUB>(_outputPort, input_values, output_value);
+    return generate_executor<tmdl::stdlib::ArithType::SUB>(_outputPort, input_values, output_value);
 }
 
 // Product Block
 
-std::string tmdl::stdlib::Multiplication::get_name() const
+std::string tmdl::blocks::Multiplication::get_name() const
 {
     return "*";
 }
 
-std::string tmdl::stdlib::Multiplication::get_description() const
+std::string tmdl::blocks::Multiplication::get_description() const
 {
     return "multiplies the provided inputs together";
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Multiplication::get_application_functions(
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Multiplication::get_application_functions(
     const std::vector<std::shared_ptr<const ModelValue>>& input_values,
     const std::shared_ptr<tmdl::ModelValue> output_value) const
 {
-    return generate_executor<tmdlstd::ArithType::MUL>(_outputPort, input_values, output_value);
+    return generate_executor<tmdl::stdlib::ArithType::MUL>(_outputPort, input_values, output_value);
 }
 
 // Division Block
 
-std::string tmdl::stdlib::Division::get_name() const
+std::string tmdl::blocks::Division::get_name() const
 {
     return "/";
 }
 
-std::string tmdl::stdlib::Division::get_description() const
+std::string tmdl::blocks::Division::get_description() const
 {
     return "divides the provided inputs together";
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Division::get_application_functions(
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Division::get_application_functions(
     const std::vector<std::shared_ptr<const ModelValue>>& input_values,
     const std::shared_ptr<tmdl::ModelValue> output_value) const
 {
-    return generate_executor<tmdlstd::ArithType::DIV>(_outputPort, input_values, output_value);
+    return generate_executor<tmdl::stdlib::ArithType::DIV>(_outputPort, input_values, output_value);
 }

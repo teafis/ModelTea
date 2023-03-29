@@ -29,7 +29,7 @@ public:
 
     void init(const tmdl::SimState& s) override
     {
-        block = std::make_unique<tmdlstd::derivative_block<type_t>>(s.get_dt());
+        block = std::make_unique<tmdl::stdlib::derivative_block<type_t>>(s.get_dt());
 
         block->s_in.input_value = &_input->value;
         block->s_in.reset_flag = &_reset_flag->value;
@@ -58,37 +58,37 @@ protected:
     std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> _reset_flag;
     std::shared_ptr<tmdl::ModelValueBox<DT>> _output;
 
-    std::unique_ptr<tmdlstd::derivative_block<type_t>> block;
+    std::unique_ptr<tmdl::stdlib::derivative_block<type_t>> block;
 };
 
 
-tmdl::stdlib::Derivative::Derivative()
+tmdl::blocks::Derivative::Derivative()
 {
     input_type = DataType::UNKNOWN;
     input_reset_flag_type = DataType::UNKNOWN;
 }
 
-std::string tmdl::stdlib::Derivative::get_name() const
+std::string tmdl::blocks::Derivative::get_name() const
 {
     return "derivative";
 }
 
-std::string tmdl::stdlib::Derivative::get_description() const
+std::string tmdl::blocks::Derivative::get_description() const
 {
     return "derives the provided values";
 }
 
-size_t tmdl::stdlib::Derivative::get_num_inputs() const
+size_t tmdl::blocks::Derivative::get_num_inputs() const
 {
     return 2;
 }
 
-size_t tmdl::stdlib::Derivative::get_num_outputs() const
+size_t tmdl::blocks::Derivative::get_num_outputs() const
 {
     return 1;
 }
 
-bool tmdl::stdlib::Derivative::update_block()
+bool tmdl::blocks::Derivative::update_block()
 {
     if (output_port != input_type)
     {
@@ -99,7 +99,7 @@ bool tmdl::stdlib::Derivative::update_block()
     return false;
 }
 
-std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::Derivative::has_error() const
+std::unique_ptr<const tmdl::BlockError> tmdl::blocks::Derivative::has_error() const
 {
     if (input_type != DataType::DOUBLE && input_type != DataType::SINGLE)
     {
@@ -117,7 +117,7 @@ std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::Derivative::has_error() co
     return nullptr;
 }
 
-void tmdl::stdlib::Derivative::set_input_type(
+void tmdl::blocks::Derivative::set_input_type(
     const size_t port,
     const DataType type)
 {
@@ -134,7 +134,7 @@ void tmdl::stdlib::Derivative::set_input_type(
     }
 }
 
-tmdl::DataType tmdl::stdlib::Derivative::get_output_type(const size_t port) const
+tmdl::DataType tmdl::blocks::Derivative::get_output_type(const size_t port) const
 {
     if (port == 0)
     {
@@ -146,7 +146,7 @@ tmdl::DataType tmdl::stdlib::Derivative::get_output_type(const size_t port) cons
     }
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Derivative::get_execution_interface(
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Derivative::get_execution_interface(
     const ConnectionManager& connections,
     const VariableManager& manager) const
 {

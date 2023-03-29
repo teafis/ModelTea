@@ -3,7 +3,7 @@
 #ifndef TMDL_STDLIB_LIMITER_H
 #define TMDL_STDLIB_LIMITER_H
 
-namespace tmdlstd
+namespace tmdl::stdlib
 {
 
 template <typename T>

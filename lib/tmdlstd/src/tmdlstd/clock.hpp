@@ -3,7 +3,7 @@
 #ifndef TMDL_STDLIB_CLOCK_H
 #define TMDL_STDLIB_CLOCK_H
 
-namespace tmdlstd
+namespace tmdl::stdlib
 {
 
 struct clock_block

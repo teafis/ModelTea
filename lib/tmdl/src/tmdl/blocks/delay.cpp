@@ -49,7 +49,7 @@ public:
     }
 
 protected:
-    tmdlstd::delay_block<type_t> block;
+    tmdl::stdlib::delay_block<type_t> block;
 
     std::shared_ptr<const tmdl::ModelValueBox<DT>> _input;
     std::shared_ptr<tmdl::ModelValueBox<DT>> _output;
@@ -57,7 +57,7 @@ protected:
     std::shared_ptr<const tmdl::ModelValueBox<DT>> _reset_value;
 };
 
-tmdl::stdlib::Delay::Delay()
+tmdl::blocks::Delay::Delay()
 {
     input_type = DataType::UNKNOWN;
     input_reset_flag = DataType::UNKNOWN;
@@ -65,27 +65,27 @@ tmdl::stdlib::Delay::Delay()
     output_port = DataType::UNKNOWN;
 }
 
-std::string tmdl::stdlib::Delay::get_name() const
+std::string tmdl::blocks::Delay::get_name() const
 {
     return "delay";
 }
 
-std::string tmdl::stdlib::Delay::get_description() const
+std::string tmdl::blocks::Delay::get_description() const
 {
     return "delays the provided input value by one cycle";
 }
 
-size_t tmdl::stdlib::Delay::get_num_inputs() const
+size_t tmdl::blocks::Delay::get_num_inputs() const
 {
     return 3;
 }
 
-size_t tmdl::stdlib::Delay::get_num_outputs() const
+size_t tmdl::blocks::Delay::get_num_outputs() const
 {
     return 1;
 }
 
-bool tmdl::stdlib::Delay::update_block()
+bool tmdl::blocks::Delay::update_block()
 {
     if (input_type != output_port)
     {
@@ -96,7 +96,7 @@ bool tmdl::stdlib::Delay::update_block()
     return false;
 }
 
-std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::Delay::has_error() const
+std::unique_ptr<const tmdl::BlockError> tmdl::blocks::Delay::has_error() const
 {
     if (input_type != output_port)
     {
@@ -114,7 +114,7 @@ std::unique_ptr<const tmdl::BlockError> tmdl::stdlib::Delay::has_error() const
     return nullptr;
 }
 
-void tmdl::stdlib::Delay::set_input_type(
+void tmdl::blocks::Delay::set_input_type(
     const size_t port,
     const DataType type)
 {
@@ -134,7 +134,7 @@ void tmdl::stdlib::Delay::set_input_type(
     }
 }
 
-tmdl::DataType tmdl::stdlib::Delay::get_output_type(const size_t port) const
+tmdl::DataType tmdl::blocks::Delay::get_output_type(const size_t port) const
 {
     if (port == 0)
     {
@@ -146,7 +146,7 @@ tmdl::DataType tmdl::stdlib::Delay::get_output_type(const size_t port) const
     }
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::stdlib::Delay::get_execution_interface(
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Delay::get_execution_interface(
     const ConnectionManager& connections,
     const VariableManager& manager) const
 {

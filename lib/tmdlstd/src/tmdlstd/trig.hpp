@@ -3,7 +3,7 @@
 #ifndef TMDL_STDLIB_TRIG_H
 #define TMDL_STDLIB_TRIG_H
 
-namespace tmdlstd
+namespace tmdl::stdlib
 {
 
 enum class TrigFunction

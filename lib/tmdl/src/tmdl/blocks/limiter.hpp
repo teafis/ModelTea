@@ -6,7 +6,7 @@
 #include "../block_interface.hpp"
 
 
-namespace tmdl::stdlib
+namespace tmdl::blocks
 {
 
 class Limiter : public BlockInterface

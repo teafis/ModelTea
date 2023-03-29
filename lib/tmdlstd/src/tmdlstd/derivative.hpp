@@ -3,7 +3,7 @@
 #ifndef TMDL_STDLIB_DERIVATIVE_H
 #define TMDL_STDLIB_DERIVATIVE_H
 
-namespace tmdlstd
+namespace tmdl::stdlib
 {
 
 template <typename T>

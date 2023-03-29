@@ -12,7 +12,7 @@
 namespace tmdl
 {
 
-namespace stdlib
+namespace blocks
 {
 
 class StandardLibrary : public LibraryBase

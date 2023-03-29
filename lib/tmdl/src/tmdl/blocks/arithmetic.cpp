@@ -10,6 +10,7 @@
 #include <fmt/format.h>
 
 #include <tmdlstd/arith.hpp>
+#include <tmdlstd/util.hpp>
 
 // Arithmetic Executor
 
@@ -68,12 +69,12 @@ protected:
                 num_fields.push_back(fmt::format("vals[{}]", i));
             }
 
-            return tmdl::codegen::InterfaceDefinition("input_t", {});
+            return tmdl::codegen::InterfaceDefinition("s_in", num_fields);
         }
 
         virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
         {
-            return tmdl::codegen::InterfaceDefinition("output_t", {});
+            return tmdl::codegen::InterfaceDefinition("s_out", {"val"});
         }
 
         virtual std::string get_file_name() const override
@@ -83,7 +84,7 @@ protected:
 
         virtual std::string get_type_name() const override
         {
-            return fmt::format("tmdlstd::arith_block<{}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, _dt));
+            return fmt::format("tmdlstd::arith_block<{}, {}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, _dt), tmdl::stdlib::arith_to_string(OP));
         }
 
         virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const

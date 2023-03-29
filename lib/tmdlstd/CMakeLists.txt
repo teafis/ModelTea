@@ -22,6 +22,7 @@ set(
     src/tmdlstd/limiter.hpp
     src/tmdlstd/relational.hpp
     src/tmdlstd/trig.hpp
+    src/tmdlstd/util.hpp src/tmdlstd/util.cpp
 )
 
 # Define the library

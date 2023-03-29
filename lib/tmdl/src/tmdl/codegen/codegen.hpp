@@ -17,9 +17,7 @@ enum class Language
 
 enum class CodeSection
 {
-    BLOCK_INIT = 0,
-    BLOCK_CLOSE,
-    DEFINITION,
+    DEFINITION = 0,
     DECLARATION,
 };
 

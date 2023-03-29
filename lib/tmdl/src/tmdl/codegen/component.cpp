@@ -12,7 +12,7 @@ std::vector<std::string> tmdl::codegen::CodeComponent::write_code(Language type,
     }
 }
 
-std::vector<std::string> tmdl::codegen::write_cpp_code(CodeSection section) const
+std::vector<std::string> tmdl::codegen::CodeComponent::write_cpp_code([[maybe_unused]] CodeSection section) const
 {
     throw CodegenError("C++ code generation not supported");
 }

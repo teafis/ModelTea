@@ -174,7 +174,7 @@ protected:
     std::vector<const type_t*> input_value_ptr_array;
     std::shared_ptr<tmdl::ModelValueBox<DT>> output_value;
 
-    tmdlstd::arith_block<type_t, OP> block;
+    tmdlstd::arith_block_dynamic<type_t, OP> block;
 };
 
 // Arithmetic Base

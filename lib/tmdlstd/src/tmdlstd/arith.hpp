@@ -3,6 +3,8 @@
 #ifndef TMDL_STDLIB_ARITH_H
 #define TMDL_STDLIB_ARITH_H
 
+#include <array>
+
 namespace tmdlstd
 {
 
@@ -15,7 +17,7 @@ enum class ArithType
 };
 
 template <typename T, ArithType AT>
-struct arith_block
+struct arith_block_dynamic
 {
     struct input_t
     {
@@ -63,6 +65,19 @@ struct arith_block
 
     input_t s_in;
     output_t s_out;
+};
+
+template <typename T, ArithType AT, int SIZE>
+struct arith_block : public arith_block_dynamic<T, AT>
+{
+    arith_block()
+    {
+        this->s_in.size = SIZE;
+        this->s_in.vals = _input_array.data();
+    }
+
+private:
+    std::array<const T*, SIZE> _input_array;
 };
 
 }

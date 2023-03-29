@@ -11,7 +11,7 @@ template <tmdl::DataType DT>
 class DerivativeExecutor : public tmdl::BlockExecutionInterface
 {
 public:
-    using type_t = tmdl::data_type_t<DT>::type;
+    using type_t = typename tmdl::data_type_t<DT>::type;
 
     DerivativeExecutor(
         std::shared_ptr<const tmdl::ModelValue> input,

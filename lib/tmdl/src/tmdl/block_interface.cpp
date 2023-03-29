@@ -21,6 +21,11 @@ tmdl::BlockInterface::BlockInterface() :
     // Empty Constructor
 }
 
+tmdl::BlockInterface::~BlockInterface()
+{
+    // Empty Destructor
+}
+
 size_t tmdl::BlockInterface::get_id() const
 {
     return _id;
@@ -58,6 +63,11 @@ std::unique_ptr<const tmdl::BlockError> tmdl::BlockInterface::make_error(const s
         .id = get_id(),
         .message = msg
     });
+}
+
+tmdl::BlockExecutionInterface::~BlockExecutionInterface()
+{
+    // Empty Destructor
 }
 
 void tmdl::BlockExecutionInterface::init(const SimState&)

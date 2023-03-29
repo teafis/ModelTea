@@ -87,7 +87,7 @@ struct ModelValue
 template <DataType DT>
 struct ModelValueBox : public ModelValue
 {
-    using type_t = data_type_t<DT>::type;
+    using type_t = typename data_type_t<DT>::type;
 
     ModelValueBox() : value{}
     {

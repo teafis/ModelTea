@@ -16,7 +16,7 @@ template <tmdl::DataType DT>
 class LimiterExecutor : public BlockExecutionInterface
 {
 protected:
-    using limit_t = tmdl::data_type_t<DT>::type;
+    using limit_t = typename tmdl::data_type_t<DT>::type;
 
 public:
     LimiterExecutor(

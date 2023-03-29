@@ -45,6 +45,8 @@ class BlockInterface
 public:
     explicit BlockInterface();
 
+    virtual ~BlockInterface();
+
     size_t get_id() const;
 
     void set_id(const size_t id);
@@ -92,6 +94,8 @@ protected:
 class BlockExecutionInterface
 {
 public:
+    virtual ~BlockExecutionInterface();
+
     virtual void init(const SimState&);
 
     virtual void step(const SimState&);

@@ -10,7 +10,7 @@ template <tmdl::DataType DT>
 class DelayExecutor : public tmdl::BlockExecutionInterface
 {
 public:
-    using type_t = tmdl::data_type_t<DT>::type;
+    using type_t = typename tmdl::data_type_t<DT>::type;
 
     DelayExecutor(
         const std::shared_ptr<const tmdl::ModelValue> input,

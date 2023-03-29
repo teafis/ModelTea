@@ -14,7 +14,7 @@
 template <tmdl::DataType DT, tmdl::stdlib::RelationalOperator OP>
 struct RelationalExecutor : public tmdl::BlockExecutionInterface
 {
-    using type_t = tmdl::data_type_t<DT>::type;
+    using type_t = typename tmdl::data_type_t<DT>::type;
 
     RelationalExecutor(
         std::shared_ptr<const tmdl::ModelValue> inputA,

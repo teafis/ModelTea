@@ -79,7 +79,7 @@ template <tmdl::DataType DT, tmdl::stdlib::TrigFunction FCN>
 class TrigExecutor : public tmdl::BlockExecutionInterface
 {
 public:
-    using val_t = tmdl::data_type_t<DT>::type;
+    using val_t = typename tmdl::data_type_t<DT>::type;
 
 public:
     TrigExecutor(

@@ -92,7 +92,7 @@ tmdl::DataType tmdl::blocks::Constant::get_output_type(const size_t port) const
 template <tmdl::DataType DT>
 struct ConstantExecutor : public tmdl::BlockExecutionInterface
 {
-    using type_t = tmdl::data_type_t<DT>::type;
+    using type_t = typename tmdl::data_type_t<DT>::type;
 
     ConstantExecutor(
         const type_t& value,

@@ -12,7 +12,7 @@ template <tmdl::DataType DT>
 struct IntegratorExecutor : public tmdl::BlockExecutionInterface
 {
     static_assert(tmdl::data_type_t<DT>::is_numeric);
-    using type_t = tmdl::data_type_t<DT>::type;
+    using type_t = typename tmdl::data_type_t<DT>::type;
 
     IntegratorExecutor(
         std::shared_ptr<const tmdl::ModelValue> input,

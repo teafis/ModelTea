@@ -26,7 +26,7 @@ public:
 
     std::vector<std::string> get_block_names() const override;
 
-    bool has_block(const std::string name) const;
+    bool has_block(const std::string name) const override;
 
     std::shared_ptr<BlockInterface> create_block(const std::string& name) const override;
 

@@ -77,7 +77,7 @@ protected:
             return tmdl::codegen::InterfaceDefinition("s_out", {"val"});
         }
 
-        virtual std::string get_file_name() const override
+        virtual std::string get_file_name_base() const override
         {
             return "tmdlstd/arith.hpp";
         }

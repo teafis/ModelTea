@@ -57,7 +57,7 @@ public:
 
     std::vector<std::string> write_code(Language type, CodeSection section) const;
 
-    virtual std::string get_file_name() const = 0;
+    virtual std::string get_file_name_base() const = 0;
 
     virtual std::string get_type_name() const = 0;
 

@@ -71,12 +71,6 @@ target_include_directories(ModelTea PRIVATE src/)
 target_link_libraries(ModelTea PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(ModelTea PRIVATE tmdl)
 
-#target_compile_options(ModelTea PRIVATE -fsanitize=address)
-#target_link_options(ModelTea PRIVATE -fsanitize=address)
-
-#target_compile_options(ModelTea PRIVATE -fsanitize=leak)
-#target_link_options(ModelTea PRIVATE -fsanitize=leak)
-
 target_link_libraries(ModelTea PRIVATE Qt::Widgets Qt::Charts)
 target_link_libraries(ModelTea PUBLIC nlohmann_json::nlohmann_json)
 
@@ -88,4 +82,19 @@ set_target_properties(ModelTea PROPERTIES
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(ModelTea)
+endif()
+
+# Add compiler options
+if (MSVC)
+    target_compile_options(ModelTea PUBLIC /W4 /WX)
+else()
+    target_compile_options(ModelTea PUBLIC -Wall -Wextra -pedantic -Werror)
+
+    if (MODELTEA_USE_ASAN)
+        set_property(TARGET ModelTea PROPERTY CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak")
+    endif()
+
+    if (MODELTEA_USE_LSAN)
+        set_property(TARGET ModelTea PROPERTY CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak")
+    endif()
 endif()

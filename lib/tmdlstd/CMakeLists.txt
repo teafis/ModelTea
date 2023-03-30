@@ -48,11 +48,11 @@ if (MSVC)
 else()
     target_compile_options(tmdlstd PUBLIC -Wall -Wextra -pedantic -Werror)
 
-    if (TEAFIS_USE_ASAN)
+    if (MODELTEA_USE_ASAN)
         set_property(TARGET tmdlstd PROPERTY CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak")
     endif()
 
-    if (TEAFIS_USE_LSAN)
+    if (MODELTEA_USE_LSAN)
         set_property(TARGET tmdlstd PROPERTY CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak")
     endif()
 endif()

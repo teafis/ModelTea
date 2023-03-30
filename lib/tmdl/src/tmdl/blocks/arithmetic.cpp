@@ -8,7 +8,8 @@
 #include <memory>
 
 #include <fmt/format.h>
-
+#include <tmdlstd/arith.hpp>
+#include <tmdlstd/util.hpp>
 #include <tmdlstd/arith.hpp>
 #include <tmdlstd/util.hpp>
 
@@ -55,7 +56,7 @@ struct ArithmeticExecutor : public tmdl::BlockExecutionInterface
 protected:
     struct ArithCodeComp : public tmdl::codegen::CodeComponent
     {
-        ArithCodeComp(size_t size, tmdl::DataType dt) : _size(size), _dt(dt)
+        ArithCodeComp(size_t size) : _size(size)
         {
             // Empty Constructor
         }
@@ -77,14 +78,23 @@ protected:
             return tmdl::codegen::InterfaceDefinition("s_out", {"val"});
         }
 
-        virtual std::string get_file_name_base() const override
+        virtual std::string get_include_file_name() const override
         {
             return "tmdlstd/arith.hpp";
         }
 
+        virtual std::string get_name_base() const override
+        {
+            return "arith_block";
+        }
+
         virtual std::string get_type_name() const override
         {
-            return fmt::format("tmdlstd::arith_block<{}, {}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, _dt), tmdl::stdlib::arith_to_string(OP));
+            return fmt::format(
+                "tmdlstd::arith_block<{}, {}, {}>",
+                tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT),
+                tmdl::stdlib::arith_to_string(OP),
+                _size);
         }
 
         virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const
@@ -107,60 +117,13 @@ protected:
         }
 
         const size_t _size;
-        const tmdl::DataType _dt;
     };
 
 public:
     std::unique_ptr<tmdl::codegen::CodeComponent> generate_code_component() const override
     {
-        return nullptr;
+        return std::make_unique<ArithCodeComp>(input_values.size());
     }
-
-protected:
-    /*
-    struct CodegenComponent : public tmdl::codegen::CodeComponent
-    {
-        std::string get_file_name() const override
-        {
-            return "tmdlstd/arith_block.hpp";
-        }
-
-        std::string get_type_name() const override
-        {
-            return fmt::format("tmdlstd::arith_block<{}, {}, {}>", tmdl::data_type_to_string(DT), input_values.size(), std::toupper(name_for_type()));
-        }
-
-        std::optional<std::string> get_function_name(tmdl::codegen::FunctionType ft) const override
-        {
-            if (ft == tmdl::codegen::FunctionType::STEP)
-            {
-                return "step";
-            }
-            else
-            {
-                return {};
-            }
-        }
-
-    protected:
-        std::string name_for_type() const
-        {
-            switch (OP)
-            {
-            case tmdlstd::ArithType::ADD:
-                return "add";
-            case tmdlstd::ArithType::SUB:
-                return "sub";
-            case tmdlstd::ArithType::MUL:
-                return "mul";
-            case tmdlstd::ArithType::DIV:
-                return "div";
-            default:
-                throw tmdl::ModelException("unknown provided parameter");
-            }
-        }
-    };
-    */
 
 protected:
     std::vector<std::shared_ptr<const tmdl::ModelValueBox<DT>>> input_values;

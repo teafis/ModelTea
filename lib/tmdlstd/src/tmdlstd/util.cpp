@@ -2,27 +2,19 @@
 
 #include "util.hpp"
 
-consteval const char* tmdl::stdlib::arith_to_string(const ArithType t)
+const char* tmdl::stdlib::arith_to_string(const ArithType t)
 {
-    if (t == ArithType::ADD)
+    switch (t)
     {
+    case ArithType::ADD:
         return "ADD";
-    }
-    else if (t == ArithType::SUB)
-    {
+    case ArithType::SUB:
         return "SUB";
-    }
-    else if (t == ArithType::MUL)
-    {
+    case ArithType::MUL:
         return "MUL";
-    }
-    else if (t == ArithType::DIV)
-    {
+    case ArithType::DIV:
         return "DIV";
-    }
-    else
-    {
-        static_assert("false");
+    default:
         return "";
     }
 }

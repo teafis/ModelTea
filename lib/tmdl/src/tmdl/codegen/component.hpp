@@ -46,10 +46,7 @@ protected:
 class CodeComponent
 {
 public:
-    CodeComponent(const std::string& name) : _variable_name(name)
-    {
-        // Empty Constructor
-    }
+    CodeComponent(const std::string& name = "");
 
     virtual std::optional<const InterfaceDefinition> get_input_type() const = 0;
 
@@ -57,14 +54,13 @@ public:
 
     std::vector<std::string> write_code(Language type, CodeSection section) const;
 
-    virtual std::string get_file_name_base() const = 0;
+    virtual std::string get_name_base() const = 0;
 
-    virtual std::string get_type_name() const = 0;
+    virtual std::string get_include_file_name() const;
 
-    std::string get_varname() const
-    {
-        return _variable_name;
-    }
+    virtual std::string get_type_name() const;
+
+    std::string get_varname() const;
 
     virtual std::optional<std::string> get_function_name(BlockFunction ft) const = 0;
 

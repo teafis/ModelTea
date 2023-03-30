@@ -36,11 +36,11 @@ void tmdl::codegen::CodeGenerator::write_in_folder(const std::filesystem::path& 
             oss << '\n';
         };
 
-        const std::string file_base = c->get_file_name_base();
+        const std::string file_base = c->get_name_base();
 
         if (lang == Language::CPP)
         {
-            const std::string header_name = fmt::format("{}.h", file_base);
+            const std::string header_name = c->get_include_file_name();
 
             std::ofstream hdr(path / header_name);
             write_file_info(hdr);

@@ -8,7 +8,7 @@
 namespace tmdl::stdlib
 {
 
-consteval const char* arith_to_string(ArithType t);
+const char* arith_to_string(ArithType t);
 
 }
 

@@ -48,6 +48,8 @@ class CodeComponent
 public:
     CodeComponent(const std::string& name = "");
 
+    virtual ~CodeComponent();
+
     virtual std::optional<const InterfaceDefinition> get_input_type() const = 0;
 
     virtual std::optional<const InterfaceDefinition> get_output_type() const = 0;

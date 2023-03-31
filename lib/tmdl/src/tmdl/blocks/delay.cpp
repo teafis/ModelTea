@@ -1,10 +1,63 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include "delay.hpp"
-
 #include "../model_exception.hpp"
 
+#include <fmt/format.h>
+
 #include <tmdlstd/delay.hpp>
+#include <tmdlstd/util.hpp>
+
+template <tmdl::DataType DT>
+struct DelayComponent : public tmdl::codegen::CodeComponent
+{
+    virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+    {
+        return tmdl::codegen::InterfaceDefinition("s_out", {"input_value", "reset_flag", "reset_value"});
+    }
+
+    virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+    {
+        return tmdl::codegen::InterfaceDefinition("s_out", {"output_value"});
+    }
+
+    virtual std::string get_include_file_name() const override
+    {
+        return "tmdlstd/delay.hpp";
+    }
+
+    virtual std::string get_name_base() const override
+    {
+        return "delay_block";
+    }
+
+    virtual std::string get_type_name() const override
+    {
+        return fmt::format("tmdlstd::delay_block<{}>", tmdl::data_type_to_string(DT));
+    }
+
+    virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
+    {
+        switch (ft)
+        {
+        case tmdl::codegen::BlockFunction::INIT:
+            return "init";
+        case tmdl::codegen::BlockFunction::RESET:
+            return "reset";
+        case tmdl::codegen::BlockFunction::STEP:
+            return "step";
+        default:
+            return {};
+        }
+    }
+
+protected:
+    virtual std::vector<std::string> write_cpp_code(tmdl::codegen::CodeSection section) const override
+    {
+        (void)section;
+        return {};
+    }
+};
 
 template <tmdl::DataType DT>
 class DelayExecutor : public tmdl::BlockExecutionInterface

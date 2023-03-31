@@ -1,7 +1,6 @@
 // SPDX-License-IdentifierDiDivision3.0-only
 
 #include "arithmetic.hpp"
-
 #include "../model_exception.hpp"
 
 #include <concepts>
@@ -14,6 +13,72 @@
 #include <tmdlstd/util.hpp>
 
 // Arithmetic Executor
+
+template <tmdl::DataType DT, tmdl::stdlib::ArithType OP>
+struct ArithComponent : public tmdl::codegen::CodeComponent
+{
+    ArithComponent(size_t size) : _size(size)
+    {
+        // Empty Constructor
+    }
+
+    virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+    {
+        std::vector<std::string> num_fields;
+
+        for (size_t i = 0; i < _size; ++i)
+        {
+            num_fields.push_back(fmt::format("vals[{}]", i));
+        }
+
+        return tmdl::codegen::InterfaceDefinition("s_in", num_fields);
+    }
+
+    virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+    {
+        return tmdl::codegen::InterfaceDefinition("s_out", {"val"});
+    }
+
+    virtual std::string get_include_file_name() const override
+    {
+        return "tmdlstd/arith.hpp";
+    }
+
+    virtual std::string get_name_base() const override
+    {
+        return "arith_block";
+    }
+
+    virtual std::string get_type_name() const override
+    {
+        return fmt::format(
+            "tmdlstd::arith_block<{}, {}, {}>",
+            tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT),
+            tmdl::stdlib::arith_to_string(OP),
+            _size);
+    }
+
+    virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
+    {
+        if (ft == tmdl::codegen::BlockFunction::STEP)
+        {
+            return "step";
+        }
+        else
+        {
+            return {};
+        }
+    }
+
+protected:
+    virtual std::vector<std::string> write_cpp_code(tmdl::codegen::CodeSection section) const override
+    {
+        (void)section;
+        return {};
+    }
+
+    const size_t _size;
+};
 
 template <tmdl::DataType DT, tmdl::stdlib::ArithType OP>
 struct ArithmeticExecutor : public tmdl::BlockExecutionInterface
@@ -53,76 +118,10 @@ struct ArithmeticExecutor : public tmdl::BlockExecutionInterface
         output_value->value = block.s_out.val;
     }
 
-protected:
-    struct ArithCodeComp : public tmdl::codegen::CodeComponent
-    {
-        ArithCodeComp(size_t size) : _size(size)
-        {
-            // Empty Constructor
-        }
-
-        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
-        {
-            std::vector<std::string> num_fields;
-
-            for (size_t i = 0; i < _size; ++i)
-            {
-                num_fields.push_back(fmt::format("vals[{}]", i));
-            }
-
-            return tmdl::codegen::InterfaceDefinition("s_in", num_fields);
-        }
-
-        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
-        {
-            return tmdl::codegen::InterfaceDefinition("s_out", {"val"});
-        }
-
-        virtual std::string get_include_file_name() const override
-        {
-            return "tmdlstd/arith.hpp";
-        }
-
-        virtual std::string get_name_base() const override
-        {
-            return "arith_block";
-        }
-
-        virtual std::string get_type_name() const override
-        {
-            return fmt::format(
-                "tmdlstd::arith_block<{}, {}, {}>",
-                tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT),
-                tmdl::stdlib::arith_to_string(OP),
-                _size);
-        }
-
-        virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const
-        {
-            if (ft == tmdl::codegen::BlockFunction::STEP)
-            {
-                return "step";
-            }
-            else
-            {
-                return {};
-            }
-        }
-
-    protected:
-        virtual std::vector<std::string> write_cpp_code(tmdl::codegen::CodeSection section) const override
-        {
-            (void)section;
-            return {};
-        }
-
-        const size_t _size;
-    };
-
 public:
     std::unique_ptr<tmdl::codegen::CodeComponent> generate_code_component() const override
     {
-        return std::make_unique<ArithCodeComp>(input_values.size());
+        return std::make_unique<ArithComponent<DT, OP>>(input_values.size());
     }
 
 protected:

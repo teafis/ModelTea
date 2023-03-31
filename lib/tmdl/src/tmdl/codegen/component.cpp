@@ -7,6 +7,11 @@ tmdl::codegen::CodeComponent::CodeComponent(const std::string& name) : _variable
     // Empty Constructor
 }
 
+tmdl::codegen::CodeComponent::~CodeComponent()
+{
+    // Empty Destructor
+}
+
 std::string tmdl::codegen::CodeComponent::get_include_file_name() const
 {
     return fmt::format("{}.h", get_name_base());

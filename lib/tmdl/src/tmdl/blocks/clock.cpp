@@ -1,12 +1,60 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <memory>
-
 #include "clock.hpp"
-
 #include "../model_exception.hpp"
 
+#include <memory>
+
+#include <fmt/format.h>
+
 #include "tmdlstd/clock.hpp"
+
+struct ClockComponent : public tmdl::codegen::CodeComponent
+{
+    virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+    {
+        return {};
+    }
+
+    virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+    {
+        return tmdl::codegen::InterfaceDefinition("s_out", {"val"});
+    }
+
+    virtual std::string get_include_file_name() const override
+    {
+        return "tmdlstd/clock.hpp";
+    }
+
+    virtual std::string get_name_base() const override
+    {
+        return "clock_block";
+    }
+
+    virtual std::string get_type_name() const override
+    {
+        return "tmdlstd::clock_block";
+    }
+
+    virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
+    {
+        if (ft == tmdl::codegen::BlockFunction::STEP)
+        {
+            return "step";
+        }
+        else
+        {
+            return {};
+        }
+    }
+
+protected:
+    virtual std::vector<std::string> write_cpp_code(tmdl::codegen::CodeSection section) const override
+    {
+        (void)section;
+        return {};
+    }
+};
 
 class ClockExecutor : public tmdl::BlockExecutionInterface
 {
@@ -42,6 +90,12 @@ public:
     void close() override
     {
         block = nullptr;
+    }
+
+public:
+    std::unique_ptr<tmdl::codegen::CodeComponent> generate_code_component() const override
+    {
+        return std::make_unique<ClockComponent>();
     }
 
 protected:

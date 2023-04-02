@@ -118,12 +118,6 @@ struct ArithmeticExecutor : public tmdl::BlockExecutionInterface
         output_value->value = block.s_out.val;
     }
 
-public:
-    std::unique_ptr<tmdl::codegen::CodeComponent> generate_code_component() const override
-    {
-        return std::make_unique<ArithComponent<DT, OP>>(input_values.size());
-    }
-
 protected:
     std::vector<std::shared_ptr<const tmdl::ModelValueBox<DT>>> input_values;
     std::vector<const type_t*> input_value_ptr_array;
@@ -266,6 +260,24 @@ std::shared_ptr<tmdl::BlockExecutionInterface> generate_executor(
     }
 }
 
+template <tmdl::stdlib::ArithType OP>
+std::unique_ptr<tmdl::codegen::CodeComponent> generate_op_codegen_component(const tmdl::DataType output_type, const size_t input_size)
+{
+    switch (output_type)
+    {
+    case tmdl::DataType::DOUBLE:
+        return std::make_unique<ArithComponent<tmdl::DataType::DOUBLE, OP>>(input_size);
+    case tmdl::DataType::SINGLE:
+        return std::make_unique<ArithComponent<tmdl::DataType::SINGLE, OP>>(input_size);
+    case tmdl::DataType::INT32:
+        return std::make_unique<ArithComponent<tmdl::DataType::INT32, OP>>(input_size);
+    case tmdl::DataType::UINT32:
+        return std::make_unique<ArithComponent<tmdl::DataType::UINT32, OP>>(input_size);
+    default:
+        throw tmdl::ModelException("unable to generate arithmetic component");
+    }
+}
+
 std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::ArithmeticBase::get_execution_interface(
     const ConnectionManager& connections,
     const VariableManager& manager) const
@@ -288,7 +300,17 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::ArithmeticBase::get
         .output_port_num = 0
     });
 
-    return get_application_functions(input_values, output_value);
+    return generate_operation_executor(input_values, output_value);
+}
+
+std::unique_ptr<tmdl::codegen::CodeComponent> tmdl::blocks::ArithmeticBase::get_codegen_component() const
+{
+    if (has_error() != nullptr)
+    {
+        throw ModelException("cannot generate code with an error");
+    }
+
+    return generate_operation_codegen_component();
 }
 
 size_t tmdl::blocks::ArithmeticBase::currentPrmPortCount() const
@@ -308,11 +330,16 @@ std::string tmdl::blocks::Addition::get_description() const
     return "adds the provided inputs together";
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Addition::get_application_functions(
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Addition::generate_operation_executor(
     const std::vector<std::shared_ptr<const ModelValue>>& input_values,
     const std::shared_ptr<tmdl::ModelValue> output_value) const
 {
     return generate_executor<tmdl::stdlib::ArithType::ADD>(_outputPort, input_values, output_value);
+}
+
+std::unique_ptr<tmdl::codegen::CodeComponent> tmdl::blocks::Addition::generate_operation_codegen_component() const
+{
+    return generate_op_codegen_component<tmdl::stdlib::ArithType::ADD>(_outputPort, _inputTypes.size());
 }
 
 // Subtraction Block
@@ -327,11 +354,16 @@ std::string tmdl::blocks::Subtraction::get_description() const
     return "subtracts the Multiplicationd inputs together";
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Subtraction::get_application_functions(
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Subtraction::generate_operation_executor(
     const std::vector<std::shared_ptr<const ModelValue>>& input_values,
     const std::shared_ptr<tmdl::ModelValue> output_value) const
 {
     return generate_executor<tmdl::stdlib::ArithType::SUB>(_outputPort, input_values, output_value);
+}
+
+std::unique_ptr<tmdl::codegen::CodeComponent> tmdl::blocks::Subtraction::generate_operation_codegen_component() const
+{
+    return generate_op_codegen_component<tmdl::stdlib::ArithType::SUB>(_outputPort, _inputTypes.size());
 }
 
 // Product Block
@@ -346,11 +378,16 @@ std::string tmdl::blocks::Multiplication::get_description() const
     return "multiplies the provided inputs together";
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Multiplication::get_application_functions(
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Multiplication::generate_operation_executor(
     const std::vector<std::shared_ptr<const ModelValue>>& input_values,
     const std::shared_ptr<tmdl::ModelValue> output_value) const
 {
     return generate_executor<tmdl::stdlib::ArithType::MUL>(_outputPort, input_values, output_value);
+}
+
+std::unique_ptr<tmdl::codegen::CodeComponent> tmdl::blocks::Multiplication::generate_operation_codegen_component() const
+{
+    return generate_op_codegen_component<tmdl::stdlib::ArithType::MUL>(_outputPort, _inputTypes.size());
 }
 
 // Division Block
@@ -365,9 +402,14 @@ std::string tmdl::blocks::Division::get_description() const
     return "divides the provided inputs together";
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Division::get_application_functions(
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Division::generate_operation_executor(
     const std::vector<std::shared_ptr<const ModelValue>>& input_values,
     const std::shared_ptr<tmdl::ModelValue> output_value) const
 {
     return generate_executor<tmdl::stdlib::ArithType::DIV>(_outputPort, input_values, output_value);
+}
+
+std::unique_ptr<tmdl::codegen::CodeComponent> tmdl::blocks::Division::generate_operation_codegen_component() const
+{
+    return generate_op_codegen_component<tmdl::stdlib::ArithType::DIV>(_outputPort, _inputTypes.size());
 }

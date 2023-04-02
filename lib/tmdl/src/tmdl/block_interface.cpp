@@ -2,6 +2,8 @@
 
 #include "block_interface.hpp"
 
+#include "codegen/codegen.hpp"
+
 tmdl::BlockLocation::BlockLocation() :
     x(0), y(0)
 {
@@ -88,10 +90,4 @@ void tmdl::BlockExecutionInterface::reset(const SimState&)
 void tmdl::BlockExecutionInterface::close()
 {
     // Empty Close
-}
-
-std::unique_ptr<tmdl::codegen::CodeComponent> tmdl::BlockExecutionInterface::generate_code_component() const
-{
-    // Not implemented -> TODO - remove and replace with pure virtual
-    throw 0;
 }

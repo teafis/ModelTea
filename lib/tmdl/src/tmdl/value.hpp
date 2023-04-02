@@ -5,9 +5,11 @@
 
 #include <cstdint>
 
-#include <string>
+#include <functional>
 #include <memory>
 #include <optional>
+#include <string>
+#include <vector>
 
 
 namespace tmdl
@@ -20,7 +22,7 @@ enum class DataType : uint32_t
     DOUBLE,
     BOOLEAN,
     INT32,
-    UINT32
+    UINT32,
 };
 
 template<DataType>

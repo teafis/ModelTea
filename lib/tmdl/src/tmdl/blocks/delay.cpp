@@ -8,6 +8,9 @@
 #include <tmdlstd/delay.hpp>
 #include <tmdlstd/util.hpp>
 
+#include <memory>
+
+
 template <tmdl::DataType DT>
 struct DelayComponent : public tmdl::codegen::CodeComponent
 {

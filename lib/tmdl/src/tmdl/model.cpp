@@ -7,6 +7,9 @@
 
 #include "model_block.hpp"
 
+#include "codegen/codegen.hpp"
+#include "codegen/component.hpp"
+
 #include "library_manager.hpp"
 
 #include "util/identifiers.hpp"
@@ -15,6 +18,103 @@
 
 
 using namespace tmdl;
+
+/* ==================== MODEL COMPONENT =================== */
+
+class ModelCodeComponent : public tmdl::codegen::CodeComponent
+{
+public:
+    virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+    {
+        return tmdl::codegen::InterfaceDefinition("s_in", _input_names);
+    }
+
+    virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+    {
+        return tmdl::codegen::InterfaceDefinition("s_out", _output_names);
+    }
+
+    virtual std::string get_name_base() const override
+    {
+        return _model_name;
+    }
+
+    virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
+    {
+        switch (ft)
+        {
+        case tmdl::codegen::BlockFunction::INIT:
+            return "init";
+        case tmdl::codegen::BlockFunction::STEP:
+            return "step";
+        case tmdl::codegen::BlockFunction::RESET:
+            return "reset";
+        case tmdl::codegen::BlockFunction::CLOSE:
+            return "close";
+        default:
+            return {};
+        }
+    }
+
+protected:
+    virtual std::vector<std::string> write_cpp_code(tmdl::codegen::CodeSection section) const override
+    {
+        switch (section)
+        {
+        case tmdl::codegen::CodeSection::DECLARATION:
+            return write_cpp_implementation();
+        default:
+            return {};
+        }
+    }
+
+    std::vector<std::string> write_cpp_implementation() const
+    {
+        std::string name_base_upper = get_name_base();
+        for (auto& c : name_base_upper)
+        {
+            c = std::toupper(c);
+        }
+
+        const std::string HDR_GUARD = fmt::format("GEN_MDL_BLOCK_{}_GUARD", name_base_upper);
+
+        std::vector<std::string> lines;
+        lines.push_back(fmt::format("#ifndef {}", HDR_GUARD));
+        lines.push_back(fmt::format("#ifndef {}", HDR_GUARD));
+        lines.push_back("");
+
+        lines.push_back(fmt::format("struct {}", get_name_base()));
+        lines.push_back("{");
+
+        lines.push_back(fmt::format("    void {}()", *get_function_name(tmdl::codegen::BlockFunction::INIT)));
+        lines.push_back("    {");
+        lines.push_back("    }");
+
+        if (_blocks.size() > 0)
+        {
+            lines.push_back("");
+            lines.push_back("private:");
+            for (size_t i = 0; i < _blocks.size(); ++i)
+            {
+                const auto& c = _blocks[i];
+                lines.push_back(fmt::format("    {} _b{}{{}};", c->get_type_name(), i));
+            }
+        }
+
+        lines.push_back("};");
+
+        lines.push_back("");
+        lines.push_back(fmt::format("#endif // {}", HDR_GUARD));
+
+        return lines;
+    }
+
+protected:
+    std::string _model_name;
+    std::vector<std::string> _input_names;
+    std::vector<std::string> _output_names;
+    std::vector<std::unique_ptr<const tmdl::codegen::CodeComponent>> _blocks;
+};
 
 /* ==================== MODEL EXECUTOR ==================== */
 
@@ -60,6 +160,17 @@ public:
         {
             b->close();
         }
+    }
+
+    virtual std::vector<std::unique_ptr<codegen::CodeComponent>> get_dependent_components() const
+    {
+        // Get dependent components here
+        throw tmdl::codegen::CodegenError("not supported!!");
+    }
+
+    virtual std::unique_ptr<codegen::CodeComponent> get_codegen_component() const
+    {
+        throw tmdl::codegen::CodegenError("not supported!");
     }
 
     std::shared_ptr<const VariableManager> get_variable_manager() const override

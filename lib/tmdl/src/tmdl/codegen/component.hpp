@@ -46,7 +46,7 @@ protected:
 class CodeComponent
 {
 public:
-    CodeComponent(const std::string& name = "");
+    CodeComponent();
 
     virtual ~CodeComponent();
 
@@ -62,14 +62,17 @@ public:
 
     virtual std::string get_type_name() const;
 
-    std::string get_varname() const;
-
     virtual std::optional<std::string> get_function_name(BlockFunction ft) const = 0;
 
 protected:
     virtual std::vector<std::string> write_cpp_code(CodeSection section) const;
+};
 
-    std::string _variable_name;
+class CodegenInterface
+{
+    virtual std::vector<std::unique_ptr<codegen::CodeComponent>> get_dependent_components() const;
+
+    virtual std::unique_ptr<codegen::CodeComponent> get_codegen_component() const = 0;
 };
 
 }

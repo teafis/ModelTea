@@ -11,7 +11,7 @@ struct const_block
 {
     struct output_t
     {
-        T val;
+        const T val;
     };
 
     const_block(const T val) : s_out{ .val = val }

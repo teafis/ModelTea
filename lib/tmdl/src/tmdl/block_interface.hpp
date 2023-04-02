@@ -103,10 +103,7 @@ public:
     virtual void reset(const SimState&);
 
     virtual void close();
-
-    virtual std::unique_ptr<codegen::CodeComponent> generate_code_component() const;
 };
-
 
 }
 

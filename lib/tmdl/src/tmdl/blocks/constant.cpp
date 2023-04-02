@@ -5,6 +5,7 @@
 #include "../model_exception.hpp"
 
 #include <tmdlstd/const.hpp>
+#include <fmt/format.h>
 
 
 tmdl::blocks::Constant::Constant() :
@@ -110,6 +111,47 @@ struct ConstantExecutor : public tmdl::BlockExecutionInterface
     }
 
     std::unique_ptr<tmdl::stdlib::const_block<type_t>> block;
+
+protected:
+    struct ConstantComponent : public tmdl::codegen::CodeComponent
+    {
+        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+        {
+            return {};
+        }
+
+        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+        {
+            return tmdl::codegen::InterfaceDefinition("s_out", {"val"});
+        }
+
+        virtual std::string get_include_file_name() const override
+        {
+            return "tmdlstd/const.hpp";
+        }
+
+        virtual std::string get_name_base() const override
+        {
+            return "const_block";
+        }
+
+        virtual std::string get_type_name() const override
+        {
+            return fmt::format("tmdlstd::const_block<{}>", tmdl::data_type_to_string(DT));
+        }
+
+        virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction) const override
+        {
+            return {};
+        }
+
+    protected:
+        virtual std::vector<std::string> write_cpp_code(tmdl::codegen::CodeSection section) const override
+        {
+            (void)section;
+            return {};
+        }
+    };
 };
 
 std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Constant::get_execution_interface(

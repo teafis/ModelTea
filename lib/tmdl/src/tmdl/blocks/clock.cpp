@@ -92,12 +92,6 @@ public:
         block = nullptr;
     }
 
-public:
-    std::unique_ptr<tmdl::codegen::CodeComponent> generate_code_component() const override
-    {
-        return std::make_unique<ClockComponent>();
-    }
-
 protected:
     std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>> output_value;
     std::unique_ptr<tmdl::stdlib::clock_block> block;

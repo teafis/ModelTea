@@ -24,7 +24,6 @@ enum class CodeSection
 enum class BlockFunction
 {
     INIT = 0,
-    CLOSE,
     RESET,
     STEP,
 };

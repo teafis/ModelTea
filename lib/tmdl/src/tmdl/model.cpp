@@ -49,8 +49,6 @@ public:
             return "step";
         case tmdl::codegen::BlockFunction::RESET:
             return "reset";
-        case tmdl::codegen::BlockFunction::CLOSE:
-            return "close";
         default:
             return {};
         }

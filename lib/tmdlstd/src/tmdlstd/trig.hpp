@@ -3,6 +3,8 @@
 #ifndef TMDL_STDLIB_TRIG_H
 #define TMDL_STDLIB_TRIG_H
 
+#include <cmath>
+
 namespace tmdl::stdlib
 {
 

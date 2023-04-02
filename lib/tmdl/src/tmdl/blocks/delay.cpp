@@ -53,13 +53,6 @@ struct DelayComponent : public tmdl::codegen::CodeComponent
             return {};
         }
     }
-
-protected:
-    virtual std::vector<std::string> write_cpp_code(tmdl::codegen::CodeSection section) const override
-    {
-        (void)section;
-        return {};
-    }
 };
 
 template <tmdl::DataType DT>
@@ -234,6 +227,30 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Delay::get_executio
         return std::make_shared<DelayExecutor<DataType::INT32>>(input_value, output_value, input_value_reset_flag, input_value_reset_value);
     case DataType::UINT32:
         return std::make_shared<DelayExecutor<DataType::UINT32>>(input_value, output_value, input_value_reset_flag, input_value_reset_value);
+    default:
+        throw ModelException("unknown data type provided");
+    }
+}
+
+std::unique_ptr<tmdl::codegen::CodeComponent> tmdl::blocks::Delay::get_codegen_component() const
+{
+    if (has_error() != nullptr)
+    {
+        throw ModelException("cannot build component with error");
+    }
+
+    switch (output_port)
+    {
+    case DataType::DOUBLE:
+        return std::make_unique<DelayComponent<DataType::DOUBLE>>();
+    case DataType::SINGLE:
+        return std::make_unique<DelayComponent<DataType::SINGLE>>();
+    case DataType::BOOLEAN:
+        return std::make_unique<DelayComponent<DataType::BOOLEAN>>();
+    case DataType::INT32:
+        return std::make_unique<DelayComponent<DataType::INT32>>();
+    case DataType::UINT32:
+        return std::make_unique<DelayComponent<DataType::UINT32>>();
     default:
         throw ModelException("unknown data type provided");
     }

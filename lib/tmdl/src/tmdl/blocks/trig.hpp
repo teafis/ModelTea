@@ -10,7 +10,7 @@
 namespace tmdl::blocks
 {
 
-class TrigFunction : public BlockInterface
+class TrigFunction : public CodegenHelperInterface
 {
 public:
     TrigFunction();
@@ -41,9 +41,7 @@ public:
 
     std::string get_description() const override;
 
-    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
-        const ConnectionManager& connections,
-        const VariableManager& manager) const override;
+    std::unique_ptr<HelperInterface> get_helper_interface() const override;
 };
 
 class TrigCos : public TrigFunction
@@ -53,9 +51,7 @@ public:
 
     std::string get_description() const override;
 
-    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
-        const ConnectionManager& connections,
-        const VariableManager& manager) const override;
+    std::unique_ptr<HelperInterface> get_helper_interface() const override;
 };
 
 }

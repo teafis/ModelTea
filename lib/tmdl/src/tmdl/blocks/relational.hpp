@@ -8,18 +8,8 @@
 namespace tmdl::blocks
 {
 
-class RelationalBase : public BlockInterface
+class RelationalBase : public CodegenHelperInterface
 {
-public:
-    struct FunctionTypes
-    {
-        bool (*double_fcn)(const double&, const double&);
-        bool (*float_fcn)(const float&, const float&);
-        bool (*i32_fcn)(const int32_t&, const int32_t&);
-        bool (*u32_fcn)(const uint32_t&, const uint32_t&);
-        bool (*bool_fcn)(const bool&, const bool&);
-    };
-
 public:
     RelationalBase();
 
@@ -37,82 +27,84 @@ public:
 
     DataType get_output_type(const size_t port) const override;
 
+    virtual std::vector<DataType> get_supported_types() const = 0;
+
 protected:
     DataType _inputA;
     DataType _inputB;
     DataType _outputPort;
 };
 
-class GreaterThan : public RelationalBase
+class RelationalNumericBase : public RelationalBase
 {
-public:
-    std::string get_name() const override;
-
-    std::string get_description() const override;
-
-    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
-        const ConnectionManager& connections,
-        const VariableManager& manager) const override;
+protected:
+    virtual std::vector<DataType> get_supported_types() const override;
 };
 
-class GreaterThanEqual : public RelationalBase
+class RelationalEqualityBase : public RelationalBase
 {
-public:
-    std::string get_name() const override;
-
-    std::string get_description() const override;
-
-    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
-        const ConnectionManager& connections,
-        const VariableManager& manager) const override;
+protected:
+    virtual std::vector<DataType> get_supported_types() const override;
 };
 
-class LessThan : public RelationalBase
+class GreaterThan : public RelationalNumericBase
 {
 public:
     std::string get_name() const override;
 
     std::string get_description() const override;
 
-    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
-        const ConnectionManager& connections,
-        const VariableManager& manager) const override;
+    std::unique_ptr<HelperInterface> get_helper_interface() const override;
 };
 
-class LessThanEqual : public RelationalBase
+class GreaterThanEqual : public RelationalNumericBase
 {
 public:
     std::string get_name() const override;
 
     std::string get_description() const override;
 
-    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
-        const ConnectionManager& connections,
-        const VariableManager& manager) const override;
+    std::unique_ptr<HelperInterface> get_helper_interface() const override;
 };
 
-class Equal : public RelationalBase
+class LessThan : public RelationalNumericBase
 {
 public:
     std::string get_name() const override;
 
     std::string get_description() const override;
 
-    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
-        const ConnectionManager& connections,
-        const VariableManager& manager) const override;
+    std::unique_ptr<HelperInterface> get_helper_interface() const override;
 };
 
-class NotEqual : public RelationalBase
+class LessThanEqual : public RelationalNumericBase
 {
 public:
     std::string get_name() const override;
 
     std::string get_description() const override;
 
-    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
-        const ConnectionManager& connections,
-        const VariableManager& manager) const override;
+    std::unique_ptr<HelperInterface> get_helper_interface() const override;
+};
+
+class Equal : public RelationalEqualityBase
+{
+public:
+    std::string get_name() const override;
+
+    std::string get_description() const override;
+
+    std::unique_ptr<HelperInterface> get_helper_interface() const override;
+};
+
+class NotEqual : public RelationalEqualityBase
+{
+public:
+    std::string get_name() const override;
+
+    std::string get_description() const override;
+
+    std::unique_ptr<HelperInterface> get_helper_interface() const override;
 };
 
 }

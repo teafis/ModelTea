@@ -8,7 +8,7 @@
 namespace tmdl::blocks
 {
 
-class Integrator : public BlockInterface
+class Integrator : public CodegenBlockInterface
 {
 public:
     Integrator();
@@ -36,6 +36,8 @@ public:
     std::shared_ptr<BlockExecutionInterface> get_execution_interface(
         const ConnectionManager& connections,
         const VariableManager& manager) const override;
+
+    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_component() const override;
 
 protected:
     DataType input_type;

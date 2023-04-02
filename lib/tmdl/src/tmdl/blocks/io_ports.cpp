@@ -98,6 +98,11 @@ std::shared_ptr<BlockExecutionInterface> InputPort::get_execution_interface(
     return std::make_shared<BlockExecutionInterface>();
 }
 
+std::unique_ptr<tmdl::codegen::CodeComponent> InputPort::get_codegen_component() const
+{
+    return nullptr;
+}
+
 void InputPort::set_input_value(const DataType type)
 {
     _port = type;
@@ -164,6 +169,11 @@ std::shared_ptr<BlockExecutionInterface> OutputPort::get_execution_interface(
     const VariableManager&) const
 {
     return std::make_shared<BlockExecutionInterface>();
+}
+
+std::unique_ptr<tmdl::codegen::CodeComponent> OutputPort::get_codegen_component() const
+{
+    return nullptr;
 }
 
 DataType OutputPort::get_output_value() const

@@ -91,3 +91,16 @@ void tmdl::BlockExecutionInterface::close()
 {
     // Empty Close
 }
+
+std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::CodegenHelperInterface::get_execution_interface(
+    const ConnectionManager& connections,
+    const VariableManager& manager) const
+{
+    return get_helper_interface()->generate_execution_interface(this, connections, manager);
+}
+
+std::unique_ptr<tmdl::codegen::CodeComponent> tmdl::CodegenHelperInterface::get_codegen_component() const
+{
+    return get_helper_interface()->generate_codegen_interface();
+}
+

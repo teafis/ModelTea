@@ -91,6 +91,35 @@ protected:
     BlockLocation _loc;
 };
 
+class CodegenBlockInterface : public BlockInterface, public codegen::CodegenInterface
+{
+    // Empty Class
+};
+
+class CodegenHelperInterface : public CodegenBlockInterface
+{
+public:
+    struct HelperInterface
+    {
+        virtual std::shared_ptr<tmdl::BlockExecutionInterface> generate_execution_interface(
+            const tmdl::BlockInterface* model,
+            const tmdl::ConnectionManager& connections,
+            const tmdl::VariableManager& manager) const = 0;
+
+        virtual std::unique_ptr<tmdl::codegen::CodeComponent> generate_codegen_interface() const = 0;
+    };
+
+public:
+    virtual std::shared_ptr<BlockExecutionInterface> get_execution_interface(
+        const ConnectionManager& connections,
+        const VariableManager& manager) const override;
+
+    virtual std::unique_ptr<codegen::CodeComponent> get_codegen_component() const override;
+
+protected:
+    virtual std::unique_ptr<HelperInterface> get_helper_interface() const = 0;
+};
+
 class BlockExecutionInterface
 {
 public:

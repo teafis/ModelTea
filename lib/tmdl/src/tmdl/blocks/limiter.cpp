@@ -6,11 +6,52 @@
 
 #include <algorithm>
 
+#include <fmt/format.h>
+
 #include <tmdlstd/limiter.hpp>
 
 using namespace tmdl;
 using namespace tmdl::blocks;
 
+template <tmdl::DataType DT>
+struct LimiterComponent : public tmdl::codegen::CodeComponent
+{
+    virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+    {
+        return tmdl::codegen::InterfaceDefinition("s_in", {"input_value", "limit_upper", "limit_lower"});
+    }
+
+    virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+    {
+        return tmdl::codegen::InterfaceDefinition("s_out", {"output_value"});
+    }
+
+    virtual std::string get_include_file_name() const override
+    {
+        return "tmdlstd/limiter.hpp";
+    }
+
+    virtual std::string get_name_base() const override
+    {
+        return "limiter_block";
+    }
+
+    virtual std::string get_type_name() const override
+    {
+        return fmt::format("tmdlstd::limiter_block<{}>", tmdl::data_type_to_string(DT));
+    }
+
+    virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
+    {
+        switch (ft)
+        {
+        case tmdl::codegen::BlockFunction::STEP:
+            return "step";
+        default:
+            return {};
+        }
+    }
+};
 
 template <tmdl::DataType DT>
 class LimiterExecutor : public BlockExecutionInterface
@@ -295,5 +336,27 @@ std::shared_ptr<BlockExecutionInterface> Limiter::get_execution_interface(
             outputPointer);
     default:
         throw ModelException("unable to generate limitor executor");
+    }
+}
+
+std::unique_ptr<codegen::CodeComponent> Limiter::get_codegen_component() const
+{
+    if (has_error() != nullptr)
+    {
+        throw ModelException("cannot execute with incomplete input parameters");
+    }
+
+    switch (input_type)
+    {
+    case DataType::DOUBLE:
+        return std::make_unique<LimiterComponent<DataType::DOUBLE>>();
+    case DataType::SINGLE:
+        return std::make_unique<LimiterComponent<DataType::SINGLE>>();
+    case DataType::INT32:
+        return std::make_unique<LimiterComponent<DataType::INT32>>();
+    case DataType::UINT32:
+        return std::make_unique<LimiterComponent<DataType::UINT32>>();
+    default:
+        throw ModelException("unable to generate limitor component");
     }
 }

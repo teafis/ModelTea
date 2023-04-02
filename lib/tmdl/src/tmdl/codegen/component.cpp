@@ -36,7 +36,7 @@ std::vector<std::string> tmdl::codegen::CodeComponent::write_code(Language type,
 
 std::vector<std::string> tmdl::codegen::CodeComponent::write_cpp_code(CodeSection) const
 {
-    throw CodegenError("C++ code generation not supported");
+    return {};
 }
 
 std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> tmdl::codegen::CodegenInterface::get_dependent_components() const

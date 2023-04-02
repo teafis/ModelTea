@@ -4,12 +4,11 @@
 #define TF_MODEL_BLOCKS_ARITHMETIC_HPP
 
 #include "../block_interface.hpp"
-#include "../codegen/component.hpp"
 
 namespace tmdl::blocks
 {
 
-class ArithmeticBase : public BlockInterface, public codegen::CodegenInterface
+class ArithmeticBase : public CodegenBlockInterface
 {
 public:
     ArithmeticBase();

@@ -47,13 +47,6 @@ struct ClockComponent : public tmdl::codegen::CodeComponent
             return {};
         }
     }
-
-protected:
-    virtual std::vector<std::string> write_cpp_code(tmdl::codegen::CodeSection section) const override
-    {
-        (void)section;
-        return {};
-    }
 };
 
 class ClockExecutor : public tmdl::BlockExecutionInterface
@@ -164,4 +157,9 @@ std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Clock::get_executio
     auto ptr = std::dynamic_pointer_cast<ModelValueBox<DataType::DOUBLE>>(manager.get_ptr(vid));
 
     return std::make_shared<ClockExecutor>(ptr);
+}
+
+std::unique_ptr<tmdl::codegen::CodeComponent> tmdl::blocks::Clock::get_codegen_component() const
+{
+    return std::make_unique<ClockComponent>();
 }

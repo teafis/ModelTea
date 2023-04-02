@@ -71,12 +71,6 @@ struct ArithComponent : public tmdl::codegen::CodeComponent
     }
 
 protected:
-    virtual std::vector<std::string> write_cpp_code(tmdl::codegen::CodeSection section) const override
-    {
-        (void)section;
-        return {};
-    }
-
     const size_t _size;
 };
 

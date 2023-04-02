@@ -8,7 +8,7 @@
 namespace tmdl::blocks
 {
 
-class RelationalBase : public CodegenHelperInterface
+class RelationalBase : public BlockInterface
 {
 public:
     RelationalBase();
@@ -54,7 +54,7 @@ public:
 
     std::string get_description() const override;
 
-    std::unique_ptr<HelperInterface> get_helper_interface() const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled() const override;
 };
 
 class GreaterThanEqual : public RelationalNumericBase
@@ -64,7 +64,7 @@ public:
 
     std::string get_description() const override;
 
-    std::unique_ptr<HelperInterface> get_helper_interface() const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled() const override;
 };
 
 class LessThan : public RelationalNumericBase
@@ -74,7 +74,7 @@ public:
 
     std::string get_description() const override;
 
-    std::unique_ptr<HelperInterface> get_helper_interface() const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled() const override;
 };
 
 class LessThanEqual : public RelationalNumericBase
@@ -84,7 +84,7 @@ public:
 
     std::string get_description() const override;
 
-    std::unique_ptr<HelperInterface> get_helper_interface() const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled() const override;
 };
 
 class Equal : public RelationalEqualityBase
@@ -94,7 +94,7 @@ public:
 
     std::string get_description() const override;
 
-    std::unique_ptr<HelperInterface> get_helper_interface() const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled() const override;
 };
 
 class NotEqual : public RelationalEqualityBase
@@ -104,7 +104,7 @@ public:
 
     std::string get_description() const override;
 
-    std::unique_ptr<HelperInterface> get_helper_interface() const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled() const override;
 };
 
 }

@@ -79,8 +79,40 @@ tmdl::DataType tmdl::blocks::TrigFunction::get_output_type(const size_t port) co
 }
 
 template <tmdl::DataType DT, tmdl::stdlib::TrigFunction FCN>
-struct TrigHelper : public tmdl::CodegenHelperInterface::HelperInterface
+class CompiledTrig : public tmdl::CompiledBlockInterface
 {
+public:
+    CompiledTrig(const size_t id) :
+        _id{ id }
+    {
+        // Empty Constructor
+    }
+
+    std::shared_ptr<tmdl::BlockExecutionInterface> get_execution_interface(
+        const tmdl::ConnectionManager& connections,
+        const tmdl::VariableManager& manager) const
+    {
+        const auto inputValue = manager.get_ptr(*connections.get_connection_to(_id, 0));
+        const auto outputValue = manager.get_ptr(tmdl::VariableIdentifier
+        {
+            .block_id = _id,
+            .output_port_num = 0
+        });
+
+        return std::make_shared<TrigExecutor>(
+            inputValue,
+            outputValue);
+    }
+
+    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_component() const
+    {
+        return std::make_unique<TrigComponent>();
+    }
+
+protected:
+    const size_t _id;
+
+protected:
     struct TrigComponent : public tmdl::codegen::CodeComponent
     {
         virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
@@ -120,6 +152,7 @@ struct TrigHelper : public tmdl::CodegenHelperInterface::HelperInterface
         }
     };
 
+protected:
     class TrigExecutor : public tmdl::BlockExecutionInterface
     {
     public:
@@ -152,44 +185,22 @@ struct TrigHelper : public tmdl::CodegenHelperInterface::HelperInterface
         const std::shared_ptr<tmdl::ModelValueBox<DT>> _ptr_output;
         tmdl::stdlib::trig_block<val_t, FCN> block;
     };
-
-    std::shared_ptr<tmdl::BlockExecutionInterface> generate_execution_interface(
-        const tmdl::BlockInterface* model,
-        const tmdl::ConnectionManager& connections,
-        const tmdl::VariableManager& manager) const
-    {
-        const auto inputValue = manager.get_ptr(*connections.get_connection_to(model->get_id(), 0));
-        const auto outputValue = manager.get_ptr(tmdl::VariableIdentifier
-        {
-            .block_id = model->get_id(),
-            .output_port_num = 0
-        });
-
-        return std::make_shared<TrigExecutor>(
-            inputValue,
-            outputValue);
-    }
-
-    std::unique_ptr<tmdl::codegen::CodeComponent> generate_codegen_interface() const
-    {
-        return std::make_unique<TrigComponent>();
-    }
 };
 
 template <tmdl::stdlib::TrigFunction FCN>
-static std::unique_ptr<tmdl::CodegenHelperInterface::HelperInterface> generate_helper_interface(const tmdl::blocks::TrigFunction* model)
+static std::unique_ptr<tmdl::CompiledBlockInterface> generate_compiler_interface(const tmdl::blocks::TrigFunction* model)
 {
     if (model->has_error() != nullptr)
     {
-        throw tmdl::ModelException("cannot execute with incomplete input parameters");
+        throw tmdl::ModelException(fmt::format("cannot execute {} with incomplete input parameters", model->get_name()));
     }
 
     switch (model->get_output_type(0))
     {
     case tmdl::DataType::DOUBLE:
-        return std::make_unique<TrigHelper<tmdl::DataType::DOUBLE, FCN>>();
+        return std::make_unique<CompiledTrig<tmdl::DataType::DOUBLE, FCN>>(model->get_id());
     case tmdl::DataType::SINGLE:
-        return std::make_unique<TrigHelper<tmdl::DataType::SINGLE, FCN>>();
+        return std::make_unique<CompiledTrig<tmdl::DataType::SINGLE, FCN>>(model->get_id());
     default:
         throw tmdl::ModelException("unable to generate limitor executor");
     }
@@ -205,9 +216,9 @@ std::string tmdl::blocks::TrigSin::get_description() const
     return "computes the sin of the input parameter";
 }
 
-std::unique_ptr<tmdl::CodegenHelperInterface::HelperInterface> tmdl::blocks::TrigSin::get_helper_interface() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::TrigSin::get_compiled() const
 {
-    return generate_helper_interface<tmdl::stdlib::TrigFunction::SIN>(this);
+    return generate_compiler_interface<tmdl::stdlib::TrigFunction::SIN>(this);
 }
 
 std::string tmdl::blocks::TrigCos::get_name() const
@@ -220,7 +231,7 @@ std::string tmdl::blocks::TrigCos::get_description() const
     return "computes the cos of the input parameter";
 }
 
-std::unique_ptr<tmdl::CodegenHelperInterface::HelperInterface> tmdl::blocks::TrigCos::get_helper_interface() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::TrigCos::get_compiled() const
 {
-    return generate_helper_interface<tmdl::stdlib::TrigFunction::COS>(this);
+    return generate_compiler_interface<tmdl::stdlib::TrigFunction::COS>(this);
 }

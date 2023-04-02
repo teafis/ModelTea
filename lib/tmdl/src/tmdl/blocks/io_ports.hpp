@@ -8,7 +8,7 @@
 namespace tmdl
 {
 
-class InputPort : public CodegenBlockInterface
+class InputPort : public BlockInterface
 {
 public:
     InputPort();
@@ -33,11 +33,7 @@ public:
 
     bool update_block() override;
 
-    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
-        const ConnectionManager& connections,
-        const VariableManager& manager) const override;
-
-    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_component() const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled() const override;
 
 public:
     void set_input_value(const DataType type);
@@ -47,7 +43,7 @@ protected:
     std::shared_ptr<Parameter> dataTypeParameter;
 };
 
-class OutputPort : public CodegenBlockInterface
+class OutputPort : public BlockInterface
 {
 public:
     std::string get_name() const override;
@@ -68,11 +64,7 @@ public:
 
     bool update_block() override;
 
-    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
-        const ConnectionManager& connections,
-        const VariableManager& manager) const override;
-
-    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_component() const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled() const override;
 
 public:
     DataType get_output_value() const;

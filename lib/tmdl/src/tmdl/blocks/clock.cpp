@@ -9,85 +9,117 @@
 
 #include "tmdlstd/clock.hpp"
 
-struct ClockComponent : public tmdl::codegen::CodeComponent
-{
-    virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
-    {
-        return {};
-    }
-
-    virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
-    {
-        return tmdl::codegen::InterfaceDefinition("s_out", {"val"});
-    }
-
-    virtual std::string get_include_file_name() const override
-    {
-        return "tmdlstd/clock.hpp";
-    }
-
-    virtual std::string get_name_base() const override
-    {
-        return "clock_block";
-    }
-
-    virtual std::string get_type_name() const override
-    {
-        return "tmdlstd::clock_block";
-    }
-
-    virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
-    {
-        if (ft == tmdl::codegen::BlockFunction::STEP)
-        {
-            return "step";
-        }
-        else
-        {
-            return {};
-        }
-    }
-};
-
-class ClockExecutor : public tmdl::BlockExecutionInterface
+class CompiledClock : public tmdl::CompiledBlockInterface
 {
 public:
-    ClockExecutor(
-        std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>> ptr_output) :
-        output_value(ptr_output),
-        block(nullptr)
+    CompiledClock(const size_t id) : _id(id)
     {
-        if (ptr_output == nullptr)
-        {
-            throw tmdl::ModelException("input pointers cannot be null");
-        }
+        // Empty Constructor
     }
 
-public:
-    void init(const tmdl::SimState& s) override
+    std::shared_ptr<tmdl::BlockExecutionInterface> get_execution_interface(
+        const tmdl::ConnectionManager&,
+        const tmdl::VariableManager& manager) const override
     {
-        block = std::make_unique<tmdl::stdlib::clock_block>(s.get_dt());
+        tmdl::VariableIdentifier vid = {
+            .block_id = _id,
+            .output_port_num = 0
+        };
+
+        auto ptr = std::dynamic_pointer_cast<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>>(manager.get_ptr(vid));
+
+        return std::make_shared<ClockExecutor>(ptr);
     }
 
-    void step(const tmdl::SimState&) override
+    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_component() const override
     {
-        block->step();
-        output_value->value = block->s_out.val;
-    }
-
-    void reset(const tmdl::SimState&) override
-    {
-        block->reset();
-    }
-
-    void close() override
-    {
-        block = nullptr;
+        return std::make_unique<ClockComponent>();
     }
 
 protected:
-    std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>> output_value;
-    std::unique_ptr<tmdl::stdlib::clock_block> block;
+    const size_t _id;
+
+protected:
+    struct ClockComponent : public tmdl::codegen::CodeComponent
+    {
+        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+        {
+            return {};
+        }
+
+        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+        {
+            return tmdl::codegen::InterfaceDefinition("s_out", {"val"});
+        }
+
+        virtual std::string get_include_file_name() const override
+        {
+            return "tmdlstd/clock.hpp";
+        }
+
+        virtual std::string get_name_base() const override
+        {
+            return "clock_block";
+        }
+
+        virtual std::string get_type_name() const override
+        {
+            return "tmdlstd::clock_block";
+        }
+
+        virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
+        {
+            if (ft == tmdl::codegen::BlockFunction::STEP)
+            {
+                return "step";
+            }
+            else
+            {
+                return {};
+            }
+        }
+    };
+
+    class ClockExecutor : public tmdl::BlockExecutionInterface
+    {
+    public:
+        ClockExecutor(
+            std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>> ptr_output) :
+            output_value(ptr_output),
+            block(nullptr)
+        {
+            if (ptr_output == nullptr)
+            {
+                throw tmdl::ModelException("input pointers cannot be null");
+            }
+        }
+
+    public:
+        void init(const tmdl::SimState& s) override
+        {
+            block = std::make_unique<tmdl::stdlib::clock_block>(s.get_dt());
+        }
+
+        void step(const tmdl::SimState&) override
+        {
+            block->step();
+            output_value->value = block->s_out.val;
+        }
+
+        void reset(const tmdl::SimState&) override
+        {
+            block->reset();
+        }
+
+        void close() override
+        {
+            block = nullptr;
+        }
+
+    protected:
+        std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>> output_value;
+        std::unique_ptr<tmdl::stdlib::clock_block> block;
+    };
 };
 
 
@@ -145,21 +177,7 @@ tmdl::DataType tmdl::blocks::Clock::get_output_type(const size_t port) const
     }
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Clock::get_execution_interface(
-    const ConnectionManager& /* connections */,
-    const VariableManager& manager) const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Clock::get_compiled() const
 {
-    VariableIdentifier vid = {
-        .block_id = get_id(),
-        .output_port_num = 0
-    };
-
-    auto ptr = std::dynamic_pointer_cast<ModelValueBox<DataType::DOUBLE>>(manager.get_ptr(vid));
-
-    return std::make_shared<ClockExecutor>(ptr);
-}
-
-std::unique_ptr<tmdl::codegen::CodeComponent> tmdl::blocks::Clock::get_codegen_component() const
-{
-    return std::make_unique<ClockComponent>();
+    return std::make_unique<CompiledClock>(get_id());
 }

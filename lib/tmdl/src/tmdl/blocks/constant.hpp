@@ -8,7 +8,7 @@
 namespace tmdl::blocks
 {
 
-class Constant : public CodegenBlockInterface
+class Constant : public BlockInterface
 {
 public:
     Constant();
@@ -33,11 +33,7 @@ public:
 
     DataType get_output_type(const size_t port) const override;
 
-    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
-        const ConnectionManager& connections,
-        const VariableManager& manager) const override;
-
-    std::unique_ptr<codegen::CodeComponent> get_codegen_component() const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled() const override;
 
 protected:
     std::shared_ptr<Parameter> param_dtype;

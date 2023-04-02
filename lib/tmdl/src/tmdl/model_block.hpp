@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "block_interface.hpp"
-#include "connection_manager.hpp"
 #include "model.hpp"
 
 #include <nlohmann/json.hpp>
@@ -38,9 +37,7 @@ public:
 
     DataType get_output_type(const size_t port) const override;
 
-    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
-        const ConnectionManager& connections,
-        const VariableManager& manager) const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled() const override;
 
     std::shared_ptr<Model> get_model();
 

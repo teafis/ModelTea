@@ -656,7 +656,7 @@ std::shared_ptr<ModelExecutionInterface> Model::get_execution_interface(
     std::vector<std::shared_ptr<BlockExecutionInterface>> interface_order;
     for (const auto& b_id : order_values)
     {
-        std::shared_ptr<BlockExecutionInterface> block = get_block(b_id)->get_execution_interface(
+        std::shared_ptr<BlockExecutionInterface> block = get_block(b_id)->get_compiled()->get_execution_interface(
             connections,
             *variables);
         interface_order.push_back(block);

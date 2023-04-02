@@ -13,87 +13,148 @@
 using namespace tmdl;
 using namespace tmdl::blocks;
 
-template <tmdl::DataType DT>
-struct LimiterComponent : public tmdl::codegen::CodeComponent
+struct LimiterValues
 {
-    virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
-    {
-        return tmdl::codegen::InterfaceDefinition("s_in", {"input_value", "limit_upper", "limit_lower"});
-    }
-
-    virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
-    {
-        return tmdl::codegen::InterfaceDefinition("s_out", {"output_value"});
-    }
-
-    virtual std::string get_include_file_name() const override
-    {
-        return "tmdlstd/limiter.hpp";
-    }
-
-    virtual std::string get_name_base() const override
-    {
-        return "limiter_block";
-    }
-
-    virtual std::string get_type_name() const override
-    {
-        return fmt::format("tmdlstd::limiter_block<{}>", tmdl::data_type_to_string(DT));
-    }
-
-    virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
-    {
-        switch (ft)
-        {
-        case tmdl::codegen::BlockFunction::STEP:
-            return "step";
-        default:
-            return {};
-        }
-    }
+    std::shared_ptr<tmdl::ModelValue> upper;
+    std::shared_ptr<tmdl::ModelValue> lower;
 };
 
 template <tmdl::DataType DT>
-class LimiterExecutor : public BlockExecutionInterface
+class CompiledLimiter : public tmdl::CompiledBlockInterface
 {
-protected:
-    using limit_t = typename tmdl::data_type_t<DT>::type;
-
 public:
-    LimiterExecutor(
-        std::shared_ptr<const ModelValue> ptr_input,
-        std::shared_ptr<const ModelValue> val_min,
-        std::shared_ptr<const ModelValue> val_max,
-        std::shared_ptr<ModelValue> ptr_output) :
-        _ptr_input(std::dynamic_pointer_cast<const ModelValueBox<DT>>(ptr_input)),
-        _ptr_output(std::dynamic_pointer_cast<ModelValueBox<DT>>(ptr_output)),
-        _val_min(std::dynamic_pointer_cast<const ModelValueBox<DT>>(val_min)),
-        _val_max(std::dynamic_pointer_cast<const ModelValueBox<DT>>(val_max))
+    CompiledLimiter(const size_t id, const std::optional<LimiterValues> constLimits) :
+        _id{ id },
+        _constantLimits{ constLimits }
     {
-        if (_ptr_input == nullptr || _ptr_output == nullptr || _val_min == nullptr || _val_max == nullptr)
+        // Empty Constructor
+    }
+
+    std::shared_ptr<tmdl::BlockExecutionInterface> get_execution_interface(
+        const tmdl::ConnectionManager& connections,
+        const tmdl::VariableManager& manager) const override
+    {
+        std::shared_ptr<ModelValue> maxValue;
+        std::shared_ptr<ModelValue> minValue;
+
+        if (_constantLimits)
         {
-            throw ModelException("input pointers cannot be null");
+            maxValue = _constantLimits->upper;
+            minValue = _constantLimits->lower;
+        }
+        else
+        {
+            maxValue = manager.get_ptr(*connections.get_connection_to(_id, 1));
+            minValue = manager.get_ptr(*connections.get_connection_to(_id, 2));
         }
 
-        block.s_in.input_value = &_ptr_input->value;
-        block.s_in.limit_lower = &_val_min->value;
-        block.s_in.limit_upper = &_val_max->value;
+        const auto inputPointer = manager.get_ptr(*connections.get_connection_to(_id, 0));
+
+        const auto vidOutput = VariableIdentifier {
+            .block_id = _id,
+            .output_port_num = 0
+        };
+
+        const auto outputPointer = manager.get_ptr(vidOutput);
+
+        return std::make_shared<LimiterExecutor>(
+            inputPointer,
+            minValue,
+            maxValue,
+            outputPointer);
     }
 
-public:
-    void step(const SimState&) override
+    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_component() const override
     {
-        block.step();
-        _ptr_output->value = block.s_out.output_value;
+        return std::make_unique<LimiterComponent>();
     }
 
 protected:
-    std::shared_ptr<const ModelValueBox<DT>> _ptr_input;
-    std::shared_ptr<ModelValueBox<DT>> _ptr_output;
-    std::shared_ptr<const ModelValueBox<DT>> _val_min;
-    std::shared_ptr<const ModelValueBox<DT>> _val_max;
+    const size_t _id;
+    const std::optional<LimiterValues> _constantLimits;
 
-    tmdl::stdlib::limiter_block<limit_t> block;
+protected:
+    struct LimiterComponent : public tmdl::codegen::CodeComponent
+    {
+        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+        {
+            return tmdl::codegen::InterfaceDefinition("s_in", {"input_value", "limit_upper", "limit_lower"});
+        }
+
+        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+        {
+            return tmdl::codegen::InterfaceDefinition("s_out", {"output_value"});
+        }
+
+        virtual std::string get_include_file_name() const override
+        {
+            return "tmdlstd/limiter.hpp";
+        }
+
+        virtual std::string get_name_base() const override
+        {
+            return "limiter_block";
+        }
+
+        virtual std::string get_type_name() const override
+        {
+            return fmt::format("tmdlstd::limiter_block<{}>", tmdl::data_type_to_string(DT));
+        }
+
+        virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
+        {
+            switch (ft)
+            {
+            case tmdl::codegen::BlockFunction::STEP:
+                return "step";
+            default:
+                return {};
+            }
+        }
+    };
+
+protected:
+    class LimiterExecutor : public BlockExecutionInterface
+    {
+    protected:
+        using limit_t = typename tmdl::data_type_t<DT>::type;
+
+    public:
+        LimiterExecutor(
+            std::shared_ptr<const ModelValue> ptr_input,
+            std::shared_ptr<const ModelValue> val_min,
+            std::shared_ptr<const ModelValue> val_max,
+            std::shared_ptr<ModelValue> ptr_output) :
+            _ptr_input(std::dynamic_pointer_cast<const ModelValueBox<DT>>(ptr_input)),
+            _ptr_output(std::dynamic_pointer_cast<ModelValueBox<DT>>(ptr_output)),
+            _val_min(std::dynamic_pointer_cast<const ModelValueBox<DT>>(val_min)),
+            _val_max(std::dynamic_pointer_cast<const ModelValueBox<DT>>(val_max))
+        {
+            if (_ptr_input == nullptr || _ptr_output == nullptr || _val_min == nullptr || _val_max == nullptr)
+            {
+                throw ModelException("input pointers cannot be null");
+            }
+
+            block.s_in.input_value = &_ptr_input->value;
+            block.s_in.limit_lower = &_val_min->value;
+            block.s_in.limit_upper = &_val_max->value;
+        }
+
+    public:
+        void step(const SimState&) override
+        {
+            block.step();
+            _ptr_output->value = block.s_out.output_value;
+        }
+
+    protected:
+        std::shared_ptr<const ModelValueBox<DT>> _ptr_input;
+        std::shared_ptr<ModelValueBox<DT>> _ptr_output;
+        std::shared_ptr<const ModelValueBox<DT>> _val_min;
+        std::shared_ptr<const ModelValueBox<DT>> _val_max;
+
+        tmdl::stdlib::limiter_block<limit_t> block;
+    };
 };
 
 Limiter::Limiter()
@@ -276,87 +337,34 @@ DataType Limiter::get_output_type(const size_t port) const
     }
 }
 
-std::shared_ptr<BlockExecutionInterface> Limiter::get_execution_interface(
-    const ConnectionManager& connections,
-    const VariableManager& manager) const
+std::unique_ptr<CompiledBlockInterface> Limiter::get_compiled() const
 {
     if (has_error() != nullptr)
     {
-        throw ModelException("cannot execute with incomplete input parameters");
+        throw ModelException("cannot execute limitert with incomplete input parameters");
     }
 
-    std::shared_ptr<ModelValue> maxValue;
-    std::shared_ptr<ModelValue> minValue;
+    std::optional<LimiterValues> limitValues{};
 
-    if (dynamicLimiter->get_value().value.tf)
+    if (!dynamicLimiter->get_value().value.tf)
     {
-        maxValue = manager.get_ptr(*connections.get_connection_to(get_id(), 1));
-        minValue = manager.get_ptr(*connections.get_connection_to(get_id(), 2));
+        limitValues = LimiterValues{
+            .upper = prmMaxValue->get_value().to_box(),
+            .lower = prmMinValue->get_value().to_box()
+        };
     }
-    else
-    {
-        maxValue = prmMaxValue->get_value().to_box();
-        minValue = prmMinValue->get_value().to_box();
-    }
-
-    const auto inputPointer = manager.get_ptr(*connections.get_connection_to(get_id(), 0));
-
-    const auto vidOutput = VariableIdentifier {
-        .block_id = get_id(),
-        .output_port_num = 0
-    };
-
-    const auto outputPointer = manager.get_ptr(vidOutput);
 
     switch (input_type)
     {
     case DataType::DOUBLE:
-        return std::make_shared<LimiterExecutor<DataType::DOUBLE>>(
-            inputPointer,
-            minValue,
-            maxValue,
-            outputPointer);
+        return std::make_unique<CompiledLimiter<DataType::DOUBLE>>(get_id(), limitValues);
     case DataType::SINGLE:
-        return std::make_shared<LimiterExecutor<DataType::SINGLE>>(
-            inputPointer,
-            minValue,
-            maxValue,
-            outputPointer);
+        return std::make_unique<CompiledLimiter<DataType::SINGLE>>(get_id(), limitValues);
     case DataType::INT32:
-        return std::make_shared<LimiterExecutor<DataType::INT32>>(
-            inputPointer,
-            minValue,
-            maxValue,
-            outputPointer);
+        return std::make_unique<CompiledLimiter<DataType::INT32>>(get_id(), limitValues);
     case DataType::UINT32:
-        return std::make_shared<LimiterExecutor<DataType::UINT32>>(
-            inputPointer,
-            minValue,
-            maxValue,
-            outputPointer);
+        return std::make_unique<CompiledLimiter<DataType::UINT32>>(get_id(), limitValues);
     default:
         throw ModelException("unable to generate limitor executor");
-    }
-}
-
-std::unique_ptr<codegen::CodeComponent> Limiter::get_codegen_component() const
-{
-    if (has_error() != nullptr)
-    {
-        throw ModelException("cannot execute with incomplete input parameters");
-    }
-
-    switch (input_type)
-    {
-    case DataType::DOUBLE:
-        return std::make_unique<LimiterComponent<DataType::DOUBLE>>();
-    case DataType::SINGLE:
-        return std::make_unique<LimiterComponent<DataType::SINGLE>>();
-    case DataType::INT32:
-        return std::make_unique<LimiterComponent<DataType::INT32>>();
-    case DataType::UINT32:
-        return std::make_unique<LimiterComponent<DataType::UINT32>>();
-    default:
-        throw ModelException("unable to generate limitor component");
     }
 }

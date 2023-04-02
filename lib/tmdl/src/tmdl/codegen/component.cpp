@@ -38,8 +38,3 @@ std::vector<std::string> tmdl::codegen::CodeComponent::write_cpp_code(CodeSectio
 {
     return {};
 }
-
-std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> tmdl::codegen::CodegenInterface::get_dependent_components() const
-{
-    return {};
-}

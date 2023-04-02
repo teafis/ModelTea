@@ -91,124 +91,116 @@ tmdl::DataType tmdl::blocks::Constant::get_output_type(const size_t port) const
 }
 
 template <tmdl::DataType DT>
-struct ConstantComponent : public tmdl::codegen::CodeComponent
+class CompiledConstant : public tmdl::CompiledBlockInterface
 {
-    virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
-    {
-        return {};
-    }
-
-    virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
-    {
-        return tmdl::codegen::InterfaceDefinition("s_out", {"val"});
-    }
-
-    virtual std::string get_include_file_name() const override
-    {
-        return "tmdlstd/const.hpp";
-    }
-
-    virtual std::string get_name_base() const override
-    {
-        return "const_block";
-    }
-
-    virtual std::string get_type_name() const override
-    {
-        return fmt::format("tmdlstd::const_block<{}>", tmdl::data_type_to_string(DT));
-    }
-
-    virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction) const override
-    {
-        return {};
-    }
-};
-
-template <tmdl::DataType DT>
-struct ConstantExecutor : public tmdl::BlockExecutionInterface
-{
+public:
     using type_t = typename tmdl::data_type_t<DT>::type;
 
-    ConstantExecutor(
-        const type_t& value,
-        const std::shared_ptr<tmdl::ModelValue> ptr)
+public:
+    explicit CompiledConstant(const size_t id, const type_t value) : _id{ id }, _value{ value }
     {
-        const auto ptr_type = std::dynamic_pointer_cast<tmdl::ModelValueBox<DT>>(ptr);
-        if (ptr == nullptr)
+        // Empty Constructor
+    }
+
+    std::shared_ptr<tmdl::BlockExecutionInterface> get_execution_interface(
+        const tmdl::ConnectionManager&,
+        const tmdl::VariableManager& manager) const override
+    {
+        const auto output_type = manager.get_ptr(tmdl::VariableIdentifier
         {
-            throw tmdl::ModelException("provided output pointer cannot be null");
+            .block_id = _id,
+            .output_port_num = 0
+        });
+
+        return std::make_shared<ConstantExecutor>(
+            _value,
+            output_type);
+    }
+
+    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_component() const override
+    {
+        return std::make_unique<ConstantComponent>();
+    }
+
+protected:
+    const size_t _id;
+    const type_t _value;
+
+protected:
+    struct ConstantComponent : public tmdl::codegen::CodeComponent
+    {
+        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+        {
+            return {};
         }
 
-        block = std::make_unique<tmdl::stdlib::const_block<type_t>>(value);
+        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+        {
+            return tmdl::codegen::InterfaceDefinition("s_out", {"val"});
+        }
 
-        ptr_type->value = block->s_out.val;
-    }
+        virtual std::string get_include_file_name() const override
+        {
+            return "tmdlstd/const.hpp";
+        }
 
-    std::unique_ptr<tmdl::stdlib::const_block<type_t>> block;
+        virtual std::string get_name_base() const override
+        {
+            return "const_block";
+        }
+
+        virtual std::string get_type_name() const override
+        {
+            return fmt::format("tmdlstd::const_block<{}>", tmdl::data_type_to_string(DT));
+        }
+
+        virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction) const override
+        {
+            return {};
+        }
+    };
+
+    struct ConstantExecutor : public tmdl::BlockExecutionInterface
+    {
+        explicit ConstantExecutor(
+            const type_t& value,
+            const std::shared_ptr<tmdl::ModelValue> ptr)
+        {
+            const auto ptr_type = std::dynamic_pointer_cast<tmdl::ModelValueBox<DT>>(ptr);
+            if (ptr == nullptr)
+            {
+                throw tmdl::ModelException("provided output pointer cannot be null");
+            }
+
+            block = std::make_unique<tmdl::stdlib::const_block<type_t>>(value);
+
+            ptr_type->value = block->s_out.val;
+        }
+
+        std::unique_ptr<tmdl::stdlib::const_block<type_t>> block;
+    };
 };
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Constant::get_execution_interface(
-    const ConnectionManager&,
-    const VariableManager& manager) const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Constant::get_compiled() const
 {
     if (has_error() != nullptr)
     {
-        throw ModelException("cannot build executor with error present");
+        throw ModelException("cannot build constant executor with error present");
     }
-
-    const auto output_type = manager.get_ptr(VariableIdentifier
-    {
-        .block_id = get_id(),
-        .output_port_num = 0
-    });
 
     switch (param_dtype->get_value().value.dtype)
     {
     case DataType::DOUBLE:
-        return std::make_shared<ConstantExecutor<DataType::DOUBLE>>(
-            param_value->get_value().value.f64,
-            output_type);
+        return std::make_unique<CompiledConstant<DataType::DOUBLE>>(get_id(), param_value->get_value().value.f64);
     case DataType::SINGLE:
-        return std::make_shared<ConstantExecutor<DataType::SINGLE>>(
-            param_value->get_value().value.f32,
-            output_type);
+        return std::make_unique<CompiledConstant<DataType::SINGLE>>(get_id(), param_value->get_value().value.f32);
     case DataType::BOOLEAN:
-        return std::make_shared<ConstantExecutor<DataType::BOOLEAN>>(
-            param_value->get_value().value.tf,
-            output_type);
+        return std::make_unique<CompiledConstant<DataType::BOOLEAN>>(get_id(), param_value->get_value().value.tf);
     case DataType::INT32:
-        return std::make_shared<ConstantExecutor<DataType::INT32>>(
-            param_value->get_value().value.i32,
-            output_type);
+        return std::make_unique<CompiledConstant<DataType::INT32>>(get_id(), param_value->get_value().value.i32);
     case DataType::UINT32:
-        return std::make_shared<ConstantExecutor<DataType::UINT32>>(
-            param_value->get_value().value.u32,
-            output_type);
+        return std::make_unique<CompiledConstant<DataType::UINT32>>(get_id(), param_value->get_value().value.u32);
     default:
         throw ModelException("unknown data type provided for executor");
-    }
-}
-
-std::unique_ptr<tmdl::codegen::CodeComponent> tmdl::blocks::Constant::get_codegen_component() const
-{
-    if (has_error() != nullptr)
-    {
-        throw ModelException("cannot build codegen component with error present");
-    }
-
-    switch (param_dtype->get_value().value.dtype)
-    {
-    case DataType::DOUBLE:
-        return std::make_unique<ConstantComponent<DataType::DOUBLE>>();
-    case DataType::SINGLE:
-        return std::make_unique<ConstantComponent<DataType::SINGLE>>();
-    case DataType::BOOLEAN:
-        return std::make_unique<ConstantComponent<DataType::BOOLEAN>>();
-    case DataType::INT32:
-        return std::make_unique<ConstantComponent<DataType::INT32>>();
-    case DataType::UINT32:
-        return std::make_unique<ConstantComponent<DataType::UINT32>>();
-    default:
-        throw ModelException("unknown data type provided for component");
     }
 }

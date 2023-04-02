@@ -8,7 +8,7 @@
 namespace tmdl::blocks
 {
 
-class ArithmeticBase : public CodegenBlockInterface
+class ArithmeticBase : public BlockInterface
 {
 public:
     ArithmeticBase();
@@ -29,19 +29,6 @@ public:
 
     DataType get_output_type(const size_t port) const override;
 
-    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
-        const ConnectionManager& connections,
-        const VariableManager& manager) const override;
-
-    std::unique_ptr<codegen::CodeComponent> get_codegen_component() const override;
-
-protected:
-    virtual std::shared_ptr<BlockExecutionInterface> generate_operation_executor(
-        const std::vector<std::shared_ptr<const ModelValue>>& input_values,
-        const std::shared_ptr<tmdl::ModelValue> output_value) const = 0;
-
-    virtual std::unique_ptr<codegen::CodeComponent> generate_operation_codegen_component() const = 0;
-
 private:
     size_t currentPrmPortCount() const;
 
@@ -58,12 +45,7 @@ public:
 
     std::string get_description() const override;
 
-protected:
-    virtual std::shared_ptr<BlockExecutionInterface> generate_operation_executor(
-        const std::vector<std::shared_ptr<const ModelValue>>& input_values,
-        const std::shared_ptr<tmdl::ModelValue> output_value) const override;
-
-    virtual std::unique_ptr<codegen::CodeComponent> generate_operation_codegen_component() const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled() const override;
 };
 
 class Subtraction : public ArithmeticBase
@@ -73,12 +55,7 @@ public:
 
     std::string get_description() const override;
 
-protected:
-    virtual std::shared_ptr<BlockExecutionInterface> generate_operation_executor(
-        const std::vector<std::shared_ptr<const ModelValue>>& input_values,
-        const std::shared_ptr<tmdl::ModelValue> output_value) const override;
-
-    virtual std::unique_ptr<codegen::CodeComponent> generate_operation_codegen_component() const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled() const override;
 };
 
 class Multiplication : public ArithmeticBase
@@ -88,12 +65,7 @@ public:
 
     std::string get_description() const override;
 
-protected:
-    virtual std::shared_ptr<BlockExecutionInterface> generate_operation_executor(
-        const std::vector<std::shared_ptr<const ModelValue>>& input_values,
-        const std::shared_ptr<tmdl::ModelValue> output_value) const override;
-
-    virtual std::unique_ptr<codegen::CodeComponent> generate_operation_codegen_component() const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled() const override;
 };
 
 class Division : public ArithmeticBase
@@ -103,12 +75,7 @@ public:
 
     std::string get_description() const override;
 
-protected:
-    virtual std::shared_ptr<BlockExecutionInterface> generate_operation_executor(
-        const std::vector<std::shared_ptr<const ModelValue>>& input_values,
-        const std::shared_ptr<tmdl::ModelValue> output_value) const override;
-
-    virtual std::unique_ptr<codegen::CodeComponent> generate_operation_codegen_component() const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled() const override;
 };
 
 }

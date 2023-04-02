@@ -7,6 +7,24 @@
 
 using namespace tmdl;
 
+/* ========== COMPILED STRUCTURE ========== */
+
+class CompiledPort : public tmdl::CompiledBlockInterface
+{
+public:
+    std::shared_ptr<BlockExecutionInterface> get_execution_interface(
+        const ConnectionManager&,
+        const VariableManager&) const override
+    {
+        return std::make_shared<BlockExecutionInterface>();
+    }
+
+    std::unique_ptr<codegen::CodeComponent> get_codegen_component() const override
+    {
+        throw tmdl::codegen::CodegenError("IO ports cannot have direct components");
+    }
+};
+
 /* ========== INPUT PORT ========== */
 
 InputPort::InputPort()
@@ -91,16 +109,9 @@ bool InputPort::update_block()
     return false;
 }
 
-std::shared_ptr<BlockExecutionInterface> InputPort::get_execution_interface(
-    const ConnectionManager&,
-    const VariableManager&) const
+std::unique_ptr<CompiledBlockInterface> InputPort::get_compiled() const
 {
-    return std::make_shared<BlockExecutionInterface>();
-}
-
-std::unique_ptr<tmdl::codegen::CodeComponent> InputPort::get_codegen_component() const
-{
-    return nullptr;
+    return std::make_unique<CompiledPort>();
 }
 
 void InputPort::set_input_value(const DataType type)
@@ -164,16 +175,9 @@ bool OutputPort::update_block()
     return false;
 }
 
-std::shared_ptr<BlockExecutionInterface> OutputPort::get_execution_interface(
-    const ConnectionManager&,
-    const VariableManager&) const
+std::unique_ptr<CompiledBlockInterface> OutputPort::get_compiled() const
 {
-    return std::make_shared<BlockExecutionInterface>();
-}
-
-std::unique_ptr<tmdl::codegen::CodeComponent> OutputPort::get_codegen_component() const
-{
-    return nullptr;
+    return std::make_unique<CompiledPort>();
 }
 
 DataType OutputPort::get_output_value() const

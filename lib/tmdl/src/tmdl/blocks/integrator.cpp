@@ -11,107 +11,140 @@
 #include <fmt/format.h>
 
 template <tmdl::DataType DT>
-class IntegratorComponent : public tmdl::codegen::CodeComponent
+class CompiledIntegrator : public tmdl::CompiledBlockInterface
 {
 public:
-    virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+    CompiledIntegrator(const size_t id) : _id{ id }
     {
-        return tmdl::codegen::InterfaceDefinition("s_in", {"input_value", "reset_value", "reset_flag"});
+        // Empty Constructor
     }
 
-    virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+    std::shared_ptr<tmdl::BlockExecutionInterface> get_execution_interface(
+        const tmdl::ConnectionManager& connections,
+        const tmdl::VariableManager& manager) const override
     {
-        return tmdl::codegen::InterfaceDefinition("s_out", {"output_value"});
+        const auto in_value = manager.get_ptr(*connections.get_connection_to(_id, 0));
+        const auto in_reset_flag = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>>(manager.get_ptr(*connections.get_connection_to(_id, 1)));
+        const auto in_reset_value = manager.get_ptr(*connections.get_connection_to(_id, 2));
+
+        const auto out_value = manager.get_ptr(tmdl::VariableIdentifier {
+            .block_id = _id,
+            .output_port_num = 0
+        });
+
+        return std::make_shared<IntegratorExecutor>(in_value, in_reset_value, in_reset_flag, out_value);
     }
 
-    virtual std::string get_include_file_name() const override
+    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_component() const override
     {
-        return "tmdlstd/integrator.hpp";
-    }
-
-    virtual std::string get_name_base() const override
-    {
-        return "integrator_block";
-    }
-
-    virtual std::string get_type_name() const override
-    {
-        return fmt::format("tmdlstd::integrator_block<{}>", tmdl::data_type_to_string(DT));
-    }
-
-    virtual std::optional<std::string> get_function_name(const tmdl::codegen::BlockFunction fcn) const override
-    {
-        switch (fcn)
-        {
-        case tmdl::codegen::BlockFunction::INIT:
-            return "init";
-        case tmdl::codegen::BlockFunction::STEP:
-            return "step";
-        case tmdl::codegen::BlockFunction::RESET:
-            return "reset";
-        default:
-            return {};
-        }
-    }
-};
-
-template <tmdl::DataType DT>
-struct IntegratorExecutor : public tmdl::BlockExecutionInterface
-{
-    static_assert(tmdl::data_type_t<DT>::is_numeric);
-    using type_t = typename tmdl::data_type_t<DT>::type;
-
-    IntegratorExecutor(
-        std::shared_ptr<const tmdl::ModelValue> input,
-        std::shared_ptr<const tmdl::ModelValue> reset_value,
-        std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> reset_flag,
-        std::shared_ptr<tmdl::ModelValue> output) :
-        _input(std::dynamic_pointer_cast<const tmdl::ModelValueBox<DT>>(input)),
-        _reset_value(std::dynamic_pointer_cast<const tmdl::ModelValueBox<DT>>(reset_value)),
-        _output(std::dynamic_pointer_cast<tmdl::ModelValueBox<DT>>(output)),
-        _reset_flag(reset_flag)
-    {
-        if (_input == nullptr || _reset_value == nullptr || _reset_flag == nullptr || _output == nullptr)
-        {
-            throw tmdl::ModelException("all pointers must be non-null");
-        }
-    }
-
-    void init(const tmdl::SimState& s) override
-    {
-        block = std::make_unique<tmdl::stdlib::integrator_block<type_t>>(s.get_dt());
-
-        block->s_in.input_value = &_input->value;
-        block->s_in.reset_value = &_reset_value->value;
-        block->s_in.reset_flag = &_reset_flag->value;
-
-        block->init();
-    }
-
-    void step(const tmdl::SimState&) override
-    {
-        block->step();
-        _output->value = block->s_out.output_value;
-    }
-
-    void reset(const tmdl::SimState&) override
-    {
-        block->reset();
-    }
-
-    void close() override
-    {
-        block = nullptr;
+        return std::make_unique<IntegratorComponent>();
     }
 
 protected:
-    std::shared_ptr<const tmdl::ModelValueBox<DT>> _input;
-    std::shared_ptr<const tmdl::ModelValueBox<DT>> _reset_value;
-    std::shared_ptr<tmdl::ModelValueBox<DT>> _output;
+    const size_t _id;
 
-    std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> _reset_flag;
+protected:
+    class IntegratorComponent : public tmdl::codegen::CodeComponent
+    {
+    public:
+        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+        {
+            return tmdl::codegen::InterfaceDefinition("s_in", {"input_value", "reset_value", "reset_flag"});
+        }
 
-    std::unique_ptr<tmdl::stdlib::integrator_block<type_t>> block;
+        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+        {
+            return tmdl::codegen::InterfaceDefinition("s_out", {"output_value"});
+        }
+
+        virtual std::string get_include_file_name() const override
+        {
+            return "tmdlstd/integrator.hpp";
+        }
+
+        virtual std::string get_name_base() const override
+        {
+            return "integrator_block";
+        }
+
+        virtual std::string get_type_name() const override
+        {
+            return fmt::format("tmdlstd::integrator_block<{}>", tmdl::data_type_to_string(DT));
+        }
+
+        virtual std::optional<std::string> get_function_name(const tmdl::codegen::BlockFunction fcn) const override
+        {
+            switch (fcn)
+            {
+            case tmdl::codegen::BlockFunction::INIT:
+                return "init";
+            case tmdl::codegen::BlockFunction::STEP:
+                return "step";
+            case tmdl::codegen::BlockFunction::RESET:
+                return "reset";
+            default:
+                return {};
+            }
+        }
+    };
+
+    struct IntegratorExecutor : public tmdl::BlockExecutionInterface
+    {
+        static_assert(tmdl::data_type_t<DT>::is_numeric);
+        using type_t = typename tmdl::data_type_t<DT>::type;
+
+        IntegratorExecutor(
+            std::shared_ptr<const tmdl::ModelValue> input,
+            std::shared_ptr<const tmdl::ModelValue> reset_value,
+            std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> reset_flag,
+            std::shared_ptr<tmdl::ModelValue> output) :
+            _input(std::dynamic_pointer_cast<const tmdl::ModelValueBox<DT>>(input)),
+            _reset_value(std::dynamic_pointer_cast<const tmdl::ModelValueBox<DT>>(reset_value)),
+            _output(std::dynamic_pointer_cast<tmdl::ModelValueBox<DT>>(output)),
+            _reset_flag(reset_flag)
+        {
+            if (_input == nullptr || _reset_value == nullptr || _reset_flag == nullptr || _output == nullptr)
+            {
+                throw tmdl::ModelException("all pointers must be non-null");
+            }
+        }
+
+        void init(const tmdl::SimState& s) override
+        {
+            block = std::make_unique<tmdl::stdlib::integrator_block<type_t>>(s.get_dt());
+
+            block->s_in.input_value = &_input->value;
+            block->s_in.reset_value = &_reset_value->value;
+            block->s_in.reset_flag = &_reset_flag->value;
+
+            block->init();
+        }
+
+        void step(const tmdl::SimState&) override
+        {
+            block->step();
+            _output->value = block->s_out.output_value;
+        }
+
+        void reset(const tmdl::SimState&) override
+        {
+            block->reset();
+        }
+
+        void close() override
+        {
+            block = nullptr;
+        }
+
+    protected:
+        std::shared_ptr<const tmdl::ModelValueBox<DT>> _input;
+        std::shared_ptr<const tmdl::ModelValueBox<DT>> _reset_value;
+        std::shared_ptr<tmdl::ModelValueBox<DT>> _output;
+
+        std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> _reset_flag;
+
+        std::unique_ptr<tmdl::stdlib::integrator_block<type_t>> block;
+    };
 };
 
 tmdl::blocks::Integrator::Integrator()
@@ -211,37 +244,7 @@ bool tmdl::blocks::Integrator::outputs_are_delayed() const
     return true;
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::blocks::Integrator::get_execution_interface(
-    const ConnectionManager& connections,
-    const VariableManager& manager) const
-{
-    const auto err = has_error();
-    if (err != nullptr)
-    {
-        throw ModelException("cannot creator interface with an error");
-    }
-
-    const auto in_value = manager.get_ptr(*connections.get_connection_to(get_id(), 0));
-    const auto in_reset_flag = std::dynamic_pointer_cast<const ModelValueBox<DataType::BOOLEAN>>(manager.get_ptr(*connections.get_connection_to(get_id(), 1)));
-    const auto in_reset_value = manager.get_ptr(*connections.get_connection_to(get_id(), 2));
-
-    const auto out_value = manager.get_ptr(VariableIdentifier {
-        .block_id = get_id(),
-        .output_port_num = 0
-    });
-
-    switch (input_type)
-    {
-    case DataType::DOUBLE:
-        return std::make_shared<IntegratorExecutor<DataType::DOUBLE>>(in_value, in_reset_value, in_reset_flag, out_value);
-    case DataType::SINGLE:
-        return std::make_shared<IntegratorExecutor<DataType::SINGLE>>(in_value, in_reset_value, in_reset_flag, out_value);
-    default:
-        throw ModelException("unable to create pointer value");
-    }
-}
-
-std::unique_ptr<tmdl::codegen::CodeComponent> tmdl::blocks::Integrator::get_codegen_component() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Integrator::get_compiled() const
 {
     const auto err = has_error();
     if (err != nullptr)
@@ -252,10 +255,12 @@ std::unique_ptr<tmdl::codegen::CodeComponent> tmdl::blocks::Integrator::get_code
     switch (input_type)
     {
     case DataType::DOUBLE:
-        return std::make_unique<IntegratorComponent<DataType::DOUBLE>>();
+        return std::make_unique<CompiledIntegrator<DataType::DOUBLE>>(get_id());
     case DataType::SINGLE:
-        return std::make_unique<IntegratorComponent<DataType::SINGLE>>();
+        return std::make_unique<CompiledIntegrator<DataType::SINGLE>>(get_id());
     default:
         throw ModelException("unable to create pointer value");
     }
 }
+
+

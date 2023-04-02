@@ -68,13 +68,6 @@ protected:
     virtual std::vector<std::string> write_cpp_code(CodeSection section) const;
 };
 
-class CodegenInterface
-{
-    virtual std::vector<std::unique_ptr<codegen::CodeComponent>> get_dependent_components() const;
-
-    virtual std::unique_ptr<codegen::CodeComponent> get_codegen_component() const = 0;
-};
-
 }
 
 #endif // TF_MODEL_CODEGEN_COMPONENT_HPP

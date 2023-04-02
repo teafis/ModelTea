@@ -15,8 +15,42 @@
 // Relational Executor
 
 template <tmdl::DataType DT, tmdl::stdlib::RelationalOperator OP>
-struct RelationalHelper : public tmdl::CodegenHelperInterface::HelperInterface
+class CompiledRelational : public tmdl::CompiledBlockInterface
 {
+public:
+    CompiledRelational(const size_t id) : _id(id)
+    {
+        // Empty Constructor
+    }
+
+    std::shared_ptr<tmdl::BlockExecutionInterface> get_execution_interface(
+        const tmdl::ConnectionManager& connections,
+        const tmdl::VariableManager& manager) const override
+    {
+        std::shared_ptr<const tmdl::ModelValue> input_a = manager.get_ptr(*connections.get_connection_to(_id, 0));
+        std::shared_ptr<const tmdl::ModelValue> input_b = manager.get_ptr(*connections.get_connection_to(_id, 1));
+
+        auto output_value = std::dynamic_pointer_cast<tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>>(manager.get_ptr(tmdl::VariableIdentifier
+        {
+            .block_id =_id,
+            .output_port_num = 0
+        }));
+
+        return std::make_shared<RelationalExecutor>(
+            input_a,
+            input_b,
+            output_value);
+    }
+
+    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_component() const
+    {
+        return std::make_unique<RelationalComponent>();
+    }
+
+protected:
+    const size_t _id;
+
+protected:
     struct RelationalComponent : public tmdl::codegen::CodeComponent
     {
         virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
@@ -56,6 +90,7 @@ struct RelationalHelper : public tmdl::CodegenHelperInterface::HelperInterface
         }
     };
 
+protected:
     struct RelationalExecutor : public tmdl::BlockExecutionInterface
     {
         using type_t = typename tmdl::data_type_t<DT>::type;
@@ -91,31 +126,6 @@ struct RelationalHelper : public tmdl::CodegenHelperInterface::HelperInterface
 
         tmdl::stdlib::relational_block<type_t, OP> block;
     };
-
-    std::shared_ptr<tmdl::BlockExecutionInterface> generate_execution_interface(
-        const tmdl::BlockInterface* model,
-        const tmdl::ConnectionManager& connections,
-        const tmdl::VariableManager& manager) const
-    {
-        std::shared_ptr<const tmdl::ModelValue> input_a = manager.get_ptr(*connections.get_connection_to(model->get_id(), 0));
-        std::shared_ptr<const tmdl::ModelValue> input_b = manager.get_ptr(*connections.get_connection_to(model->get_id(), 1));
-
-        auto output_value = std::dynamic_pointer_cast<tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>>(manager.get_ptr(tmdl::VariableIdentifier
-        {
-            .block_id = model->get_id(),
-            .output_port_num = 0
-        }));
-
-        return std::make_shared<RelationalExecutor>(
-            input_a,
-            input_b,
-            output_value);
-    }
-
-    std::unique_ptr<tmdl::codegen::CodeComponent> generate_codegen_interface() const
-    {
-        return std::make_unique<RelationalComponent>();
-    }
 };
 
 // Relational Base
@@ -149,17 +159,11 @@ std::unique_ptr<const tmdl::BlockError> tmdl::blocks::RelationalBase::has_error(
         return make_error("input port must have the same type");
     }
 
-    std::vector<DataType> availableTypes{
-        DataType::DOUBLE,
-        DataType::SINGLE,
-        DataType::INT32,
-        DataType::UINT32,
-        DataType::BOOLEAN,
-    };
+    const std::vector<DataType> availableTypes = get_supported_types();
 
     if (std::find(availableTypes.begin(), availableTypes.end(), _inputA) == availableTypes.end())
     {
-        return make_error("relational block does not support provided types");
+        return make_error(fmt::format("relational block {} does not support provided types", get_name()));
     }
 
     return nullptr;
@@ -216,33 +220,28 @@ std::vector<tmdl::DataType> tmdl::blocks::RelationalEqualityBase::get_supported_
 // Helper Generator
 
 template <tmdl::stdlib::RelationalOperator OP>
-static std::unique_ptr<tmdl::CodegenHelperInterface::HelperInterface> generate_helper(const tmdl::blocks::RelationalBase* model)
+static std::unique_ptr<tmdl::CompiledBlockInterface> generate_compiled(const tmdl::blocks::RelationalBase* model)
 {
     if (model->has_error() != nullptr)
     {
-        throw tmdl::ModelException("cannot generate a model with an error");
+        throw tmdl::ModelException(fmt::format("cannot generate a {} model with an error", model->get_name()));
     }
 
-    const auto dts = model->get_supported_types();
     const auto dt = model->get_output_type(0);
-
-    if (std::find(dts.begin(), dts.end(), dt) == dts.end())
-    {
-        throw tmdl::ModelException("data type is unsupported for block");
-    }
+    const auto id = model->get_id();
 
     switch (dt)
     {
     case tmdl::DataType::DOUBLE:
-        return std::make_unique<RelationalHelper<tmdl::DataType::DOUBLE, OP>>();
+        return std::make_unique<CompiledRelational<tmdl::DataType::DOUBLE, OP>>(id);
     case tmdl::DataType::SINGLE:
-        return std::make_unique<RelationalHelper<tmdl::DataType::SINGLE, OP>>();
+        return std::make_unique<CompiledRelational<tmdl::DataType::SINGLE, OP>>(id);
     case tmdl::DataType::INT32:
-        return std::make_unique<RelationalHelper<tmdl::DataType::INT32, OP>>();
+        return std::make_unique<CompiledRelational<tmdl::DataType::INT32, OP>>(id);
     case tmdl::DataType::UINT32:
-        return std::make_unique<RelationalHelper<tmdl::DataType::UINT32, OP>>();
+        return std::make_unique<CompiledRelational<tmdl::DataType::UINT32, OP>>(id);
     case tmdl::DataType::BOOLEAN:
-        return std::make_unique<RelationalHelper<tmdl::DataType::BOOLEAN, OP>>();
+        return std::make_unique<CompiledRelational<tmdl::DataType::BOOLEAN, OP>>(id);
     default:
         throw tmdl::ModelException("unable to generate relational instance");
     }
@@ -260,9 +259,9 @@ std::string tmdl::blocks::GreaterThan::get_description() const
     return get_name();
 }
 
-std::unique_ptr<tmdl::CodegenHelperInterface::HelperInterface> tmdl::blocks::GreaterThan::get_helper_interface() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::GreaterThan::get_compiled() const
 {
-    return generate_helper<tmdl::stdlib::RelationalOperator::GREATER_THAN>(this);
+    return generate_compiled<tmdl::stdlib::RelationalOperator::GREATER_THAN>(this);
 }
 
 // GreaterThanEqual Block
@@ -277,9 +276,9 @@ std::string tmdl::blocks::GreaterThanEqual::get_description() const
     return get_name();
 }
 
-std::unique_ptr<tmdl::CodegenHelperInterface::HelperInterface> tmdl::blocks::GreaterThanEqual::get_helper_interface() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::GreaterThanEqual::get_compiled() const
 {
-    return generate_helper<tmdl::stdlib::RelationalOperator::GREATER_THAN_EQUAL>(this);
+    return generate_compiled<tmdl::stdlib::RelationalOperator::GREATER_THAN_EQUAL>(this);
 }
 
 // LessThan Block
@@ -294,9 +293,9 @@ std::string tmdl::blocks::LessThan::get_description() const
     return get_name();
 }
 
-std::unique_ptr<tmdl::CodegenHelperInterface::HelperInterface> tmdl::blocks::LessThan::get_helper_interface() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::LessThan::get_compiled() const
 {
-    return generate_helper<tmdl::stdlib::RelationalOperator::LESS_THAN>(this);
+    return generate_compiled<tmdl::stdlib::RelationalOperator::LESS_THAN>(this);
 }
 
 // LessThanEqual Block
@@ -311,9 +310,9 @@ std::string tmdl::blocks::LessThanEqual::get_description() const
     return get_name();
 }
 
-std::unique_ptr<tmdl::CodegenHelperInterface::HelperInterface> tmdl::blocks::LessThanEqual::get_helper_interface() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::LessThanEqual::get_compiled() const
 {
-    return generate_helper<tmdl::stdlib::RelationalOperator::LESS_THAN_EQUAL>(this);
+    return generate_compiled<tmdl::stdlib::RelationalOperator::LESS_THAN_EQUAL>(this);
 }
 
 // Equal Block
@@ -328,9 +327,9 @@ std::string tmdl::blocks::Equal::get_description() const
     return get_name();
 }
 
-std::unique_ptr<tmdl::CodegenHelperInterface::HelperInterface> tmdl::blocks::Equal::get_helper_interface() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Equal::get_compiled() const
 {
-    return generate_helper<tmdl::stdlib::RelationalOperator::EQUAL>(this);
+    return generate_compiled<tmdl::stdlib::RelationalOperator::EQUAL>(this);
 }
 
 // NotEqual Block
@@ -345,7 +344,7 @@ std::string tmdl::blocks::NotEqual::get_description() const
     return get_name();
 }
 
-std::unique_ptr<tmdl::CodegenHelperInterface::HelperInterface> tmdl::blocks::NotEqual::get_helper_interface() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::NotEqual::get_compiled() const
 {
-    return generate_helper<tmdl::stdlib::RelationalOperator::NOT_EQUAL>(this);
+    return generate_compiled<tmdl::stdlib::RelationalOperator::NOT_EQUAL>(this);
 }

@@ -146,11 +146,23 @@ tmdl::DataType tmdl::ModelBlock::get_output_type(const size_t port) const
     }
 }
 
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::ModelBlock::get_execution_interface(
-    const ConnectionManager& connections,
-    const VariableManager& manager) const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::ModelBlock::get_compiled() const
 {
-    return model->get_execution_interface(get_id(), connections, manager);
+    /*
+    std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::ModelBlock::get_execution_interface(
+        const ConnectionManager& connections,
+        const VariableManager& manager) const
+    {
+        return model->get_execution_interface(get_id(), connections, manager);
+    }
+
+    std::unique_ptr<tmdl::codegen::CodeComponent> tmdl::ModelBlock::get_codegen_component() const
+    {
+        throw codegen::CodegenError("not yet supported");
+    }
+    */
+
+    throw ModelException("here!");
 }
 
 std::shared_ptr<tmdl::Model> tmdl::ModelBlock::get_model()

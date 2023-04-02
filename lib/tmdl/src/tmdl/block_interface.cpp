@@ -2,8 +2,6 @@
 
 #include "block_interface.hpp"
 
-#include "codegen/codegen.hpp"
-
 tmdl::BlockLocation::BlockLocation() :
     x(0), y(0)
 {
@@ -14,6 +12,16 @@ tmdl::BlockLocation::BlockLocation(const int64_t x, const int64_t y) :
     x(x), y(y)
 {
     // Empty Constructor
+}
+
+tmdl::CompiledBlockInterface::~CompiledBlockInterface()
+{
+    // Empty Destructor
+}
+
+std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> tmdl::CompiledBlockInterface::get_codegen_dependent_components() const
+{
+    return {};
 }
 
 tmdl::BlockInterface::BlockInterface() :
@@ -91,16 +99,3 @@ void tmdl::BlockExecutionInterface::close()
 {
     // Empty Close
 }
-
-std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::CodegenHelperInterface::get_execution_interface(
-    const ConnectionManager& connections,
-    const VariableManager& manager) const
-{
-    return get_helper_interface()->generate_execution_interface(this, connections, manager);
-}
-
-std::unique_ptr<tmdl::codegen::CodeComponent> tmdl::CodegenHelperInterface::get_codegen_component() const
-{
-    return get_helper_interface()->generate_codegen_interface();
-}
-

@@ -77,11 +77,17 @@ public:
 protected:
     std::unique_ptr<const BlockError> own_error() const;
 
+    std::vector<size_t> get_execution_order() const;
+
 public:
     std::shared_ptr<ModelExecutionInterface> get_execution_interface(
         const size_t block_id,
         const ConnectionManager& connections,
         const VariableManager& manager) const;
+
+    std::unique_ptr<codegen::CodeComponent> get_codegen_component() const;
+
+    std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> get_codegen_dependent_components() const;
 
 public:
     std::vector<std::unique_ptr<const BlockError>> get_all_errors() const;

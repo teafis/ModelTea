@@ -146,23 +146,38 @@ tmdl::DataType tmdl::ModelBlock::get_output_type(const size_t port) const
     }
 }
 
+struct CompiledModelBlock : public tmdl::CompiledBlockInterface
+{
+    CompiledModelBlock(const size_t id, std::shared_ptr<const tmdl::Model> model) : _id(id), _model(model)
+    {
+        // Empty Constructor
+    }
+
+    virtual std::shared_ptr<tmdl::BlockExecutionInterface> get_execution_interface(
+        const tmdl::ConnectionManager& connections,
+        const tmdl::VariableManager& manager) const override
+    {
+        return _model->get_execution_interface(_id, connections, manager);
+    }
+
+    virtual std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> get_codegen_dependent_components() const override
+    {
+        return _model->get_codegen_dependent_components();
+    }
+
+    virtual std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_component() const override
+    {
+        return _model->get_codegen_component();
+    }
+
+protected:
+    const size_t _id;
+    std::shared_ptr<const tmdl::Model> _model;
+};
+
 std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::ModelBlock::get_compiled() const
 {
-    /*
-    std::shared_ptr<tmdl::BlockExecutionInterface> tmdl::ModelBlock::get_execution_interface(
-        const ConnectionManager& connections,
-        const VariableManager& manager) const
-    {
-        return model->get_execution_interface(get_id(), connections, manager);
-    }
-
-    std::unique_ptr<tmdl::codegen::CodeComponent> tmdl::ModelBlock::get_codegen_component() const
-    {
-        throw codegen::CodegenError("not yet supported");
-    }
-    */
-
-    throw ModelException("here!");
+    return std::make_unique<CompiledModelBlock>(get_id(), model);
 }
 
 std::shared_ptr<tmdl::Model> tmdl::ModelBlock::get_model()

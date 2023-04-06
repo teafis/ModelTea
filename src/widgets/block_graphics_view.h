@@ -16,6 +16,7 @@
 #include <QGraphicsObject>
 
 #include <tmdl/model.hpp>
+#include <tmdl/model_block.hpp>
 
 
 class BlockGraphicsView : public QGraphicsView
@@ -70,6 +71,8 @@ protected:
 public:
     std::shared_ptr<tmdl::Model> get_model() const;
 
+    std::shared_ptr<tmdl::ModelBlock> get_block() const;
+
     void set_model(std::shared_ptr<tmdl::Model> model);
 
     void addBlock(std::shared_ptr<tmdl::BlockInterface> blk);
@@ -84,7 +87,7 @@ public:
 protected:
     std::unique_ptr<MouseStateBase> mouseState;
     QGraphicsObject* selectedItem;
-    std::shared_ptr<tmdl::Model> model;
+    std::shared_ptr<tmdl::ModelBlock> model_block;
 };
 
 #endif // BLOCK_GRAPHICS_VIEW_H

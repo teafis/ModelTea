@@ -12,7 +12,12 @@ tmdl::codegen::CodeComponent::~CodeComponent()
     // Empty Destructor
 }
 
-std::string tmdl::codegen::CodeComponent::get_include_file_name() const
+bool tmdl::codegen::CodeComponent::is_virtual() const
+{
+    return false;
+}
+
+std::string tmdl::codegen::CodeComponent::get_include_module() const
 {
     return fmt::format("{}.h", get_name_base());
 }

@@ -4,7 +4,7 @@
 
 #include "../model_exception.hpp"
 
-#include <tmdlstd/const.hpp>
+#include <tmdlstd/tmdlstd.hpp>
 #include <fmt/format.h>
 
 
@@ -117,7 +117,7 @@ public:
             output_type);
     }
 
-    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_component() const override
+    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_self() const override
     {
         return std::make_unique<ConstantComponent>();
     }
@@ -139,9 +139,9 @@ protected:
             return tmdl::codegen::InterfaceDefinition("s_out", {"val"});
         }
 
-        virtual std::string get_include_file_name() const override
+        virtual std::string get_include_module() const override
         {
-            return "tmdlstd/const.hpp";
+            return "tmdlstd/tmdlstd.hpp";
         }
 
         virtual std::string get_name_base() const override

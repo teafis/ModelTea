@@ -3,7 +3,11 @@
 #include "windows/model_window.h"
 #include "ui/window_icon.h"
 
+#include "managers/window_manager.h"
+
 #include <QApplication>
+
+#include <iostream>
 
 int main(int argc, char *argv[])
 {
@@ -15,7 +19,22 @@ int main(int argc, char *argv[])
         a.setWindowIcon(QIcon(pixmap));
     }
 
-    ModelWindow w;
-    w.show();
+    bool anyAdded = false;
+
+    for (int i = 1; i < a.arguments().size(); ++i)
+    {
+        std::cout << a.arguments().at(i).toStdString() << std::endl;
+        ModelWindow* w = new ModelWindow(WindowManager::instance().next_id());
+        w->openModelFile(a.arguments().at(i));
+        w->show();
+        anyAdded = true;
+    }
+
+    if (!anyAdded)
+    {
+        ModelWindow* w = new ModelWindow(WindowManager::instance().next_id());
+        w->show();
+    }
+
     return a.exec();
 }

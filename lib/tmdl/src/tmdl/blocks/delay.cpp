@@ -5,8 +5,7 @@
 
 #include <fmt/format.h>
 
-#include <tmdlstd/delay.hpp>
-#include <tmdlstd/util.hpp>
+#include <tmdlstd/tmdlstd.hpp>
 
 #include <memory>
 
@@ -38,7 +37,7 @@ public:
         return std::make_shared<DelayExecutor>(input_value, output_value, input_value_reset_flag, input_value_reset_value);
     }
 
-    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_component() const override
+    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_self() const override
     {
         return std::make_unique<DelayComponent>();
     }
@@ -59,9 +58,9 @@ protected:
             return tmdl::codegen::InterfaceDefinition("s_out", {"output_value"});
         }
 
-        virtual std::string get_include_file_name() const override
+        virtual std::string get_include_module() const override
         {
-            return "tmdlstd/delay.hpp";
+            return "tmdlstd/tmdlstd.hpp";
         }
 
         virtual std::string get_name_base() const override

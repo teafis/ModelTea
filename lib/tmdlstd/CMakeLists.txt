@@ -13,16 +13,8 @@ project (
 
 set(
     TEAFIS_STD_MODEL_SOURCES
-    src/tmdlstd/arith.hpp
-    src/tmdlstd/clock.hpp src/tmdlstd/clock.cpp
-    src/tmdlstd/const.hpp
-    src/tmdlstd/delay.hpp
-    src/tmdlstd/derivative.hpp
-    src/tmdlstd/integrator.hpp
-    src/tmdlstd/limiter.hpp
-    src/tmdlstd/relational.hpp
-    src/tmdlstd/trig.hpp
-    src/tmdlstd/util.hpp src/tmdlstd/util.cpp
+    src/tmdlstd/tmdlstd.hpp
+    src/tmdlstd/tmdlstd.cpp
 )
 
 # Define the library

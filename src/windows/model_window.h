@@ -44,7 +44,11 @@ public slots:
 
     void openModel();
 
+    void openModelFile(QString openFilename);
+
     void closeModel();
+
+    void saveCode();
 
 protected:
     void changeModel(std::shared_ptr<tmdl::Model> model);

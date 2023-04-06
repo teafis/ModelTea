@@ -4,8 +4,7 @@
 
 #include "../model_exception.hpp"
 
-#include <tmdlstd/trig.hpp>
-#include <tmdlstd/util.hpp>
+#include <tmdlstd/tmdlstd.hpp>
 
 #include <fmt/format.h>
 
@@ -90,7 +89,7 @@ public:
 
     std::shared_ptr<tmdl::BlockExecutionInterface> get_execution_interface(
         const tmdl::ConnectionManager& connections,
-        const tmdl::VariableManager& manager) const
+        const tmdl::VariableManager& manager) const override
     {
         const auto inputValue = manager.get_ptr(*connections.get_connection_to(_id, 0));
         const auto outputValue = manager.get_ptr(tmdl::VariableIdentifier
@@ -104,7 +103,7 @@ public:
             outputValue);
     }
 
-    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_component() const
+    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_self() const override
     {
         return std::make_unique<TrigComponent>();
     }
@@ -125,9 +124,9 @@ protected:
             return tmdl::codegen::InterfaceDefinition("s_out", {"value"});
         }
 
-        virtual std::string get_include_file_name() const override
+        virtual std::string get_include_module() const override
         {
-            return "tmdlstd/trig.hpp";
+            return "tmdlstd/tmdlstd.hpp";
         }
 
         virtual std::string get_name_base() const override

@@ -33,12 +33,12 @@ protected:
 public:
     ModelCodeComponent(
         const std::string& model_name,
-        const std::vector<std::string>& input_names,
-        const std::vector<std::string>& output_names,
+        const std::vector<tmdl::DataType>& input_types,
+        const std::vector<tmdl::DataType>& output_types,
         std::vector<std::unique_ptr<const codegen::CodeComponent>>&& components) :
         _model_name(model_name),
-        _input_names(input_names),
-        _output_names(output_names)
+        _input_types(input_types),
+        _output_types(output_types)
     {
         for (size_t i = 0; i < components.size(); ++i)
         {
@@ -48,6 +48,16 @@ public:
             });
         }
         components.clear();
+
+        for (size_t i = 0; i < input_types.size(); ++i)
+        {
+            _input_names.push_back(fmt::format("value_{}", i));
+        }
+
+        for (size_t i = 0; i < output_types.size(); ++i)
+        {
+            _output_names.push_back(fmt::format("value_{}", i));
+        }
     }
 
     virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
@@ -107,8 +117,61 @@ protected:
         lines.push_back(fmt::format("#ifndef {}", HDR_GUARD));
         lines.push_back("");
 
+        std::vector<std::string> include_files;
+        for (const auto& [varname, comp] : _blocks)
+        {
+            const auto fcn_name = comp->get_include_module();
+            if (fcn_name.empty())
+            {
+                continue;
+            }
+
+            if (std::find(include_files.begin(), include_files.end(), fcn_name) == include_files.end())
+            {
+                include_files.push_back(fcn_name);
+            }
+        }
+
+        std::sort(include_files.begin(), include_files.end());
+
+        for (const auto& f : include_files)
+        {
+            lines.push_back(fmt::format("#include <{}>", f));
+        }
+
+        lines.push_back("");
+
         lines.push_back(fmt::format("struct {}", get_name_base()));
         lines.push_back("{");
+
+        lines.push_back("    struct input_t");
+        lines.push_back("    {");
+
+        for (size_t i = 0; i < _input_types.size(); ++i)
+        {
+            const auto dt = _input_types[i];
+            lines.push_back(fmt::format("        {} {};", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, dt), _input_names[i]));
+        }
+
+        lines.push_back("    }");
+        lines.push_back("");
+
+        lines.push_back("    struct output_t");
+        lines.push_back("    {");
+
+        for (size_t i = 0; i < _output_types.size(); ++i)
+        {
+            const auto dt = _output_types[i];
+            lines.push_back(fmt::format("        {} {};", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, dt), _output_names[i]));
+        }
+
+        lines.push_back("    }");
+        lines.push_back("");
+
+        lines.push_back(fmt::format("    {}()", get_name_base()));
+        lines.push_back("    {");
+        lines.push_back("        // Empty Constructor -> TODO - Setup Data Parameters");
+        lines.push_back("    }");
 
         const std::vector<codegen::BlockFunction> functions = {
             tmdl::codegen::BlockFunction::INIT,
@@ -118,6 +181,7 @@ protected:
 
         for (const auto fcn : functions)
         {
+            lines.push_back("");
             lines.push_back(fmt::format("    void {}()", *get_function_name(fcn)));
             lines.push_back("    {");
 
@@ -131,8 +195,11 @@ protected:
             }
 
             lines.push_back("    }");
-            lines.push_back("");
         }
+
+        lines.push_back("");
+        lines.push_back(fmt::format("    input_t {};", get_input_type()->get_name()));
+        lines.push_back(fmt::format("    output_t {};", get_output_type()->get_name()));
 
         if (_blocks.size() > 0)
         {
@@ -154,7 +221,9 @@ protected:
 
 protected:
     std::string _model_name;
+    std::vector<tmdl::DataType> _input_types;
     std::vector<std::string> _input_names;
+    std::vector<tmdl::DataType> _output_types;
     std::vector<std::string> _output_names;
     std::vector<ComponentVariable> _blocks;
 };
@@ -728,55 +797,55 @@ std::unique_ptr<codegen::CodeComponent> Model::get_codegen_component() const
     const std::vector<size_t> order_values = get_execution_order();
 
     // Construct the block parameters
-    std::vector<std::string> input_names;
-    std::vector<std::string> output_names;
     std::vector<std::unique_ptr<const codegen::CodeComponent>> components;
     for (const auto& id : order_values)
     {
         if (std::find(input_ids.begin(), input_ids.end(), id) != input_ids.end())
         {
-            input_names.push_back(fmt::format("input{}", input_names.size()));
+            // Skip Input
         }
+
         else if (std::find(output_ids.begin(), output_ids.end(), id) != output_ids.end())
         {
-            output_names.push_back(fmt::format("output{}", output_names.size()));
+            // Skip Output
         }
         else
         {
             const auto blk = get_block(id);
-            components.push_back(blk->get_compiled()->get_codegen_component());
+            components.push_back(blk->get_compiled()->get_codegen_self());
         }
+    }
+
+    std::vector<DataType> input_types;
+    std::vector<DataType> output_types;
+
+    for (size_t i = 0; i < input_ids.size(); ++i)
+    {
+        input_types.push_back(get_input_datatype(i));
+    }
+
+    for (size_t i = 0; i < output_ids.size(); ++i)
+    {
+        output_types.push_back(get_output_datatype(i));
     }
 
     // Return the results
-    return std::make_unique<ModelCodeComponent>(name, input_names, output_names, std::move(components));
+    return std::make_unique<ModelCodeComponent>(name, input_types, output_types, std::move(components));
 }
 
-std::vector<std::unique_ptr<codegen::CodeComponent>> Model::get_codegen_dependent_components() const
+std::vector<std::unique_ptr<codegen::CodeComponent>> Model::get_all_sub_components() const
 {
-    std::unordered_map<std::string, std::unique_ptr<codegen::CodeComponent>> unique_components;
+    std::vector<std::unique_ptr<codegen::CodeComponent>> components;
 
     for (const auto& kv : blocks)
     {
-        const auto blk = kv.second;
-        auto comp = blk->get_compiled()->get_codegen_component();
-        const auto type_name = comp->get_type_name();
-
-        if (unique_components.find(type_name) == unique_components.end())
+        for (auto& c : kv.second->get_compiled()->get_codegen_components())
         {
-            unique_components.insert({type_name, std::move(comp)});
+            components.push_back(std::move(c));
         }
     }
 
-    std::vector<std::unique_ptr<codegen::CodeComponent>> comp_list;
-
-    for (auto& kv : unique_components)
-    {
-        auto& comp = kv.second;
-        comp_list.emplace_back(std::move(comp));
-    }
-
-    return comp_list;
+    return components;
 }
 
 std::vector<std::unique_ptr<const BlockError>> Model::get_all_errors() const

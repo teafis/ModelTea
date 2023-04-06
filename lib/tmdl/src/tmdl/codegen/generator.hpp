@@ -7,7 +7,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "component.hpp"
+#include "../block_interface.hpp"
 
 namespace tmdl::codegen
 {
@@ -15,12 +15,14 @@ namespace tmdl::codegen
 class CodeGenerator
 {
 public:
+    CodeGenerator(std::unique_ptr<CompiledBlockInterface>&& comp);
+
     Language get_language() const;
 
     void write_in_folder(const std::filesystem::path& path) const;
 
 private:
-    std::unordered_map<std::string, std::unique_ptr<CodeComponent>> components;
+    std::unique_ptr<CompiledBlockInterface> compiled;
 
     //size_t var_count = 0;
 };

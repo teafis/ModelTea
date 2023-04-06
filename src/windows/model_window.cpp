@@ -4,6 +4,8 @@
 #include "./ui_model_window.h"
 
 #include <array>
+#include <filesystem>
+#include <fstream>
 
 #include <QIcon>
 #include <QPixmap>
@@ -16,6 +18,8 @@
 #include <tmdl/model_exception.hpp>
 #include <tmdl/library_manager.hpp>
 #include <tmdl/model_block.hpp>
+
+#include <tmdl/codegen/generator.hpp>
 
 #include <fmt/format.h>
 
@@ -199,68 +203,73 @@ void ModelWindow::openModel()
     QString openName = QFileDialog::getOpenFileName(this, tr("Open Model"), filename, "JSON (*.json); Any (*.*)");
     if (!openName.isEmpty())
     {
-        QFile file(openName);
-        if(!file.open(QIODevice::ReadOnly))
+        openModelFile(openName);
+    }
+}
+
+void ModelWindow::openModelFile(QString openFilename)
+{
+    QFile file(openFilename);
+    if(!file.open(QIODevice::ReadOnly))
+    {
+        QMessageBox::warning(this, "error", file.errorString());
+        return;
+    }
+
+    QTextStream stream(&file);
+    const QString data = stream.readAll();
+    file.close();
+
+    {
+        std::istringstream iss(data.toStdString());
+        nlohmann::json j;
+        iss >> j;
+
+        std::shared_ptr<tmdl::Model> mdl = std::make_shared<tmdl::Model>("tmp");
+
+        try
         {
-            QMessageBox::warning(this, "error", file.errorString());
+            tmdl::from_json(j["model"], *mdl);
+        }
+        catch (const tmdl::ModelException& ex)
+        {
+            QMessageBox::warning(this, "error", ex.what());
             return;
         }
 
-        QTextStream stream(&file);
-        const QString data = stream.readAll();
-        file.close();
-
+        if (WindowManager::instance().model_open(mdl->get_name()))
         {
-            std::istringstream iss(data.toStdString());
-            nlohmann::json j;
-            iss >> j;
-
-            std::shared_ptr<tmdl::Model> mdl = std::make_shared<tmdl::Model>("tmp");
-
-            try
-            {
-                tmdl::from_json(j["model"], *mdl);
-            }
-            catch (const tmdl::ModelException& ex)
-            {
-                QMessageBox::warning(this, "error", ex.what());
-                return;
-            }
-
-            if (WindowManager::instance().model_open(mdl->get_name()))
-            {
-                QMessageBox::warning(this, "error", fmt::format("Model `{}` is already open", mdl->get_name()).c_str());
-                return;
-            }
-
-            const auto mdl_library = tmdl::LibraryManager::get_instance().default_model_library();
-
-            if (mdl_library->has_block(mdl->get_name()))
-            {
-                mdl = mdl_library->get_model(mdl->get_name());
-            }
-            else
-            {
-                mdl_library->add_model(mdl);
-            }
-
-            changeModel(mdl);
-            mdl_library->close_empty_models();
+            QMessageBox::warning(this, "error", fmt::format("Model `{}` is already open", mdl->get_name()).c_str());
+            return;
         }
 
-        if (window_library != nullptr)
+        const auto mdl_library = tmdl::LibraryManager::get_instance().default_model_library();
+
+        if (mdl_library->has_block(mdl->get_name()))
         {
-            window_library->updateLibrary();
+            mdl = mdl_library->get_model(mdl->get_name());
+        }
+        else
+        {
+            mdl_library->add_model(mdl);
         }
 
-        filename = openName;
-        changeFlag = false;
-        updateWindowItems();
+        changeModel(mdl);
+        mdl_library->close_empty_models();
+    }
 
-        if (window_diagnostics != nullptr)
-        {
-            window_diagnostics->setModel(ui->block_graphics->get_model());
-        }
+    if (window_library != nullptr)
+    {
+        window_library->updateLibrary();
+    }
+
+    filename = openFilename;
+    changeFlag = false;
+    updateWindowItems();
+
+    if (window_diagnostics != nullptr)
+    {
+        window_diagnostics->setModel(ui->block_graphics->get_model());
     }
 }
 
@@ -293,6 +302,27 @@ void ModelWindow::closeModel()
     mdl_library->close_empty_models();
 
     close();
+}
+
+void ModelWindow::saveCode()
+{
+    if (filename.isEmpty())
+    {
+        QMessageBox::warning(this, "Error", "Must save file before generating code");
+        return;
+    }
+
+    try
+    {
+        tmdl::codegen::CodeGenerator gen(ui->block_graphics->get_block()->get_compiled());
+
+        std::filesystem::path gen_path(filename.toStdString());
+        gen.write_in_folder(gen_path.parent_path());
+    }
+    catch (const tmdl::codegen::CodegenError& err)
+    {
+        QMessageBox::warning(this, "Error", err.what());
+    }
 }
 
 void ModelWindow::changeModel(std::shared_ptr<tmdl::Model> model)

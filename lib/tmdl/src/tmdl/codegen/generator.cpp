@@ -4,6 +4,12 @@
 
 #include <fmt/format.h>
 
+tmdl::codegen::CodeGenerator::CodeGenerator(std::unique_ptr<CompiledBlockInterface>&& comp) :
+    compiled(std::move(comp))
+{
+    // Empty Constructor
+}
+
 tmdl::codegen::Language tmdl::codegen::CodeGenerator::get_language() const
 {
     return Language::CPP;
@@ -11,55 +17,42 @@ tmdl::codegen::Language tmdl::codegen::CodeGenerator::get_language() const
 
 void tmdl::codegen::CodeGenerator::write_in_folder(const std::filesystem::path& path) const
 {
-    const auto lang = get_language();
+    const std::vector<tmdl::codegen::CodeSection> sections{
+        tmdl::codegen::CodeSection::DEFINITION,
+        tmdl::codegen::CodeSection::DECLARATION,
+    };
 
-    const std::string definition_ext = [lang]()
+    const std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> components = compiled->get_codegen_components();
+
+    for (const auto& c : components)
     {
-        switch (lang)
+        for (const auto& sec : sections)
         {
-        case Language::CPP:
-            return ".cpp";
-        default:
-            throw CodegenError("no extension provided for language");
-        }
-    }();
-
-    for (const auto& i : components)
-    {
-        const auto& name = i.first;
-        const auto& c = i.second;
-
-        const auto write_file_info = [name](std::ostream& oss)
-        {
-            oss << "// " << name << '\n';
-            oss << "// Generated Code!\n";
-            oss << '\n';
-        };
-
-        const std::string file_base = c->get_name_base();
-
-        if (lang == Language::CPP)
-        {
-            const std::string header_name = c->get_include_file_name();
-
-            std::ofstream hdr(path / header_name);
-            write_file_info(hdr);
-
-            for (const auto& l : c->write_code(lang, CodeSection::DECLARATION))
+            const auto code = c->write_code(tmdl::codegen::Language::CPP, sec);
+            if (code.empty())
             {
-                hdr << l << '\n';
+                continue;
             }
-        }
 
-        {
-            const std::string header_name = fmt::format("{}{}", file_base, definition_ext);
-
-            std::ofstream impl(path / header_name);
-            write_file_info(impl);
-
-            for (const auto& l : c->write_code(lang, CodeSection::DEFINITION))
+            std::string file_ext;
+            if (sec == tmdl::codegen::CodeSection::DEFINITION)
             {
-                impl << l << '\n';
+                file_ext = "cpp";
+            }
+            else if (sec == tmdl::codegen::CodeSection::DECLARATION)
+            {
+                file_ext = "h";
+            }
+            else
+            {
+                continue;
+            }
+
+            std::ofstream output(path / fmt::format("{}.{}", c->get_name_base(), file_ext));
+
+            for (const auto& l : code)
+            {
+                output << l << std::endl;
             }
         }
     }

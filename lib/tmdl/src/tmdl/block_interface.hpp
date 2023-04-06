@@ -49,9 +49,12 @@ public:
         const ConnectionManager& connections,
         const VariableManager& manager) const = 0;
 
-    virtual std::vector<std::unique_ptr<codegen::CodeComponent>> get_codegen_dependent_components() const;
+    std::vector<std::unique_ptr<codegen::CodeComponent>> get_codegen_components() const;
 
-    virtual std::unique_ptr<codegen::CodeComponent> get_codegen_component() const = 0;
+    virtual std::unique_ptr<codegen::CodeComponent> get_codegen_self() const = 0;
+
+protected:
+    virtual std::vector<std::unique_ptr<codegen::CodeComponent>> get_codegen_other() const;
 };
 
 class BlockInterface

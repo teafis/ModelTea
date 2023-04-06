@@ -160,12 +160,12 @@ struct CompiledModelBlock : public tmdl::CompiledBlockInterface
         return _model->get_execution_interface(_id, connections, manager);
     }
 
-    virtual std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> get_codegen_dependent_components() const override
+    virtual std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> get_codegen_other() const override
     {
-        return _model->get_codegen_dependent_components();
+        return _model->get_all_sub_components();
     }
 
-    virtual std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_component() const override
+    virtual std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_self() const override
     {
         return _model->get_codegen_component();
     }

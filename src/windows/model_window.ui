@@ -26,7 +26,7 @@
      <x>0</x>
      <y>0</y>
      <width>873</width>
-     <height>24</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -64,6 +64,8 @@
     <addaction name="actionModelBuildExecutor"/>
     <addaction name="actionModelShowDiagnostics"/>
     <addaction name="actionModelParameters"/>
+    <addaction name="separator"/>
+    <addaction name="actionModelGenerateCode"/>
    </widget>
    <widget class="QMenu" name="menuSim">
     <property name="enabled">
@@ -204,6 +206,11 @@
   <action name="actionFileNew">
    <property name="text">
     <string>New</string>
+   </property>
+  </action>
+  <action name="actionModelGenerateCode">
+   <property name="text">
+    <string>Generate Code</string>
    </property>
   </action>
  </widget>
@@ -476,6 +483,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionModelGenerateCode</sender>
+   <signal>triggered()</signal>
+   <receiver>ModelWindow</receiver>
+   <slot>saveCode()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>436</x>
+     <y>223</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>saveModel()</slot>
@@ -492,5 +515,6 @@
   <slot>resetExecutor()</slot>
   <slot>closeModel()</slot>
   <slot>newModel()</slot>
+  <slot>saveCode()</slot>
  </slots>
 </ui>

@@ -7,7 +7,7 @@
 
 #include <fmt/format.h>
 
-#include "tmdlstd/clock.hpp"
+#include "tmdlstd/tmdlstd.hpp"
 
 class CompiledClock : public tmdl::CompiledBlockInterface
 {
@@ -31,7 +31,7 @@ public:
         return std::make_shared<ClockExecutor>(ptr);
     }
 
-    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_component() const override
+    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_self() const override
     {
         return std::make_unique<ClockComponent>();
     }
@@ -52,9 +52,9 @@ protected:
             return tmdl::codegen::InterfaceDefinition("s_out", {"val"});
         }
 
-        virtual std::string get_include_file_name() const override
+        virtual std::string get_include_module() const override
         {
-            return "tmdlstd/clock.hpp";
+            return "tmdlstd/tmdlstd.hpp";
         }
 
         virtual std::string get_name_base() const override

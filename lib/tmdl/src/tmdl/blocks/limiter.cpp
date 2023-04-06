@@ -8,7 +8,7 @@
 
 #include <fmt/format.h>
 
-#include <tmdlstd/limiter.hpp>
+#include <tmdlstd/tmdlstd.hpp>
 
 using namespace tmdl;
 using namespace tmdl::blocks;
@@ -64,7 +64,7 @@ public:
             outputPointer);
     }
 
-    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_component() const override
+    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_self() const override
     {
         return std::make_unique<LimiterComponent>();
     }
@@ -86,9 +86,9 @@ protected:
             return tmdl::codegen::InterfaceDefinition("s_out", {"output_value"});
         }
 
-        virtual std::string get_include_file_name() const override
+        virtual std::string get_include_module() const override
         {
-            return "tmdlstd/limiter.hpp";
+            return "tmdlstd/tmdlstd.hpp";
         }
 
         virtual std::string get_name_base() const override

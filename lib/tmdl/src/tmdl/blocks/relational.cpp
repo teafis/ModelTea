@@ -9,8 +9,7 @@
 
 #include <fmt/format.h>
 
-#include <tmdlstd/relational.hpp>
-#include <tmdlstd/util.hpp>
+#include <tmdlstd/tmdlstd.hpp>
 
 // Relational Executor
 
@@ -42,7 +41,7 @@ public:
             output_value);
     }
 
-    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_component() const
+    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_self() const override
     {
         return std::make_unique<RelationalComponent>();
     }
@@ -63,9 +62,9 @@ protected:
             return tmdl::codegen::InterfaceDefinition("s_out", {"output_value"});
         }
 
-        virtual std::string get_include_file_name() const override
+        virtual std::string get_include_module() const override
         {
-            return "tmdlstd/relational.hpp";
+            return "tmdlstd/tmdlstd.hpp";
         }
 
         virtual std::string get_name_base() const override

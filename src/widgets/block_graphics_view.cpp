@@ -36,7 +36,7 @@ BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
     selectedItem(nullptr)
 {
     // Attempt to create a new model
-    model = tmdl::LibraryManager::get_instance().default_model_library()->create_model();
+    model_block = std::make_shared<tmdl::ModelBlock>(tmdl::LibraryManager::get_instance().default_model_library()->create_model());
 
     // Set the scene
     setScene(new QGraphicsScene(this));
@@ -168,7 +168,7 @@ void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
 
             try
             {
-                model->add_connection(conn);
+                get_model()->add_connection(conn);
             }
             catch (const tmdl::ModelException& ex)
             {
@@ -227,7 +227,7 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
 
                 if (!c->isValidConnection())
                 {
-                    model->remove_connection(
+                    get_model()->remove_connection(
                         c->get_to_block()->get_block()->get_id(),
                         c->get_to_port());
                     c->deleteLater();
@@ -290,11 +290,11 @@ void BlockGraphicsView::removeSelectedBlock()
     {
         if (auto* selectedBlock = dynamic_cast<BlockObject*>(selectedItem); selectedBlock != nullptr)
         {
-            model->remove_block(selectedBlock->get_block()->get_id());
+            get_model()->remove_block(selectedBlock->get_block()->get_id());
         }
         else if (auto* selectedConnector = dynamic_cast<ConnectorObject*>(selectedItem); selectedConnector != nullptr)
         {
-            model->remove_connection(selectedConnector->get_to_block()->get_block()->get_id(), selectedConnector->get_to_port());
+            get_model()->remove_connection(selectedConnector->get_to_block()->get_block()->get_id(), selectedConnector->get_to_port());
         }
 
         scene()->removeItem(selectedItem);
@@ -313,7 +313,7 @@ void BlockGraphicsView::updateModel()
         return;
     }
 
-    if (model->update_block())
+    if (model_block->update_block())
     {
         emit modelChanged();
     }
@@ -424,7 +424,12 @@ void BlockGraphicsView::addConnectionItem(
 
 std::shared_ptr<tmdl::Model> BlockGraphicsView::get_model() const
 {
-    return model;
+    return model_block->get_model();
+}
+
+std::shared_ptr<tmdl::ModelBlock> BlockGraphicsView::get_block() const
+{
+    return model_block;
 }
 
 void BlockGraphicsView::set_model(std::shared_ptr<tmdl::Model> mdl)
@@ -437,14 +442,15 @@ void BlockGraphicsView::set_model(std::shared_ptr<tmdl::Model> mdl)
     // Reset the state
     mouseState = nullptr;
     selectedItem = nullptr;
-    model = nullptr;
+    model_block = nullptr;
     scene()->clear();
 
     // Save the model
-    model = mdl;
+    model_block = std::make_shared<tmdl::ModelBlock>(mdl);
+    model_block->set_id(0);
 
     // Add new block objects
-    for (const auto& blk : model->get_blocks())
+    for (const auto& blk : get_model()->get_blocks())
     {
         // Create the block object
         BlockObject* block_obj = new BlockObject(blk);
@@ -454,7 +460,7 @@ void BlockGraphicsView::set_model(std::shared_ptr<tmdl::Model> mdl)
     }
 
     // Add new connection objects
-    const auto& cm = model->get_connection_manager();
+    const auto& cm = get_model()->get_connection_manager();
 
     for (const auto& conn : cm.get_connections())
     {
@@ -501,7 +507,7 @@ void BlockGraphicsView::addBlock(std::shared_ptr<tmdl::BlockInterface> blk)
     // Add the block to the model
     try
     {
-        model->add_block(blk);
+        get_model()->add_block(blk);
     }
     catch (const tmdl::ModelException& ex)
     {

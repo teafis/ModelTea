@@ -50,6 +50,8 @@ public:
 
     virtual ~CodeComponent();
 
+    virtual bool is_virtual() const;
+
     virtual std::optional<const InterfaceDefinition> get_input_type() const = 0;
 
     virtual std::optional<const InterfaceDefinition> get_output_type() const = 0;
@@ -58,7 +60,7 @@ public:
 
     virtual std::string get_name_base() const = 0;
 
-    virtual std::string get_include_file_name() const;
+    virtual std::string get_include_module() const;
 
     virtual std::string get_type_name() const;
 

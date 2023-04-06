@@ -7,10 +7,7 @@
 #include <memory>
 
 #include <fmt/format.h>
-#include <tmdlstd/arith.hpp>
-#include <tmdlstd/util.hpp>
-#include <tmdlstd/arith.hpp>
-#include <tmdlstd/util.hpp>
+#include <tmdlstd/tmdlstd.hpp>
 
 // Arithmetic Executor
 
@@ -49,7 +46,7 @@ public:
             output_value);
     }
 
-    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_component() const override
+    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_self() const override
     {
         return std::make_unique<ArithComponent>(_input_size);
     }
@@ -83,9 +80,9 @@ protected:
             return tmdl::codegen::InterfaceDefinition("s_out", {"val"});
         }
 
-        virtual std::string get_include_file_name() const override
+        virtual std::string get_include_module() const override
         {
-            return "tmdlstd/arith.hpp";
+            return "tmdlstd/tmdlstd.hpp";
         }
 
         virtual std::string get_name_base() const override

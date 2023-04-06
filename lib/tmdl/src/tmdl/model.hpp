@@ -87,7 +87,7 @@ public:
 
     std::unique_ptr<codegen::CodeComponent> get_codegen_component() const;
 
-    std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> get_codegen_dependent_components() const;
+    std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> get_all_sub_components() const;
 
 public:
     std::vector<std::unique_ptr<const BlockError>> get_all_errors() const;

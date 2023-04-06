@@ -2,12 +2,49 @@
 
 #include "io_ports.hpp"
 
+#include <fmt/format.h>
+
 #include "../model_exception.hpp"
 
 
 using namespace tmdl;
 
 /* ========== COMPILED STRUCTURE ========== */
+
+class IoPortComponent : public tmdl::codegen::CodeComponent
+{
+public:
+    bool is_virtual() const override
+    {
+        return true;
+    }
+
+    std::string get_name_base() const override
+    {
+        return "io_port";
+    }
+
+    std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+    {
+        throw tmdl::codegen::CodegenError(fmt::format("unable to generate code for {}", get_name_base()));
+    }
+
+    std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+    {
+        throw tmdl::codegen::CodegenError(fmt::format("unable to generate code for {}", get_name_base()));
+    }
+
+    std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction) const override
+    {
+        throw tmdl::codegen::CodegenError(fmt::format("unable to generate code for {}", get_name_base()));
+    }
+
+protected:
+    std::vector<std::string> write_cpp_code(tmdl::codegen::CodeSection) const override
+    {
+        throw tmdl::codegen::CodegenError(fmt::format("unable to generate code for {}", get_name_base()));
+    }
+};
 
 class CompiledPort : public tmdl::CompiledBlockInterface
 {
@@ -19,9 +56,9 @@ public:
         return std::make_shared<BlockExecutionInterface>();
     }
 
-    std::unique_ptr<codegen::CodeComponent> get_codegen_component() const override
+    std::unique_ptr<codegen::CodeComponent> get_codegen_self() const override
     {
-        throw tmdl::codegen::CodegenError("IO ports cannot have direct components");
+        return std::make_unique<IoPortComponent>();
     }
 };
 

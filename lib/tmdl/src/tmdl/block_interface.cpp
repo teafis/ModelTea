@@ -19,7 +19,33 @@ tmdl::CompiledBlockInterface::~CompiledBlockInterface()
     // Empty Destructor
 }
 
-std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> tmdl::CompiledBlockInterface::get_codegen_dependent_components() const
+std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> tmdl::CompiledBlockInterface::get_codegen_components() const
+{
+    std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> components;
+    auto self_block = get_codegen_self();
+
+    if (!self_block->is_virtual())
+    {
+        components.push_back(std::move(self_block));
+    }
+
+    for (auto& c : get_codegen_other())
+    {
+        if (c->is_virtual())
+        {
+            continue;
+        }
+
+        if (std::find_if(components.begin(), components.end(), [&c](std::unique_ptr<tmdl::codegen::CodeComponent>& x) { return c->get_name_base() == x->get_name_base(); }) == components.end())
+        {
+            components.push_back(std::move(c));
+        }
+    }
+
+    return components;
+}
+
+std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> tmdl::CompiledBlockInterface::get_codegen_other() const
 {
     return {};
 }

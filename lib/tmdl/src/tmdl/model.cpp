@@ -120,7 +120,7 @@ protected:
         std::vector<std::string> include_files;
         for (const auto& [varname, comp] : _blocks)
         {
-            const auto fcn_name = comp->get_include_module();
+            const auto fcn_name = comp->get_module_name();
             if (fcn_name.empty())
             {
                 continue;

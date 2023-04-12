@@ -52,7 +52,7 @@ protected:
             return tmdl::codegen::InterfaceDefinition("s_out", {"val"});
         }
 
-        virtual std::string get_include_module() const override
+        virtual std::string get_module_name() const override
         {
             return "tmdlstd/tmdlstd.hpp";
         }

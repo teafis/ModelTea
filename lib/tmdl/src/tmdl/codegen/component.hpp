@@ -60,7 +60,7 @@ public:
 
     virtual std::string get_name_base() const = 0;
 
-    virtual std::string get_include_module() const;
+    virtual std::string get_module_name() const;
 
     virtual std::string get_type_name() const;
 

@@ -17,7 +17,7 @@ bool tmdl::codegen::CodeComponent::is_virtual() const
     return false;
 }
 
-std::string tmdl::codegen::CodeComponent::get_include_module() const
+std::string tmdl::codegen::CodeComponent::get_module_name() const
 {
     return fmt::format("{}.h", get_name_base());
 }

@@ -74,10 +74,13 @@ public:
 
     std::unique_ptr<const BlockError> has_error() const;
 
+public:
+    struct CompiledModelData;
+
 protected:
     std::unique_ptr<const BlockError> own_error() const;
 
-    std::vector<size_t> get_execution_order() const;
+    CompiledModelData compile_model() const;
 
 public:
     std::shared_ptr<ModelExecutionInterface> get_execution_interface(

@@ -66,6 +66,8 @@ public:
 
     virtual std::optional<std::string> get_function_name(BlockFunction ft) const = 0;
 
+    virtual std::vector<std::string> constructor_arguments() const;
+
 protected:
     virtual std::vector<std::string> write_cpp_code(CodeSection section) const;
 };

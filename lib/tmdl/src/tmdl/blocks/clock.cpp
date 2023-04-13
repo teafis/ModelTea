@@ -64,7 +64,12 @@ protected:
 
         virtual std::string get_type_name() const override
         {
-            return "tmdlstd::clock_block";
+            return "tmdl::stdlib::clock_block";
+        }
+
+        virtual std::vector<std::string> constructor_arguments() const override
+        {
+            return { "0.1" };
         }
 
         virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override

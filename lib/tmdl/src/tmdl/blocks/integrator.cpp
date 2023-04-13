@@ -69,7 +69,7 @@ protected:
 
         virtual std::string get_type_name() const override
         {
-            return fmt::format("tmdlstd::integrator_block<{}>", tmdl::data_type_to_string(DT));
+            return fmt::format("tmdl::stdlib::integrator_block<{}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT));
         }
 
         virtual std::optional<std::string> get_function_name(const tmdl::codegen::BlockFunction fcn) const override

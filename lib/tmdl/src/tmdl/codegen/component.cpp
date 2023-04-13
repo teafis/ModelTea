@@ -27,6 +27,11 @@ std::string tmdl::codegen::CodeComponent::get_type_name() const
     return get_name_base();
 }
 
+std::vector<std::string> tmdl::codegen::CodeComponent::constructor_arguments() const
+{
+    return {};
+}
+
 std::vector<std::string> tmdl::codegen::CodeComponent::write_code(Language type, CodeSection section) const
 {
     if (type == Language::CPP)

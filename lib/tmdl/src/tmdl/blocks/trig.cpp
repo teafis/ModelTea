@@ -136,7 +136,7 @@ protected:
 
         virtual std::string get_type_name() const override
         {
-            return fmt::format("tmdlstd::trig_block<{}, {}>", tmdl::data_type_to_string(DT), tmdl::stdlib::trig_func_to_string(FCN));
+            return fmt::format("tmdl::stdlib::trig_block<{}, {}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT), tmdl::stdlib::trig_func_to_string(FCN));
         }
 
         virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override

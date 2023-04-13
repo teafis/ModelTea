@@ -19,6 +19,27 @@
 
 using namespace tmdl;
 
+/* ==================== MODEL LINKS DATA =================== */
+
+struct tmdl::Model::CompiledModelData
+{
+    struct Links
+    {
+        struct Block
+        {
+            size_t block_id;
+            size_t port_num;
+        };
+
+        std::unordered_map<size_t, std::vector<Block>> input_port_links; // Defines input ports -> block input ports
+        std::unordered_map<size_t, Block> output_port_links; // Defines output ports <- block output ports
+        std::unordered_map<size_t, std::unordered_map<size_t, std::vector<Block>>> component_links; // Defines block_id -> (output port, block input port)
+    };
+
+    Links links;
+    std::vector<size_t> execution_order;
+};
+
 /* ==================== MODEL COMPONENT =================== */
 
 class ModelCodeComponent : public tmdl::codegen::CodeComponent
@@ -33,18 +54,22 @@ protected:
 public:
     ModelCodeComponent(
         const std::string& model_name,
+        const tmdl::Model::CompiledModelData& exec_data,
         const std::vector<tmdl::DataType>& input_types,
         const std::vector<tmdl::DataType>& output_types,
-        std::vector<std::unique_ptr<const codegen::CodeComponent>>&& components) :
+        std::unordered_map<size_t, std::unique_ptr<const codegen::CodeComponent>>&& components) :
         _model_name(model_name),
+        _model_data(exec_data),
         _input_types(input_types),
         _output_types(output_types)
     {
-        for (size_t i = 0; i < components.size(); ++i)
+        for (auto& [bid, comp] : components)
         {
-            _blocks.emplace_back(ComponentVariable {
-                .name = fmt::format("_b{}", i),
-                .component = std::move(components[i])
+            _blocks.emplace(
+                bid,
+                ComponentVariable {
+                    .name = fmt::format("_block_{}", bid),
+                    .component = std::move(comp)
             });
         }
         components.clear();
@@ -114,12 +139,14 @@ protected:
 
         std::vector<std::string> lines;
         lines.push_back(fmt::format("#ifndef {}", HDR_GUARD));
-        lines.push_back(fmt::format("#ifndef {}", HDR_GUARD));
+        lines.push_back(fmt::format("#define {}", HDR_GUARD));
         lines.push_back("");
 
         std::vector<std::string> include_files;
-        for (const auto& [varname, comp] : _blocks)
+        for (const auto& kv : _blocks)
         {
+            const auto& [varname, comp] = kv.second;
+
             const auto fcn_name = comp->get_module_name();
             if (fcn_name.empty())
             {
@@ -136,7 +163,7 @@ protected:
 
         for (const auto& f : include_files)
         {
-            lines.push_back(fmt::format("#include <{}>", f));
+            lines.push_back(fmt::format("#include \"{}\"", f));
         }
 
         lines.push_back("");
@@ -150,10 +177,10 @@ protected:
         for (size_t i = 0; i < _input_types.size(); ++i)
         {
             const auto dt = _input_types[i];
-            lines.push_back(fmt::format("        {} {};", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, dt), _input_names[i]));
+            lines.push_back(fmt::format("        const {}* {}{{}};", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, dt), _input_names[i]));
         }
 
-        lines.push_back("    }");
+        lines.push_back("    };");
         lines.push_back("");
 
         lines.push_back("    struct output_t");
@@ -162,21 +189,20 @@ protected:
         for (size_t i = 0; i < _output_types.size(); ++i)
         {
             const auto dt = _output_types[i];
-            lines.push_back(fmt::format("        {} {};", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, dt), _output_names[i]));
+            lines.push_back(fmt::format("        {} {}{{}};", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, dt), _output_names[i]));
         }
 
-        lines.push_back("    }");
+        lines.push_back("    };");
         lines.push_back("");
 
         lines.push_back(fmt::format("    {}()", get_name_base()));
         lines.push_back("    {");
-        lines.push_back("        // Empty Constructor -> TODO - Setup Data Parameters");
         lines.push_back("    }");
 
         const std::vector<codegen::BlockFunction> functions = {
             tmdl::codegen::BlockFunction::INIT,
             tmdl::codegen::BlockFunction::RESET,
-            tmdl::codegen::BlockFunction::STEP
+            tmdl::codegen::BlockFunction::STEP,
         };
 
         for (const auto fcn : functions)
@@ -185,12 +211,89 @@ protected:
             lines.push_back(fmt::format("    void {}()", *get_function_name(fcn)));
             lines.push_back("    {");
 
-            for (const auto& [varname, comp] : _blocks)
+            if (fcn == tmdl::codegen::BlockFunction::INIT)
             {
+                lines.push_back("        // Setup Input Values");
+                const auto input_def = get_input_type();
+                for (const auto& [port_num, destinations] : _model_data.links.input_port_links)
+                {
+                    for (const auto& dest : destinations)
+                    {
+                        const auto& blk = _blocks.at(dest.block_id);
+                        const auto comp = *blk.component->get_input_type();
+                        lines.push_back(fmt::format(
+                            "        {}.{}.{} = {}.{};",
+                            blk.name,
+                            comp.get_name(),
+                            comp.get_field(dest.port_num),
+                            input_def->get_name(),
+                            input_def->get_field(port_num)));
+                    }
+                }
+
+                lines.push_back("        // Setup Connection Values");
+                for (const auto& [src_index, vals] : _model_data.links.component_links)
+                {
+                    const auto& src_blk = _blocks.at(src_index);
+                    const auto src_comp = *src_blk.component->get_output_type();
+
+                    for (const auto& [src_port, dest_links] : vals)
+                    {
+                        for (const auto& dest_i : dest_links)
+                        {
+                            const auto& dst_blk = _blocks.at(dest_i.block_id);
+                            const auto dst_comp = *dst_blk.component->get_input_type();
+
+                            lines.push_back(fmt::format(
+                                "        {}.{}.{} = &{}.{}.{};",
+                                dst_blk.name,
+                                dst_comp.get_name(),
+                                dst_comp.get_field(dest_i.port_num),
+                                src_blk.name,
+                                src_comp.get_name(),
+                                src_comp.get_field(src_port)));
+                        }
+                    }
+                }
+            }
+
+            if (fcn == tmdl::codegen::BlockFunction::INIT)
+            {
+                lines.push_back("        // Copy Output Values");
+                const auto output_def = get_output_type();
+                for (const auto& [port_num, src] : _model_data.links.output_port_links)
+                {
+                    const auto& blk = _blocks.at(src.block_id);
+                    const auto comp = *blk.component->get_output_type();
+                    lines.push_back(fmt::format("        {}.{} = {}.{}.{};", output_def->get_name(), output_def->get_field(port_num), blk.name, comp.get_name(), comp.get_field(src.port_num)));
+                }
+            }
+
+            for (const auto& bid : _model_data.execution_order)
+            {
+                auto it = _blocks.find(bid);
+                if (it == _blocks.end())
+                {
+                    continue;
+                }
+
+                const auto& [varname, comp] = it->second;
                 const auto fcn_name = comp->get_function_name(fcn);
                 if (fcn_name)
                 {
-                    lines.push_back(fmt::format("        {}.{}()", varname, *fcn_name));
+                    lines.push_back(fmt::format("        {}.{}();", varname, *fcn_name));
+                }
+            }
+
+            if (fcn == tmdl::codegen::BlockFunction::STEP || fcn == tmdl::codegen::BlockFunction::RESET)
+            {
+                lines.push_back("        // Copy Output Values");
+                const auto output_def = get_output_type();
+                for (const auto& [port_num, src] : _model_data.links.output_port_links)
+                {
+                    const auto& blk = _blocks.at(src.block_id);
+                    const auto comp = *blk.component->get_output_type();
+                    lines.push_back(fmt::format("        {}.{} = {}.{}.{};", output_def->get_name(), output_def->get_field(port_num), blk.name, comp.get_name(), comp.get_field(src.port_num)));
                 }
             }
 
@@ -205,9 +308,29 @@ protected:
         {
             lines.push_back("");
             lines.push_back("private:");
-            for (const auto& [varname, comp] : _blocks)
+            for (const auto& kv : _blocks)
             {
-                lines.push_back(fmt::format("    {} {}{{}};", comp->get_type_name(), varname));
+                const auto& [varname, comp] = kv.second;
+                std::string args = "";
+
+                for (const auto& a : comp->constructor_arguments())
+                {
+                    if (args.empty())
+                    {
+                        args = a;
+                    }
+                    else
+                    {
+                        args = fmt::format("{}, {}", args, a);
+                    }
+                }
+
+                if (!args.empty())
+                {
+                    args = fmt::format(" {} ", args);
+                }
+
+                lines.push_back(fmt::format("    {} {}{{{}}};", comp->get_type_name(), varname, args));
             }
         }
 
@@ -221,11 +344,12 @@ protected:
 
 protected:
     std::string _model_name;
+    tmdl::Model::CompiledModelData _model_data;
     std::vector<tmdl::DataType> _input_types;
     std::vector<std::string> _input_names;
     std::vector<tmdl::DataType> _output_types;
     std::vector<std::string> _output_names;
-    std::vector<ComponentVariable> _blocks;
+    std::unordered_map<size_t, ComponentVariable> _blocks;
 };
 
 /* ==================== MODEL EXECUTOR ==================== */
@@ -607,7 +731,7 @@ DataType Model::get_output_datatype(const size_t port) const
     }
 }
 
-std::vector<size_t> Model::get_execution_order() const
+tmdl::Model::CompiledModelData Model::compile_model() const
 {
     // Skip if an error is present
     if (const auto err = has_error(); err != nullptr)
@@ -615,11 +739,12 @@ std::vector<size_t> Model::get_execution_order() const
         throw ModelException(err->message);
     }
 
+    CompiledModelData data;
+
     // Add the input blocks as the first to be executed
-    std::vector<size_t> order_values;
     for (const size_t i : input_ids)
     {
-        order_values.push_back(i);
+        data.execution_order.push_back(i);
     }
 
     // Create a list of remaining ID values
@@ -667,11 +792,11 @@ std::vector<size_t> Model::get_execution_order() const
 
                 // Check if the from block is already in the execution order
                 const auto from_it = std::find(
-                    order_values.begin(),
-                    order_values.end(),
+                    data.execution_order.begin(),
+                    data.execution_order.end(),
                     conn->get_from_id());
 
-                if (from_it == order_values.end())
+                if (from_it == data.execution_order.end())
                 {
                     index = std::nullopt;
                     break;
@@ -687,7 +812,7 @@ std::vector<size_t> Model::get_execution_order() const
         if (index.has_value())
         {
             auto it = remaining_id_values.begin() + index.value();
-            order_values.push_back(*it);
+            data.execution_order.push_back(*it);
             remaining_id_values.erase(it);
         }
         else
@@ -699,11 +824,59 @@ std::vector<size_t> Model::get_execution_order() const
     // Add remaining output ID values
     for (const size_t i : output_ids)
     {
-        order_values.push_back(i);
+        data.execution_order.push_back(i);
+    }
+
+    // Add output port types
+    for (size_t i = 0; i < output_ids.size(); ++i)
+    {
+        const auto c = connections.get_connection_to(output_ids[i], 0);
+
+        CompiledModelData::Links::Block block;
+        block.block_id = c->get_from_id();
+        block.port_num = c->get_from_port();
+
+        data.links.output_port_links[i] = block;
+    }
+
+    // Add input port types
+    for (size_t i = 0; i < input_ids.size(); ++i)
+    {
+        for (const auto& c : connections.get_connections())
+        {
+            if (c->get_from_id() != input_ids[i] || c->get_from_port() != 0)
+            {
+                continue;
+            }
+
+            CompiledModelData::Links::Block blk;
+            blk.block_id = c->get_to_id();
+            blk.port_num = c->get_to_port();
+
+            data.links.input_port_links[i].push_back(blk);
+        }
+    }
+
+    for (const auto& c : connections.get_connections())
+    {
+        if (std::find(input_ids.begin(), input_ids.end(), c->get_from_id()) != input_ids.end())
+        {
+            continue;
+        }
+        else if (std::find(output_ids.begin(), output_ids.end(), c->get_to_id()) != output_ids.end())
+        {
+            continue;
+        }
+
+        CompiledModelData::Links::Block blk;
+        blk.block_id = c->get_to_id();
+        blk.port_num = c->get_to_port();
+
+        data.links.component_links[c->get_from_id()][c->get_from_port()].push_back(blk);
     }
 
     // Return the result
-    return order_values;
+    return data;
 }
 
 std::shared_ptr<ModelExecutionInterface> Model::get_execution_interface(
@@ -712,7 +885,7 @@ std::shared_ptr<ModelExecutionInterface> Model::get_execution_interface(
     const VariableManager& outer_variables) const
 {
     // Get the execution order
-    const std::vector<size_t> order_values = get_execution_order();
+    const std::vector<size_t> order_values = compile_model().execution_order;
 
     // Construct the variable list values
     auto variables = std::make_shared<VariableManager>();
@@ -794,11 +967,11 @@ std::shared_ptr<ModelExecutionInterface> Model::get_execution_interface(
 std::unique_ptr<codegen::CodeComponent> Model::get_codegen_component() const
 {
     // Get the execution order
-    const std::vector<size_t> order_values = get_execution_order();
+    const auto exec_data = compile_model();
 
     // Construct the block parameters
-    std::vector<std::unique_ptr<const codegen::CodeComponent>> components;
-    for (const auto& id : order_values)
+    std::unordered_map<size_t, std::unique_ptr<const codegen::CodeComponent>> components;
+    for (const auto& id : exec_data.execution_order)
     {
         if (std::find(input_ids.begin(), input_ids.end(), id) != input_ids.end())
         {
@@ -812,7 +985,7 @@ std::unique_ptr<codegen::CodeComponent> Model::get_codegen_component() const
         else
         {
             const auto blk = get_block(id);
-            components.push_back(blk->get_compiled()->get_codegen_self());
+            components.emplace(id, blk->get_compiled()->get_codegen_self());
         }
     }
 
@@ -830,7 +1003,7 @@ std::unique_ptr<codegen::CodeComponent> Model::get_codegen_component() const
     }
 
     // Return the results
-    return std::make_unique<ModelCodeComponent>(name, input_types, output_types, std::move(components));
+    return std::make_unique<ModelCodeComponent>(name, exec_data, input_types, output_types, std::move(components));
 }
 
 std::vector<std::unique_ptr<codegen::CodeComponent>> Model::get_all_sub_components() const

@@ -93,7 +93,7 @@ protected:
         virtual std::string get_type_name() const override
         {
             return fmt::format(
-                "tmdlstd::arith_block<{}, {}, {}>",
+                "tmdl::stdlib::arith_block<{}, {}, {}>",
                 tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT),
                 tmdl::stdlib::arith_to_string(OP),
                 _size);

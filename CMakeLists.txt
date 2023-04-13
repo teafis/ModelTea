@@ -18,7 +18,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Charts REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 
-set(PROJECT_SOURCESS
+set(PROJECT_SOURCES
     src/main.cpp
     src/blocks/block_object.h src/blocks/block_object.cpp
     src/blocks/connector_object.h src/blocks/connector_object.cpp
@@ -48,11 +48,11 @@ set(PROJECT_SOURCESS
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(ModelTea
         MANUAL_FINALIZATION
-        ${PROJECT_SOURCESS}
+        ${PROJECT_SOURCES}
     )
 else()
     add_executable(ModelTea
-        ${PROJECT_SOURCESS}
+        ${PROJECT_SOURCES}
     )
 endif()
 
@@ -80,7 +80,7 @@ set_target_properties(ModelTea PROPERTIES
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
 )
 
-if(QT_VERSION_MAJOR EQUAL 6)
+if(QT_VERSION_MAJOR GREATER_EQUAL 6)
     qt_finalize_executable(ModelTea)
 endif()
 

@@ -292,6 +292,50 @@ struct limiter_block
     output_t s_out;
 };
 
+template <typename T>
+struct limiter_block_const
+{
+    struct input_t
+    {
+        const T* input_value;
+    };
+
+    struct output_t
+    {
+        T output_value;
+    };
+
+    limiter_block_const(const T upper, const T lower) :
+        _upper{ upper },
+        _lower{ lower }
+    {
+        // Empty Constructor
+    }
+
+    void step()
+    {
+        T x = *s_in.input_value;
+
+        if (x < _lower)
+        {
+            x = _lower;
+        }
+        else if (x > _upper)
+        {
+            x = _upper;
+        }
+
+        s_out.output_value = x;
+    }
+
+    input_t s_in;
+    output_t s_out;
+
+private:
+    const T _upper;
+    const T _lower;
+};
+
 enum class RelationalOperator
 {
     EQUAL = 0,

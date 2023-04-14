@@ -22,6 +22,9 @@ struct LimiterValues
 template <tmdl::DataType DT>
 class CompiledLimiter : public tmdl::CompiledBlockInterface
 {
+protected:
+    using limit_t = typename tmdl::data_type_t<DT>::type;
+
 public:
     CompiledLimiter(const size_t id, const std::optional<LimiterValues> constLimits) :
         _id{ id },
@@ -66,7 +69,16 @@ public:
 
     std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_self() const override
     {
-        return std::make_unique<LimiterComponent>();
+        if (_constantLimits)
+        {
+            return std::make_unique<LimiterComponentConst>(
+                tmdl::get_inner_value<DT>(_constantLimits->upper.get()),
+                tmdl::get_inner_value<DT>(_constantLimits->lower.get()));
+        }
+        else
+        {
+            return std::make_unique<LimiterComponent>();
+        }
     }
 
 protected:
@@ -113,12 +125,64 @@ protected:
         }
     };
 
+    struct LimiterComponentConst : public tmdl::codegen::CodeComponent
+    {
+        LimiterComponentConst(const limit_t upper, const limit_t lower) : _upper{ upper }, _lower{ lower }
+        {
+            // Empty Constructor
+        }
+
+        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+        {
+            return tmdl::codegen::InterfaceDefinition("s_in", {"input_value"});
+        }
+
+        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+        {
+            return tmdl::codegen::InterfaceDefinition("s_out", {"output_value"});
+        }
+
+        virtual std::string get_module_name() const override
+        {
+            return "tmdlstd/tmdlstd.hpp";
+        }
+
+        virtual std::string get_name_base() const override
+        {
+            return "limiter_block_const";
+        }
+
+        virtual std::string get_type_name() const override
+        {
+            return fmt::format("tmdl::stdlib::limiter_block_const<{}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT));
+        }
+
+        virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
+        {
+            switch (ft)
+            {
+            case tmdl::codegen::BlockFunction::STEP:
+                return "step";
+            default:
+                return {};
+            }
+        }
+
+        virtual std::vector<std::string> constructor_arguments() const override
+        {
+            return {
+                fmt::format("{}", _upper),
+                fmt::format("{}", _lower),
+            };
+        }
+
+        const limit_t _upper;
+        const limit_t _lower;
+    };
+
 protected:
     class LimiterExecutor : public BlockExecutionInterface
     {
-    protected:
-        using limit_t = typename tmdl::data_type_t<DT>::type;
-
     public:
         LimiterExecutor(
             std::shared_ptr<const ModelValue> ptr_input,

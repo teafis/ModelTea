@@ -11,6 +11,8 @@
 #include <string>
 #include <vector>
 
+#include "model_exception.hpp"
+
 
 namespace tmdl
 {
@@ -113,6 +115,17 @@ template <DataType DT>
 std::shared_ptr<ModelValue> make_default_value()
 {
     return std::make_shared<tmdl::ModelValueBox<DT>>();
+}
+
+template <DataType DT>
+data_type_t<DT>::type get_inner_value(const ModelValue* value)
+{
+    const auto* ptr = dynamic_cast<const ModelValueBox<DT>*>(value);
+    if (ptr == nullptr)
+    {
+        throw tmdl::ModelException("unable to convert data type parameters");
+    }
+    return ptr->value;
 }
 
 std::shared_ptr<ModelValue> make_default_value(const DataType dtype);

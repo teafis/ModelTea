@@ -199,6 +199,11 @@ protected:
         lines.push_back("    {");
         lines.push_back("    }");
 
+        lines.push_back("");
+
+        lines.push_back(fmt::format("    {}(const {}&) = delete;", get_name_base(), get_name_base()));
+        lines.push_back(fmt::format("    {}& operator=(const {}&) = delete;", get_name_base(), get_name_base()));
+
         const std::vector<codegen::BlockFunction> functions = {
             tmdl::codegen::BlockFunction::INIT,
             tmdl::codegen::BlockFunction::RESET,

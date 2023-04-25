@@ -33,6 +33,10 @@ struct arith_block_dynamic
         T val;
     };
 
+    arith_block_dynamic() = default;
+    arith_block_dynamic(const arith_block_dynamic&) = delete;
+    arith_block_dynamic& operator=(const arith_block_dynamic&) = delete;
+
     void step()
     {
         T val = *s_in.vals[0];
@@ -79,6 +83,9 @@ struct arith_block : public arith_block_dynamic<T, AT>
         this->s_in.vals = _input_array.data();
     }
 
+    arith_block(const arith_block&) = delete;
+    arith_block& operator=(const arith_block&) = delete;
+
 private:
     std::array<const T*, SIZE> _input_array;
 };
@@ -91,6 +98,9 @@ struct clock_block
     };
 
     clock_block(const double dt);
+
+    clock_block(const clock_block&) = delete;
+    clock_block& operator=(const clock_block&) = delete;
 
     void reset();
 
@@ -115,6 +125,9 @@ struct const_block
         // Empty Constructor
     }
 
+    const_block(const const_block&) = delete;
+    const_block& operator=(const const_block&) = delete;
+
     const output_t s_out;
 };
 
@@ -132,6 +145,10 @@ struct delay_block
     {
         T output_value;
     };
+
+    delay_block() = default;
+    delay_block(const delay_block&) = delete;
+    delay_block& operator=(const delay_block&) = delete;
 
     void init()
     {
@@ -178,6 +195,9 @@ struct derivative_block
     {
         // Empty Constructor
     }
+
+    derivative_block(const derivative_block&) = delete;
+    derivative_block& operator=(const derivative_block&) = delete;
 
     void init()
     {
@@ -227,6 +247,9 @@ struct integrator_block
         // Empty Constructor
     }
 
+    integrator_block(const integrator_block&) = delete;
+    integrator_block& operator=(const integrator_block&) = delete;
+
     void init()
     {
         reset();
@@ -270,6 +293,10 @@ struct limiter_block
         T output_value;
     };
 
+    limiter_block() = default;
+    limiter_block(const limiter_block&) = delete;
+    limiter_block& operator=(const limiter_block&) = delete;
+
     void step()
     {
         T x = *s_in.input_value;
@@ -311,6 +338,9 @@ struct limiter_block_const
     {
         // Empty Constructor
     }
+
+    limiter_block_const(const limiter_block_const&) = delete;
+    limiter_block_const& operator=(const limiter_block_const&) = delete;
 
     void step()
     {
@@ -361,6 +391,10 @@ struct relational_block
     {
         T output_value;
     };
+
+    relational_block() = default;
+    relational_block(const relational_block&) = delete;
+    relational_block& operator=(const relational_block&) = delete;
 
     void step()
     {
@@ -420,6 +454,10 @@ struct trig_block
     {
         T value;
     };
+
+    trig_block() = default;
+    trig_block(const trig_block&) = delete;
+    trig_block& operator=(const trig_block&) = delete;
 
     void step()
     {

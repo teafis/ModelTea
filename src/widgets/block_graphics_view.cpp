@@ -47,6 +47,7 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
 {
     if (!isEnabled())
     {
+        mouseState = nullptr;
         return;
     }
 
@@ -56,7 +57,7 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
         const auto mappedPos = mapToScene(event->pos());
 
         BlockObject* const selectedBlock = dynamic_cast<BlockObject*>(selectedItem);
-        ConnectorObject* const selectedConnector = dynamic_cast<ConnectorObject*>(selectedItem);
+        ConnectorBlockObject* const selectedConnector = dynamic_cast<ConnectorBlockObject*>(selectedItem);
 
         selectedItem = nullptr;
 
@@ -83,7 +84,12 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
 
                 if (block_port)
                 {
-                    mouseState = std::make_unique<PortDragState>(block_port.value());
+                    auto pds = std::make_unique<PortDragState>(*block_port);
+
+                    scene()->addItem(pds->get_connector());
+                    pds->get_connector()->updateLocations(mappedPos, mappedPos);
+
+                    mouseState = std::move(pds);
                 }
                 else if (blockBodyContainsMouse(mappedPos, block))
                 {
@@ -103,7 +109,7 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
         // Check for a selected connector
         if (selectedItem == nullptr)
         {
-            ConnectorObject* foundConnector = findConnectorForMousePress(mappedPos);
+            ConnectorBlockObject* foundConnector = findConnectorForMousePress(mappedPos);
 
             if (foundConnector != selectedConnector && selectedConnector != nullptr)
             {
@@ -123,20 +129,27 @@ void BlockGraphicsView::mouseMoveEvent(QMouseEvent* event)
 {
     if (!isEnabled())
     {
+        mouseState = nullptr;
         return;
     }
 
-    if (auto* mouseDragState = dynamic_cast<BlockDragState*>(mouseState.get()); mouseDragState != nullptr)
+    const auto scenePos = mapToScene(event->pos());
+
+    if (auto* blockState = dynamic_cast<BlockDragState*>(mouseState.get()); blockState != nullptr)
     {
-        const QPointF newBlockPos = mapToScene(event->pos()) - mouseDragState->getBlock()->boundingRect().center() + mouseDragState->getOffset();
+        const QPointF newBlockPos = scenePos - blockState->getBlock()->boundingRect().center() + blockState->getOffset();
         const QPoint newBlockPosInt = snapMousePositionToGrid(newBlockPos.toPoint());
 
-        if (newBlockPosInt != mouseDragState->getCurrent())
+        if (newBlockPosInt != blockState->getCurrent())
         {
-            mouseDragState->getBlock()->setPos(newBlockPosInt);
-            mouseDragState->setCurrent(newBlockPosInt);
+            blockState->getBlock()->setPos(newBlockPosInt);
+            blockState->setCurrent(newBlockPosInt);
             emit modelChanged();
         }
+    }
+    else if (auto* connState = dynamic_cast<PortDragState*>(mouseState.get()); connState != nullptr)
+    {
+        connState->updateMouseLocation(scenePos);
     }
 }
 
@@ -144,6 +157,7 @@ void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
 {
     if (!isEnabled())
     {
+        mouseState = nullptr;
         return;
     }
 
@@ -203,6 +217,7 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
 {
     if (!isEnabled())
     {
+        mouseState = nullptr;
         return;
     }
 
@@ -222,7 +237,7 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
 
             for (auto ptr : qAsConst(sceneItems))
             {
-                const auto c = dynamic_cast<ConnectorObject*>(ptr);
+                const auto c = dynamic_cast<ConnectorBlockObject*>(ptr);
                 if (c == nullptr) continue;
 
                 if (!c->isValidConnection())
@@ -238,7 +253,7 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
 
             updateModel();
         }
-        else if (ConnectorObject* conn = findConnectorForMousePress(mappedPos); conn != nullptr)
+        else if (ConnectorBlockObject* conn = findConnectorForMousePress(mappedPos); conn != nullptr)
         {
             auto dialog = new ConnectionParametersDialog(conn, this);
             if (dialog->exec())
@@ -292,7 +307,7 @@ void BlockGraphicsView::removeSelectedBlock()
         {
             get_model()->remove_block(selectedBlock->get_block()->get_id());
         }
-        else if (auto* selectedConnector = dynamic_cast<ConnectorObject*>(selectedItem); selectedConnector != nullptr)
+        else if (auto* selectedConnector = dynamic_cast<ConnectorBlockObject*>(selectedItem); selectedConnector != nullptr)
         {
             get_model()->remove_connection(selectedConnector->get_to_block()->get_block()->get_id(), selectedConnector->get_to_port());
         }
@@ -349,12 +364,12 @@ BlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
     return nullptr;
 }
 
-ConnectorObject* BlockGraphicsView::findConnectorForMousePress(const QPointF& pos)
+ConnectorBlockObject* BlockGraphicsView::findConnectorForMousePress(const QPointF& pos)
 {
     const auto sceneItems = scene()->items();
     for (auto itm : qAsConst(sceneItems))
     {
-        ConnectorObject* conn = dynamic_cast<ConnectorObject*>(itm);
+        ConnectorBlockObject* conn = dynamic_cast<ConnectorBlockObject*>(itm);
         if (conn != nullptr && conn->positionOnLine(conn->mapFromScene(pos)))
         {
             return conn;
@@ -390,7 +405,7 @@ void BlockGraphicsView::addConnectionItem(
     const BlockObject* to_block)
 {
     // Construct the connector object
-    ConnectorObject* conn_obj = new ConnectorObject(
+    ConnectorBlockObject* conn_obj = new ConnectorBlockObject(
         connection,
         from_block,
         to_block);
@@ -401,23 +416,23 @@ void BlockGraphicsView::addConnectionItem(
         from_block,
         &BlockObject::sceneLocationUpdated,
         conn_obj,
-        &ConnectorObject::blockLocationUpdated);
+        &ConnectorBlockObject::blockLocationUpdated);
     connect(
         to_block,
         &BlockObject::sceneLocationUpdated,
         conn_obj,
-        &ConnectorObject::blockLocationUpdated);
+        &ConnectorBlockObject::blockLocationUpdated);
 
     connect(
         from_block,
         &BlockObject::destroyed,
         conn_obj,
-        &ConnectorObject::deleteLater);
+        &ConnectorBlockObject::deleteLater);
     connect(
         to_block,
         &BlockObject::destroyed,
         conn_obj,
-        &ConnectorObject::deleteLater);
+        &ConnectorBlockObject::deleteLater);
 
     scene()->addItem(conn_obj);
 }

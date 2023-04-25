@@ -6,7 +6,7 @@
 #include <QMessageBox>
 
 
-ConnectionParametersDialog::ConnectionParametersDialog(ConnectorObject* conn, QWidget *parent) :
+ConnectionParametersDialog::ConnectionParametersDialog(ConnectorBlockObject* conn, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ConnectionParametersDialog),
     connector(conn)

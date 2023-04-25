@@ -22,6 +22,7 @@ set(PROJECT_SOURCES
     src/main.cpp
     src/blocks/block_object.h src/blocks/block_object.cpp
     src/blocks/connector_object.h src/blocks/connector_object.cpp
+    src/blocks/connector_block_object.h src/blocks/connector_block_object.cpp
     src/dialogs/model_parameters_dialog.h src/dialogs/model_parameters_dialog.cpp src/dialogs/model_parameters_dialog.ui
     src/dialogs/model_diagnostics_dialog.h src/dialogs/model_diagnostics_dialog.cpp src/dialogs/model_diagnostics_dialog.ui
     src/dialogs/block_selector_dialog.h src/dialogs/block_selector_dialog.cpp src/dialogs/block_selector_dialog.ui
@@ -34,8 +35,7 @@ set(PROJECT_SOURCES
     src/widgets/block_graphics_view.h src/widgets/block_graphics_view.cpp
     src/widgets/state/mouse/mouse_state_base.h
     src/widgets/state/mouse/block_drag_state.h src/widgets/state/mouse/block_drag_state.cpp
-    src/widgets/state/mouse/connector_drag_state.h
-    src/widgets/state/mouse/port_drag_state.h
+    src/widgets/state/mouse/port_drag_state.h src/widgets/state/mouse/port_drag_state.cpp
     src/widgets/parameters/parameter_boolean_widget.h src/widgets/parameters/parameter_boolean_widget.cpp src/widgets/parameters/parameter_boolean_widget.ui
     src/widgets/parameters/parameter_datatype_widget.h src/widgets/parameters/parameter_datatype_widget.cpp src/widgets/parameters/parameter_datatype_widget.ui
     src/widgets/parameters/parameter_numeric_widget.h src/widgets/parameters/parameter_numeric_widget.cpp src/widgets/parameters/parameter_numeric_widget.ui

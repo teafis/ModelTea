@@ -4,63 +4,37 @@
 #define BLOCK_PORT_DRAG_STATE_H
 
 #include "blocks/block_object.h"
+#include "blocks/connector_object.h"
 #include "mouse_state_base.h"
-
-#include <optional>
 
 
 class PortDragState : public MouseStateBase
 {
 public:
-    PortDragState(const BlockObject::PortInformation& port)
-    {
-        add_port(port);
-    }
+    PortDragState(const BlockObject::PortInformation& port);
 
-    void add_port(const BlockObject::PortInformation& port)
-    {
-        switch (port.type)
-        {
-        case BlockObject::PortType::INPUT:
-            port_input = port;
-            break;
-        case BlockObject::PortType::OUTPUT:
-            port_output = port;
-            break;
-        default:
-            return;
-        }
-    }
+    ~PortDragState();
 
-    bool is_partial() const
-    {
-        return port_output || port_input;
-    }
+    void add_port(const BlockObject::PortInformation& port);
 
-    bool is_complete() const
-    {
-        return port_output && port_input;
-    }
+    bool is_partial() const;
 
-    const BlockObject::PortInformation& get_output() const
-    {
-        return port_output.value();
-    }
+    bool is_complete() const;
 
-    const BlockObject::PortInformation& get_input() const
-    {
-        return port_input.value();
-    }
+    const BlockObject::PortInformation& get_output() const;
 
-    void reset()
-    {
-        port_output = std::nullopt;
-        port_input = std::nullopt;
-    }
+    const BlockObject::PortInformation& get_input() const;
+
+    void updateMouseLocation(QPointF loc);
+
+    void reset();
+
+    ConnectorObject* get_connector() const;
 
 protected:
     std::optional<BlockObject::PortInformation> port_output;
     std::optional<BlockObject::PortInformation> port_input;
+    ConnectorObject* connector;
 };
 
 #endif // BLOCK_PORT_DRAG_STATE_H

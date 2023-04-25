@@ -5,25 +5,9 @@
 #include <QPainter>
 
 
-ConnectorObject::ConnectorObject(
-    std::shared_ptr<tmdl::Connection> connection,
-    const BlockObject* from_block,
-    const BlockObject* to_block) :
-    connection(connection),
-    from_block(from_block),
-    to_block(to_block)
+ConnectorObject::ConnectorObject()
 {
-    if (from_block == nullptr || to_block == nullptr || connection == nullptr)
-    {
-        throw 1;
-    }
-    else if (connection->get_from_id() != from_block->get_block()->get_id() || connection->get_to_id() != to_block->get_block()->get_id())
-    {
-        throw 2;
-    }
-
-    // Set the provided parent to help with destruction
-    setFlag(QGraphicsItem::ItemIsSelectable, true);
+    // Empty Constructor
 }
 
 void ConnectorObject::paint(
@@ -34,18 +18,7 @@ void ConnectorObject::paint(
     (void)widget;
     (void)option;
 
-    if (isSelected())
-    {
-        painter->setPen(QPen(Qt::blue, 5.0));
-    }
-    else if (!get_name().isEmpty())
-    {
-        painter->setPen(QPen(Qt::cyan, 3.0));
-    }
-    else
-    {
-        painter->setPen(QPen(Qt::black, 3.0));
-    }
+    painter->setPen(QPen(getLineColor(), getLineWidth()));
     painter->setBrush(Qt::transparent);
 
     const auto pts = getLinePoints();
@@ -105,84 +78,64 @@ QRectF ConnectorObject::boundingRect() const
     return QRectF(
         0.0,
         0.0,
-        std::abs(loc_from.x() - loc_to.x()),
-        std::abs(loc_from.y() - loc_to.y()));
+        std::abs(loc_b.x() - loc_a.x()),
+        std::abs(loc_b.y() - loc_a.y()));
 }
 
-bool ConnectorObject::isValidConnection() const
+void ConnectorObject::updateLocA(QPointF loc)
 {
-    if (get_from_port() >= from_block->getNumPortsForType(BlockObject::PortType::OUTPUT))
-    {
-        return false;
-    }
-    else if (get_to_port() >= to_block->getNumPortsForType(BlockObject::PortType::INPUT))
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    loc_a = mapFromScene(loc);
+    updateLocationValues();
 }
 
-const BlockObject* ConnectorObject::get_from_block() const
+void ConnectorObject::updateLocB(QPointF loc)
 {
-    return from_block;
+    loc_b = mapFromScene(loc);
+    updateLocationValues();
 }
 
-const BlockObject* ConnectorObject::get_to_block() const
+void ConnectorObject::updateLocations(QPointF a, QPointF b)
 {
-    return to_block;
+    loc_a = mapFromScene(a);
+    loc_b = mapFromScene(b);
+    updateLocationValues();
 }
 
-size_t ConnectorObject::get_from_port() const
+void ConnectorObject::updateLocationValues()
 {
-    return connection->get_from_port();
-}
-
-size_t ConnectorObject::get_to_port() const
-{
-    return connection->get_to_port();
-}
-
-void ConnectorObject::set_name(const QString s)
-{
-    connection->set_name(s.toStdString());
-}
-
-QString ConnectorObject::get_name() const
-{
-    return QString(connection->get_name().c_str());
-}
-
-void ConnectorObject::blockLocationUpdated()
-{
-    if (!isValidConnection())
-    {
-        return;
-    }
-
-    loc_to = to_block->mapToScene(to_block->getInputPortLocation(get_to_port()));
-    loc_from = from_block->mapToScene(from_block->getOutputPortLocation(get_from_port()));
+    const auto loc_a_scene = mapToScene(loc_a);
+    const auto loc_b_scene = mapToScene(loc_b);
 
     setVisible(false);
-    setPos(std::min(loc_from.x(), loc_to.x()), std::min(loc_from.y(), loc_to.y()));
+    setPos(
+        std::min(loc_b_scene.x(), loc_a_scene.x()),
+        std::min(loc_b_scene.y(), loc_a_scene.y()));
 
-    loc_from = mapFromScene(loc_from);
-    loc_to = mapFromScene(loc_to);
+    loc_a = mapFromScene(loc_a_scene);
+    loc_b = mapFromScene(loc_b_scene);
 
     update();
     setVisible(true);
 }
 
+QColor ConnectorObject::getLineColor() const
+{
+    return Qt::red;
+}
+
+double ConnectorObject::getLineWidth() const
+{
+    return 1.0;
+}
+
 QVector<QPointF> ConnectorObject::getLinePoints() const
 {
-    const auto halfway = (loc_from + loc_to) / 2.0;
+    const auto halfway = (loc_a + loc_b) / 2.0;
 
     return {
-        loc_from,
-        QPointF(halfway.x(), loc_from.y()),
-        QPointF(halfway.x(), loc_to.y()),
-        loc_to
+        loc_b,
+        QPointF(halfway.x(), loc_b.y()),
+        QPointF(halfway.x(), loc_a.y()),
+        loc_a
     };
 }

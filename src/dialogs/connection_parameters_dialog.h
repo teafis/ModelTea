@@ -3,7 +3,7 @@
 
 #include <QDialog>
 
-#include "../blocks/connector_object.h"
+#include "../blocks/connector_block_object.h"
 
 namespace Ui {
 class ConnectionParametersDialog;
@@ -14,7 +14,7 @@ class ConnectionParametersDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ConnectionParametersDialog(ConnectorObject* conn, QWidget *parent = nullptr);
+    explicit ConnectionParametersDialog(ConnectorBlockObject* conn, QWidget *parent = nullptr);
     ~ConnectionParametersDialog();
 
 public slots:
@@ -22,7 +22,7 @@ public slots:
 
 private:
     Ui::ConnectionParametersDialog *ui;
-    ConnectorObject* const connector;
+    ConnectorBlockObject* const connector;
 };
 
 #endif // CONNECTION_PARAMETERS_DIALOG_H

@@ -86,15 +86,10 @@ endif()
 
 # Add compiler options
 if (MSVC)
-    target_compile_options(ModelTea PUBLIC /W4 /WX)
+    add_compile_options(/W4 /WX)
 else()
-    target_compile_options(ModelTea PUBLIC -Wall -Wextra -pedantic -Werror)
+    add_compile_options(-Wall -Wextra -pedantic -Werror)
 
-    if (MODELTEA_USE_ASAN)
-        set_property(TARGET ModelTea PROPERTY CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak")
-    endif()
-
-    if (MODELTEA_USE_LSAN)
-        set_property(TARGET ModelTea PROPERTY CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak")
-    endif()
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak")
+    set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak")
 endif()

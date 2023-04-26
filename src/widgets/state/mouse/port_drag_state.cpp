@@ -17,7 +17,7 @@ PortDragState::PortDragState(const BlockObject::PortInformation& port) :
         startPoint = port.block->getInputPortLocation(port.port_count);
         break;
     case BlockObject::PortType::OUTPUT:
-        startPoint = port.block->getInputPortLocation(port.port_count);
+        startPoint = port.block->getOutputPortLocation(port.port_count);
         break;
     }
 

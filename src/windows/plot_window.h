@@ -29,6 +29,8 @@ public:
         QWidget *parent = nullptr);
     ~PlotWindow();
 
+    virtual void keyPressEvent(QKeyEvent* event) override;
+
 public slots:
     void executorEvent(SimEvent event);
 

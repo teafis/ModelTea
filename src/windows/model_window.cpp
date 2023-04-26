@@ -97,33 +97,43 @@ void ModelWindow::closeEvent(QCloseEvent* event)
 
 void ModelWindow::keyPressEvent(QKeyEvent* event)
 {
-    const bool onlyControl = (event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier;
+    bool handled = true;
 
-    switch (event->key())
+    if (event->modifiers() == Qt::NoModifier)
     {
-    case Qt::Key_S:
-        stepExecutor();
-        break;
-    case Qt::Key_L:
-        if (onlyControl)
+        switch (event->key())
         {
+        case Qt::Key_S:
+            stepExecutor();
+            break;
+        case Qt::Key_Delete:
+            ui->block_graphics->removeSelectedBlock();
+            break;
+        default:
+            handled = false;
+        }
+    }
+    else if (event->modifiers() == Qt::ControlModifier)
+    {
+        switch (event->key())
+        {
+        case Qt::Key_L:
             showLibrary();
-        }
-        break;
-    case Qt::Key_D:
-        if (onlyControl)
-        {
+            break;
+        case Qt::Key_D:
             showDiagnostics();
-        }
-        break;
-    case Qt::Key_E:
-        if (onlyControl)
-        {
+            break;
+        case Qt::Key_E:
             showModelParameters();
+            break;
+        default:
+            handled = false;
         }
-        break;
-    default:
-        event->ignore();
+    }
+
+    if (!handled)
+    {
+        QMainWindow::keyPressEvent(event);
     }
 }
 

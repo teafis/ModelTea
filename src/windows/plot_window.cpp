@@ -59,6 +59,16 @@ PlotWindow::PlotWindow(
     ui->outputSelectionView->selectAll();
 }
 
+PlotWindow::~PlotWindow()
+{
+    delete ui;
+}
+
+void PlotWindow::keyPressEvent(QKeyEvent* event)
+{
+    QMainWindow::keyPressEvent(event);
+}
+
 void PlotWindow::seriesListChanged()
 {
     const auto& items = list_model->items();
@@ -141,9 +151,4 @@ void PlotWindow::executorEvent(SimEvent event)
         ui->chartView->chart()->axes(Qt::Horizontal)[0]->setRange(0.0, 1.0);
         ui->chartView->chart()->axes(Qt::Vertical)[0]->setRange(y_min, y_max);
     }
-}
-
-PlotWindow::~PlotWindow()
-{
-    delete ui;
 }

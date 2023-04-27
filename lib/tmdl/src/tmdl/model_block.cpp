@@ -49,18 +49,6 @@ bool tmdl::ModelBlock::update_block()
         updated = true;
     }
 
-    for (size_t i = 0; i < get_num_inputs(); ++i)
-    {
-        auto& dtype = input_types[i];
-        const auto model_dtype = model->get_input_datatype(i);
-
-        if (dtype != model_dtype)
-        {
-            dtype = model_dtype;
-            updated = true;
-        }
-    }
-
     for (size_t i = 0; i < get_num_outputs(); ++i)
     {
         auto& dtype = output_types[i];

@@ -138,22 +138,27 @@ protected:
                 }
 
                 input_values.push_back(ptr);
-                input_value_ptr_array.push_back(&ptr->value);
+                input_value_ptr_array.push_back(ptr->value);
             }
 
-            block.s_in.vals = input_value_ptr_array.data();
             block.s_in.size = input_value_ptr_array.size();
+            block.s_in.vals = input_value_ptr_array.data();
         }
 
         void step(const tmdl::SimState&) override
         {
+            for (int i = 0; i < input_value_ptr_array.size(); ++i)
+            {
+                input_value_ptr_array[i] = input_values[i]->value;
+            }
+
             block.step();
             output_value->value = block.s_out.val;
         }
 
     protected:
         std::vector<std::shared_ptr<const tmdl::ModelValueBox<DT>>> input_values;
-        std::vector<const type_t*> input_value_ptr_array;
+        std::vector<type_t> input_value_ptr_array;
         std::shared_ptr<tmdl::ModelValueBox<DT>> output_value;
 
         tmdl::stdlib::arith_block_dynamic<type_t, OP> block;

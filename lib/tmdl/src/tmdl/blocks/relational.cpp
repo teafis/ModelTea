@@ -107,13 +107,12 @@ protected:
             {
                 throw tmdl::ModelException("provided pointers must be non-null");
             }
-
-            block.s_in.val_a = &input_a->value;
-            block.s_in.val_b = &input_b->value;
         }
 
         void step(const tmdl::SimState&) override
         {
+            block.s_in.val_a = input_a->value;
+            block.s_in.val_b = input_b->value;
             block.step();
             output_value->value = block.s_out.output_value;
         }

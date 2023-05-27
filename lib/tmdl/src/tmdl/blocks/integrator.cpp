@@ -113,27 +113,35 @@ protected:
         {
             block = std::make_unique<tmdl::stdlib::integrator_block<type_t>>(s.get_dt());
 
-            block->s_in.input_value = &_input->value;
-            block->s_in.reset_value = &_reset_value->value;
-            block->s_in.reset_flag = &_reset_flag->value;
-
+            update_inputs();
             block->init();
         }
 
         void step(const tmdl::SimState&) override
         {
+            update_inputs();
             block->step();
+
             _output->value = block->s_out.output_value;
         }
 
         void reset(const tmdl::SimState&) override
         {
+            update_inputs();
             block->reset();
         }
 
         void close() override
         {
             block = nullptr;
+        }
+
+    protected:
+        void update_inputs()
+        {
+            block->s_in.input_value = _input->value;
+            block->s_in.reset_value = _reset_value->value;
+            block->s_in.reset_flag = _reset_flag->value;
         }
 
     protected:

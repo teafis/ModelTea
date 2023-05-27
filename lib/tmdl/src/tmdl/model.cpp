@@ -177,7 +177,7 @@ protected:
         for (size_t i = 0; i < _input_types.size(); ++i)
         {
             const auto dt = _input_types[i];
-            lines.push_back(fmt::format("        const {}* {}{{}};", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, dt), _input_names[i]));
+            lines.push_back(fmt::format("        {} {}{{}};", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, dt), _input_names[i]));
         }
 
         lines.push_back("    };");
@@ -216,14 +216,27 @@ protected:
             lines.push_back(fmt::format("    void {}()", *get_function_name(fcn)));
             lines.push_back("    {");
 
-            if (fcn == tmdl::codegen::BlockFunction::INIT)
+            for (const auto& bid : _model_data.execution_order)
             {
-                lines.push_back("        // Setup Input Values");
+                auto it = _blocks.find(bid);
+                if (it == _blocks.end())
+                {
+                    continue;
+                }
+
+                lines.push_back(fmt::format("        // Block {}", bid));
+
+                // Copy Input Values
                 const auto input_def = get_input_type();
                 for (const auto& [port_num, destinations] : _model_data.links.input_port_links)
                 {
                     for (const auto& dest : destinations)
                     {
+                        if (dest.block_id != bid)
+                        {
+                            continue;
+                        }
+
                         const auto& blk = _blocks.at(dest.block_id);
                         const auto comp = *blk.component->get_input_type();
                         lines.push_back(fmt::format(
@@ -236,7 +249,6 @@ protected:
                     }
                 }
 
-                lines.push_back("        // Setup Connection Values");
                 for (const auto& [src_index, vals] : _model_data.links.component_links)
                 {
                     const auto& src_blk = _blocks.at(src_index);
@@ -246,11 +258,16 @@ protected:
                     {
                         for (const auto& dest_i : dest_links)
                         {
+                            if (dest_i.block_id != bid)
+                            {
+                                continue;
+                            }
+
                             const auto& dst_blk = _blocks.at(dest_i.block_id);
                             const auto dst_comp = *dst_blk.component->get_input_type();
 
                             lines.push_back(fmt::format(
-                                "        {}.{}.{} = &{}.{}.{};",
+                                "        {}.{}.{} = {}.{}.{};",
                                 dst_blk.name,
                                 dst_comp.get_name(),
                                 dst_comp.get_field(dest_i.port_num),
@@ -260,28 +277,8 @@ protected:
                         }
                     }
                 }
-            }
 
-            if (fcn == tmdl::codegen::BlockFunction::INIT)
-            {
-                lines.push_back("        // Copy Output Values");
-                const auto output_def = get_output_type();
-                for (const auto& [port_num, src] : _model_data.links.output_port_links)
-                {
-                    const auto& blk = _blocks.at(src.block_id);
-                    const auto comp = *blk.component->get_output_type();
-                    lines.push_back(fmt::format("        {}.{} = {}.{}.{};", output_def->get_name(), output_def->get_field(port_num), blk.name, comp.get_name(), comp.get_field(src.port_num)));
-                }
-            }
-
-            for (const auto& bid : _model_data.execution_order)
-            {
-                auto it = _blocks.find(bid);
-                if (it == _blocks.end())
-                {
-                    continue;
-                }
-
+                // Call the resulting function name if present
                 const auto& [varname, comp] = it->second;
                 const auto fcn_name = comp->get_function_name(fcn);
                 if (fcn_name)
@@ -290,7 +287,7 @@ protected:
                 }
             }
 
-            if (fcn == tmdl::codegen::BlockFunction::STEP || fcn == tmdl::codegen::BlockFunction::RESET)
+            if (fcn == tmdl::codegen::BlockFunction::STEP || fcn == tmdl::codegen::BlockFunction::RESET || fcn == tmdl::codegen::BlockFunction::INIT)
             {
                 lines.push_back("        // Copy Output Values");
                 const auto output_def = get_output_type();

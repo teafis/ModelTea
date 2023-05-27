@@ -168,13 +168,12 @@ protected:
             {
                 throw tmdl::ModelException("input pointers cannot be null");
             }
-
-            block.s_in.value = &_ptr_input->value;
         }
 
     public:
         void step(const tmdl::SimState&) override
         {
+            block.s_in.value = _ptr_input->value;
             block.step();
             _ptr_output->value = block.s_out.value;
         }

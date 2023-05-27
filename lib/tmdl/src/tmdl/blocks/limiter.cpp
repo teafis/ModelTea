@@ -198,15 +198,14 @@ protected:
             {
                 throw ModelException("input pointers cannot be null");
             }
-
-            block.s_in.input_value = &_ptr_input->value;
-            block.s_in.limit_lower = &_val_min->value;
-            block.s_in.limit_upper = &_val_max->value;
         }
 
     public:
         void step(const SimState&) override
         {
+            block.s_in.input_value = _ptr_input->value;
+            block.s_in.limit_lower = _val_min->value;
+            block.s_in.limit_upper = _val_max->value;
             block.step();
             _ptr_output->value = block.s_out.output_value;
         }

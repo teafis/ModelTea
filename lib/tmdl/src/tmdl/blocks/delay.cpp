@@ -108,26 +108,33 @@ protected:
             {
                 throw tmdl::ModelException("input values must be non-null");
             }
-
-            block.s_in.input_value = &_input->value;
-            block.s_in.reset_value = &_reset_value->value;
-            block.s_in.reset_flag = &_reset_flag->value;
         }
 
         void init(const tmdl::SimState&) override
         {
+            update_inputs();
             block.init();
         }
 
         void step(const tmdl::SimState&) override
         {
+            update_inputs();
             block.step();
             _output->value = block.s_out.output_value;
         }
 
         void reset(const tmdl::SimState&) override
         {
+            update_inputs();
             block.reset();
+        }
+
+    protected:
+        void update_inputs()
+        {
+            block.s_in.input_value = _input->value;
+            block.s_in.reset_value = _reset_value->value;
+            block.s_in.reset_flag = _reset_flag->value;
         }
 
     protected:

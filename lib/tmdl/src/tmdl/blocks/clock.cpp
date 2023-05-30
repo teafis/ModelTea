@@ -78,6 +78,10 @@ protected:
             {
                 return "step";
             }
+            else if (ft == tmdl::codegen::BlockFunction::INIT)
+            {
+                return "init";
+            }
             else
             {
                 return {};
@@ -103,17 +107,13 @@ protected:
         void init(const tmdl::SimState& s) override
         {
             block = std::make_unique<tmdl::stdlib::clock_block>(s.get_dt());
+            block->init();
         }
 
         void step(const tmdl::SimState&) override
         {
             block->step();
             output_value->value = block->s_out.val;
-        }
-
-        void reset(const tmdl::SimState&) override
-        {
-            block->reset();
         }
 
         void close() override

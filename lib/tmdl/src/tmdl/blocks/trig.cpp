@@ -145,6 +145,8 @@ protected:
             {
             case tmdl::codegen::BlockFunction::STEP:
                 return "step";
+            case tmdl::codegen::BlockFunction::INIT:
+                return "init";
             default:
                 return {};
             }
@@ -171,6 +173,13 @@ protected:
         }
 
     public:
+        void init(const tmdl::SimState&) override
+        {
+            block.s_in.value = _ptr_input->value;
+            block.init();
+            _ptr_output->value = block.s_out.value;
+        }
+
         void step(const tmdl::SimState&) override
         {
             block.s_in.value = _ptr_input->value;

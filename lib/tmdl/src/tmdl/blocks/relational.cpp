@@ -83,6 +83,8 @@ protected:
             {
             case tmdl::codegen::BlockFunction::STEP:
                 return "step";
+            case tmdl::codegen::BlockFunction::INIT:
+                return "init";
             default:
                 return {};
             }
@@ -107,6 +109,14 @@ protected:
             {
                 throw tmdl::ModelException("provided pointers must be non-null");
             }
+        }
+
+        void init(const tmdl::SimState&) override
+        {
+            block.s_in.val_a = input_a->value;
+            block.s_in.val_b = input_b->value;
+            block.init();
+            output_value->value = block.s_out.output_value;
         }
 
         void step(const tmdl::SimState&) override

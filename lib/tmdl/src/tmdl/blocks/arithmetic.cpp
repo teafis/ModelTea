@@ -105,6 +105,10 @@ protected:
             {
                 return "step";
             }
+            else if (ft == tmdl::codegen::BlockFunction::INIT)
+            {
+                return "init";
+            }
             else
             {
                 return {};
@@ -143,6 +147,16 @@ protected:
 
             block.s_in.size = input_value_ptr_array.size();
             block.s_in.vals = input_value_ptr_array.data();
+        }
+
+        void init(const tmdl::SimState&) override
+        {
+            for (int i = 0; i < input_value_ptr_array.size(); ++i)
+            {
+                input_value_ptr_array[i] = input_values[i]->value;
+            }
+            block.init();
+            output_value->value = block.s_out.val;
         }
 
         void step(const tmdl::SimState&) override

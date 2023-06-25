@@ -35,6 +35,7 @@ set(
     src/tmdl/blocks/io_ports.hpp src/tmdl/blocks/io_ports.cpp
     src/tmdl/blocks/limiter.hpp src/tmdl/blocks/limiter.cpp
     src/tmdl/blocks/relational.hpp src/tmdl/blocks/relational.cpp
+    src/tmdl/blocks/switch.hpp src/tmdl/blocks/switch.cpp
     src/tmdl/blocks/trig.hpp src/tmdl/blocks/trig.cpp
     src/tmdl/libraries/model_library.hpp src/tmdl/libraries/model_library.cpp
     src/tmdl/libraries/stdlib.hpp src/tmdl/libraries/stdlib.cpp

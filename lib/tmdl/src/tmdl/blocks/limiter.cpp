@@ -259,6 +259,7 @@ Limiter::Limiter()
         ParameterValue{});
 
     input_type = DataType::UNKNOWN;
+    output_port = DataType::UNKNOWN;
     input_type_min = DataType::UNKNOWN;
     input_type_max = DataType::UNKNOWN;
 }
@@ -417,7 +418,7 @@ std::unique_ptr<CompiledBlockInterface> Limiter::get_compiled() const
 {
     if (has_error() != nullptr)
     {
-        throw ModelException("cannot execute limitert with incomplete input parameters");
+        throw ModelException("cannot execute limiter with incomplete input parameters");
     }
 
     std::optional<LimiterValues> limitValues{};

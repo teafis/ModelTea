@@ -11,6 +11,7 @@
 #include "../blocks/io_ports.hpp"
 #include "../blocks/limiter.hpp"
 #include "../blocks/relational.hpp"
+#include "../blocks/switch.hpp"
 #include "../blocks/trig.hpp"
 
 #include "../model_exception.hpp"
@@ -27,6 +28,7 @@ tmdl::blocks::StandardLibrary::StandardLibrary()
 {
     block_map = {
         {"limiter", &make_block<Limiter>},
+        {"switch", &make_block<Switch>},
         {"cos", &make_block<TrigCos>},
         {"sin", &make_block<TrigSin>},
         {"clock", &make_block<Clock>},

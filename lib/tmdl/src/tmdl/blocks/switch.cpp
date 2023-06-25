@@ -103,11 +103,11 @@ protected:
     {
     public:
         SwitchExecutor(
-            std::shared_ptr<const ModelValue> ptr_value,
+            std::shared_ptr<const ModelValue> ptr_tf,
             std::shared_ptr<const ModelValue> ptr_a,
             std::shared_ptr<const ModelValue> ptr_b,
             std::shared_ptr<ModelValue> ptr_output) :
-            _ptr_switch(std::dynamic_pointer_cast<const ModelValueBox<DataType::BOOLEAN>>(ptr_value)),
+            _ptr_switch(std::dynamic_pointer_cast<const ModelValueBox<DataType::BOOLEAN>>(ptr_tf)),
             _ptr_output(std::dynamic_pointer_cast<ModelValueBox<DT>>(ptr_output)),
             _ptr_val_a(std::dynamic_pointer_cast<const ModelValueBox<DT>>(ptr_a)),
             _ptr_val_b(std::dynamic_pointer_cast<const ModelValueBox<DT>>(ptr_b))

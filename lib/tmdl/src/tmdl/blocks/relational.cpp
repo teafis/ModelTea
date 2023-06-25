@@ -228,14 +228,14 @@ std::vector<tmdl::DataType> tmdl::blocks::RelationalEqualityBase::get_supported_
 // Helper Generator
 
 template <tmdl::stdlib::RelationalOperator OP>
-static std::unique_ptr<tmdl::CompiledBlockInterface> generate_compiled(const tmdl::blocks::RelationalBase* model)
+static std::unique_ptr<tmdl::CompiledBlockInterface> generate_compiled(const tmdl::blocks::RelationalBase* model, tmdl::DataType dataType)
 {
     if (model->has_error() != nullptr)
     {
         throw tmdl::ModelException(fmt::format("cannot generate a {} model with an error", model->get_name()));
     }
 
-    const auto dt = model->get_output_type(0);
+    const auto dt = dataType;
     const auto id = model->get_id();
 
     switch (dt)
@@ -269,7 +269,7 @@ std::string tmdl::blocks::GreaterThan::get_description() const
 
 std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::GreaterThan::get_compiled() const
 {
-    return generate_compiled<tmdl::stdlib::RelationalOperator::GREATER_THAN>(this);
+    return generate_compiled<tmdl::stdlib::RelationalOperator::GREATER_THAN>(this, _inputA);
 }
 
 // GreaterThanEqual Block
@@ -286,7 +286,7 @@ std::string tmdl::blocks::GreaterThanEqual::get_description() const
 
 std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::GreaterThanEqual::get_compiled() const
 {
-    return generate_compiled<tmdl::stdlib::RelationalOperator::GREATER_THAN_EQUAL>(this);
+    return generate_compiled<tmdl::stdlib::RelationalOperator::GREATER_THAN_EQUAL>(this, _inputA);
 }
 
 // LessThan Block
@@ -303,7 +303,7 @@ std::string tmdl::blocks::LessThan::get_description() const
 
 std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::LessThan::get_compiled() const
 {
-    return generate_compiled<tmdl::stdlib::RelationalOperator::LESS_THAN>(this);
+    return generate_compiled<tmdl::stdlib::RelationalOperator::LESS_THAN>(this, _inputA);
 }
 
 // LessThanEqual Block
@@ -320,7 +320,7 @@ std::string tmdl::blocks::LessThanEqual::get_description() const
 
 std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::LessThanEqual::get_compiled() const
 {
-    return generate_compiled<tmdl::stdlib::RelationalOperator::LESS_THAN_EQUAL>(this);
+    return generate_compiled<tmdl::stdlib::RelationalOperator::LESS_THAN_EQUAL>(this, _inputA);
 }
 
 // Equal Block
@@ -337,7 +337,7 @@ std::string tmdl::blocks::Equal::get_description() const
 
 std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Equal::get_compiled() const
 {
-    return generate_compiled<tmdl::stdlib::RelationalOperator::EQUAL>(this);
+    return generate_compiled<tmdl::stdlib::RelationalOperator::EQUAL>(this, _inputA);
 }
 
 // NotEqual Block
@@ -354,5 +354,5 @@ std::string tmdl::blocks::NotEqual::get_description() const
 
 std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::NotEqual::get_compiled() const
 {
-    return generate_compiled<tmdl::stdlib::RelationalOperator::NOT_EQUAL>(this);
+    return generate_compiled<tmdl::stdlib::RelationalOperator::NOT_EQUAL>(this, _inputA);
 }

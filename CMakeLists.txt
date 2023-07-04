@@ -2,6 +2,8 @@
 
 cmake_minimum_required(VERSION 3.18)
 
+set(VCPKG_BOOTSTRAP_OPTIONS "-disableMetrics")
+
 set(
     CMAKE_TOOLCHAIN_FILE
     "vcpkg/scripts/buildsystems/vcpkg.cmake"

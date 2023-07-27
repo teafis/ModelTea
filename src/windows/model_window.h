@@ -44,7 +44,7 @@ public slots:
 
     void openModel();
 
-    void openModelFile(QString openFilename);
+    bool openModelFile(QString openFilename);
 
     void closeModel();
 

@@ -25,9 +25,15 @@ int main(int argc, char *argv[])
     {
         std::cout << a.arguments().at(i).toStdString() << std::endl;
         ModelWindow* w = new ModelWindow(WindowManager::instance().next_id());
-        w->openModelFile(a.arguments().at(i));
-        w->show();
-        anyAdded = true;
+        if (w->openModelFile(a.arguments().at(i)))
+        {
+            w->show();
+            anyAdded = true;
+        }
+        else
+        {
+            w->close();
+        }
     }
 
     if (!anyAdded)

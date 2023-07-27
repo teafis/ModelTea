@@ -217,13 +217,13 @@ void ModelWindow::openModel()
     }
 }
 
-void ModelWindow::openModelFile(QString openFilename)
+bool ModelWindow::openModelFile(QString openFilename)
 {
     QFile file(openFilename);
     if(!file.open(QIODevice::ReadOnly))
     {
         QMessageBox::warning(this, "error", file.errorString());
-        return;
+        return false;
     }
 
     QTextStream stream(&file);
@@ -244,13 +244,13 @@ void ModelWindow::openModelFile(QString openFilename)
         catch (const tmdl::ModelException& ex)
         {
             QMessageBox::warning(this, "error", ex.what());
-            return;
+            return false;
         }
 
         if (WindowManager::instance().model_open(mdl->get_name()))
         {
             QMessageBox::warning(this, "error", fmt::format("Model `{}` is already open", mdl->get_name()).c_str());
-            return;
+            return false;
         }
 
         const auto mdl_library = tmdl::LibraryManager::get_instance().default_model_library();
@@ -281,6 +281,8 @@ void ModelWindow::openModelFile(QString openFilename)
     {
         window_diagnostics->setModel(ui->block_graphics->get_model());
     }
+
+    return true;
 }
 
 void ModelWindow::closeModel()

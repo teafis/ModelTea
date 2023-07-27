@@ -118,7 +118,7 @@ std::shared_ptr<ModelValue> make_default_value()
 }
 
 template <DataType DT>
-data_type_t<DT>::type get_inner_value(const ModelValue* value)
+typename data_type_t<DT>::type get_inner_value(const ModelValue* value)
 {
     const auto* ptr = dynamic_cast<const ModelValueBox<DT>*>(value);
     if (ptr == nullptr)

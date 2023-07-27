@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include "windows/model_window.h"
-#include "ui/window_icon.h"
+#include "ui/app_icon.h"
 
 #include "managers/window_manager.h"
 

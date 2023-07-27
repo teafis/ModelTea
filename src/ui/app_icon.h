@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#ifndef TEASIMWINDOWICON_H
-#define TEASIMWINDOWICON_H
+#ifndef TEASIM_APPLICATION_ICON_H
+#define TEASIM_APPLICATION_ICON_H
 
 #include <cstddef>
 #include <cstdint>
@@ -12,4 +12,4 @@ extern const size_t icon_png_len;
 extern const uint8_t icon_png[];
 }
 
-#endif // TEASIMWINDOWICON_H
+#endif // TEASIM_APPLICATION_ICON_H

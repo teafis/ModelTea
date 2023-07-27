@@ -44,7 +44,7 @@ set(PROJECT_SOURCES
     src/widgets/parameters/parameter_unknown_widget.h src/widgets/parameters/parameter_unknown_widget.cpp src/widgets/parameters/parameter_unknown_widget.ui
     src/windows/model_window.h src/windows/model_window.cpp src/windows/model_window.ui
     src/windows/plot_window.h src/windows/plot_window.cpp src/windows/plot_window.ui
-    src/ui/window_icon.h src/ui/window_icon.cpp
+    src/ui/app_icon.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -86,6 +86,20 @@ set_target_properties(ModelTea PROPERTIES
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
+
+if(APPLE)
+    set(MACOSX_BUNDLE_ICON_FILE macos.icns)
+    set(app_icon_macos "${CMAKE_CURRENT_SOURCE_DIR}/icons/resources/macos.icns")
+    set_source_files_properties(${app_icon_macos} PROPERTIES
+           MACOSX_PACKAGE_LOCATION "Resources")
+    target_sources(ModelTea PRIVATE ${app_icon_macos})
+    target_sources(ModelTea PRIVATE src/ui/app_window_icon_macos.cpp)
+elseif(WIN32)
+    target_sources(ModelTea PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/icons/resources/windows.rc")
+    target_sources(ModelTea PRIVATE src/ui/app_window_icon_windows.cpp)
+else()
+    target_sources(ModelTea PRIVATE src/ui/app_window_icon_default.cpp)
+endif()
 
 include(GNUInstallDirs)
 install(TARGETS ModelTea

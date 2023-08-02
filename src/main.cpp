@@ -1,22 +1,44 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include "windows/model_window.h"
-#include "ui/app_icon.h"
 
 #include "managers/window_manager.h"
 
 #include <QApplication>
 
+#include <array>
 #include <iostream>
+#include <optional>
+
+#include <fmt/format.h>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    QPixmap pixmap;
-    if (pixmap.loadFromData(tsim_ui::icon_png, tsim_ui::icon_png_len))
+    std::array<std::string, 2> check_files = {
+        "macos",
+        "icon",
+    };
+    std::optional<QIcon> icon;
+
+    for (const auto& n : check_files)
     {
-        a.setWindowIcon(QIcon(pixmap));
+        const std::string f = fmt::format(":/icons/{}.png", n);
+        if (QFile::exists(f.c_str()))
+        {
+            icon.emplace(f.c_str());
+            break;
+        }
+    }
+
+    if (icon)
+    {
+        a.setWindowIcon(*icon);
+    }
+    else
+    {
+        return 1;
     }
 
     bool anyAdded = false;

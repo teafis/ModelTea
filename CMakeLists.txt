@@ -14,7 +14,7 @@ set(VCPKG_FEATURE_FLAGS "versions")
 
 project(ModelTea VERSION 0.1 LANGUAGES CXX)
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets Charts REQUIRED)
+find_package(QT NAMES Qt6 COMPONENTS Widgets Charts REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Charts REQUIRED)
 
 find_package(nlohmann_json CONFIG REQUIRED)
@@ -44,19 +44,19 @@ set(PROJECT_SOURCES
     src/widgets/parameters/parameter_unknown_widget.h src/widgets/parameters/parameter_unknown_widget.cpp src/widgets/parameters/parameter_unknown_widget.ui
     src/windows/model_window.h src/windows/model_window.cpp src/windows/model_window.ui
     src/windows/plot_window.h src/windows/plot_window.cpp src/windows/plot_window.ui
-    src/ui/app_icon.h
 )
 
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(ModelTea
-        MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
-    )
-else()
-    add_executable(ModelTea
-        ${PROJECT_SOURCES}
-    )
-endif()
+qt_add_executable(ModelTea
+    MANUAL_FINALIZATION
+    ${PROJECT_SOURCES}
+)
+
+qt_add_resources(ModelTea "app_icon"
+    PREFIX /icons
+    BASE rcs/icons
+    FILES
+        rcs/icons/icon.png
+)
 
 set_property(TARGET ModelTea PROPERTY AUTOUIC ON)
 set_property(TARGET ModelTea PROPERTY AUTOMOC ON)
@@ -76,11 +76,9 @@ target_link_libraries(ModelTea PRIVATE tmdl)
 target_link_libraries(ModelTea PRIVATE Qt::Widgets Qt::Charts)
 target_link_libraries(ModelTea PUBLIC nlohmann_json::nlohmann_json)
 
-if(${QT_VERSION} VERSION_LESS 6.1.0)
-    set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER org.teafis.ModelTea)
-endif()
 set_target_properties(ModelTea PROPERTIES
-    ${BUNDLE_ID_OPTION}
+    MACOSX_BUNDLE_GUI_IDENTIFIER org.teafis.ModelTea
+    MACOSX_BUNDLE_BUNDLE_NAME ModelTea
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
@@ -89,16 +87,22 @@ set_target_properties(ModelTea PROPERTIES
 
 if(APPLE)
     set(MACOSX_BUNDLE_ICON_FILE macos.icns)
-    set(app_icon_macos "${CMAKE_CURRENT_SOURCE_DIR}/icons/resources/macos.icns")
+    set(app_icon_macos "${CMAKE_CURRENT_SOURCE_DIR}/rcs/icons/macos.icns")
     set_source_files_properties(${app_icon_macos} PROPERTIES
            MACOSX_PACKAGE_LOCATION "Resources")
     target_sources(ModelTea PRIVATE ${app_icon_macos})
-    target_sources(ModelTea PRIVATE src/ui/app_window_icon_macos.cpp)
+
+    qt_add_resources(ModelTea "app_icon_macos"
+        PREFIX /icons
+        BASE rcs/icons
+        FILES
+            rcs/icons/macos.png
+    )
 elseif(WIN32)
-    target_sources(ModelTea PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/icons/resources/windows.rc")
-    target_sources(ModelTea PRIVATE src/ui/app_window_icon_windows.cpp)
+    target_sources(ModelTea PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/rcs/icons/windows.rc")
+
 else()
-    target_sources(ModelTea PRIVATE src/ui/app_window_icon_default.cpp)
+
 endif()
 
 include(GNUInstallDirs)
@@ -108,9 +112,7 @@ install(TARGETS ModelTea
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-if(QT_VERSION_MAJOR GREATER_EQUAL 6)
-    qt_finalize_executable(ModelTea)
-endif()
+qt_finalize_executable(ModelTea)
 
 # Add compiler options
 if (MSVC)

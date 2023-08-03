@@ -51,13 +51,6 @@ qt_add_executable(ModelTea
     ${PROJECT_SOURCES}
 )
 
-qt_add_resources(ModelTea "app_icon"
-    PREFIX /icons
-    BASE rcs/icons
-    FILES
-        rcs/icons/icon.png
-)
-
 set_property(TARGET ModelTea PROPERTY AUTOUIC ON)
 set_property(TARGET ModelTea PROPERTY AUTOMOC ON)
 set_property(TARGET ModelTea PROPERTY AUTORCC ON)
@@ -91,19 +84,22 @@ if(APPLE)
     set_source_files_properties(${app_icon_macos} PROPERTIES
            MACOSX_PACKAGE_LOCATION "Resources")
     target_sources(ModelTea PRIVATE ${app_icon_macos})
-
-    qt_add_resources(ModelTea "app_icon_macos"
-        PREFIX /icons
-        BASE rcs/icons
-        FILES
-            rcs/icons/macos.png
-    )
 elseif(WIN32)
     target_sources(ModelTea PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/rcs/icons/windows.rc")
-
-else()
-
 endif()
+
+if(APPLE)
+    set(ICONFILE macos)
+else()
+    set(ICONFILE macos)
+endif()
+
+qt_add_resources(ModelTea "app_icon"
+    PREFIX /icons
+    BASE rcs/icons
+    FILES
+        rcs/icons/${ICONFILE}.png
+)
 
 include(GNUInstallDirs)
 install(TARGETS ModelTea

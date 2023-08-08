@@ -7,13 +7,15 @@
 
 #include <algorithm>
 
-#include <stdexcept>
 #include <QString>
 
 #include <QGraphicsObject>
 
 #include <cmath>
 
+#include "exceptions/block_object_exception.h"
+
+#include <fmt/format.h>
 
 const double PADDING_TB = 0;
 const double PADDING_LR = 30;
@@ -143,7 +145,7 @@ QPointF BlockObject::getIOPortLocation(
         x_loc = rect_width - init_x_offset;
         break;
     default:
-        throw std::runtime_error("unexpected port type provided");
+        throw BlockObjectException("unexpected port type provided");
     }
 
     // Define the I/O size
@@ -152,7 +154,7 @@ QPointF BlockObject::getIOPortLocation(
     // Ensure that there is at least one port
     if (io_size == 0)
     {
-        throw std::runtime_error("no ports provided");
+        throw BlockObjectException("no ports provided");
     }
 
     // Determine the resulting y location
@@ -191,7 +193,7 @@ void BlockObject::drawIOPorts(
             case PortType::OUTPUT:
                 return rect_width - x;
             default:
-                throw std::runtime_error("unexpected port type provided");
+                throw BlockObjectException("unexpected port type provided");
             }
         };
 
@@ -274,7 +276,7 @@ const QPointF BlockObject::getInputPortLocation(const size_t port_num) const
     }
     else
     {
-        throw 1;
+        throw BlockObjectException(fmt::format("provided input port {} is too large for size {}", port_num, block->get_num_inputs()));
     }
 }
 
@@ -288,7 +290,7 @@ const QPointF BlockObject::getOutputPortLocation(const size_t port_num) const
     }
     else
     {
-        throw 1;
+        throw BlockObjectException(fmt::format("provided output port {} is too large for size {}", port_num, block->get_num_outputs()));
     }
 }
 
@@ -301,7 +303,7 @@ size_t BlockObject::getNumPortsForType(const PortType type) const
     case PortType::OUTPUT:
         return block->get_num_outputs();
     default:
-        throw std::runtime_error("unknown port type provided");
+        throw BlockObjectException("unknown port type provided");
     }
 }
 

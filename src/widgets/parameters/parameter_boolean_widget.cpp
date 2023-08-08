@@ -3,6 +3,8 @@
 #include "parameter_boolean_widget.h"
 #include "ui_parameter_boolean_widget.h"
 
+#include "exceptions/block_object_exception.h"
+
 ParameterBooleanWidget::ParameterBooleanWidget(
     std::shared_ptr<tmdl::Parameter> parameter,
     QWidget *parent) :
@@ -14,7 +16,7 @@ ParameterBooleanWidget::ParameterBooleanWidget(
 
     if (parameter->get_value().dtype != tmdl::ParameterValue::Type::BOOLEAN)
     {
-        throw std::runtime_error("parameter must be a boolean type");
+        throw BlockObjectException("parameter must be a boolean type");
     }
 
     ui->lblName->setText(parameter->get_name().c_str());

@@ -3,6 +3,7 @@
 #include "window_manager.h"
 
 #include "../windows/model_window.h"
+#include "exceptions/model_exception.h"
 
 WindowManager& WindowManager::instance()
 {
@@ -20,11 +21,11 @@ void WindowManager::register_window(const ModelWindow* window, const tmdl::Model
 {
     if (model_is_open(model))
     {
-        throw 1;
+        throw ModelException("model already open");
     }
     else if (window == nullptr || model == nullptr)
     {
-        throw 2;
+        throw ModelException("model or window cannot be null");
     }
 
     window_id_values[window] = model;

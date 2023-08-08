@@ -2,6 +2,8 @@
 
 #include "executor_manager.h"
 
+#include "exceptions/model_exception.h"
+
 ExecutorManager& ExecutorManager::instance()
 {
     static ExecutorManager manager;
@@ -24,7 +26,7 @@ void ExecutorManager::setWindowExecutor(const tmdl::Model* model)
 {
     if (_executor_model.has_value())
     {
-        throw 3;
+        throw ModelException("model cannot be null");
     }
 
     _executor_model = model;

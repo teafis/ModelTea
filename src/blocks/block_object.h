@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#ifndef BASE_BLOCK_H
-#define BASE_BLOCK_H
+#ifndef BLOCKOBJECT_H
+#define BLOCKOBJECT_H
 
 #include <QGraphicsObject>
 
@@ -76,4 +76,4 @@ protected:
     std::shared_ptr<tmdl::BlockInterface> block;
 };
 
-#endif // BASE_BLOCK_H
+#endif // BLOCKOBJECT_H

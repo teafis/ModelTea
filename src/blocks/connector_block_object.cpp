@@ -4,6 +4,8 @@
 
 #include <QPainter>
 
+#include "exceptions/block_object_exception.h"
+
 
 ConnectorBlockObject::ConnectorBlockObject(
     std::shared_ptr<tmdl::Connection> connection,
@@ -16,11 +18,11 @@ ConnectorBlockObject::ConnectorBlockObject(
 {
     if (from_block == nullptr || to_block == nullptr || connection == nullptr)
     {
-        throw 1;
+        throw BlockObjectException("input parameter cannot be null");
     }
     else if (connection->get_from_id() != from_block->get_block()->get_id() || connection->get_to_id() != to_block->get_block()->get_id())
     {
-        throw 2;
+        throw BlockObjectException("provided connector object does not match connections");
     }
 
     // Set the provided parent to help with destruction

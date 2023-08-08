@@ -3,6 +3,8 @@
 #include "parameter_datatype_widget.h"
 #include "ui_parameter_datatype_widget.h"
 
+#include "exceptions/block_object_exception.h"
+
 ParameterDataTypeWidget::ParameterDataTypeWidget(
     std::shared_ptr<tmdl::Parameter> parameter,
     QWidget* parent) :
@@ -14,7 +16,7 @@ ParameterDataTypeWidget::ParameterDataTypeWidget(
 
     if (parameter->get_value().dtype != tmdl::ParameterValue::Type::DATA_TYPE)
     {
-        throw std::runtime_error("parameter must be a data type");
+        throw BlockObjectException("parameter must be a data type");
     }
 
     map_values =

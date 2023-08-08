@@ -30,6 +30,8 @@
 
 #include <nlohmann/json.hpp>
 
+#include "exceptions/model_exception.h"
+
 
 BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
     QGraphicsView(parent),
@@ -451,7 +453,7 @@ void BlockGraphicsView::set_model(std::shared_ptr<tmdl::Model> mdl)
 {
     if (!isEnabled())
     {
-        throw 1;
+        throw ModelException("cannot change model while disabled");
     }
 
     // Reset the state
@@ -491,18 +493,18 @@ void BlockGraphicsView::set_model(std::shared_ptr<tmdl::Model> mdl)
 
             if (tmp->get_block()->get_id() == conn->get_from_id())
             {
-                if (from_block != nullptr) throw 1;
+                if (from_block != nullptr) throw ModelException("from block connection is not null");
                 from_block = tmp;
             }
 
             if (tmp->get_block()->get_id() == conn->get_to_id())
             {
-                if (to_block != nullptr) throw 1;
+                if (to_block != nullptr) throw ModelException("to block connection is not null");
                 to_block = tmp;
             }
         }
 
-        if (from_block == nullptr || to_block == nullptr) throw 2;
+        if (from_block == nullptr || to_block == nullptr) throw ModelException("to or from block connection is null after setting");
 
         // Construct the connector object
         addConnectionItem(cm.get_connection_to(conn->get_to_id(), conn->get_to_port()), from_block, to_block);

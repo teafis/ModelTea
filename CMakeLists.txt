@@ -30,6 +30,9 @@ set(PROJECT_SOURCES
     src/dialogs/block_selector_dialog.h src/dialogs/block_selector_dialog.cpp src/dialogs/block_selector_dialog.ui
     src/dialogs/block_parameters_dialog.h src/dialogs/block_parameters_dialog.cpp src/dialogs/block_parameters_dialog.ui
     src/dialogs/connection_parameters_dialog.h src/dialogs/connection_parameters_dialog.cpp src/dialogs/connection_parameters_dialog.ui
+    src/exceptions/teafis_exception.h
+    src/exceptions/block_object_exception.h
+    src/exceptions/model_exception.h
     src/events/sim_event.h src/events/sim_event.cpp
     src/managers/executor_manager.h src/managers/executor_manager.cpp
     src/managers/window_manager.h src/managers/window_manager.cpp

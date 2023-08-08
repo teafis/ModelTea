@@ -3,6 +3,8 @@
 #include "model_diagnostics_dialog.h"
 #include "ui_model_diagnostics_dialog.h"
 
+#include "exceptions/model_exception.h"
+
 ModelDiagnosticsDialog::ModelDiagnosticsDialog(
     const std::shared_ptr<const tmdl::Model> model,
     QWidget *parent) :
@@ -12,7 +14,7 @@ ModelDiagnosticsDialog::ModelDiagnosticsDialog(
 {
     if (model == nullptr)
     {
-        throw 1;
+        throw ModelException("model cannot be null");
     }
 
     ui->setupUi(this);
@@ -25,7 +27,7 @@ void ModelDiagnosticsDialog::setModel(std::shared_ptr<const tmdl::Model> m)
 {
     if (m == nullptr)
     {
-        throw 2;
+        throw ModelException("model cannot be null");
     }
     else
     {

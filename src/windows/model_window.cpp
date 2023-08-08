@@ -26,6 +26,8 @@
 #include "../managers/executor_manager.h"
 #include "../managers/window_manager.h"
 
+#include "exceptions/model_exception.h"
+
 
 ModelWindow::ModelWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -368,7 +370,7 @@ void ModelWindow::changeModel(std::shared_ptr<tmdl::Model> model)
 
         if (WindowManager::instance().model_is_open(model.get()))
         {
-            throw 1;
+            throw ModelException("model already open");
         }
 
         ui->block_graphics->setEnabled(true);

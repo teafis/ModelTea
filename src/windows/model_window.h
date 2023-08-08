@@ -23,7 +23,7 @@ class ModelWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    ModelWindow(const size_t wid = 0, QWidget *parent = nullptr);
+    ModelWindow(QWidget *parent = nullptr);
     ~ModelWindow();
 
     void closeEvent(QCloseEvent* event) override;
@@ -84,6 +84,9 @@ signals:
     void modelChanged();
 
 private:
+    const tmdl::Model* get_model_id() const;
+
+private:
     Ui::ModelWindow *ui;
     QString filename;
 
@@ -93,7 +96,6 @@ private:
 
     std::shared_ptr<tmdl::ExecutionState> executor;
 
-    const size_t window_id;
     bool changeFlag;
 };
 

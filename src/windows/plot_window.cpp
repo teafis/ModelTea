@@ -88,23 +88,23 @@ void PlotWindow::seriesListChanged()
 
 static std::optional<double> double_from_variable(std::shared_ptr<const tmdl::ModelValue> ptr)
 {
-    if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::DOUBLE>>(ptr); v)
+    if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::DOUBLE>>(ptr))
     {
         return v->value;
     }
-    else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::SINGLE>>(ptr); v)
+    else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::SINGLE>>(ptr))
     {
         return static_cast<double>(v->value);
     }
-    else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::INT32>>(ptr); v)
+    else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::INT32>>(ptr))
     {
         return static_cast<double>(v->value);
     }
-    else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::UINT32>>(ptr); v)
+    else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::UINT32>>(ptr))
     {
         return static_cast<double>(v->value);
     }
-    else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>>(ptr); v)
+    else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>>(ptr))
     {
         return (v->value) ? 1.0 : 0.0;
     }

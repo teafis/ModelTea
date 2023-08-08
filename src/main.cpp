@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     for (int i = 1; i < a.arguments().size(); ++i)
     {
         std::cout << a.arguments().at(i).toStdString() << std::endl;
-        ModelWindow* w = new ModelWindow(WindowManager::instance().next_id());
+        ModelWindow* w = new ModelWindow();
         if (w->openModelFile(a.arguments().at(i)))
         {
             w->show();
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 
     if (!anyAdded)
     {
-        ModelWindow* w = new ModelWindow(WindowManager::instance().next_id());
+        ModelWindow* w = new ModelWindow();
         w->show();
     }
 

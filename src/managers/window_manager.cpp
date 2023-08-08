@@ -16,52 +16,34 @@ WindowManager::WindowManager(QObject *parent)
     // Empty Constructor
 }
 
-size_t WindowManager::next_id() const
+void WindowManager::register_window(const ModelWindow* window, const tmdl::Model* model)
 {
-    size_t id = 0;
-    for (const auto& it : window_id_values)
-    {
-        if (it.first > id)
-        {
-            id = it.first;
-        }
-    }
-    return id + 1;
-}
-
-void WindowManager::register_id(const size_t id, const ModelWindow* window)
-{
-    if (has_id(id))
+    if (model_is_open(model))
     {
         throw 1;
     }
-    else if (window == nullptr)
+    else if (window == nullptr || model == nullptr)
     {
         throw 2;
     }
 
-    window_id_values.insert({id, window});
+    window_id_values[window] = model;
 }
 
-void WindowManager::clear_id(const size_t id)
+void WindowManager::clear_window(const ModelWindow* window)
 {
-    const auto it = window_id_values.find(id);
+    const auto it = window_id_values.find(window);
     if (it != window_id_values.end())
     {
         window_id_values.erase(it);
     }
 }
 
-bool WindowManager::has_id(const size_t id) const
+bool WindowManager::model_is_open(const tmdl::Model* model) const
 {
-    return window_id_values.find(id) != window_id_values.end();
-}
-
-bool WindowManager::model_open(const std::string& n)
-{
-    for (const auto& it : window_id_values)
+    for (const auto it : window_id_values)
     {
-        if (it.second->currentModel().toStdString() == n)
+        if (it.second == model)
         {
             return true;
         }

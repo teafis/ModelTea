@@ -27,10 +27,9 @@
 #include "../managers/window_manager.h"
 
 
-ModelWindow::ModelWindow(size_t wid, QWidget *parent) :
+ModelWindow::ModelWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ModelWindow),
-    window_id(wid),
     changeFlag(false)
 {
     // Setup the main UI
@@ -44,7 +43,7 @@ ModelWindow::ModelWindow(size_t wid, QWidget *parent) :
         this, &ModelWindow::executorFlagSet);
 
     // Add to window manager
-    WindowManager::instance().register_id(window_id, this);
+    WindowManager::instance().register_window(this, get_model_id());
 
     // Update the menu items
     updateWindowItems();
@@ -91,7 +90,7 @@ void ModelWindow::closeEvent(QCloseEvent* event)
     window_plot = nullptr;
 
     tmdl::LibraryManager::get_instance().default_model_library()->close_empty_models();
-    WindowManager::instance().clear_id(window_id);
+    WindowManager::instance().clear_window(this);
 }
 
 
@@ -142,7 +141,7 @@ void ModelWindow::updateWindowItems()
     const bool generatedAvailable = executor != nullptr;
 
     const auto executorWindow = ExecutorManager::instance().windowExecutor();
-    const bool otherExecutorExists = executorWindow.has_value() && *executorWindow != window_id;
+    const bool otherExecutorExists = executorWindow.has_value() && *executorWindow != get_model_id();
 
     ui->menuModel->setEnabled(!generatedAvailable);
     ui->menuBlocks->setEnabled(!generatedAvailable);
@@ -166,7 +165,7 @@ void ModelWindow::setChangedFlag()
 
 void ModelWindow::newModel()
 {
-    auto* window = new ModelWindow(WindowManager::instance().next_id());
+    auto* window = new ModelWindow();
     window->show();
 }
 
@@ -247,12 +246,6 @@ bool ModelWindow::openModelFile(QString openFilename)
             return false;
         }
 
-        if (WindowManager::instance().model_open(mdl->get_name()))
-        {
-            QMessageBox::warning(this, "error", fmt::format("Model `{}` is already open", mdl->get_name()).c_str());
-            return false;
-        }
-
         const auto mdl_library = tmdl::LibraryManager::get_instance().default_model_library();
 
         if (mdl_library->has_block(mdl->get_name()))
@@ -262,6 +255,12 @@ bool ModelWindow::openModelFile(QString openFilename)
         else
         {
             mdl_library->add_model(mdl);
+        }
+
+        if (WindowManager::instance().model_is_open(mdl.get()))
+        {
+            QMessageBox::warning(this, "error", fmt::format("Model `{}` is already open", mdl->get_name()).c_str());
+            return false;
         }
 
         changeModel(mdl);
@@ -287,8 +286,9 @@ bool ModelWindow::openModelFile(QString openFilename)
 
 void ModelWindow::closeModel()
 {
-    const auto name = ui->block_graphics->get_model()->get_name();
-    const auto weak_val = std::weak_ptr<tmdl::Model>(ui->block_graphics->get_model());
+    const auto model = ui->block_graphics->get_model();
+    const auto name = model->get_name();
+    const auto weak_val = std::weak_ptr<tmdl::Model>(model);
 
     changeModel(nullptr);
 
@@ -352,7 +352,7 @@ void ModelWindow::changeModel(std::shared_ptr<tmdl::Model> model)
     }
 
     // Close the model
-    const auto last_name = ui->block_graphics->get_model()->get_name();
+    const auto last_name = get_model_id()->get_name();
 
     if (model == nullptr || model->get_name() != last_name)
     {
@@ -366,8 +366,15 @@ void ModelWindow::changeModel(std::shared_ptr<tmdl::Model> model)
             model = std::make_shared<tmdl::Model>("tmp");
         }
 
+        if (WindowManager::instance().model_is_open(model.get()))
+        {
+            throw 1;
+        }
+
         ui->block_graphics->setEnabled(true);
         ui->block_graphics->set_model(model);
+
+        WindowManager::instance().register_window(this, get_model_id());
     }
 }
 
@@ -426,7 +433,7 @@ void ModelWindow::generateExecutor()
             executor->add_name_to_interior_variable(varname, *c);
         }
 
-        ExecutorManager::instance().setWindowExecutor(window_id);
+        ExecutorManager::instance().setWindowExecutor(get_model_id());
 
         updateWindowItems();
     }
@@ -540,5 +547,10 @@ void ModelWindow::executorFlagSet()
 
 QString ModelWindow::currentModel() const
 {
-    return QString(ui->block_graphics->get_model()->get_name().c_str());
+    return QString(get_model_id()->get_name().c_str());
+}
+
+const tmdl::Model* ModelWindow::get_model_id() const
+{
+    return ui->block_graphics->get_model().get();
 }

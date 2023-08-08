@@ -135,7 +135,7 @@ void BlockGraphicsView::mouseMoveEvent(QMouseEvent* event)
 
     const auto scenePos = mapToScene(event->pos());
 
-    if (auto* blockState = dynamic_cast<BlockDragState*>(mouseState.get()); blockState != nullptr)
+    if (auto* blockState = dynamic_cast<BlockDragState*>(mouseState.get()))
     {
         const QPointF newBlockPos = scenePos - blockState->getBlock()->boundingRect().center() + blockState->getOffset();
         const QPoint newBlockPosInt = snapMousePositionToGrid(newBlockPos.toPoint());
@@ -147,7 +147,7 @@ void BlockGraphicsView::mouseMoveEvent(QMouseEvent* event)
             emit modelChanged();
         }
     }
-    else if (auto* connState = dynamic_cast<PortDragState*>(mouseState.get()); connState != nullptr)
+    else if (auto* connState = dynamic_cast<PortDragState*>(mouseState.get()))
     {
         connState->updateMouseLocation(scenePos);
     }
@@ -161,7 +161,7 @@ void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
         return;
     }
 
-    if (auto* portDragState = dynamic_cast<PortDragState*>(mouseState.get()); portDragState != nullptr)
+    if (auto* portDragState = dynamic_cast<PortDragState*>(mouseState.get()))
     {
         const auto mappedPos = mapToScene(event->pos());
         BlockObject* block = findBlockForMousePress(mappedPos);
@@ -303,11 +303,11 @@ void BlockGraphicsView::removeSelectedBlock()
 
     if (selectedItem != nullptr)
     {
-        if (auto* selectedBlock = dynamic_cast<BlockObject*>(selectedItem); selectedBlock != nullptr)
+        if (auto* selectedBlock = dynamic_cast<BlockObject*>(selectedItem))
         {
             get_model()->remove_block(selectedBlock->get_block()->get_id());
         }
-        else if (auto* selectedConnector = dynamic_cast<ConnectorBlockObject*>(selectedItem); selectedConnector != nullptr)
+        else if (auto* selectedConnector = dynamic_cast<ConnectorBlockObject*>(selectedItem))
         {
             get_model()->remove_connection(selectedConnector->get_to_block()->get_block()->get_id(), selectedConnector->get_to_port());
         }

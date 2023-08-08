@@ -10,31 +10,31 @@ ExecutorManager& ExecutorManager::instance()
 
 ExecutorManager::ExecutorManager(QObject *parent) :
     QObject{parent},
-    _window_id{}
+    _executor_model{}
 {
     // Empty Constructor
 }
 
-std::optional<size_t> ExecutorManager::windowExecutor() const
+std::optional<const tmdl::Model*> ExecutorManager::windowExecutor() const
 {
-    return _window_id;
+    return _executor_model;
 }
 
-void ExecutorManager::setWindowExecutor(const size_t wid)
+void ExecutorManager::setWindowExecutor(const tmdl::Model* model)
 {
-    if (_window_id.has_value())
+    if (_executor_model.has_value())
     {
         throw 3;
     }
 
-    _window_id = wid;
+    _executor_model = model;
 
     emit executorFlagChanged();
 }
 
 void ExecutorManager::reset()
 {
-    _window_id.reset();
+    _executor_model.reset();
 
     emit executorFlagChanged();
 }

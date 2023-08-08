@@ -7,6 +7,8 @@
 
 #include <optional>
 
+#include <tmdl/model.hpp>
+
 class ExecutorManager : public QObject
 {
     Q_OBJECT
@@ -18,9 +20,9 @@ private:
     explicit ExecutorManager(QObject* parent = nullptr);
 
 public:
-    std::optional<size_t> windowExecutor() const;
+    std::optional<const tmdl::Model*> windowExecutor() const;
 
-    void setWindowExecutor(const size_t wid);
+    void setWindowExecutor(const tmdl::Model* model);
 
     void reset();
 
@@ -28,7 +30,7 @@ signals:
     void executorFlagChanged();
 
 private:
-    std::optional<size_t> _window_id;
+    std::optional<const tmdl::Model*> _executor_model;
 };
 
 #endif // EXECUTORMANAGER_H

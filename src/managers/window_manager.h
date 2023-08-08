@@ -8,6 +8,8 @@
 #include <string>
 #include <unordered_map>
 
+#include <tmdl/model.hpp>
+
 class ModelWindow;
 
 class WindowManager : public QObject
@@ -21,18 +23,14 @@ private:
     explicit WindowManager(QObject *parent = nullptr);
 
 public:
-    size_t next_id() const;
+    void register_window(const ModelWindow* window, const tmdl::Model* model);
 
-    void register_id(const size_t id, const ModelWindow* window);
+    void clear_window(const ModelWindow* window);
 
-    void clear_id(const size_t id);
-
-    bool has_id(const size_t id) const;
-
-    bool model_open(const std::string& n);
+    bool model_is_open(const tmdl::Model* model) const;
 
 private:
-    std::unordered_map<size_t, const ModelWindow*> window_id_values;
+    std::unordered_map<const ModelWindow*, const tmdl::Model*> window_id_values;
 };
 
 #endif // WINDOWMANAGER_H

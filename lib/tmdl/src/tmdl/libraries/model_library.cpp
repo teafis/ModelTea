@@ -51,7 +51,7 @@ std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::get_model(const std::string& na
 
 std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::create_model()
 {
-    for (size_t i = 0; i < 1000; ++i)
+    for (size_t i = 0; i < 10000; ++i)
     {
         const std::string name = fmt::format("untitled_{}", i + 1);
 
@@ -60,10 +60,7 @@ std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::create_model()
             continue;
         }
 
-        auto mdl = std::make_shared<Model>(name);
-        models.push_back(mdl);
-
-        return mdl;
+        return create_model(name);
     }
 
     throw ModelException("unable to find unused untitled model name");
@@ -109,7 +106,7 @@ void tmdl::ModelLibrary::close_model(const std::string& name)
     }
     else
     {
-        if (it->use_count() > 1)
+        if (!it->unique())
         {
             throw ModelException(fmt::format("model {} is still in use - cannot close", name));
         }
@@ -118,18 +115,27 @@ void tmdl::ModelLibrary::close_model(const std::string& name)
     }
 }
 
-void tmdl::ModelLibrary::close_empty_models()
+void tmdl::ModelLibrary::close_unused_models()
 {
-    auto it = models.begin();
-    while (it != models.end())
+    const size_t iter_count = models.size();
+    bool any_closed = true;
+
+    for (size_t i = 0; i < iter_count && any_closed; ++i)
     {
-        if (it->use_count() > 1 || (*it)->get_blocks().size() > 0)
+        any_closed = false;
+
+        auto it = models.begin();
+        while (it != models.end())
         {
-            ++it;
-        }
-        else
-        {
-            it = models.erase(it);
+            if (!it->unique())
+            {
+                ++it;
+            }
+            else
+            {
+                it = models.erase(it);
+                any_closed = true;
+            }
         }
     }
 }

@@ -31,7 +31,7 @@ public:
 
     std::vector<std::string> get_library_names() const;
 
-    std::shared_ptr<BlockInterface> make_block(const std::string& name) const;
+    std::shared_ptr<BlockInterface> create_block(const std::string& name) const;
 
     std::shared_ptr<ModelLibrary> default_model_library() const;
 

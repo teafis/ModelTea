@@ -325,7 +325,7 @@ void BlockGraphicsView::removeSelectedBlock()
 
 void BlockGraphicsView::updateModel()
 {
-    if (!isEnabled())
+    if (!isEnabled() || !model_block)
     {
         return;
     }
@@ -441,6 +441,11 @@ void BlockGraphicsView::addConnectionItem(
 
 std::shared_ptr<tmdl::Model> BlockGraphicsView::get_model() const
 {
+    if (!model_block)
+    {
+        return nullptr;
+    }
+
     return model_block->get_model();
 }
 
@@ -456,11 +461,18 @@ void BlockGraphicsView::set_model(std::shared_ptr<tmdl::Model> mdl)
         throw ModelException("cannot change model while disabled");
     }
 
+    // Delete all items in the scene
+    scene()->clear();
+
     // Reset the state
     mouseState = nullptr;
     selectedItem = nullptr;
     model_block = nullptr;
-    scene()->clear();
+
+    if (!mdl)
+    {
+        return;
+    }
 
     // Save the model
     model_block = std::make_shared<tmdl::ModelBlock>(mdl);

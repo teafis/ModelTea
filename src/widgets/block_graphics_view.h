@@ -77,13 +77,6 @@ public:
 
     void addBlock(std::shared_ptr<tmdl::BlockInterface> blk);
 
-public:
-    void onClose();
-
-    bool getChangeFlag() const;
-
-    void resetChangeFlag();
-
 protected:
     std::unique_ptr<MouseStateBase> mouseState;
     QGraphicsObject* selectedItem;

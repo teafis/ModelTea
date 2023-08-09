@@ -54,6 +54,7 @@ ModelWindow::ModelWindow(QWidget *parent) :
 ModelWindow::~ModelWindow()
 {
     delete ui;
+    tmdl::LibraryManager::get_instance().default_model_library()->close_unused_models();
 }
 
 void ModelWindow::closeEvent(QCloseEvent* event)
@@ -90,9 +91,11 @@ void ModelWindow::closeEvent(QCloseEvent* event)
     window_diagnostics = nullptr;
     window_library = nullptr;
     window_plot = nullptr;
-
-    tmdl::LibraryManager::get_instance().default_model_library()->close_empty_models();
+    
     WindowManager::instance().clear_window(this);
+    ui->block_graphics->set_model(nullptr);
+
+    deleteLater();
 }
 
 
@@ -250,9 +253,9 @@ bool ModelWindow::openModelFile(QString openFilename)
 
         const auto mdl_library = tmdl::LibraryManager::get_instance().default_model_library();
 
-        if (mdl_library->has_block(mdl->get_name()))
+        if (auto mdl_new = mdl_library->try_get_model(mdl->get_name()))
         {
-            mdl = mdl_library->get_model(mdl->get_name());
+            mdl = mdl_new;
         }
         else
         {
@@ -266,7 +269,7 @@ bool ModelWindow::openModelFile(QString openFilename)
         }
 
         changeModel(mdl);
-        mdl_library->close_empty_models();
+        mdl_library->close_unused_models();
     }
 
     if (window_library != nullptr)
@@ -312,8 +315,8 @@ void ModelWindow::closeModel()
 
         return;
     }
-
-    mdl_library->close_empty_models();
+    
+    mdl_library->close_unused_models();
 
     close();
 }

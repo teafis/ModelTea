@@ -2,8 +2,6 @@
 
 #include "windows/model_window.h"
 
-#include "managers/window_manager.h"
-
 #include <QApplication>
 
 #include <array>

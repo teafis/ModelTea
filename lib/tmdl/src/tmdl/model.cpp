@@ -1215,7 +1215,7 @@ void tmdl::from_json(const nlohmann::json& j, tmdl::Model& m)
     for (const auto& kv : json_blocks)
     {
         const auto& json_blk = kv.second;
-        auto blk = tmdl::LibraryManager::get_instance().make_block(json_blk.name);
+        auto blk = tmdl::LibraryManager::get_instance().create_block(json_blk.name);
         blk->set_id(json_blk.id);
         blk->set_loc(BlockLocation{json_blk.x, json_blk.y});
 

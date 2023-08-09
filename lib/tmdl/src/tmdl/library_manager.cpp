@@ -71,7 +71,7 @@ std::vector<std::string> tmdl::LibraryManager::get_library_names() const
     return names;
 }
 
-std::shared_ptr<tmdl::BlockInterface> tmdl::LibraryManager::make_block(const std::string& name) const
+std::shared_ptr<tmdl::BlockInterface> tmdl::LibraryManager::create_block(const std::string& name) const
 {
     for (const auto& kv : libraries)
     {

@@ -3,12 +3,10 @@
 #ifndef CONNECTOR_OBJECT_H
 #define CONNECTOR_OBJECT_H
 
-#include <QGraphicsObject>
+#include "scene_graphics_object.h"
 #include <memory>
 
-#include "blocks/block_object.h"
-
-class ConnectorObject : public QGraphicsObject
+class ConnectorObject : public SceneGraphicsObject
 {
     Q_OBJECT
 

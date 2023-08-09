@@ -25,6 +25,7 @@ set(PROJECT_SOURCES
     src/blocks/block_object.h src/blocks/block_object.cpp
     src/blocks/connector_object.h src/blocks/connector_object.cpp
     src/blocks/connector_block_object.h src/blocks/connector_block_object.cpp
+    src/blocks/scene_graphics_object.h src/blocks/scene_graphics_object.cpp
     src/dialogs/model_parameters_dialog.h src/dialogs/model_parameters_dialog.cpp src/dialogs/model_parameters_dialog.ui
     src/dialogs/model_diagnostics_dialog.h src/dialogs/model_diagnostics_dialog.cpp src/dialogs/model_diagnostics_dialog.ui
     src/dialogs/block_selector_dialog.h src/dialogs/block_selector_dialog.cpp src/dialogs/block_selector_dialog.ui
@@ -119,7 +120,7 @@ if (MSVC)
 else()
     add_compile_options(-Wall -Wextra -pedantic -Werror)
 
-    if (!APPLE)
+    if (NOT APPLE)
         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak")
         set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak")
     endif()

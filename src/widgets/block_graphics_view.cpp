@@ -28,9 +28,12 @@
 #include "dialogs/block_parameters_dialog.h"
 #include "dialogs/connection_parameters_dialog.h"
 
+#include "managers/window_manager.h"
+
 #include <nlohmann/json.hpp>
 
 #include "exceptions/model_exception.h"
+#include "windows/model_window.h"
 
 
 BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
@@ -230,30 +233,50 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
 
         if (BlockObject* block = findBlockForMousePress(mappedPos); block != nullptr)
         {
-            BlockParameterDialog* dialog = new BlockParameterDialog(block, this);
-
-            dialog->exec();
-            updateModel();
-
-            const auto sceneItems = scene()->items();
-
-            for (auto ptr : qAsConst(sceneItems))
+            if (const auto mdl_block = std::dynamic_pointer_cast<const tmdl::ModelBlock>(block->get_block()))
             {
-                const auto c = dynamic_cast<ConnectorBlockObject*>(ptr);
-                if (c == nullptr) continue;
-
-                if (!c->isValidConnection())
+                if (const auto wnd = WindowManager::instance().window_for_model(mdl_block->get_model().get()))
                 {
-                    get_model()->remove_connection(
-                        c->get_to_block()->get_block()->get_id(),
-                        c->get_to_port());
-                    c->deleteLater();
+                    const_cast<ModelWindow*>(wnd)->show();
+                    const_cast<ModelWindow*>(wnd)->raise();
+                    const_cast<ModelWindow*>(wnd)->activateWindow();
+                }
+                else
+                {
+                    auto new_window = new ModelWindow();
+                    auto load_mdl = tmdl::LibraryManager::get_instance().default_model_library()->get_model(mdl_block->get_model()->get_name());
+                    new_window->openModel(load_mdl);
+
+                    new_window->show();
                 }
             }
+            else
+            {
+                BlockParameterDialog* dialog = new BlockParameterDialog(block, this);
 
-            emit block->sceneLocationUpdated();
+                dialog->exec();
+                updateModel();
 
-            updateModel();
+                const auto sceneItems = scene()->items();
+
+                for (auto ptr : qAsConst(sceneItems))
+                {
+                    const auto c = dynamic_cast<ConnectorBlockObject*>(ptr);
+                    if (c == nullptr) continue;
+
+                    if (!c->isValidConnection())
+                    {
+                        get_model()->remove_connection(
+                            c->get_to_block()->get_block()->get_id(),
+                            c->get_to_port());
+                        c->deleteLater();
+                    }
+                }
+
+                emit block->sceneLocationUpdated();
+
+                updateModel();
+            }
         }
         else if (ConnectorBlockObject* conn = findConnectorForMousePress(mappedPos); conn != nullptr)
         {

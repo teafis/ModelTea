@@ -29,6 +29,8 @@ public:
 
     bool model_is_open(const tmdl::Model* model) const;
 
+    const ModelWindow* window_for_model(const tmdl::Model* model) const;
+
 private:
     std::unordered_map<const ModelWindow*, const tmdl::Model*> window_id_values;
 };

@@ -374,7 +374,7 @@
    <sender>actionFileOpen</sender>
    <signal>triggered()</signal>
    <receiver>ModelWindow</receiver>
-   <slot>openModel()</slot>
+   <slot>openFileDialog()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -485,7 +485,7 @@
  </connections>
  <slots>
   <slot>saveModel()</slot>
-  <slot>openModel()</slot>
+  <slot>openFileDialog()</slot>
   <slot>saveModelAs()</slot>
   <slot>showDiagnostics()</slot>
   <slot>generateExecutor()</slot>

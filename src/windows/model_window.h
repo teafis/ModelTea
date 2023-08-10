@@ -42,9 +42,11 @@ public slots:
 
     void saveModelAs();
 
-    void openModel();
+    void openFileDialog();
 
     bool openModelFile(QString openFilename);
+
+    bool openModel(std::shared_ptr<tmdl::Model> model);
 
     void closeModel();
 

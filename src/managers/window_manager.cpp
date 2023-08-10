@@ -52,3 +52,16 @@ bool WindowManager::model_is_open(const tmdl::Model* model) const
 
     return false;
 }
+
+const ModelWindow* WindowManager::window_for_model(const tmdl::Model* model) const
+{
+    for (const auto& it : window_id_values)
+    {
+        if (it.second == model)
+        {
+            return it.first;
+        }
+    }
+
+    return nullptr;
+}

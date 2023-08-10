@@ -212,7 +212,7 @@ void ModelWindow::saveModelAs()
     }
 }
 
-void ModelWindow::openModel()
+void ModelWindow::openFileDialog()
 {
     QString openName = QFileDialog::getOpenFileName(this, tr("Open Model"), filename, "JSON (*.json); Any (*.*)");
     if (!openName.isEmpty())
@@ -251,39 +251,50 @@ bool ModelWindow::openModelFile(QString openFilename)
             return false;
         }
 
-        const auto mdl_library = tmdl::LibraryManager::get_instance().default_model_library();
-
-        if (auto mdl_new = mdl_library->try_get_model(mdl->get_name()))
+        if (!openModel(mdl))
         {
-            mdl = mdl_new;
-        }
-        else
-        {
-            mdl_library->add_model(mdl);
-        }
-
-        if (WindowManager::instance().model_is_open(mdl.get()))
-        {
-            QMessageBox::warning(this, "error", fmt::format("Model `{}` is already open", mdl->get_name()).c_str());
             return false;
         }
-
-        changeModel(mdl);
-        mdl_library->close_unused_models();
-    }
-
-    if (window_library != nullptr)
-    {
-        window_library->updateLibrary();
     }
 
     filename = openFilename;
+    return true;
+}
+
+bool ModelWindow::openModel(std::shared_ptr<tmdl::Model> model)
+{
+    const auto mdl_library = tmdl::LibraryManager::get_instance().default_model_library();
+
+    if (auto mdl_new = mdl_library->try_get_model(model->get_name()))
+    {
+        model = mdl_new;
+    }
+    else
+    {
+        mdl_library->add_model(model);
+    }
+
+    if (WindowManager::instance().model_is_open(model.get()))
+    {
+        QMessageBox::warning(this, "error", fmt::format("Model `{}` is already open", model->get_name()).c_str());
+        return false;
+    }
+
+    changeModel(model);
+    mdl_library->close_unused_models();
+
+    filename = "";
     changeFlag = false;
     updateWindowItems();
 
     if (window_diagnostics != nullptr)
     {
         window_diagnostics->setModel(ui->block_graphics->get_model());
+    }
+
+    if (window_library != nullptr)
+    {
+        window_library->updateLibrary();
     }
 
     return true;

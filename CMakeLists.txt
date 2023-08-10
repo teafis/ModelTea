@@ -25,7 +25,6 @@ set(PROJECT_SOURCES
     src/blocks/block_object.h src/blocks/block_object.cpp
     src/blocks/connector_object.h src/blocks/connector_object.cpp
     src/blocks/connector_block_object.h src/blocks/connector_block_object.cpp
-    src/blocks/scene_graphics_object.h src/blocks/scene_graphics_object.cpp
     src/dialogs/model_parameters_dialog.h src/dialogs/model_parameters_dialog.cpp src/dialogs/model_parameters_dialog.ui
     src/dialogs/model_diagnostics_dialog.h src/dialogs/model_diagnostics_dialog.cpp src/dialogs/model_diagnostics_dialog.ui
     src/dialogs/block_selector_dialog.h src/dialogs/block_selector_dialog.cpp src/dialogs/block_selector_dialog.ui

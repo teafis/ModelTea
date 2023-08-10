@@ -3,7 +3,7 @@
 #ifndef BLOCKOBJECT_H
 #define BLOCKOBJECT_H
 
-#include "scene_graphics_object.h"
+#include <QGraphicsObject>
 
 #include <cstddef>
 #include <memory>
@@ -13,7 +13,7 @@
 #include <tmdl/block_interface.hpp>
 
 
-class BlockObject : public SceneGraphicsObject
+class BlockObject : public QGraphicsObject
 {
     Q_OBJECT
 

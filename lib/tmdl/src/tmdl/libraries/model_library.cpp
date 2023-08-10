@@ -115,6 +115,8 @@ void tmdl::ModelLibrary::close_model(const std::string& name)
     }
 }
 
+#include <iostream>
+
 void tmdl::ModelLibrary::close_unused_models()
 {
     const size_t iter_count = models.size();
@@ -133,6 +135,7 @@ void tmdl::ModelLibrary::close_unused_models()
             }
             else
             {
+                std::cout << "Closing " << (*it)->get_name() << std::endl;
                 it = models.erase(it);
                 any_closed = true;
             }

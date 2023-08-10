@@ -106,7 +106,7 @@ void tmdl::ModelLibrary::close_model(const std::string& name)
     }
     else
     {
-        if (!it->unique())
+        if (it->use_count() > 1)
         {
             throw ModelException(fmt::format("model {} is still in use - cannot close", name));
         }
@@ -114,8 +114,6 @@ void tmdl::ModelLibrary::close_model(const std::string& name)
         models.erase(it);
     }
 }
-
-#include <iostream>
 
 void tmdl::ModelLibrary::close_unused_models()
 {
@@ -129,13 +127,12 @@ void tmdl::ModelLibrary::close_unused_models()
         auto it = models.begin();
         while (it != models.end())
         {
-            if (!it->unique())
+            if (it->use_count() > 1)
             {
                 ++it;
             }
             else
             {
-                std::cout << "Closing " << (*it)->get_name() << std::endl;
                 it = models.erase(it);
                 any_closed = true;
             }

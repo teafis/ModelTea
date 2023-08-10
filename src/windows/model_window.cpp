@@ -176,13 +176,14 @@ void ModelWindow::newModel()
 
 void ModelWindow::saveModel()
 {
-    if (filename.isEmpty())
+    const auto fn = get_filename();
+    if (fn.isEmpty())
     {
         saveModelAs();
     }
     else
     {
-        QFile file(filename);
+        QFile file(fn);
         if(!file.open(QIODevice::WriteOnly))
         {
             QMessageBox::warning(this, "error", file.errorString());
@@ -204,17 +205,17 @@ void ModelWindow::saveModel()
 
 void ModelWindow::saveModelAs()
 {
-    QString saveName = QFileDialog::getSaveFileName(this, tr("Save Model"), filename, "JSON (*.json); Any (*.*)");
+    QString saveName = QFileDialog::getSaveFileName(this, tr("Save Model"), get_filename(), "JSON (*.json); Any (*.*)");
     if (!saveName.isEmpty())
     {
-        filename = saveName;
+        get_model_id()->set_filename(saveName.toStdString());
         saveModel();
     }
 }
 
 void ModelWindow::openFileDialog()
 {
-    QString openName = QFileDialog::getOpenFileName(this, tr("Open Model"), filename, "JSON (*.json); Any (*.*)");
+    QString openName = QFileDialog::getOpenFileName(this, tr("Open Model"), get_filename(), "JSON (*.json); Any (*.*)");
     if (!openName.isEmpty())
     {
         openModelFile(openName);
@@ -257,7 +258,8 @@ bool ModelWindow::openModelFile(QString openFilename)
         }
     }
 
-    filename = openFilename;
+    get_model_id()->set_filename(openFilename.toStdString());
+
     return true;
 }
 
@@ -283,7 +285,6 @@ bool ModelWindow::openModel(std::shared_ptr<tmdl::Model> model)
     changeModel(model);
     mdl_library->close_unused_models();
 
-    filename = "";
     changeFlag = false;
     updateWindowItems();
 
@@ -334,7 +335,8 @@ void ModelWindow::closeModel()
 
 void ModelWindow::saveCode()
 {
-    if (filename.isEmpty())
+    const auto fn = get_filename();
+    if (fn.isEmpty())
     {
         QMessageBox::warning(this, "Error", "Must save file before generating code");
         return;
@@ -344,7 +346,7 @@ void ModelWindow::saveCode()
     {
         tmdl::codegen::CodeGenerator gen(ui->block_graphics->get_block()->get_compiled());
 
-        std::filesystem::path gen_path(filename.toStdString());
+        std::filesystem::path gen_path(fn.toStdString());
         gen.write_in_folder(gen_path.parent_path());
     }
     catch (const tmdl::codegen::CodegenError& err)
@@ -566,7 +568,31 @@ QString ModelWindow::currentModel() const
     return QString(get_model_id()->get_name().c_str());
 }
 
+tmdl::Model* ModelWindow::get_model_id()
+{
+    return ui->block_graphics->get_model().get();
+}
+
 const tmdl::Model* ModelWindow::get_model_id() const
 {
     return ui->block_graphics->get_model().get();
+}
+
+QString ModelWindow::get_filename() const
+{
+    if (get_model_id() == nullptr)
+    {
+        return "";
+    }
+
+    const auto tmp_filename = get_model_id()->get_filename();
+
+    if (tmp_filename.has_value())
+    {
+        return tmp_filename->c_str();
+    }
+    else
+    {
+        return "";
+    }
 }

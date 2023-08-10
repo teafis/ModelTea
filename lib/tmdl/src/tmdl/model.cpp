@@ -1103,6 +1103,21 @@ bool Model::contains_model_name(const std::string& n) const
     return false;
 }
 
+void Model::set_filename(const std::string& fn)
+{
+    filename = fn;
+}
+
+const std::optional<std::string>& Model::get_filename() const
+{
+    return filename;
+}
+
+void Model::clear_filename()
+{
+    filename.reset();
+}
+
 struct SaveParameter
 {
     std::string id;

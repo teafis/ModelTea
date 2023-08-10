@@ -107,6 +107,13 @@ public:
 
     bool contains_model_name(const std::string& name) const;
 
+public:
+    void set_filename(const std::string& fn);
+
+    const std::optional<std::string>& get_filename() const;
+
+    void clear_filename();
+
 protected:
     std::string name;
     std::string description;
@@ -115,6 +122,7 @@ protected:
     std::vector<size_t> input_ids;
     std::vector<size_t> output_ids;
     double preferred_dt;
+    std::optional<std::string> filename;
 
 public:
     friend void to_json(nlohmann::json&, const Model&);

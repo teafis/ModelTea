@@ -86,11 +86,12 @@ signals:
     void modelChanged();
 
 private:
+    tmdl::Model* get_model_id();
     const tmdl::Model* get_model_id() const;
+    QString get_filename() const;
 
 private:
     Ui::ModelWindow *ui;
-    QString filename;
 
     ModelDiagnosticsDialog* window_diagnostics = nullptr;
     BlockSelectorDialog* window_library = nullptr;

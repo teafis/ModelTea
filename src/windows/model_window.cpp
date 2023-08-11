@@ -154,14 +154,8 @@ void ModelWindow::updateWindowItems()
 
     ui->block_graphics->setEnabled(!generatedAvailable);
 
-    auto model_name = ui->block_graphics->get_model()->get_name();
-    if (model_name.empty())
-    {
-        model_name = "UNTITLED_MODEL";
-    }
-
     QString windowTitle = QString("%1%2")
-        .arg(model_name.c_str())
+        .arg(currentModelName())
         .arg(changeFlag ? "*" : "");
     setWindowTitle(windowTitle);
 
@@ -528,7 +522,7 @@ void ModelWindow::showLibrary()
 
 void ModelWindow::showModelParameters()
 {
-    auto* window_parameters = new ModelParametersDialog(ui->block_graphics->get_model(), this);
+    auto* window_parameters = new ModelParametersDialog(ui->block_graphics->get_model(), currentModelName(), this);
     if (window_parameters->exec())
     {
         emit modelChanged();
@@ -567,9 +561,14 @@ void ModelWindow::executorFlagSet()
     updateWindowItems();
 }
 
-QString ModelWindow::currentModel() const
+QString ModelWindow::currentModelName() const
 {
-    return QString(get_model_id()->get_name().c_str());
+    auto model_name = ui->block_graphics->get_model()->get_name();
+    if (model_name.empty())
+    {
+        model_name = "UNTITLED_MODEL";
+    }
+    return QString(model_name.c_str());
 }
 
 tmdl::Model* ModelWindow::get_model_id()

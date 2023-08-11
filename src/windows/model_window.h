@@ -78,7 +78,7 @@ private slots:
     void executorFlagSet();
 
 public:
-    QString currentModel() const;
+    QString currentModelName() const;
 
 signals:
     void executorEvent(SimEvent event);

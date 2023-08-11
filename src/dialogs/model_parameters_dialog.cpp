@@ -9,20 +9,14 @@
 #include <QMessageBox>
 
 
-ModelParametersDialog::ModelParametersDialog(std::shared_ptr<tmdl::Model> model, QWidget* parent) :
+ModelParametersDialog::ModelParametersDialog(std::shared_ptr<tmdl::Model> model, const QString& model_name, QWidget* parent) :
     QDialog(parent),
     ui(new Ui::ModelParametersDialog),
     model(model)
 {
     ui->setupUi(this);
 
-    auto model_name = model->get_name();
-    if (model_name.empty())
-    {
-        model_name = "UNTITLED_MODEL";
-    }
-
-    ui->nameLabel->setText(QString(model_name.c_str()));
+    ui->nameLabel->setText(model_name);
     ui->descriptionTextEdit->document()->setPlainText(QString(model->get_description().c_str()));
     ui->dtLineEdit->setText(QString("%1").arg(model->get_preferred_dt()));
 

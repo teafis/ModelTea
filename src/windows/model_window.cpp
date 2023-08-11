@@ -304,6 +304,7 @@ void ModelWindow::closeModel()
     const auto model = ui->block_graphics->get_model();
     const auto name = model->get_name();
     const auto weak_val = std::weak_ptr<tmdl::Model>(model);
+    const auto model_id = model.get();
 
     changeModel(nullptr);
 
@@ -311,7 +312,7 @@ void ModelWindow::closeModel()
 
     try
     {
-        mdl_library->close_model(name);
+        mdl_library->close_model(model_id);
     }
     catch (const tmdl::ModelException& ex)
     {

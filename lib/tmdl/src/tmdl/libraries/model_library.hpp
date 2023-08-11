@@ -29,11 +29,9 @@ public:
 
     std::shared_ptr<Model> create_model();
 
-    std::shared_ptr<Model> create_model(const std::string& name);
-
     void add_model(std::shared_ptr<Model> model);
 
-    void close_model(const std::string& name);
+    void close_model(const tmdl::Model* model);
 
     void close_unused_models();
 

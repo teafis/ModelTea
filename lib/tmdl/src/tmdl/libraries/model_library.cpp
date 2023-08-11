@@ -70,36 +70,34 @@ void tmdl::ModelLibrary::add_model(std::shared_ptr<Model> model)
     {
         throw ModelException(fmt::format("cannot add model - model with name '{}' already exists", model->get_name()));
     }
-    else if (!is_valid_model(model))
-    {
-        throw ModelException(fmt::format("provided model with name '{}' is not valid", model->get_name()));
-    }
 
     models.push_back(model);
 }
 
-void tmdl::ModelLibrary::close_model(const std::string& name) // TODO - Is this function necessary?
+void tmdl::ModelLibrary::close_model(const tmdl::Model* model)
 {
+    if (model == nullptr)
+    {
+        return;
+    }
+
     const auto it = std::find_if(
         models.begin(),
         models.end(),
-        [&name](const std::shared_ptr<const Model> m) {
-            return m->get_name() == name;
+        [&model](const std::shared_ptr<const Model> m) {
+            return m.get() == model;
     });
 
     if (it == models.end())
     {
-        throw ModelException(fmt::format("cannot find model {} to close", name));
+        throw ModelException(fmt::format("cannot find model '{}' to close", model->get_name()));
     }
-    else if (is_valid_model(*it)) // TODO - Update this for unnamed models?
+    else if (it->use_count() > 1)
     {
-        if (it->use_count() > 1)
-        {
-            throw ModelException(fmt::format("model {} is still in use - cannot close", name));
-        }
-
-        models.erase(it);
+        throw ModelException(fmt::format("model '{}' is still in use - cannot close", model->get_name()));
     }
+
+    models.erase(it);
 }
 
 void tmdl::ModelLibrary::close_unused_models()

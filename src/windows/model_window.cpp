@@ -28,6 +28,9 @@
 
 #include "exceptions/model_exception.h"
 
+const std::string ModelWindow::default_extension = ".tmdl";
+const QString ModelWindow::default_file_filter = QString("Model (*%1);; Any (*.*)").arg(default_extension.c_str());
+
 
 ModelWindow::ModelWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -174,7 +177,7 @@ void ModelWindow::newModel()
     window->show();
 }
 
-void ModelWindow::saveModel()
+void ModelWindow::saveModel() // TODO - Move save functionality into library?
 {
     const auto fn = get_filename();
     if (fn.isEmpty())
@@ -205,17 +208,22 @@ void ModelWindow::saveModel()
 
 void ModelWindow::saveModelAs()
 {
-    QString saveName = QFileDialog::getSaveFileName(this, tr("Save Model"), get_filename(), "JSON (*.json); Any (*.*)");
+    QString saveName = QFileDialog::getSaveFileName(this, tr("Save Model"), get_filename(), tr(default_file_filter.toUtf8()));
     if (!saveName.isEmpty())
     {
-        get_model_id()->set_filename(saveName.toStdString());
+        std::filesystem::path pth(saveName.toStdString());
+        if (!pth.has_extension())
+        {
+            pth.replace_extension(default_extension);
+        }
+        get_model_id()->set_filename(pth);
         saveModel();
     }
 }
 
 void ModelWindow::openFileDialog()
 {
-    QString openName = QFileDialog::getOpenFileName(this, tr("Open Model"), get_filename(), "JSON (*.json); Any (*.*)");
+    QString openName = QFileDialog::getOpenFileName(this, tr("Open Model"), get_filename(), tr(default_file_filter.toUtf8()));
     if (!openName.isEmpty())
     {
         openModelFile(openName);

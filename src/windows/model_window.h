@@ -100,6 +100,9 @@ private:
     std::shared_ptr<tmdl::ExecutionState> executor;
 
     bool changeFlag;
+
+    static const std::string default_extension;
+    static const QString default_file_filter;
 };
 
 #endif // MODEL_WINDOW_H

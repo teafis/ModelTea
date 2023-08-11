@@ -18,15 +18,14 @@
     <layout class="QHBoxLayout" name="nameLayout">
      <item>
       <widget class="QLabel" name="nameLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Model Name</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="nameLineEdit">
-       <property name="readOnly">
-        <bool>true</bool>
        </property>
       </widget>
      </item>

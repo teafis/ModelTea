@@ -154,8 +154,14 @@ void ModelWindow::updateWindowItems()
 
     ui->block_graphics->setEnabled(!generatedAvailable);
 
+    auto model_name = ui->block_graphics->get_model()->get_name();
+    if (model_name.empty())
+    {
+        model_name = "UNTITLED_MODEL";
+    }
+
     QString windowTitle = QString("%1%2")
-        .arg(ui->block_graphics->get_model()->get_name().c_str())
+        .arg(model_name.c_str())
         .arg(changeFlag ? "*" : "");
     setWindowTitle(windowTitle);
 

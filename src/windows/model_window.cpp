@@ -235,30 +235,28 @@ bool ModelWindow::openModelFile(QString openFilename)
     const QString data = stream.readAll();
     file.close();
 
+    std::istringstream iss(data.toStdString());
+    nlohmann::json j;
+    iss >> j;
+
+    std::shared_ptr<tmdl::Model> mdl = std::make_shared<tmdl::Model>();
+
+    try
     {
-        std::istringstream iss(data.toStdString());
-        nlohmann::json j;
-        iss >> j;
-
-        std::shared_ptr<tmdl::Model> mdl = std::make_shared<tmdl::Model>("tmp");
-
-        try
-        {
-            tmdl::from_json(j["model"], *mdl);
-        }
-        catch (const tmdl::ModelException& ex)
-        {
-            QMessageBox::warning(this, "error", ex.what());
-            return false;
-        }
-
-        if (!openModel(mdl))
-        {
-            return false;
-        }
+        tmdl::from_json(j["model"], *mdl);
+    }
+    catch (const tmdl::ModelException& ex)
+    {
+        QMessageBox::warning(this, "error", ex.what());
+        return false;
     }
 
-    get_model_id()->set_filename(openFilename.toStdString());
+    mdl->set_filename(openFilename.toStdString());
+
+    if (!openModel(mdl))
+    {
+        return false;
+    }
 
     return true;
 }
@@ -381,10 +379,9 @@ void ModelWindow::changeModel(std::shared_ptr<tmdl::Model> model)
         // Set the new model
         if (model == nullptr)
         {
-            model = std::make_shared<tmdl::Model>("tmp");
+            model = std::make_shared<tmdl::Model>();
         }
-
-        if (WindowManager::instance().model_is_open(model.get()))
+        else if (WindowManager::instance().model_is_open(model.get()))
         {
             throw ModelException("model already open");
         }

@@ -20,6 +20,10 @@ std::vector<std::string> tmdl::ModelLibrary::get_block_names() const
     std::vector<std::string> names;
     for (const auto& m : models)
     {
+        if (!is_valid_model(m))
+        {
+            continue;
+        }
         names.push_back(m->get_name());
     }
     return names;
@@ -45,40 +49,21 @@ std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::get_model(const std::string& na
     {
         throw ModelException("no model exists");
     }
+    else if (!is_valid_model(mdl))
+    {
+        throw ModelException(fmt::format("model '{}' is not valid", name));
+    }
+
+
 
     return mdl;
 }
 
 std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::create_model()
 {
-    for (size_t i = 0; i < 10000; ++i)
-    {
-        const std::string name = fmt::format("untitled_{}", i + 1);
-
-        if (try_get_model(name) != nullptr)
-        {
-            continue;
-        }
-
-        return create_model(name);
-    }
-
-    throw ModelException("unable to find unused untitled model name");
-}
-
-std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::create_model(const std::string& name)
-{
-    if (try_get_model(name) == nullptr)
-    {
-        auto mdl = std::make_shared<Model>(name);
-        models.push_back(mdl);
-
-        return mdl;
-    }
-    else
-    {
-        throw ModelException("model with name always exists");
-    }
+    const auto mdl = std::make_shared<tmdl::Model>();
+    models.push_back(mdl);
+    return mdl;
 }
 
 void tmdl::ModelLibrary::add_model(std::shared_ptr<Model> model)
@@ -87,11 +72,15 @@ void tmdl::ModelLibrary::add_model(std::shared_ptr<Model> model)
     {
         throw ModelException(fmt::format("cannot add model - model with name '{}' already exists", model->get_name()));
     }
+    else if (!is_valid_model(model))
+    {
+        throw ModelException(fmt::format("provided model with name '{}' is not valid", model->get_name()));
+    }
 
     models.push_back(model);
 }
 
-void tmdl::ModelLibrary::close_model(const std::string& name)
+void tmdl::ModelLibrary::close_model(const std::string& name) // TODO - Is this function necessary?
 {
     const auto it = std::find_if(
         models.begin(),
@@ -104,7 +93,7 @@ void tmdl::ModelLibrary::close_model(const std::string& name)
     {
         throw ModelException(fmt::format("cannot find model {} to close", name));
     }
-    else
+    else if (is_valid_model(*it)) // TODO - Update this for unnamed models?
     {
         if (it->use_count() > 1)
         {
@@ -149,7 +138,7 @@ std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::try_get_model(const std::string
             return m->get_name() == name;
     });
 
-    if (it != models.end())
+    if (it != models.end() && is_valid_model(*it))
     {
         return *it;
     }
@@ -157,4 +146,9 @@ std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::try_get_model(const std::string
     {
         return nullptr;
     }
+}
+
+bool tmdl::ModelLibrary::is_valid_model(const std::shared_ptr<Model> mdl)
+{
+    return mdl->get_name().size() > 0;
 }

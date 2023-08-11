@@ -423,12 +423,8 @@ protected:
 
 /* ==================== MODEL ==================== */
 
-Model::Model(const std::string& name) : name(name), description("user-defined model block"), preferred_dt(0.1)
+Model::Model() : name(""), description("user-defined model block"), preferred_dt(0.1)
 {
-    if (!is_valid_identifier(name))
-    {
-        throw ModelException(fmt::format("cannot construct block due to invalid name '{}'", name));
-    }
 }
 
 void Model::add_block(const std::shared_ptr<BlockInterface> block)
@@ -547,15 +543,6 @@ void Model::remove_connection(const size_t to_block, const size_t to_port)
 std::string Model::get_name() const
 {
     return name;
-}
-
-void Model::set_name(const std::string& s)
-{
-    if (!is_valid_identifier(s))
-    {
-        throw ModelException(fmt::format("provided model name '{}' is not valid", s));
-    }
-    name = s;
 }
 
 std::string Model::get_description() const
@@ -1103,12 +1090,25 @@ bool Model::contains_model_name(const std::string& n) const
     return false;
 }
 
-void Model::set_filename(const std::string& fn)
+void Model::set_filename(const std::filesystem::path& fn)
 {
+    if (!fn.has_stem())
+    {
+        throw ModelException(fmt::format("error setting filename '{}' due to missing stem", fn.string()));
+    }
+
+    const std::string name_temp = fn.stem();
+
+    if (!is_valid_identifier(name_temp))
+    {
+        throw ModelException(fmt::format("error setting filename '{}' - '{}' is not a valid identifier", fn.string(), name_temp));
+    }
+
     filename = fn;
+    name = name_temp;
 }
 
-const std::optional<std::string>& Model::get_filename() const
+const std::optional<std::filesystem::path>& Model::get_filename() const
 {
     return filename;
 }
@@ -1168,7 +1168,6 @@ void from_json(const nlohmann::json& j, SaveBlock& b)
 
 void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m)
 {
-    j["name"] = m.name;
     j["description"] = m.description;
     j["preferred_dt"] = m.preferred_dt;
     j["output_ids"] = m.output_ids;
@@ -1209,8 +1208,6 @@ void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m)
 void tmdl::from_json(const nlohmann::json& j, tmdl::Model& m)
 {
     std::string temp_name;
-    j.at("name").get_to(temp_name);
-    m.set_name(temp_name);
 
     j.at("description").get_to(m.description);
 

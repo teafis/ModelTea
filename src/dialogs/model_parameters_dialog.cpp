@@ -50,13 +50,11 @@ void ModelParametersDialog::accept()
 
     try
     {
-        model->set_name(ui->nameLineEdit->text().toStdString());
         model->set_description(ui->descriptionTextEdit->document()->toPlainText().toStdString());
         model->set_preferred_dt(dtVal);
     }
     catch (const tmdl::ModelException& ex)
     {
-        model->set_name(orig_name);
         model->set_description(orig_desc);
         model->set_preferred_dt(orig_dt);
 

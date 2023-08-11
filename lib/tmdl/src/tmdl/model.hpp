@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <filesystem>
 #include <unordered_map>
 
 #include "block_interface.hpp"
@@ -32,7 +33,7 @@ class Model
 public:
     friend class ModelBlock;
 
-    Model(const std::string& name);
+    Model();
 
 public:
     void add_block(const std::shared_ptr<BlockInterface> block);
@@ -47,8 +48,6 @@ public:
 
 public:
     std::string get_name() const;
-
-    void set_name(const std::string& s);
 
     std::string get_description() const;
 
@@ -108,9 +107,9 @@ public:
     bool contains_model_name(const std::string& name) const;
 
 public:
-    void set_filename(const std::string& fn);
+    void set_filename(const std::filesystem::path& fn);
 
-    const std::optional<std::string>& get_filename() const;
+    const std::optional<std::filesystem::path>& get_filename() const;
 
     void clear_filename();
 
@@ -122,7 +121,7 @@ protected:
     std::vector<size_t> input_ids;
     std::vector<size_t> output_ids;
     double preferred_dt;
-    std::optional<std::string> filename;
+    std::optional<std::filesystem::path> filename;
 
 public:
     friend void to_json(nlohmann::json&, const Model&);

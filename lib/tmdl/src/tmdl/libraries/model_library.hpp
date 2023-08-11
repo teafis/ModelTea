@@ -40,6 +40,9 @@ public:
     std::shared_ptr<Model> try_get_model(const std::string& name) const;
 
 protected:
+    static bool is_valid_model(const std::shared_ptr<Model> mdl);
+
+protected:
     std::vector<std::shared_ptr<Model>> models;
 };
 

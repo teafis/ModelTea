@@ -54,8 +54,6 @@ std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::get_model(const std::string& na
         throw ModelException(fmt::format("model '{}' is not valid", name));
     }
 
-
-
     return mdl;
 }
 

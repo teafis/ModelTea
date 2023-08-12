@@ -5,7 +5,6 @@
 #include <QApplication>
 
 #include <array>
-#include <iostream>
 #include <optional>
 
 #include <fmt/format.h>
@@ -43,7 +42,6 @@ int main(int argc, char *argv[])
 
     for (int i = 1; i < a.arguments().size(); ++i)
     {
-        std::cout << a.arguments().at(i).toStdString() << std::endl;
         ModelWindow* w = new ModelWindow();
         if (w->openModelFile(a.arguments().at(i)))
         {

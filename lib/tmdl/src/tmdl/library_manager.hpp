@@ -33,6 +33,10 @@ public:
 
     std::shared_ptr<BlockInterface> create_block(const std::string& name) const;
 
+    std::shared_ptr<BlockInterface> try_create_block(const std::string& name) const;
+
+    bool has_block(const std::string& name) const;
+
     std::shared_ptr<ModelLibrary> default_model_library() const;
 
 protected:

@@ -73,6 +73,18 @@ std::vector<std::string> tmdl::LibraryManager::get_library_names() const
 
 std::shared_ptr<tmdl::BlockInterface> tmdl::LibraryManager::create_block(const std::string& name) const
 {
+    if (auto blk = try_create_block(name))
+    {
+        return blk;
+    }
+    else
+    {
+        throw ModelException(fmt::format("no block with name `{}` found", name));
+    }
+}
+
+std::shared_ptr<tmdl::BlockInterface> tmdl::LibraryManager::try_create_block(const std::string& name) const
+{
     for (const auto& kv : libraries)
     {
         if (kv.second->has_block(name))
@@ -81,7 +93,12 @@ std::shared_ptr<tmdl::BlockInterface> tmdl::LibraryManager::create_block(const s
         }
     }
 
-    throw ModelException(fmt::format("no block with name `{}` found", name));
+    return nullptr;
+}
+
+bool tmdl::LibraryManager::has_block(const std::string& name) const
+{
+    return try_create_block(name) != nullptr;
 }
 
 std::shared_ptr<tmdl::ModelLibrary> tmdl::LibraryManager::default_model_library() const

@@ -130,6 +130,9 @@ protected:
     std::optional<std::filesystem::path> filename;
 
 public:
+    static const std::string DEFAULT_MODEL_EXTENSION;
+
+public:
     friend void to_json(nlohmann::json&, const Model&);
 
     friend void from_json(const nlohmann::json&, Model&);

@@ -21,6 +21,8 @@
 
 using namespace tmdl;
 
+const std::string tmdl::Model::DEFAULT_MODEL_EXTENSION = ".tmdl";
+
 /* ==================== MODEL LINKS DATA =================== */
 
 struct tmdl::Model::CompiledModelData
@@ -1132,10 +1134,9 @@ std::shared_ptr<tmdl::Model> tmdl::Model::load_model(const std::filesystem::path
     iss >> j;
 
     std::shared_ptr<tmdl::Model> mdl = std::make_shared<tmdl::Model>();
+    mdl->set_filename(path);
 
     tmdl::from_json(j["model"], *mdl);
-
-    mdl->set_filename(path);
 
     return mdl;
 }
@@ -1268,10 +1269,33 @@ void tmdl::from_json(const nlohmann::json& j, tmdl::Model& m)
 
     const auto json_blocks = j.at("blocks").get<std::unordered_map<std::string, SaveBlock>>();
 
+    const auto& lib = tmdl::LibraryManager::get_instance();
+    const auto modellib = lib.default_model_library();
+
     for (const auto& kv : json_blocks)
     {
         const auto& json_blk = kv.second;
-        auto blk = tmdl::LibraryManager::get_instance().create_block(json_blk.name);
+
+        auto blk = lib.try_create_block(json_blk.name);
+
+        if (blk == nullptr)
+        {
+            auto test_path = m.get_filename();
+            if (test_path.has_value())
+            {
+                auto pth = *test_path;
+                pth = pth.parent_path() / std::filesystem::path(json_blk.name).replace_extension(tmdl::Model::DEFAULT_MODEL_EXTENSION);
+
+                modellib->add_model(tmdl::Model::load_model(pth));
+                blk = lib.try_create_block(json_blk.name);
+            }
+        }
+
+        if (blk == nullptr)
+        {
+            throw tmdl::ModelException(fmt::format("unable to create model due to missing block '{}'", json_blk.name));
+        }
+
         blk->set_id(json_blk.id);
         blk->set_loc(BlockLocation{json_blk.x, json_blk.y});
 

@@ -28,8 +28,7 @@
 
 #include "exceptions/model_exception.h"
 
-const std::string ModelWindow::default_extension = ".tmdl";
-const QString ModelWindow::default_file_filter = QString("Model (*%1);; Any (*.*)").arg(default_extension.c_str());
+const QString ModelWindow::default_file_filter = QString("Model (*%1);; Any (*.*)").arg(tmdl::Model::DEFAULT_MODEL_EXTENSION.c_str());
 
 
 ModelWindow::ModelWindow(QWidget *parent) :
@@ -208,7 +207,7 @@ void ModelWindow::saveModelAs()
         std::filesystem::path pth(saveName.toStdString());
         if (!pth.has_extension())
         {
-            pth.replace_extension(default_extension);
+            pth.replace_extension(tmdl::Model::DEFAULT_MODEL_EXTENSION);
         }
 
         try

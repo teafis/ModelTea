@@ -2,6 +2,8 @@
 
 #include "model.hpp"
 
+#include <fstream>
+
 #include "blocks/io_ports.hpp"
 #include "model_exception.hpp"
 
@@ -1116,6 +1118,48 @@ const std::optional<std::filesystem::path>& Model::get_filename() const
 void Model::clear_filename()
 {
     filename.reset();
+}
+
+std::shared_ptr<tmdl::Model> tmdl::Model::load_model(const std::filesystem::path& path)
+{
+    std::ifstream iss(path);
+    if (!iss)
+    {
+        throw ModelException(fmt::format("unable to open file for model with '{}'", path.string()));
+    }
+
+    nlohmann::json j;
+    iss >> j;
+
+    std::shared_ptr<tmdl::Model> mdl = std::make_shared<tmdl::Model>();
+
+    tmdl::from_json(j["model"], *mdl);
+
+    mdl->set_filename(path);
+
+    return mdl;
+}
+
+void tmdl::Model::save_model() const
+{
+    if (filename.has_value())
+    {
+        save_model_to(*filename);
+    }
+    else
+    {
+        throw ModelException("cannot save model without stored filename");
+    }
+}
+
+void tmdl::Model::save_model_to(const std::filesystem::path& path) const
+{
+    std::ofstream oss(path);
+
+    nlohmann::json j;
+    j["model"] = *this;
+
+    oss << std::setw(4) << j;
 }
 
 struct SaveParameter

@@ -177,30 +177,24 @@ void ModelWindow::newModel()
     window->show();
 }
 
-void ModelWindow::saveModel() // TODO - Move save functionality into library?
+void ModelWindow::saveModel()
 {
-    const auto fn = get_filename();
-    if (fn.isEmpty())
+    if (get_model_id()->get_filename().has_value())
     {
         saveModelAs();
     }
     else
     {
-        QFile file(fn);
-        if(!file.open(QIODevice::WriteOnly))
+        try
         {
-            QMessageBox::warning(this, "error", file.errorString());
+            get_model_id()->save_model();
+        }
+        catch (const tmdl::ModelException& ex)
+        {
+            QMessageBox::warning(this, "error", ex.what());
             return;
         }
 
-        nlohmann::json j;
-        j["model"] = *ui->block_graphics->get_model();
-
-        std::ostringstream oss;
-        oss << std::setw(4) << j;
-
-        file.write(QString(oss.str().c_str()).toUtf8());
-        file.close();
         changeFlag = false;
         updateWindowItems();
     }
@@ -216,8 +210,19 @@ void ModelWindow::saveModelAs()
         {
             pth.replace_extension(default_extension);
         }
-        get_model_id()->set_filename(pth);
-        saveModel();
+
+        try
+        {
+            get_model_id()->save_model_to(pth);
+        }
+        catch (const tmdl::ModelException& ex)
+        {
+            QMessageBox::warning(this, "error", ex.what());
+            return;
+        }
+
+        changeFlag = false;
+        updateWindowItems();
     }
 }
 
@@ -232,26 +237,11 @@ void ModelWindow::openFileDialog()
 
 bool ModelWindow::openModelFile(QString openFilename)
 {
-    QFile file(openFilename);
-    if(!file.open(QIODevice::ReadOnly))
-    {
-        QMessageBox::warning(this, "error", file.errorString());
-        return false;
-    }
-
-    QTextStream stream(&file);
-    const QString data = stream.readAll();
-    file.close();
-
-    std::istringstream iss(data.toStdString());
-    nlohmann::json j;
-    iss >> j;
-
-    std::shared_ptr<tmdl::Model> mdl = std::make_shared<tmdl::Model>();
+    std::shared_ptr<tmdl::Model> mdl = nullptr;
 
     try
     {
-        tmdl::from_json(j["model"], *mdl);
+        mdl = tmdl::Model::load_model(openFilename.toStdString());
     }
     catch (const tmdl::ModelException& ex)
     {
@@ -259,9 +249,7 @@ bool ModelWindow::openModelFile(QString openFilename)
         return false;
     }
 
-    mdl->set_filename(openFilename.toStdString());
-
-    if (!openModel(mdl))
+    if (mdl == nullptr || !openModel(mdl))
     {
         return false;
     }

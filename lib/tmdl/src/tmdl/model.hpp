@@ -113,6 +113,12 @@ public:
 
     void clear_filename();
 
+    static std::shared_ptr<Model> load_model(const std::filesystem::path& path);
+
+    void save_model() const;
+
+    void save_model_to(const std::filesystem::path& path) const;
+
 protected:
     std::string name;
     std::string description;

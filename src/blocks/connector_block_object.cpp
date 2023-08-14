@@ -2,7 +2,9 @@
 
 #include "connector_block_object.h"
 
+#include <QApplication>
 #include <QPainter>
+#include <QPalette>
 
 #include "exceptions/block_object_exception.h"
 
@@ -88,19 +90,21 @@ void ConnectorBlockObject::blockLocationUpdated()
     updateLocations(loc_a_s, loc_b_s);
 }
 
-QColor ConnectorBlockObject::getLineColor() const
+QColor ConnectorBlockObject::getLineColor(QWidget* widget) const
 {
+    const auto& p = widget->palette();
+
     if (isSelected())
     {
-        return Qt::blue;
+        return p.color(QPalette::Highlight);
     }
     else if (!get_name().isEmpty())
     {
-        return Qt::cyan;
+        return p.color(QPalette::Text);
     }
     else
     {
-        return Qt::black;
+        return p.color(QPalette::BrightText);
     }
 }
 

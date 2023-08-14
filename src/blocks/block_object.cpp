@@ -2,16 +2,13 @@
 
 #include "block_object.h"
 
-#include <QPainter>
-#include <QWidget>
-
 #include <algorithm>
-
-#include <QString>
-
-#include <QGraphicsObject>
-
 #include <cmath>
+
+#include <QPainter>
+#include <QPalette>
+#include <QString>
+#include <QWidget>
 
 #include "exceptions/block_object_exception.h"
 
@@ -61,14 +58,16 @@ void BlockObject::paint(
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
+    const auto& p = widget->palette();
+
     // Draw the block itself
     if (isSelected())
     {
-        painter->setPen(QPen(Qt::blue, 2));
+        painter->setPen(QPen(p.color(QPalette::Highlight), 3));
     }
     else
     {
-        painter->setPen(QPen(Qt::black, 1));
+        painter->setPen(QPen(p.color(QPalette::Text), 1));
     }
 
     const auto err = block->has_error();
@@ -79,13 +78,13 @@ void BlockObject::paint(
     }
     else
     {
-        painter->setBrush(Qt::white);
+        painter->setBrush(p.color(QPalette::Window));
     }
     painter->drawRect(blockRect());
 
-    painter->setBrush(Qt::white);
+    painter->setBrush(p.color(QPalette::Window));
 
-    painter->setPen(QPen(Qt::black, 1));
+    painter->setPen(QPen(p.color(QPalette::Text), 1));
 
     // Draw the I/O ports
     drawIOPorts(

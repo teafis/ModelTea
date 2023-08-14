@@ -3,7 +3,9 @@
 #ifndef CONNECTOR_OBJECT_H
 #define CONNECTOR_OBJECT_H
 
+#include <QWidget>
 #include <QGraphicsObject>
+
 #include <memory>
 
 class ConnectorObject : public QGraphicsObject
@@ -32,7 +34,7 @@ public slots:
 protected:
     void updateLocationValues();
 
-    virtual QColor getLineColor() const;
+    virtual QColor getLineColor(QWidget* widget) const;
 
     virtual double getLineWidth() const;
 

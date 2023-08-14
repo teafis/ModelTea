@@ -18,7 +18,7 @@ void ConnectorObject::paint(
     (void)widget;
     (void)option;
 
-    painter->setPen(QPen(getLineColor(), getLineWidth()));
+    painter->setPen(QPen(getLineColor(widget), getLineWidth()));
     painter->setBrush(Qt::transparent);
 
     const auto pts = getLinePoints();
@@ -118,7 +118,7 @@ void ConnectorObject::updateLocationValues()
     setVisible(true);
 }
 
-QColor ConnectorObject::getLineColor() const
+QColor ConnectorObject::getLineColor([[maybe_unused]] QWidget* widget) const
 {
     return Qt::red;
 }

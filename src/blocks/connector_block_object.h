@@ -39,7 +39,7 @@ public slots:
     void blockLocationUpdated();
 
 protected:
-    virtual QColor getLineColor() const override;
+    virtual QColor getLineColor(QWidget* widget) const override;
 
     virtual double getLineWidth() const override;
 

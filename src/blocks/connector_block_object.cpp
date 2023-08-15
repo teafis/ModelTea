@@ -100,11 +100,11 @@ QColor ConnectorBlockObject::getLineColor(QWidget* widget) const
     }
     else if (!get_name().isEmpty())
     {
-        return p.color(QPalette::Text);
+        return p.color(QPalette::Link);
     }
     else
     {
-        return p.color(QPalette::BrightText);
+        return p.color(QPalette::Text);
     }
 }
 

@@ -36,6 +36,8 @@
 #include "windows/model_window.h"
 
 
+static const int CONNECTOR_Z_ORDER = -1;
+
 BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
     QGraphicsView(parent),
     selectedItem(nullptr)
@@ -92,6 +94,7 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
                     auto pds = std::make_unique<PortDragState>(*block_port);
 
                     scene()->addItem(pds->get_connector());
+                    pds->get_connector()->setZValue(static_cast<double>(CONNECTOR_Z_ORDER));
                     pds->get_connector()->updateLocations(mappedPos, mappedPos);
 
                     mouseState = std::move(pds);
@@ -460,6 +463,7 @@ void BlockGraphicsView::addConnectionItem(
         &ConnectorBlockObject::deleteLater);
 
     scene()->addItem(conn_obj);
+    conn_obj->setZValue(static_cast<double>(CONNECTOR_Z_ORDER));
 }
 
 std::shared_ptr<tmdl::Model> BlockGraphicsView::get_model() const

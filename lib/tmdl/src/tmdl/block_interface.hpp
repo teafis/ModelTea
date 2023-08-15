@@ -11,7 +11,7 @@
 
 #include "parameter.hpp"
 #include "sim_state.hpp"
-#include "value.hpp"
+#include "values/value.hpp"
 
 #include "connection_manager.hpp"
 #include "variable_manager.hpp"

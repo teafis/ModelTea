@@ -11,12 +11,13 @@
 #include <string>
 #include <vector>
 
-#include "model_exception.hpp"
+#include "../model_exception.hpp"
 
 
 namespace tmdl
 {
 
+// TODO - Move all parameters into an array type? Or leave as single elements?
 enum class DataType : uint32_t
 {
     UNKNOWN = 0,
@@ -80,7 +81,7 @@ DataType data_type_from_string(const std::string& s);
 
 struct ModelValue
 {
-    virtual DataType get_data_type() const = 0;
+    virtual DataType data_type() const = 0;
 
     virtual ~ModelValue()
     {
@@ -103,7 +104,7 @@ struct ModelValueBox : public ModelValue
         // Empty Constructor
     }
 
-    virtual DataType get_data_type() const override
+    virtual DataType data_type() const override
     {
         return DT;
     }
@@ -129,6 +130,10 @@ typename data_type_t<DT>::type get_inner_value(const ModelValue* value)
 }
 
 std::shared_ptr<ModelValue> make_default_value(const DataType dtype);
+
+std::shared_ptr<ModelValue> make_value_from_string(const std::string& s, const DataType dt);
+
+std::shared_ptr<ModelValue> convert_value_type(const std::shared_ptr<const ModelValue> val, const DataType dt);
 
 }
 

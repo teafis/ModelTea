@@ -3,7 +3,7 @@
 #ifndef TF_MODEL_PARAMETER_HPP
 #define TF_MODEL_PARAMETER_HPP
 
-#include "value.hpp"
+#include "values/value.hpp"
 
 #include <cstdint>
 #include <sstream>

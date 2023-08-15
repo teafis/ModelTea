@@ -16,7 +16,7 @@ namespace tmdl
 class ModelLibrary : public LibraryBase
 {
 public:
-    std::string get_library_name() const override;
+    const std::string& get_library_name() const override;
 
     std::vector<std::string> get_block_names() const override;
 

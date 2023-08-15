@@ -57,9 +57,10 @@ bool tmdl::blocks::StandardLibrary::has_block(const std::string& name) const
     return it != block_map.end();
 }
 
-std::string tmdl::blocks::StandardLibrary::get_library_name() const
+const std::string& tmdl::blocks::StandardLibrary::get_library_name() const
 {
-    return "stdlib";
+    const static std::string n = "stdlib";
+    return n;
 }
 
 std::vector<std::string> tmdl::blocks::StandardLibrary::get_block_names() const

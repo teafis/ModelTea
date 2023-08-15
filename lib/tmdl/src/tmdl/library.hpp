@@ -17,7 +17,7 @@ class LibraryBase
 public:
     virtual ~LibraryBase();
 
-    virtual std::string get_library_name() const = 0;
+    virtual const std::string& get_library_name() const = 0;
 
     virtual std::vector<std::string> get_block_names() const = 0;
 

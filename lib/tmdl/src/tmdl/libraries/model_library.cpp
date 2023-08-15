@@ -10,9 +10,10 @@
 #include <fmt/format.h>
 
 
-std::string tmdl::ModelLibrary::get_library_name() const
+const std::string& tmdl::ModelLibrary::get_library_name() const
 {
-    return "models";
+    const static std::string n = "models";
+    return n;
 }
 
 std::vector<std::string> tmdl::ModelLibrary::get_block_names() const

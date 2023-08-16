@@ -4,6 +4,7 @@
 #define TF_MODEL_VALUE_ARRAY_HPP
 
 #include <memory>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -17,7 +18,17 @@ namespace tmdl
 class ValueArray
 {
 public:
+    virtual void resize(const size_t c, const size_t r) = 0;
+    virtual void set_values(const std::vector<std::shared_ptr<const ModelValue>>& values) = 0;
+
+public:
     virtual DataType data_type() const = 0;
+
+    virtual std::string to_string() const = 0;
+
+    static std::shared_ptr<ValueArray> create_value_array(const std::string& s, DataType dt);
+
+    static std::shared_ptr<ValueArray> change_array_type(const ValueArray* arr, DataType dt);
 };
 
 template <DataType DT>
@@ -29,28 +40,17 @@ public:
 public:
     struct Index
     {
-        size_t row;
         size_t col;
+        size_t row;
     };
 
 public:
-    ValueArrayBox(const size_t r, const size_t c) :
-        m_rows{r},
+    ValueArrayBox(const size_t c, const size_t r, const std::vector<std::shared_ptr<const ModelValue>>& values) :
+        m_data(r * c),
         m_cols{c},
-        m_data(r * c)
+        m_rows{r}
     {
-        if (m_data.size() == 0)
-        {
-            throw ModelException("2D array cannot have value with size 0");
-        }
-    }
-
-    ValueArrayBox(const size_t r, const size_t c, const std::vector<std::shared_ptr<const ModelValue>>& values) :
-        m_rows{r},
-        m_cols{c},
-        m_data(r * c)
-    {
-        if (m_data.size() == 0)
+        if (m_data.size() == 0 && (r != 0 || c != 0))
         {
             throw ModelException("2D array cannot have value with size 0");
         }
@@ -63,10 +63,34 @@ public:
         return DT;
     }
 
-    void resize(const size_t r, const size_t c)
+    virtual std::string to_string() const override
+    {
+        std::ostringstream oss;
+        oss << '[';
+        for (size_t r = 0; r < m_rows; ++r)
+        {
+            for (size_t c = 0; c < m_cols; ++c)
+            {
+                const size_t ind = rc_to_index({c, r});
+                oss << std::to_string(m_data[ind]);
+                if (c + 1 < m_cols)
+                {
+                    oss << ", ";
+                }
+            }
+            if (r + 1 < m_rows)
+            {
+                oss << "; ";
+            }
+        }
+        oss << ']';
+        return oss.str();
+    }
+
+    virtual void resize(const size_t c, const size_t r) override
     {
         const size_t new_size = r * c;
-        if (new_size == 0)
+        if (new_size == 0 && (r != 0 || c != 0))
         {
             throw ModelException("2D array cannot have value with size 0");
         }
@@ -83,7 +107,7 @@ public:
         return m_data[rc_to_index(i)];
     }
 
-    void set_values(const std::vector<std::shared_ptr<const ModelValue>>& values)
+    virtual void set_values(const std::vector<std::shared_ptr<const ModelValue>>& values) override
     {
         if (values.size() != m_data.size())
         {
@@ -104,18 +128,16 @@ public:
     }
 
 private:
-    size_t rc_to_index(const Index& rc)
+    size_t rc_to_index(const Index& rc) const
     {
         return rc.row + rc.col * m_rows;
     }
 
 private:
     std::vector<data_t> m_data;
-    size_t m_rows;
     size_t m_cols;
+    size_t m_rows;
 };
-
-std::shared_ptr<ValueArray> create_value_array(const std::string& s, DataType dt);
 
 }
 

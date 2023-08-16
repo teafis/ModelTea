@@ -79,13 +79,41 @@ std::string data_type_to_string(const DataType dtype);
 
 DataType data_type_from_string(const std::string& s);
 
+template <DataType>
+class ModelValueBox;
+
 struct ModelValue
 {
     virtual DataType data_type() const = 0;
 
+    virtual void copy_value(const ModelValue* value) = 0;
+
     virtual ~ModelValue()
     {
         // Empty Destructor
+    }
+
+    template <DataType DT>
+    static std::shared_ptr<ModelValue> make_default()
+    {
+        return std::make_shared<tmdl::ModelValueBox<DT>>();
+    }
+
+    static std::shared_ptr<ModelValue> make_default_type(const DataType dtype);
+
+    static std::shared_ptr<ModelValue> from_string(const std::string& s, const DataType dt);
+
+    static std::shared_ptr<ModelValue> convert_type(const std::shared_ptr<const ModelValue> val, const DataType dt);
+
+    template <DataType DT>
+    static typename data_type_t<DT>::type get_inner_value(const ModelValue* value)
+    {
+        const auto* ptr = dynamic_cast<const ModelValueBox<DT>*>(value);
+        if (ptr == nullptr)
+        {
+            throw ModelException("unable to convert data type parameters");
+        }
+        return ptr->value;
     }
 };
 
@@ -109,31 +137,20 @@ struct ModelValueBox : public ModelValue
         return DT;
     }
 
+    virtual void copy_value(const ModelValue* in)
+    {
+        if (auto ptr = dynamic_cast<const ModelValueBox<DT>*>(in))
+        {
+            value = ptr->value;
+        }
+        else
+        {
+            throw ModelException("mismatch in data type - unable to copy value");
+        }
+    }
+
     type_t value;
 };
-
-template <DataType DT>
-std::shared_ptr<ModelValue> make_default_value()
-{
-    return std::make_shared<tmdl::ModelValueBox<DT>>();
-}
-
-template <DataType DT>
-typename data_type_t<DT>::type get_inner_value(const ModelValue* value)
-{
-    const auto* ptr = dynamic_cast<const ModelValueBox<DT>*>(value);
-    if (ptr == nullptr)
-    {
-        throw tmdl::ModelException("unable to convert data type parameters");
-    }
-    return ptr->value;
-}
-
-std::shared_ptr<ModelValue> make_default_value(const DataType dtype);
-
-std::shared_ptr<ModelValue> make_value_from_string(const std::string& s, const DataType dt);
-
-std::shared_ptr<ModelValue> convert_value_type(const std::shared_ptr<const ModelValue> val, const DataType dt);
 
 }
 

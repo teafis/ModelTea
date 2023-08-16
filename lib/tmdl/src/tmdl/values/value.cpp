@@ -76,26 +76,26 @@ tmdl::DataType tmdl::data_type_from_string(const std::string& s)
     return DataTypeMap::get_instance().get_type(s);
 }
 
-std::shared_ptr<tmdl::ModelValue> tmdl::make_default_value(const DataType dtype)
+std::shared_ptr<tmdl::ModelValue> tmdl::ModelValue::make_default_type(const DataType dtype)
 {
     switch (dtype)
     {
     case tmdl::DataType::BOOLEAN:
-        return make_default_value<tmdl::DataType::BOOLEAN>();
+        return make_default<tmdl::DataType::BOOLEAN>();
     case tmdl::DataType::DOUBLE:
-        return make_default_value<tmdl::DataType::DOUBLE>();
+        return make_default<tmdl::DataType::DOUBLE>();
     case tmdl::DataType::SINGLE:
-        return make_default_value<tmdl::DataType::SINGLE>();
+        return make_default<tmdl::DataType::SINGLE>();
     case tmdl::DataType::INT32:
-        return make_default_value<tmdl::DataType::INT32>();
+        return make_default<tmdl::DataType::INT32>();
     case tmdl::DataType::UINT32:
-        return make_default_value<tmdl::DataType::UINT32>();
+        return make_default<tmdl::DataType::UINT32>();
     default:
         throw ModelException("unable to construct value for type");
     }
 }
 
-std::shared_ptr<tmdl::ModelValue> tmdl::make_value_from_string(const std::string& s, const DataType dt)
+std::shared_ptr<tmdl::ModelValue> tmdl::ModelValue::from_string(const std::string& s, const DataType dt)
 {
     try
     {
@@ -125,7 +125,7 @@ std::shared_ptr<tmdl::ModelValue> tmdl::make_value_from_string(const std::string
     }
 }
 
-std::shared_ptr<tmdl::ModelValue> tmdl::convert_value_type(const std::shared_ptr<const ModelValue> val, const DataType dt)
+std::shared_ptr<tmdl::ModelValue> tmdl::ModelValue::convert_type(const std::shared_ptr<const ModelValue> val, const DataType dt)
 {
     if (auto ptr = std::dynamic_pointer_cast<const ModelValueBox<DataType::BOOLEAN>>(val))
     {

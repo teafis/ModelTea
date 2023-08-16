@@ -2,7 +2,7 @@
 
 #include "value_array.hpp"
 
-std::shared_ptr<tmdl::ValueArray> tmdl::create_value_array(const std::string& s, const DataType dt)
+std::shared_ptr<tmdl::ValueArray> tmdl::ValueArray::create_value_array(const std::string& s, const DataType dt)
 {
     // Initialize parameters
     size_t rows = 0;
@@ -34,7 +34,7 @@ std::shared_ptr<tmdl::ValueArray> tmdl::create_value_array(const std::string& s,
         if (t_end != std::string::npos) string_value = string_value.substr(0, t_end);
 
         // Set the value
-        values.push_back(tmdl::make_value_from_string(string_value, dt));
+        values.push_back(tmdl::ModelValue::from_string(string_value, dt));
 
         // Set the next parameters
         if (s[next] == ',')
@@ -44,6 +44,11 @@ std::shared_ptr<tmdl::ValueArray> tmdl::create_value_array(const std::string& s,
             {
                 rows = current_row;
             }
+        }
+        else if (s[next] == ']' && rows == 0 && cols == 0)
+        {
+            found_end = true;
+            break;
         }
         else if (s[next] == ';' || s[next] == ']')
         {
@@ -100,4 +105,9 @@ std::shared_ptr<tmdl::ValueArray> tmdl::create_value_array(const std::string& s,
     default:
         throw ModelException("cannot create a value array from an unknown data type");
     }
+}
+
+std::shared_ptr<tmdl::ValueArray> tmdl::ValueArray::change_array_type(const ValueArray* arr, DataType dt)
+{
+    throw ModelException("not implemented!");
 }

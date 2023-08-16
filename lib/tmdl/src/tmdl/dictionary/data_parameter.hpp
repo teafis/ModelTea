@@ -3,6 +3,8 @@
 #ifndef TF_MODEL_DATA_PARAMETER_HPP
 #define TF_MODEL_DATA_PARAMETER_HPP
 
+#include <memory>
+
 #include "../values/value.hpp"
 #include "../values/value_array.hpp"
 
@@ -21,7 +23,26 @@ public:
 class DataParameterValue : public DataParameter
 {
 public:
+    DataParameterValue() : value(ModelValue::make_default_type(DataType::DOUBLE))
+    {
+        // Empty Constructor
+    }
 
+    virtual void set_from_string(const std::string& s) override
+    {
+        const auto v = ModelValue::from_string(s, value->data_type());
+        value->copy_value(v.get());
+    }
+
+    virtual void set_data_type(const DataType dt) override
+    {
+        value = ModelValue::convert_type(value, dt);
+    }
+
+    virtual void set_data_type_string(const std::string& s, DataType dt) override
+    {
+        value = ModelValue::from_string(s, dt);
+    }
 
 private:
     std::shared_ptr<ModelValue> value;
@@ -29,6 +50,32 @@ private:
 
 class DataParameterArray : public DataParameter
 {
+public:
+    DataParameterArray() : array(ValueArray::create_value_array("[]", DataType::DOUBLE))
+    {
+        // Empty Constructor
+    }
+
+    virtual void set_from_string(const std::string& s) override
+    {
+        array = ValueArray::create_value_array(s, array->data_type());
+    }
+
+    virtual void set_data_type(const DataType dt) override
+    {
+        //value = convert_value_type(value, dt);
+    }
+
+    virtual void set_data_type_string(const std::string& s, DataType dt) override
+    {
+        array = ValueArray::create_value_array(s, dt);
+    }
+
+    void set_size(const size_t c, const size_t r)
+    {
+        array->resize(c, r);
+    }
+
 private:
     std::shared_ptr<ValueArray> array;
 };

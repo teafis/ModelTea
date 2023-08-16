@@ -72,8 +72,8 @@ public:
         if (_constantLimits)
         {
             return std::make_unique<LimiterComponentConst>(
-                tmdl::get_inner_value<DT>(_constantLimits->upper.get()),
-                tmdl::get_inner_value<DT>(_constantLimits->lower.get()));
+                tmdl::ModelValue::get_inner_value<DT>(_constantLimits->upper.get()),
+                tmdl::ModelValue::get_inner_value<DT>(_constantLimits->lower.get()));
         }
         else
         {

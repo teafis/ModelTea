@@ -2,12 +2,12 @@
 
 #include "value_array.hpp"
 
-std::shared_ptr<tmdl::ValueArray> tmdl::ValueArray::create_value_array(const std::string& s, const DataType dt)
+tmdl::ValueArray* tmdl::ValueArray::create_value_array(const std::string& s, const DataType dt)
 {
     // Initialize parameters
     size_t rows = 0;
     size_t cols = 0;
-    std::vector<std::shared_ptr<const ModelValue>> values{};
+    std::vector<std::unique_ptr<const ModelValue>> values{};
 
     // Find the first index of the array
     const size_t start_index = s.find_first_of('[');
@@ -34,7 +34,7 @@ std::shared_ptr<tmdl::ValueArray> tmdl::ValueArray::create_value_array(const std
         if (t_end != std::string::npos) string_value = string_value.substr(0, t_end);
 
         // Set the value
-        values.push_back(tmdl::ModelValue::from_string(string_value, dt));
+        values.push_back(std::unique_ptr<ModelValue>(ModelValue::from_string(string_value, dt)));
 
         // Set the next parameters
         if (s[next] == ',')
@@ -93,21 +93,21 @@ std::shared_ptr<tmdl::ValueArray> tmdl::ValueArray::create_value_array(const std
     switch (dt)
     {
     case DataType::BOOLEAN:
-        return std::make_shared<ValueArrayBox<DataType::BOOLEAN>>(rows, cols, values);
+        return new ValueArrayBox<DataType::BOOLEAN>(rows, cols, values);
     case DataType::DOUBLE:
-        return std::make_shared<ValueArrayBox<DataType::DOUBLE>>(rows, cols, values);
+        return new ValueArrayBox<DataType::DOUBLE>(rows, cols, values);
     case DataType::SINGLE:
-        return std::make_shared<ValueArrayBox<DataType::SINGLE>>(rows, cols, values);
+        return new ValueArrayBox<DataType::SINGLE>(rows, cols, values);
     case DataType::INT32:
-        return std::make_shared<ValueArrayBox<DataType::INT32>>(rows, cols, values);
+        return new ValueArrayBox<DataType::INT32>(rows, cols, values);
     case DataType::UINT32:
-        return std::make_shared<ValueArrayBox<DataType::UINT32>>(rows, cols, values);
+        return new ValueArrayBox<DataType::UINT32>(rows, cols, values);
     default:
         throw ModelException("cannot create a value array from an unknown data type");
     }
 }
 
-std::shared_ptr<tmdl::ValueArray> tmdl::ValueArray::change_array_type(const ValueArray* arr, DataType dt)
+tmdl::ValueArray* tmdl::ValueArray::change_array_type(const ValueArray* arr, DataType dt)
 {
     throw ModelException("not implemented!");
 }

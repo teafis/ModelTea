@@ -30,18 +30,18 @@ public:
 
     virtual void set_from_string(const std::string& s) override
     {
-        const auto v = ModelValue::from_string(s, value->data_type());
+        const auto v = std::unique_ptr<ModelValue>(ModelValue::from_string(s, value->data_type()));
         value->copy_value(v.get());
     }
 
     virtual void set_data_type(const DataType dt) override
     {
-        value = ModelValue::convert_type(value, dt);
+        value = std::shared_ptr<ModelValue>(ModelValue::convert_type(value.get(), dt));
     }
 
     virtual void set_data_type_string(const std::string& s, DataType dt) override
     {
-        value = ModelValue::from_string(s, dt);
+        value = std::shared_ptr<ModelValue>(ModelValue::from_string(s, dt));
     }
 
 private:
@@ -58,7 +58,7 @@ public:
 
     virtual void set_from_string(const std::string& s) override
     {
-        array = ValueArray::create_value_array(s, array->data_type());
+        array = std::shared_ptr<ValueArray>(ValueArray::create_value_array(s, array->data_type()));
     }
 
     virtual void set_data_type(const DataType dt) override
@@ -68,7 +68,7 @@ public:
 
     virtual void set_data_type_string(const std::string& s, DataType dt) override
     {
-        array = ValueArray::create_value_array(s, dt);
+        array = std::shared_ptr<ValueArray>(ValueArray::create_value_array(s, dt));
     }
 
     void set_size(const size_t c, const size_t r)

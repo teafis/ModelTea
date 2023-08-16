@@ -135,16 +135,16 @@ tmdl::ExecutionState tmdl::ExecutionState::from_model(
 {
     // Parameter generator
     tmdl::ConnectionManager connections;
-    std::shared_ptr<tmdl::VariableManager> manager = std::make_shared<tmdl::VariableManager>();
+    std::shared_ptr<VariableManager> manager = std::make_shared<VariableManager>();
 
     // Add each output variable to the manager
     for (size_t i = 0; i < model->get_num_outputs(); ++i)
     {
         const auto pv = model->get_output_datatype(i);
 
-        const std::shared_ptr<tmdl::ModelValue> value = tmdl::ModelValue::make_default_type(pv);
+        const std::shared_ptr<ModelValue> value = std::shared_ptr<ModelValue>(ModelValue::make_default_type(pv));
 
-        const auto vid = tmdl::VariableIdentifier
+        const auto vid = VariableIdentifier
         {
             .block_id = 0,
             .output_port_num = i

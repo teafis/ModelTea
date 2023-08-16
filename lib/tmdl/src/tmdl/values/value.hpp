@@ -94,16 +94,16 @@ struct ModelValue
     }
 
     template <DataType DT>
-    static std::shared_ptr<ModelValue> make_default()
+    static ModelValue* make_default()
     {
-        return std::make_shared<tmdl::ModelValueBox<DT>>();
+        return new tmdl::ModelValueBox<DT>();
     }
 
-    static std::shared_ptr<ModelValue> make_default_type(const DataType dtype);
+    static ModelValue* make_default_type(const DataType dtype);
 
-    static std::shared_ptr<ModelValue> from_string(const std::string& s, const DataType dt);
+    static ModelValue* from_string(const std::string& s, const DataType dt);
 
-    static std::shared_ptr<ModelValue> convert_type(const std::shared_ptr<const ModelValue> val, const DataType dt);
+    static ModelValue* convert_type(const ModelValue* val, const DataType dt);
 
     template <DataType DT>
     static typename data_type_t<DT>::type get_inner_value(const ModelValue* value)
@@ -137,7 +137,7 @@ struct ModelValueBox : public ModelValue
         return DT;
     }
 
-    virtual void copy_value(const ModelValue* in)
+    virtual void copy_value(const ModelValue* in) override
     {
         if (auto ptr = dynamic_cast<const ModelValueBox<DT>*>(in))
         {

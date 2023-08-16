@@ -76,7 +76,7 @@ tmdl::DataType tmdl::data_type_from_string(const std::string& s)
     return DataTypeMap::get_instance().get_type(s);
 }
 
-std::shared_ptr<tmdl::ModelValue> tmdl::ModelValue::make_default_type(const DataType dtype)
+tmdl::ModelValue* tmdl::ModelValue::make_default_type(const DataType dtype)
 {
     switch (dtype)
     {
@@ -95,22 +95,22 @@ std::shared_ptr<tmdl::ModelValue> tmdl::ModelValue::make_default_type(const Data
     }
 }
 
-std::shared_ptr<tmdl::ModelValue> tmdl::ModelValue::from_string(const std::string& s, const DataType dt)
+tmdl::ModelValue* tmdl::ModelValue::from_string(const std::string& s, const DataType dt)
 {
     try
     {
         switch (dt)
         {
         case DataType::BOOLEAN:
-            return std::make_shared<ModelValueBox<DataType::BOOLEAN>>(std::stoi(s) != 0);
+            return new ModelValueBox<DataType::BOOLEAN>(std::stoi(s) != 0);
         case DataType::INT32:
-            return std::make_shared<ModelValueBox<DataType::INT32>>(std::stoi(s));
+            return new ModelValueBox<DataType::INT32>(std::stoi(s));
         case DataType::UINT32:
-            return std::make_shared<ModelValueBox<DataType::UINT32>>(std::stoul(s));
+            return new ModelValueBox<DataType::UINT32>(std::stoul(s));
         case DataType::SINGLE:
-            return std::make_shared<ModelValueBox<DataType::SINGLE>>(std::stof(s));
+            return new ModelValueBox<DataType::SINGLE>(std::stof(s));
         case DataType::DOUBLE:
-            return std::make_shared<ModelValueBox<DataType::DOUBLE>>(std::stod(s));
+            return new ModelValueBox<DataType::DOUBLE>(std::stod(s));
         default:
             throw ModelException("unknown parse parameter type provided");
         }
@@ -125,94 +125,94 @@ std::shared_ptr<tmdl::ModelValue> tmdl::ModelValue::from_string(const std::strin
     }
 }
 
-std::shared_ptr<tmdl::ModelValue> tmdl::ModelValue::convert_type(const std::shared_ptr<const ModelValue> val, const DataType dt)
+tmdl::ModelValue* tmdl::ModelValue::convert_type(const ModelValue* val, const DataType dt)
 {
-    if (auto ptr = std::dynamic_pointer_cast<const ModelValueBox<DataType::BOOLEAN>>(val))
+    if (auto ptr = dynamic_cast<const ModelValueBox<DataType::BOOLEAN>*>(val))
     {
         switch (dt)
         {
         case DataType::BOOLEAN:
-            return std::make_shared<ModelValueBox<DataType::BOOLEAN>>(ptr->value);
+            return new ModelValueBox<DataType::BOOLEAN>(ptr->value);
         case DataType::INT32:
-            return std::make_shared<ModelValueBox<DataType::INT32>>(ptr->value);
+            return new ModelValueBox<DataType::INT32>(ptr->value);
         case DataType::UINT32:
-            return std::make_shared<ModelValueBox<DataType::UINT32>>(ptr->value);
+            return new ModelValueBox<DataType::UINT32>(ptr->value);
         case DataType::SINGLE:
-            return std::make_shared<ModelValueBox<DataType::SINGLE>>(ptr->value);
+            return new ModelValueBox<DataType::SINGLE>(ptr->value);
         case DataType::DOUBLE:
-            return std::make_shared<ModelValueBox<DataType::DOUBLE>>(ptr->value);
+            return new ModelValueBox<DataType::DOUBLE>(ptr->value);
         default:
             throw ModelException("unknown data type provided");
         }
     }
-    else if (auto ptr = std::dynamic_pointer_cast<const ModelValueBox<DataType::INT32>>(val))
+    else if (auto ptr = dynamic_cast<const ModelValueBox<DataType::INT32>*>(val))
     {
         switch (dt)
         {
         case DataType::BOOLEAN:
-            return std::make_shared<ModelValueBox<DataType::BOOLEAN>>(ptr->value != 0);
+            return new ModelValueBox<DataType::BOOLEAN>(ptr->value != 0);
         case DataType::INT32:
-            return std::make_shared<ModelValueBox<DataType::INT32>>(ptr->value);
+            return new ModelValueBox<DataType::INT32>(ptr->value);
         case DataType::UINT32:
-            return std::make_shared<ModelValueBox<DataType::UINT32>>(ptr->value);
+            return new ModelValueBox<DataType::UINT32>(ptr->value);
         case DataType::SINGLE:
-            return std::make_shared<ModelValueBox<DataType::SINGLE>>(ptr->value);
+            return new ModelValueBox<DataType::SINGLE>(ptr->value);
         case DataType::DOUBLE:
-            return std::make_shared<ModelValueBox<DataType::DOUBLE>>(ptr->value);
+            return new ModelValueBox<DataType::DOUBLE>(ptr->value);
         default:
             throw ModelException("unknown data type provided");
         }
     }
-    else if (auto ptr = std::dynamic_pointer_cast<const ModelValueBox<DataType::UINT32>>(val))
+    else if (auto ptr = dynamic_cast<const ModelValueBox<DataType::UINT32>*>(val))
     {
         switch (dt)
         {
         case DataType::BOOLEAN:
-            return std::make_shared<ModelValueBox<DataType::BOOLEAN>>(ptr->value != 0);
+            return new ModelValueBox<DataType::BOOLEAN>(ptr->value != 0);
         case DataType::INT32:
-            return std::make_shared<ModelValueBox<DataType::INT32>>(ptr->value);
+            return new ModelValueBox<DataType::INT32>(ptr->value);
         case DataType::UINT32:
-            return std::make_shared<ModelValueBox<DataType::UINT32>>(ptr->value);
+            return new ModelValueBox<DataType::UINT32>(ptr->value);
         case DataType::SINGLE:
-            return std::make_shared<ModelValueBox<DataType::SINGLE>>(ptr->value);
+            return new ModelValueBox<DataType::SINGLE>(ptr->value);
         case DataType::DOUBLE:
-            return std::make_shared<ModelValueBox<DataType::DOUBLE>>(ptr->value);
+            return new ModelValueBox<DataType::DOUBLE>(ptr->value);
         default:
             throw ModelException("unknown data type provided");
         }
     }
-    else if (auto ptr = std::dynamic_pointer_cast<const ModelValueBox<DataType::SINGLE>>(val))
+    else if (auto ptr = dynamic_cast<const ModelValueBox<DataType::SINGLE>*>(val))
     {
         switch (dt)
         {
         case DataType::BOOLEAN:
-            return std::make_shared<ModelValueBox<DataType::BOOLEAN>>(ptr->value != 0);
+            return new ModelValueBox<DataType::BOOLEAN>(ptr->value != 0);
         case DataType::INT32:
-            return std::make_shared<ModelValueBox<DataType::INT32>>(ptr->value);
+            return new ModelValueBox<DataType::INT32>(ptr->value);
         case DataType::UINT32:
-            return std::make_shared<ModelValueBox<DataType::UINT32>>(ptr->value);
+            return new ModelValueBox<DataType::UINT32>(ptr->value);
         case DataType::SINGLE:
-            return std::make_shared<ModelValueBox<DataType::SINGLE>>(ptr->value);
+            return new ModelValueBox<DataType::SINGLE>(ptr->value);
         case DataType::DOUBLE:
-            return std::make_shared<ModelValueBox<DataType::DOUBLE>>(ptr->value);
+            return new ModelValueBox<DataType::DOUBLE>(ptr->value);
         default:
             throw ModelException("unknown data type provided");
         }
     }
-    else if (auto ptr = std::dynamic_pointer_cast<const ModelValueBox<DataType::DOUBLE>>(val))
+    else if (auto ptr = dynamic_cast<const ModelValueBox<DataType::DOUBLE>*>(val))
     {
         switch (dt)
         {
         case DataType::BOOLEAN:
-            return std::make_shared<ModelValueBox<DataType::BOOLEAN>>(ptr->value != 0);
+            return new ModelValueBox<DataType::BOOLEAN>(ptr->value != 0);
         case DataType::INT32:
-            return std::make_shared<ModelValueBox<DataType::INT32>>(ptr->value);
+            return new ModelValueBox<DataType::INT32>(ptr->value);
         case DataType::UINT32:
-            return std::make_shared<ModelValueBox<DataType::UINT32>>(ptr->value);
+            return new ModelValueBox<DataType::UINT32>(ptr->value);
         case DataType::SINGLE:
-            return std::make_shared<ModelValueBox<DataType::SINGLE>>(ptr->value);
+            return new ModelValueBox<DataType::SINGLE>(ptr->value);
         case DataType::DOUBLE:
-            return std::make_shared<ModelValueBox<DataType::DOUBLE>>(ptr->value);
+            return new ModelValueBox<DataType::DOUBLE>(ptr->value);
         default:
             throw ModelException("unknown data type provided");
         }

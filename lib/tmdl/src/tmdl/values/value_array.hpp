@@ -19,16 +19,16 @@ class ValueArray
 {
 public:
     virtual void resize(const size_t c, const size_t r) = 0;
-    virtual void set_values(const std::vector<std::shared_ptr<const ModelValue>>& values) = 0;
+    virtual void set_values(const std::vector<std::unique_ptr<const ModelValue>>& values) = 0;
 
 public:
     virtual DataType data_type() const = 0;
 
     virtual std::string to_string() const = 0;
 
-    static std::shared_ptr<ValueArray> create_value_array(const std::string& s, DataType dt);
+    static ValueArray* create_value_array(const std::string& s, DataType dt);
 
-    static std::shared_ptr<ValueArray> change_array_type(const ValueArray* arr, DataType dt);
+    static ValueArray* change_array_type(const ValueArray* arr, DataType dt);
 };
 
 template <DataType DT>
@@ -45,7 +45,7 @@ public:
     };
 
 public:
-    ValueArrayBox(const size_t c, const size_t r, const std::vector<std::shared_ptr<const ModelValue>>& values) :
+    ValueArrayBox(const size_t c, const size_t r, const std::vector<std::unique_ptr<const ModelValue>>& values) :
         m_data(r * c),
         m_cols{c},
         m_rows{r}
@@ -107,7 +107,7 @@ public:
         return m_data[rc_to_index(i)];
     }
 
-    virtual void set_values(const std::vector<std::shared_ptr<const ModelValue>>& values) override
+    virtual void set_values(const std::vector<std::unique_ptr<const ModelValue>>& values) override
     {
         if (values.size() != m_data.size())
         {
@@ -116,7 +116,7 @@ public:
 
         for (size_t i = 0; i < values.size(); ++i)
         {
-            if (auto v = std::dynamic_pointer_cast<const ModelValueBox<DT>>(values[i]))
+            if (auto v = dynamic_cast<const ModelValueBox<DT>*>(values[i].get()))
             {
                 m_data[i] = v->value;
             }

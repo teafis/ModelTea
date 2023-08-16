@@ -23,7 +23,7 @@ public:
 class DataParameterValue : public DataParameter
 {
 public:
-    DataParameterValue() : value(ModelValue::make_default_type(DataType::DOUBLE))
+    DataParameterValue() : value(ModelValue::make_default(DataType::DOUBLE))
     {
         // Empty Constructor
     }

@@ -4,6 +4,7 @@
 #define TF_MODEL_VALUE_ARRAY_HPP
 
 #include <memory>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -45,7 +46,7 @@ public:
     };
 
 public:
-    ValueArrayBox(const size_t c, const size_t r, const std::vector<std::unique_ptr<const ModelValue>>& values) :
+    ValueArrayBox(const size_t c, const size_t r, const std::vector<std::unique_ptr<const ModelValue>>& values = {}) :
         m_data(r * c),
         m_cols{c},
         m_rows{r}

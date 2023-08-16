@@ -3,93 +3,28 @@
 #include "value.hpp"
 #include "../model_exception.hpp"
 
-#include <unordered_map>
-#include <vector>
 #include <utility>
 
-class DataTypeMap
+template <tmdl::DataType DT>
+static tmdl::ModelValue* make_default_static()
 {
-protected:
-    DataTypeMap()
-    {
-        const std::vector<std::pair<tmdl::DataType, std::string>> type_vals{
-            { tmdl::DataType::BOOLEAN, "bool" },
-            { tmdl::DataType::DOUBLE, "f64" },
-            { tmdl::DataType::SINGLE, "f32" },
-            { tmdl::DataType::INT32, "i32" },
-            { tmdl::DataType::UINT32, "u32" },
-        };
-
-        for (const auto& [t, n] : type_vals)
-        {
-            name_to_type.insert({n, t});
-            type_to_name.insert({t, n});
-        }
-    }
-
-public:
-    static const DataTypeMap& get_instance()
-    {
-        static DataTypeMap inst;
-        return inst;
-    }
-
-    tmdl::DataType get_type(const std::string& name) const
-    {
-        const auto it = name_to_type.find(name);
-        if (it != name_to_type.end())
-        {
-            return it->second;
-        }
-        else
-        {
-            return tmdl::DataType::UNKNOWN;
-        }
-    }
-
-    const std::string& get_name(const tmdl::DataType dt) const
-    {
-        const auto it = type_to_name.find(dt);
-        if (it != type_to_name.end())
-        {
-            return it->second;
-        }
-        else
-        {
-            const static std::string unknown_str = "unknown";
-            return unknown_str;
-        }
-    }
-
-protected:
-    std::unordered_map<std::string, tmdl::DataType> name_to_type;
-    std::unordered_map<tmdl::DataType, std::string> type_to_name;
-};
-
-std::string tmdl::data_type_to_string(const DataType dtype)
-{
-    return DataTypeMap::get_instance().get_name(dtype);
+    return new tmdl::ModelValueBox<DT>();
 }
 
-tmdl::DataType tmdl::data_type_from_string(const std::string& s)
-{
-    return DataTypeMap::get_instance().get_type(s);
-}
-
-tmdl::ModelValue* tmdl::ModelValue::make_default_type(const DataType dtype)
+tmdl::ModelValue* tmdl::ModelValue::make_default(const DataType dtype)
 {
     switch (dtype)
     {
     case tmdl::DataType::BOOLEAN:
-        return make_default<tmdl::DataType::BOOLEAN>();
+        return make_default_static<tmdl::DataType::BOOLEAN>();
     case tmdl::DataType::DOUBLE:
-        return make_default<tmdl::DataType::DOUBLE>();
+        return make_default_static<tmdl::DataType::DOUBLE>();
     case tmdl::DataType::SINGLE:
-        return make_default<tmdl::DataType::SINGLE>();
+        return make_default_static<tmdl::DataType::SINGLE>();
     case tmdl::DataType::INT32:
-        return make_default<tmdl::DataType::INT32>();
+        return make_default_static<tmdl::DataType::INT32>();
     case tmdl::DataType::UINT32:
-        return make_default<tmdl::DataType::UINT32>();
+        return make_default_static<tmdl::DataType::UINT32>();
     default:
         throw ModelException("unable to construct value for type");
     }

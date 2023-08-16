@@ -5,6 +5,8 @@
 
 #include <optional>
 
+#include <tmdl/values/value.hpp>
+
 
 PlotWindow::PlotWindow(
     std::shared_ptr<tmdl::ExecutionState> execution,

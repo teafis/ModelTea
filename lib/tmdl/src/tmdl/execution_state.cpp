@@ -142,7 +142,7 @@ tmdl::ExecutionState tmdl::ExecutionState::from_model(
     {
         const auto pv = model->get_output_datatype(i);
 
-        const std::shared_ptr<ModelValue> value = std::shared_ptr<ModelValue>(ModelValue::make_default_type(pv));
+        const std::shared_ptr<ModelValue> value = std::shared_ptr<ModelValue>(ModelValue::make_default(pv));
 
         const auto vid = VariableIdentifier
         {

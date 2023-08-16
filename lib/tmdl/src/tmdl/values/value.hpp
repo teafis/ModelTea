@@ -13,93 +13,29 @@
 
 #include "../model_exception.hpp"
 
+#include "data_types.hpp"
+
 
 namespace tmdl
 {
-
-// TODO - Move all parameters into an array type? Or leave as single elements?
-enum class DataType : uint32_t
-{
-    UNKNOWN = 0,
-    SINGLE,
-    DOUBLE,
-    BOOLEAN,
-    INT32,
-    UINT32,
-};
-
-template<DataType>
-struct data_type_t
-{
-    static const bool has_value = false;
-    static const bool is_numeric = false;
-};
-
-template<>
-struct data_type_t<DataType::SINGLE>
-{
-    using type = float;
-    static const bool has_value = true;
-    static const bool is_numeric = true;
-};
-
-template<>
-struct data_type_t<DataType::DOUBLE>
-{
-    using type = double;
-    static const bool has_value = true;
-    static const bool is_numeric = true;
-};
-
-template<>
-struct data_type_t<DataType::INT32>
-{
-    using type = int32_t;
-    static const bool has_value = true;
-    static const bool is_numeric = true;
-};
-
-template<>
-struct data_type_t<DataType::UINT32>
-{
-    using type = uint32_t;
-    static const bool has_value = true;
-    static const bool is_numeric = true;
-};
-
-template<>
-struct data_type_t<DataType::BOOLEAN>
-{
-    using type = bool;
-    static const bool has_value = true;
-    static const bool is_numeric = false;
-};
-
-std::string data_type_to_string(const DataType dtype);
-
-DataType data_type_from_string(const std::string& s);
 
 template <DataType>
 class ModelValueBox;
 
 struct ModelValue
 {
+    virtual ~ModelValue()
+    {
+        // Empty value
+    }
+
     virtual DataType data_type() const = 0;
 
     virtual void copy_value(const ModelValue* value) = 0;
 
-    virtual ~ModelValue()
-    {
-        // Empty Destructor
-    }
+    virtual std::string to_string() const = 0;
 
-    template <DataType DT>
-    static ModelValue* make_default()
-    {
-        return new tmdl::ModelValueBox<DT>();
-    }
-
-    static ModelValue* make_default_type(const DataType dtype);
+    static ModelValue* make_default(const DataType dtype);
 
     static ModelValue* from_string(const std::string& s, const DataType dt);
 
@@ -127,7 +63,7 @@ struct ModelValueBox : public ModelValue
         // Empty Constructor
     }
 
-    ModelValueBox(const type_t inval) : value{inval}
+    ModelValueBox(const type_t inval) : value(inval)
     {
         // Empty Constructor
     }
@@ -135,6 +71,11 @@ struct ModelValueBox : public ModelValue
     virtual DataType data_type() const override
     {
         return DT;
+    }
+
+    virtual std::string to_string() const override
+    {
+        return std::to_string(value);
     }
 
     virtual void copy_value(const ModelValue* in) override

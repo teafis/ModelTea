@@ -24,10 +24,7 @@ class ModelValueBox;
 
 struct ModelValue
 {
-    virtual ~ModelValue()
-    {
-        // Empty value
-    }
+    virtual ~ModelValue() { }
 
     virtual DataType data_type() const = 0;
 
@@ -58,15 +55,9 @@ struct ModelValueBox : public ModelValue
 {
     using type_t = typename data_type_t<DT>::type;
 
-    ModelValueBox() : value{}
-    {
-        // Empty Constructor
-    }
+    ModelValueBox() = default;
 
-    ModelValueBox(const type_t inval) : value(inval)
-    {
-        // Empty Constructor
-    }
+    ModelValueBox(const type_t inval) : value(inval) { }
 
     virtual DataType data_type() const override
     {
@@ -90,7 +81,7 @@ struct ModelValueBox : public ModelValue
         }
     }
 
-    type_t value;
+    type_t value{};
 };
 
 }

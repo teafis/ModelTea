@@ -146,7 +146,7 @@ bool InputPort::update_block()
     return false;
 }
 
-std::unique_ptr<CompiledBlockInterface> InputPort::get_compiled(const SimState&) const
+std::unique_ptr<CompiledBlockInterface> InputPort::get_compiled(const ModelInfo&) const
 {
     return std::make_unique<CompiledPort>();
 }
@@ -212,7 +212,7 @@ bool OutputPort::update_block()
     return false;
 }
 
-std::unique_ptr<CompiledBlockInterface> OutputPort::get_compiled(const SimState&) const
+std::unique_ptr<CompiledBlockInterface> OutputPort::get_compiled(const ModelInfo&) const
 {
     return std::make_unique<CompiledPort>();
 }

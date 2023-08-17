@@ -246,7 +246,7 @@ DataType Switch::get_output_type(const size_t port) const
     }
 }
 
-std::unique_ptr<CompiledBlockInterface> Switch::get_compiled(const SimState&) const
+std::unique_ptr<CompiledBlockInterface> Switch::get_compiled(const ModelInfo&) const
 {
     if (has_error() != nullptr)
     {

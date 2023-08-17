@@ -223,7 +223,7 @@ std::string tmdl::blocks::TrigSin::get_description() const
     return "computes the sin of the input parameter";
 }
 
-std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::TrigSin::get_compiled(const SimState&) const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::TrigSin::get_compiled(const ModelInfo&) const
 {
     return generate_compiler_interface<tmdl::stdlib::TrigFunction::SIN>(this);
 }
@@ -238,7 +238,7 @@ std::string tmdl::blocks::TrigCos::get_description() const
     return "computes the cos of the input parameter";
 }
 
-std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::TrigCos::get_compiled(const SimState&) const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::TrigCos::get_compiled(const ModelInfo&) const
 {
     return generate_compiler_interface<tmdl::stdlib::TrigFunction::COS>(this);
 }

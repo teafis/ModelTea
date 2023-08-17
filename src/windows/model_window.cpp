@@ -339,7 +339,7 @@ void ModelWindow::saveCode()
     try
     {
         const auto model = ui->block_graphics->get_model();
-        tmdl::codegen::CodeGenerator gen(ui->block_graphics->get_block()->get_compiled(tmdl::SimState(model->get_preferred_dt())));
+        tmdl::codegen::CodeGenerator gen(ui->block_graphics->get_block()->get_compiled(tmdl::BlockInterface::ModelInfo(model->get_preferred_dt())));
 
         std::filesystem::path gen_path(fn.toStdString());
         gen.write_in_folder(gen_path.parent_path());

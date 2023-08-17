@@ -62,6 +62,16 @@ tmdl::BlockInterface::~BlockInterface()
     // Empty Destructor
 }
 
+tmdl::BlockInterface::ModelInfo::ModelInfo(const double dt) : dt(dt)
+{
+    // Empty Constructor
+}
+
+double tmdl::BlockInterface::ModelInfo::get_dt() const
+{
+    return dt;
+}
+
 size_t tmdl::BlockInterface::get_id() const
 {
     return _id;

@@ -158,7 +158,7 @@ tmdl::ExecutionState tmdl::ExecutionState::from_model(
 
     // Construct and return the executor
     auto exec_state = tmdl::ExecutionState(
-        model->get_execution_interface(0, connections, *manager, SimState(dt)),
+                model->get_execution_interface(0, connections, *manager, BlockInterface::ModelInfo(dt)),
         manager,
         dt);
 

@@ -14,7 +14,7 @@ template <tmdl::DataType DT>
 class CompiledIntegrator : public tmdl::CompiledBlockInterface
 {
 public:
-    CompiledIntegrator(const size_t id, const tmdl::SimState& s) : _id{ id }, _state(s)
+    CompiledIntegrator(const size_t id, const tmdl::BlockInterface::ModelInfo& s) : _id{ id }, _state(s)
     {
         // Empty Constructor
     }
@@ -42,13 +42,13 @@ public:
 
 protected:
     const size_t _id;
-    const tmdl::SimState _state;
+    const tmdl::BlockInterface::ModelInfo _state;
 
 protected:
     class IntegratorComponent : public tmdl::codegen::CodeComponent
     {
     public:
-        IntegratorComponent(const tmdl::SimState& s) : _state(s)
+        IntegratorComponent(const tmdl::BlockInterface::ModelInfo& s) : _state(s)
         {
             // Empty Constructor
         }
@@ -98,7 +98,7 @@ protected:
             return { std::to_string(_state.get_dt()) };
         }
 
-        const tmdl::SimState _state;
+        const tmdl::BlockInterface::ModelInfo _state;
     };
 
     struct IntegratorExecutor : public tmdl::BlockExecutionInterface
@@ -111,7 +111,7 @@ protected:
             std::shared_ptr<const tmdl::ModelValue> reset_value,
             std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> reset_flag,
             std::shared_ptr<tmdl::ModelValue> output,
-            const tmdl::SimState& s) :
+                const tmdl::BlockInterface::ModelInfo& s) :
             _input(std::dynamic_pointer_cast<const tmdl::ModelValueBox<DT>>(input)),
             _reset_value(std::dynamic_pointer_cast<const tmdl::ModelValueBox<DT>>(reset_value)),
             _output(std::dynamic_pointer_cast<tmdl::ModelValueBox<DT>>(output)),
@@ -168,7 +168,7 @@ protected:
 
         std::unique_ptr<tmdl::stdlib::integrator_block<type_t>> block;
 
-        const tmdl::SimState state;
+        const tmdl::BlockInterface::ModelInfo state;
     };
 };
 
@@ -269,7 +269,7 @@ bool tmdl::blocks::Integrator::outputs_are_delayed() const
     return true;
 }
 
-std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Integrator::get_compiled(const SimState& s) const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Integrator::get_compiled(const ModelInfo& s) const
 {
     const auto err = has_error();
     if (err != nullptr)

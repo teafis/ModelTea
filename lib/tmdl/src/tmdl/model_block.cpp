@@ -136,7 +136,7 @@ tmdl::DataType tmdl::ModelBlock::get_output_type(const size_t port) const
 
 struct CompiledModelBlock : public tmdl::CompiledBlockInterface
 {
-    CompiledModelBlock(const size_t id, std::shared_ptr<const tmdl::Model> model, const tmdl::SimState& s) : _id(id), _model(model), _state(s)
+    CompiledModelBlock(const size_t id, std::shared_ptr<const tmdl::Model> model, const tmdl::BlockInterface::ModelInfo& s) : _id(id), _model(model), _state(s)
     {
         // Empty Constructor
     }
@@ -161,10 +161,10 @@ struct CompiledModelBlock : public tmdl::CompiledBlockInterface
 protected:
     const size_t _id;
     std::shared_ptr<const tmdl::Model> _model;
-    const tmdl::SimState& _state;
+    const tmdl::BlockInterface::ModelInfo& _state;
 };
 
-std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::ModelBlock::get_compiled(const SimState& s) const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::ModelBlock::get_compiled(const BlockInterface::ModelInfo& s) const
 {
     return std::make_unique<CompiledModelBlock>(get_id(), model, s);
 }

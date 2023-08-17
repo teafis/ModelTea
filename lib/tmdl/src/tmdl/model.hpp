@@ -86,11 +86,11 @@ public:
         const size_t block_id,
         const ConnectionManager& connections,
         const VariableManager& manager,
-        const SimState& state) const;
+            const BlockInterface::ModelInfo& state) const;
 
-    std::unique_ptr<codegen::CodeComponent> get_codegen_component(const SimState& state) const;
+    std::unique_ptr<codegen::CodeComponent> get_codegen_component(const BlockInterface::ModelInfo& state) const;
 
-    std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> get_all_sub_components(const SimState& state) const;
+    std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> get_all_sub_components(const BlockInterface::ModelInfo& state) const;
 
 public:
     std::vector<std::unique_ptr<const BlockError>> get_all_errors() const;

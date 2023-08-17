@@ -65,7 +65,7 @@ protected:
     std::shared_ptr<BlockExecutionInterface> model;
     std::shared_ptr<VariableManager> variables;
     std::unordered_map<std::string, std::shared_ptr<const ModelValue>> named_variables;
-    SimState state;
+    BlockInterface::ModelInfo state;
     uint64_t iterations;
 };
 

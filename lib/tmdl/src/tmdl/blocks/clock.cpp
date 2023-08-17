@@ -12,7 +12,7 @@
 class CompiledClock : public tmdl::CompiledBlockInterface
 {
 public:
-    CompiledClock(const size_t id, const tmdl::SimState& s) : _id(id), _state(s)
+    CompiledClock(const size_t id, const tmdl::BlockInterface::ModelInfo& s) : _id(id), _state(s)
     {
         // Empty Constructor
     }
@@ -38,12 +38,12 @@ public:
 
 protected:
     const size_t _id;
-    const tmdl::SimState _state;
+    const tmdl::BlockInterface::ModelInfo _state;
 
 protected:
     struct ClockComponent : public tmdl::codegen::CodeComponent
     {
-        ClockComponent(const tmdl::SimState& s) : _state(s)
+        ClockComponent(const tmdl::BlockInterface::ModelInfo& s) : _state(s)
         {
             // Empty Constructor
         }
@@ -94,7 +94,7 @@ protected:
             }
         }
 
-        const tmdl::SimState _state;
+        const tmdl::BlockInterface::ModelInfo _state;
     };
 
     class ClockExecutor : public tmdl::BlockExecutionInterface
@@ -102,7 +102,7 @@ protected:
     public:
         ClockExecutor(
             std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>> ptr_output,
-            const tmdl::SimState& s) :
+                const tmdl::BlockInterface::ModelInfo& s) :
             output_value(ptr_output),
             block(nullptr),
             state(s)
@@ -134,7 +134,7 @@ protected:
     protected:
         std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>> output_value;
         std::unique_ptr<tmdl::stdlib::clock_block> block;
-        const tmdl::SimState state;
+        const tmdl::BlockInterface::ModelInfo state;
     };
 };
 
@@ -193,7 +193,7 @@ tmdl::DataType tmdl::blocks::Clock::get_output_type(const size_t port) const
     }
 }
 
-std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Clock::get_compiled(const SimState& s) const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Clock::get_compiled(const ModelInfo& s) const
 {
     return std::make_unique<CompiledClock>(get_id(), s);
 }

@@ -193,7 +193,7 @@ protected:
     };
 };
 
-std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Constant::get_compiled(const SimState&) const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Constant::get_compiled(const ModelInfo&) const
 {
     if (has_error() != nullptr)
     {

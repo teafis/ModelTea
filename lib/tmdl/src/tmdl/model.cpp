@@ -876,7 +876,7 @@ std::shared_ptr<ModelExecutionInterface> Model::get_execution_interface(
     const size_t block_id,
     const ConnectionManager& outer_connections,
     const VariableManager& outer_variables,
-    const SimState& state) const
+        const BlockInterface::ModelInfo& state) const
 {
     // Get the execution order
     const std::vector<size_t> order_values = compile_model().execution_order;
@@ -958,7 +958,7 @@ std::shared_ptr<ModelExecutionInterface> Model::get_execution_interface(
     return model_exec;
 }
 
-std::unique_ptr<codegen::CodeComponent> Model::get_codegen_component(const SimState& state) const
+std::unique_ptr<codegen::CodeComponent> Model::get_codegen_component(const BlockInterface::ModelInfo& state) const
 {
     // Get the execution order
     const auto exec_data = compile_model();
@@ -1000,7 +1000,7 @@ std::unique_ptr<codegen::CodeComponent> Model::get_codegen_component(const SimSt
     return std::make_unique<ModelCodeComponent>(name, exec_data, input_types, output_types, std::move(components));
 }
 
-std::vector<std::unique_ptr<codegen::CodeComponent>> Model::get_all_sub_components(const SimState& state) const
+std::vector<std::unique_ptr<codegen::CodeComponent>> Model::get_all_sub_components(const BlockInterface::ModelInfo& state) const
 {
     std::vector<std::unique_ptr<codegen::CodeComponent>> components;
 

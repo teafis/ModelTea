@@ -33,7 +33,7 @@ public:
 
     DataType get_output_type(const size_t port) const override;
 
-    std::unique_ptr<CompiledBlockInterface> get_compiled(const SimState&) const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 
 protected:
     std::shared_ptr<Parameter> param_dtype;

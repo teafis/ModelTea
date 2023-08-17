@@ -25,7 +25,6 @@ set(
     src/tmdl/model_block.hpp src/tmdl/model_block.cpp
     src/tmdl/model_exception.hpp src/tmdl/model_exception.cpp
     src/tmdl/parameter.hpp src/tmdl/parameter.cpp
-    src/tmdl/sim_state.hpp src/tmdl/sim_state.cpp
     src/tmdl/values/data_types.hpp src/tmdl/values/data_types.cpp
     src/tmdl/values/value.hpp src/tmdl/values/value.cpp
     src/tmdl/values/value_array.hpp src/tmdl/values/value_array.cpp

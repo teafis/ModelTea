@@ -45,7 +45,7 @@ public:
 
     std::string get_description() const override;
 
-    std::unique_ptr<CompiledBlockInterface> get_compiled(const SimState&) const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 };
 
 class Subtraction : public ArithmeticBase
@@ -55,7 +55,7 @@ public:
 
     std::string get_description() const override;
 
-    std::unique_ptr<CompiledBlockInterface> get_compiled(const SimState&) const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 };
 
 class Multiplication : public ArithmeticBase
@@ -65,7 +65,7 @@ public:
 
     std::string get_description() const override;
 
-    std::unique_ptr<CompiledBlockInterface> get_compiled(const SimState&) const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 };
 
 class Division : public ArithmeticBase
@@ -75,7 +75,7 @@ public:
 
     std::string get_description() const override;
 
-    std::unique_ptr<CompiledBlockInterface> get_compiled(const SimState&) const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 };
 
 }

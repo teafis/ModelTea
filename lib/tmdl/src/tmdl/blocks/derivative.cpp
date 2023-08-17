@@ -12,7 +12,7 @@ template <tmdl::DataType DT>
 class CompiledDerivative : public tmdl::CompiledBlockInterface
 {
 public:
-    CompiledDerivative(const size_t id, const tmdl::SimState& s) : _id{ id }, _state(s)
+    CompiledDerivative(const size_t id, const tmdl::BlockInterface::ModelInfo& s) : _id{ id }, _state(s)
     {
         // Empty Constructor
     }
@@ -39,13 +39,13 @@ public:
 
 protected:
     const size_t _id;
-    const tmdl::SimState _state;
+    const tmdl::BlockInterface::ModelInfo _state;
 
 protected:
     class DerivativeComponent : public tmdl::codegen::CodeComponent
     {
     public:
-        DerivativeComponent(const tmdl::SimState& s) : _state(s)
+        DerivativeComponent(const tmdl::BlockInterface::ModelInfo& s) : _state(s)
         {
             // Empty Constructor
         }
@@ -95,7 +95,7 @@ protected:
             return { std::to_string(_state.get_dt()) };
         }
 
-        const tmdl::SimState _state;
+        const tmdl::BlockInterface::ModelInfo _state;
     };
 
     class DerivativeExecutor : public tmdl::BlockExecutionInterface
@@ -107,7 +107,7 @@ protected:
             std::shared_ptr<const tmdl::ModelValue> input,
             std::shared_ptr<tmdl::ModelValue> output,
             std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> reset_flag,
-            const tmdl::SimState& s) :
+                const tmdl::BlockInterface::ModelInfo& s) :
             _input(std::dynamic_pointer_cast<const tmdl::ModelValueBox<DT>>(input)),
             _reset_flag(reset_flag),
             _output(std::dynamic_pointer_cast<tmdl::ModelValueBox<DT>>(output)),
@@ -158,7 +158,7 @@ protected:
         std::shared_ptr<tmdl::ModelValueBox<DT>> _output;
 
         std::unique_ptr<tmdl::stdlib::derivative_block<type_t>> block;
-        const tmdl::SimState state;
+        const tmdl::BlockInterface::ModelInfo state;
     };
 };
 
@@ -247,7 +247,7 @@ tmdl::DataType tmdl::blocks::Derivative::get_output_type(const size_t port) cons
     }
 }
 
-std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Derivative::get_compiled(const SimState& s) const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Derivative::get_compiled(const ModelInfo& s) const
 {
     const auto err = has_error();
     if (err != nullptr)

@@ -10,7 +10,6 @@
 #include <vector>
 
 #include "parameter.hpp"
-#include "sim_state.hpp"
 
 #include "connection_manager.hpp"
 #include "variable_manager.hpp"
@@ -59,6 +58,18 @@ protected:
 class BlockInterface
 {
 public:
+    class ModelInfo
+    {
+    public:
+        ModelInfo(const double dt);
+
+        double get_dt() const;
+
+    private:
+        const double dt;
+    };
+
+public:
     explicit BlockInterface();
 
     virtual ~BlockInterface();
@@ -93,7 +104,7 @@ public:
 
     virtual DataType get_output_type(const size_t port) const = 0;
 
-    virtual std::unique_ptr<CompiledBlockInterface> get_compiled(const SimState& s) const = 0;
+    virtual std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo& s) const = 0;
 
     BlockInterface& operator=(const BlockInterface&) = delete;
 

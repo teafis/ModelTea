@@ -178,7 +178,7 @@ void ModelWindow::newModel()
 
 void ModelWindow::saveModel()
 {
-    if (get_model_id()->get_filename().has_value())
+    if (!get_model_id()->get_filename().has_value())
     {
         saveModelAs();
     }

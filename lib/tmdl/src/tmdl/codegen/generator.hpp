@@ -23,8 +23,6 @@ public:
 
 private:
     std::unique_ptr<CompiledBlockInterface> compiled;
-
-    //size_t var_count = 0;
 };
 
 }

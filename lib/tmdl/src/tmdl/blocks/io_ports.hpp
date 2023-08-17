@@ -33,7 +33,7 @@ public:
 
     bool update_block() override;
 
-    std::unique_ptr<CompiledBlockInterface> get_compiled() const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled(const SimState&) const override;
 
 public:
     void set_input_value(const DataType type);
@@ -64,7 +64,7 @@ public:
 
     bool update_block() override;
 
-    std::unique_ptr<CompiledBlockInterface> get_compiled() const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled(const SimState&) const override;
 
 public:
     DataType get_output_value() const;

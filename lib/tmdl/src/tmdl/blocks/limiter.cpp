@@ -205,7 +205,7 @@ protected:
         }
 
     public:
-        void init(const SimState&) override
+        void init() override
         {
             block.s_in.input_value = _ptr_input->value;
             block.s_in.limit_lower = _val_min->value;
@@ -214,7 +214,7 @@ protected:
             _ptr_output->value = block.s_out.output_value;
         }
 
-        void step(const SimState&) override
+        void step() override
         {
             block.s_in.input_value = _ptr_input->value;
             block.s_in.limit_lower = _val_min->value;
@@ -414,7 +414,7 @@ DataType Limiter::get_output_type(const size_t port) const
     }
 }
 
-std::unique_ptr<CompiledBlockInterface> Limiter::get_compiled() const
+std::unique_ptr<CompiledBlockInterface> Limiter::get_compiled(const SimState&) const
 {
     if (has_error() != nullptr)
     {

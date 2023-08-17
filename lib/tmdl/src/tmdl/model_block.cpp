@@ -136,7 +136,7 @@ tmdl::DataType tmdl::ModelBlock::get_output_type(const size_t port) const
 
 struct CompiledModelBlock : public tmdl::CompiledBlockInterface
 {
-    CompiledModelBlock(const size_t id, std::shared_ptr<const tmdl::Model> model) : _id(id), _model(model)
+    CompiledModelBlock(const size_t id, std::shared_ptr<const tmdl::Model> model, const tmdl::SimState& s) : _id(id), _model(model), _state(s)
     {
         // Empty Constructor
     }
@@ -145,27 +145,28 @@ struct CompiledModelBlock : public tmdl::CompiledBlockInterface
         const tmdl::ConnectionManager& connections,
         const tmdl::VariableManager& manager) const override
     {
-        return _model->get_execution_interface(_id, connections, manager);
+        return _model->get_execution_interface(_id, connections, manager, _state);
     }
 
     virtual std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> get_codegen_other() const override
     {
-        return _model->get_all_sub_components();
+        return _model->get_all_sub_components(_state);
     }
 
     virtual std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_self() const override
     {
-        return _model->get_codegen_component();
+        return _model->get_codegen_component(_state);
     }
 
 protected:
     const size_t _id;
     std::shared_ptr<const tmdl::Model> _model;
+    const tmdl::SimState& _state;
 };
 
-std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::ModelBlock::get_compiled() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::ModelBlock::get_compiled(const SimState& s) const
 {
-    return std::make_unique<CompiledModelBlock>(get_id(), model);
+    return std::make_unique<CompiledModelBlock>(get_id(), model, s);
 }
 
 std::shared_ptr<tmdl::Model> tmdl::ModelBlock::get_model()

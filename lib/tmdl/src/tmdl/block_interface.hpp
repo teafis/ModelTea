@@ -11,7 +11,6 @@
 
 #include "parameter.hpp"
 #include "sim_state.hpp"
-#include "values/value.hpp"
 
 #include "connection_manager.hpp"
 #include "variable_manager.hpp"
@@ -94,7 +93,7 @@ public:
 
     virtual DataType get_output_type(const size_t port) const = 0;
 
-    virtual std::unique_ptr<CompiledBlockInterface> get_compiled() const = 0;
+    virtual std::unique_ptr<CompiledBlockInterface> get_compiled(const SimState& s) const = 0;
 
     BlockInterface& operator=(const BlockInterface&) = delete;
 
@@ -111,11 +110,11 @@ class BlockExecutionInterface
 public:
     virtual ~BlockExecutionInterface();
 
-    virtual void init(const SimState&);
+    virtual void init();
 
-    virtual void step(const SimState&);
+    virtual void step();
 
-    virtual void reset(const SimState&);
+    virtual void reset();
 
     virtual void close();
 };

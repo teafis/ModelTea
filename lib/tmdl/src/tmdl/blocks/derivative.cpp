@@ -12,7 +12,7 @@ template <tmdl::DataType DT>
 class CompiledDerivative : public tmdl::CompiledBlockInterface
 {
 public:
-    CompiledDerivative(const size_t id) : _id{ id }
+    CompiledDerivative(const size_t id, const tmdl::SimState& s) : _id{ id }, _state(s)
     {
         // Empty Constructor
     }
@@ -29,21 +29,27 @@ public:
             .output_port_num = 0
         });
 
-        return std::make_shared<DerivativeExecutor>(in_value, out_value, in_reset_flag);
+        return std::make_shared<DerivativeExecutor>(in_value, out_value, in_reset_flag, _state);
     }
 
     std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_self() const override
     {
-        return std::make_unique<DerivativeComponent>();
+        return std::make_unique<DerivativeComponent>(_state);
     }
 
 protected:
     const size_t _id;
+    const tmdl::SimState _state;
 
 protected:
     class DerivativeComponent : public tmdl::codegen::CodeComponent
     {
     public:
+        DerivativeComponent(const tmdl::SimState& s) : _state(s)
+        {
+            // Empty Constructor
+        }
+
         virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
         {
             return tmdl::codegen::InterfaceDefinition("s_in", {"input_value", "reset_flag"});
@@ -83,6 +89,13 @@ protected:
                 return {};
             }
         }
+
+        virtual std::vector<std::string> constructor_arguments() const override
+        {
+            return { std::to_string(_state.get_dt()) };
+        }
+
+        const tmdl::SimState _state;
     };
 
     class DerivativeExecutor : public tmdl::BlockExecutionInterface
@@ -93,10 +106,12 @@ protected:
         DerivativeExecutor(
             std::shared_ptr<const tmdl::ModelValue> input,
             std::shared_ptr<tmdl::ModelValue> output,
-            std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> reset_flag) :
+            std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> reset_flag,
+            const tmdl::SimState& s) :
             _input(std::dynamic_pointer_cast<const tmdl::ModelValueBox<DT>>(input)),
             _reset_flag(reset_flag),
-            _output(std::dynamic_pointer_cast<tmdl::ModelValueBox<DT>>(output))
+            _output(std::dynamic_pointer_cast<tmdl::ModelValueBox<DT>>(output)),
+            state(s)
         {
             if (_input == nullptr || _output == nullptr || _reset_flag == nullptr)
             {
@@ -104,22 +119,22 @@ protected:
             }
         }
 
-        void init(const tmdl::SimState& s) override
+        void init() override
         {
-            block = std::make_unique<tmdl::stdlib::derivative_block<type_t>>(s.get_dt());
+            block = std::make_unique<tmdl::stdlib::derivative_block<type_t>>(state.get_dt());
 
             update_inputs();
             block->init();
         }
 
-        void step(const tmdl::SimState&) override
+        void step() override
         {
             update_inputs();
             block->step();
             _output->value = block->s_out.output_value;
         }
 
-        void reset(const tmdl::SimState&) override
+        void reset() override
         {
             update_inputs();
             block->reset();
@@ -143,6 +158,7 @@ protected:
         std::shared_ptr<tmdl::ModelValueBox<DT>> _output;
 
         std::unique_ptr<tmdl::stdlib::derivative_block<type_t>> block;
+        const tmdl::SimState state;
     };
 };
 
@@ -231,7 +247,7 @@ tmdl::DataType tmdl::blocks::Derivative::get_output_type(const size_t port) cons
     }
 }
 
-std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Derivative::get_compiled() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Derivative::get_compiled(const SimState& s) const
 {
     const auto err = has_error();
     if (err != nullptr)
@@ -242,9 +258,9 @@ std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Derivative::get_comp
     switch (input_type)
     {
     case DataType::DOUBLE:
-        return std::make_unique<CompiledDerivative<DataType::DOUBLE>>(get_id());
+        return std::make_unique<CompiledDerivative<DataType::DOUBLE>>(get_id(), s);
     case DataType::SINGLE:
-        return std::make_unique<CompiledDerivative<DataType::SINGLE>>(get_id());
+        return std::make_unique<CompiledDerivative<DataType::SINGLE>>(get_id(), s);
     default:
         throw ModelException("unable to create pointer value");
     }

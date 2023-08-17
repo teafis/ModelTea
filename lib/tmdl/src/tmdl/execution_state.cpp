@@ -28,19 +28,19 @@ tmdl::ExecutionState::~ExecutionState()
 
 void tmdl::ExecutionState::init()
 {
-    model->init(state);
+    model->init();
 }
 
 void tmdl::ExecutionState::step()
 {
     iterations += 1;
-    model->step(state);
+    model->step();
 }
 
 void tmdl::ExecutionState::reset()
 {
     iterations = 0;
-    model->reset(state);
+    model->reset();
 }
 
 double tmdl::ExecutionState::get_current_time() const
@@ -158,7 +158,7 @@ tmdl::ExecutionState tmdl::ExecutionState::from_model(
 
     // Construct and return the executor
     auto exec_state = tmdl::ExecutionState(
-        model->get_execution_interface(0, connections, *manager),
+        model->get_execution_interface(0, connections, *manager, SimState(dt)),
         manager,
         dt);
 

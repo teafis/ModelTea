@@ -41,7 +41,7 @@ public:
 
     std::string get_description() const override;
 
-    std::unique_ptr<CompiledBlockInterface> get_compiled() const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled(const SimState&) const override;
 };
 
 class TrigCos : public TrigFunction
@@ -51,7 +51,7 @@ public:
 
     std::string get_description() const override;
 
-    std::unique_ptr<CompiledBlockInterface> get_compiled() const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled(const SimState&) const override;
 };
 
 }

@@ -12,7 +12,7 @@
 class CompiledClock : public tmdl::CompiledBlockInterface
 {
 public:
-    CompiledClock(const size_t id) : _id(id)
+    CompiledClock(const size_t id, const tmdl::SimState& s) : _id(id), _state(s)
     {
         // Empty Constructor
     }
@@ -28,20 +28,26 @@ public:
 
         auto ptr = std::dynamic_pointer_cast<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>>(manager.get_ptr(vid));
 
-        return std::make_shared<ClockExecutor>(ptr);
+        return std::make_shared<ClockExecutor>(ptr, _state);
     }
 
     std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_self() const override
     {
-        return std::make_unique<ClockComponent>();
+        return std::make_unique<ClockComponent>(_state);
     }
 
 protected:
     const size_t _id;
+    const tmdl::SimState _state;
 
 protected:
     struct ClockComponent : public tmdl::codegen::CodeComponent
     {
+        ClockComponent(const tmdl::SimState& s) : _state(s)
+        {
+            // Empty Constructor
+        }
+
         virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
         {
             return {};
@@ -69,7 +75,7 @@ protected:
 
         virtual std::vector<std::string> constructor_arguments() const override
         {
-            return { "0.1" };
+            return { std::to_string(_state.get_dt()) };
         }
 
         virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
@@ -87,15 +93,19 @@ protected:
                 return {};
             }
         }
+
+        const tmdl::SimState _state;
     };
 
     class ClockExecutor : public tmdl::BlockExecutionInterface
     {
     public:
         ClockExecutor(
-            std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>> ptr_output) :
+            std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>> ptr_output,
+            const tmdl::SimState& s) :
             output_value(ptr_output),
-            block(nullptr)
+            block(nullptr),
+            state(s)
         {
             if (ptr_output == nullptr)
             {
@@ -104,13 +114,13 @@ protected:
         }
 
     public:
-        void init(const tmdl::SimState& s) override
+        void init() override
         {
-            block = std::make_unique<tmdl::stdlib::clock_block>(s.get_dt());
+            block = std::make_unique<tmdl::stdlib::clock_block>(state.get_dt());
             block->init();
         }
 
-        void step(const tmdl::SimState&) override
+        void step() override
         {
             block->step();
             output_value->value = block->s_out.val;
@@ -124,6 +134,7 @@ protected:
     protected:
         std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>> output_value;
         std::unique_ptr<tmdl::stdlib::clock_block> block;
+        const tmdl::SimState state;
     };
 };
 
@@ -182,7 +193,7 @@ tmdl::DataType tmdl::blocks::Clock::get_output_type(const size_t port) const
     }
 }
 
-std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Clock::get_compiled() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Clock::get_compiled(const SimState& s) const
 {
-    return std::make_unique<CompiledClock>(get_id());
+    return std::make_unique<CompiledClock>(get_id(), s);
 }

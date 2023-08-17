@@ -119,7 +119,7 @@ public:
 
     std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_self() const override
     {
-        return std::make_unique<ConstantComponent>();
+        return std::make_unique<ConstantComponent>(_value);
     }
 
 protected:
@@ -129,6 +129,11 @@ protected:
 protected:
     struct ConstantComponent : public tmdl::codegen::CodeComponent
     {
+        ConstantComponent(type_t val) : value(val)
+        {
+            // Empty Constructor
+        }
+
         virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
         {
             return {};
@@ -158,6 +163,13 @@ protected:
         {
             return {};
         }
+
+        virtual std::vector<std::string> constructor_arguments() const override
+        {
+            return { std::to_string(value) };
+        }
+
+        const type_t value;
     };
 
     struct ConstantExecutor : public tmdl::BlockExecutionInterface
@@ -181,7 +193,7 @@ protected:
     };
 };
 
-std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Constant::get_compiled() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Constant::get_compiled(const SimState&) const
 {
     if (has_error() != nullptr)
     {

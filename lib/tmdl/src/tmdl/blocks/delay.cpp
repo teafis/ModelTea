@@ -110,20 +110,20 @@ protected:
             }
         }
 
-        void init(const tmdl::SimState&) override
+        void init() override
         {
             update_inputs();
             block.init();
         }
 
-        void step(const tmdl::SimState&) override
+        void step() override
         {
             update_inputs();
             block.step();
             _output->value = block.s_out.output_value;
         }
 
-        void reset(const tmdl::SimState&) override
+        void reset() override
         {
             update_inputs();
             block.reset();
@@ -236,7 +236,7 @@ tmdl::DataType tmdl::blocks::Delay::get_output_type(const size_t port) const
     }
 }
 
-std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Delay::get_compiled() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Delay::get_compiled(const SimState&) const
 {
     if (has_error() != nullptr)
     {

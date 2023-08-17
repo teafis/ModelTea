@@ -228,7 +228,7 @@ protected:
                     continue;
                 }
 
-                lines.push_back(fmt::format("        // Block {}", bid));
+                lines.push_back(fmt::format("        // Block {} - {}", bid, it->second.name));
 
                 // Copy Input Values
                 const auto input_def = get_input_type();
@@ -372,27 +372,27 @@ public:
         // Empty Constructor?
     }
 
-    void init(const SimState& s) override
+    void init() override
     {
         for (const auto& b : blocks)
         {
-            b->init(s);
+            b->init();
         }
     }
 
-    void step(const SimState& state) override
+    void step() override
     {
         for (const auto& b : blocks)
         {
-            b->step(state);
+            b->step();
         }
     }
 
-    void reset(const SimState& s) override
+    void reset() override
     {
         for (const auto& b : blocks)
         {
-            b->reset(s);
+            b->reset();
         }
     }
 
@@ -875,7 +875,8 @@ tmdl::Model::CompiledModelData Model::compile_model() const
 std::shared_ptr<ModelExecutionInterface> Model::get_execution_interface(
     const size_t block_id,
     const ConnectionManager& outer_connections,
-    const VariableManager& outer_variables) const
+    const VariableManager& outer_variables,
+    const SimState& state) const
 {
     // Get the execution order
     const std::vector<size_t> order_values = compile_model().execution_order;
@@ -944,7 +945,7 @@ std::shared_ptr<ModelExecutionInterface> Model::get_execution_interface(
     std::vector<std::shared_ptr<BlockExecutionInterface>> interface_order;
     for (const auto& b_id : order_values)
     {
-        std::shared_ptr<BlockExecutionInterface> block = get_block(b_id)->get_compiled()->get_execution_interface(
+        std::shared_ptr<BlockExecutionInterface> block = get_block(b_id)->get_compiled(state)->get_execution_interface(
             connections,
             *variables);
         interface_order.push_back(block);
@@ -957,7 +958,7 @@ std::shared_ptr<ModelExecutionInterface> Model::get_execution_interface(
     return model_exec;
 }
 
-std::unique_ptr<codegen::CodeComponent> Model::get_codegen_component() const
+std::unique_ptr<codegen::CodeComponent> Model::get_codegen_component(const SimState& state) const
 {
     // Get the execution order
     const auto exec_data = compile_model();
@@ -978,7 +979,7 @@ std::unique_ptr<codegen::CodeComponent> Model::get_codegen_component() const
         else
         {
             const auto blk = get_block(id);
-            components.emplace(id, blk->get_compiled()->get_codegen_self());
+            components.emplace(id, blk->get_compiled(state)->get_codegen_self());
         }
     }
 
@@ -999,13 +1000,13 @@ std::unique_ptr<codegen::CodeComponent> Model::get_codegen_component() const
     return std::make_unique<ModelCodeComponent>(name, exec_data, input_types, output_types, std::move(components));
 }
 
-std::vector<std::unique_ptr<codegen::CodeComponent>> Model::get_all_sub_components() const
+std::vector<std::unique_ptr<codegen::CodeComponent>> Model::get_all_sub_components(const SimState& state) const
 {
     std::vector<std::unique_ptr<codegen::CodeComponent>> components;
 
     for (const auto& kv : blocks)
     {
-        for (auto& c : kv.second->get_compiled()->get_codegen_components())
+        for (auto& c : kv.second->get_compiled(state)->get_codegen_components())
         {
             components.push_back(std::move(c));
         }

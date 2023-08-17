@@ -31,7 +31,7 @@ public:
 
     DataType get_output_type(const size_t port) const override;
 
-    std::unique_ptr<CompiledBlockInterface> get_compiled() const override;
+    std::unique_ptr<CompiledBlockInterface> get_compiled(const SimState&) const override;
 
 protected:
     DataType input_type;

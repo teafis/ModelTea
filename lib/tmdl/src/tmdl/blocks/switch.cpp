@@ -119,7 +119,7 @@ protected:
         }
 
     public:
-        void init(const SimState&) override
+        void init() override
         {
             block.s_in.switch_value = _ptr_switch->value;
             block.s_in.value_a = _ptr_val_a->value;
@@ -128,7 +128,7 @@ protected:
             _ptr_output->value = block.s_out.value;
         }
 
-        void step(const SimState&) override
+        void step() override
         {
             block.s_in.switch_value = _ptr_switch->value;
             block.s_in.value_a = _ptr_val_a->value;
@@ -246,7 +246,7 @@ DataType Switch::get_output_type(const size_t port) const
     }
 }
 
-std::unique_ptr<CompiledBlockInterface> Switch::get_compiled() const
+std::unique_ptr<CompiledBlockInterface> Switch::get_compiled(const SimState&) const
 {
     if (has_error() != nullptr)
     {

@@ -106,17 +106,17 @@ tmdl::BlockExecutionInterface::~BlockExecutionInterface()
     // Empty Destructor
 }
 
-void tmdl::BlockExecutionInterface::init(const SimState&)
+void tmdl::BlockExecutionInterface::init()
 {
     // Empty Init
 }
 
-void tmdl::BlockExecutionInterface::step(const SimState&)
+void tmdl::BlockExecutionInterface::step()
 {
     // Empty Step
 }
 
-void tmdl::BlockExecutionInterface::reset(const SimState&)
+void tmdl::BlockExecutionInterface::reset()
 {
     // Empty Reset
 }

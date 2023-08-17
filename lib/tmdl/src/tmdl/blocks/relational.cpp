@@ -111,7 +111,7 @@ protected:
             }
         }
 
-        void init(const tmdl::SimState&) override
+        void init() override
         {
             block.s_in.val_a = input_a->value;
             block.s_in.val_b = input_b->value;
@@ -119,7 +119,7 @@ protected:
             output_value->value = block.s_out.output_value;
         }
 
-        void step(const tmdl::SimState&) override
+        void step() override
         {
             block.s_in.val_a = input_a->value;
             block.s_in.val_b = input_b->value;
@@ -267,7 +267,7 @@ std::string tmdl::blocks::GreaterThan::get_description() const
     return get_name();
 }
 
-std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::GreaterThan::get_compiled() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::GreaterThan::get_compiled(const SimState&) const
 {
     return generate_compiled<tmdl::stdlib::RelationalOperator::GREATER_THAN>(this, _inputA);
 }
@@ -284,7 +284,7 @@ std::string tmdl::blocks::GreaterThanEqual::get_description() const
     return get_name();
 }
 
-std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::GreaterThanEqual::get_compiled() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::GreaterThanEqual::get_compiled(const SimState&) const
 {
     return generate_compiled<tmdl::stdlib::RelationalOperator::GREATER_THAN_EQUAL>(this, _inputA);
 }
@@ -301,7 +301,7 @@ std::string tmdl::blocks::LessThan::get_description() const
     return get_name();
 }
 
-std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::LessThan::get_compiled() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::LessThan::get_compiled(const SimState&) const
 {
     return generate_compiled<tmdl::stdlib::RelationalOperator::LESS_THAN>(this, _inputA);
 }
@@ -318,7 +318,7 @@ std::string tmdl::blocks::LessThanEqual::get_description() const
     return get_name();
 }
 
-std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::LessThanEqual::get_compiled() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::LessThanEqual::get_compiled(const SimState&) const
 {
     return generate_compiled<tmdl::stdlib::RelationalOperator::LESS_THAN_EQUAL>(this, _inputA);
 }
@@ -335,7 +335,7 @@ std::string tmdl::blocks::Equal::get_description() const
     return get_name();
 }
 
-std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Equal::get_compiled() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Equal::get_compiled(const SimState&) const
 {
     return generate_compiled<tmdl::stdlib::RelationalOperator::EQUAL>(this, _inputA);
 }
@@ -352,7 +352,7 @@ std::string tmdl::blocks::NotEqual::get_description() const
     return get_name();
 }
 
-std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::NotEqual::get_compiled() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::NotEqual::get_compiled(const SimState&) const
 {
     return generate_compiled<tmdl::stdlib::RelationalOperator::NOT_EQUAL>(this, _inputA);
 }

@@ -149,7 +149,7 @@ protected:
             block.s_in.vals = input_value_ptr_array.data();
         }
 
-        void init(const tmdl::SimState&) override
+        void init() override
         {
             for (int i = 0; i < input_value_ptr_array.size(); ++i)
             {
@@ -159,7 +159,7 @@ protected:
             output_value->value = block.s_out.val;
         }
 
-        void step(const tmdl::SimState&) override
+        void step() override
         {
             for (int i = 0; i < input_value_ptr_array.size(); ++i)
             {
@@ -322,7 +322,7 @@ std::string tmdl::blocks::Addition::get_description() const
     return "adds the provided inputs together";
 }
 
-std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Addition::get_compiled() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Addition::get_compiled(const SimState&) const
 {
     if (has_error() != nullptr)
     {
@@ -344,7 +344,7 @@ std::string tmdl::blocks::Subtraction::get_description() const
     return "subtracts the Multiplicationd inputs together";
 }
 
-std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Subtraction::get_compiled() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Subtraction::get_compiled(const SimState&) const
 {
     if (has_error() != nullptr)
     {
@@ -366,7 +366,7 @@ std::string tmdl::blocks::Multiplication::get_description() const
     return "multiplies the provided inputs together";
 }
 
-std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Multiplication::get_compiled() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Multiplication::get_compiled(const SimState&) const
 {
     if (has_error() != nullptr)
     {
@@ -388,7 +388,7 @@ std::string tmdl::blocks::Division::get_description() const
     return "divides the provided inputs together";
 }
 
-std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Division::get_compiled() const
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Division::get_compiled(const SimState&) const
 {
     if (has_error() != nullptr)
     {

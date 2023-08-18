@@ -21,8 +21,15 @@ class ValueArray
 public:
     virtual void resize(const size_t c, const size_t r) = 0;
     virtual void set_values(const std::vector<std::unique_ptr<const ModelValue>>& values) = 0;
+    virtual std::vector<std::unique_ptr<ModelValue>> get_values() const = 0;
 
 public:
+    virtual size_t rows() const = 0;
+
+    virtual size_t cols() const = 0;
+
+    virtual size_t size() const = 0;
+
     virtual DataType data_type() const = 0;
 
     virtual std::string to_string() const = 0;
@@ -30,6 +37,8 @@ public:
     static ValueArray* create_value_array(const std::string& s, DataType dt);
 
     static ValueArray* change_array_type(const ValueArray* arr, DataType dt);
+
+    static ValueArray* create_with_type(const size_t cols, const size_t rows, const std::vector<std::unique_ptr<const ModelValue>>& values, const tmdl::DataType data_type);
 };
 
 template <DataType DT>
@@ -57,6 +66,21 @@ public:
         }
 
         set_values(values);
+    }
+
+    virtual size_t rows() const override
+    {
+        return m_rows;
+    }
+
+    virtual size_t cols() const
+    {
+        return m_cols;
+    }
+
+    virtual size_t size() const
+    {
+        return m_rows * m_cols;
     }
 
     virtual DataType data_type() const override
@@ -126,6 +150,22 @@ public:
                 throw ModelException("cannot set array with mismatching data type");
             }
         }
+    }
+
+    virtual std::vector<std::unique_ptr<ModelValue>> get_values() const override
+    {
+        std::vector<std::unique_ptr<ModelValue>> values;
+        for (const auto& v : m_data)
+        {
+            values.push_back(std::make_unique<ModelValueBox<DT>>(v));
+        }
+
+        if (values.size() != m_data.size())
+        {
+            throw ModelException("mismatch in data sizes for get_values() in model array");
+        }
+
+        return values;
     }
 
 private:

@@ -64,6 +64,7 @@ public:
     virtual void set_data_type(const DataType dt) override
     {
         //value = convert_value_type(value, dt);
+        array = std::shared_ptr<ValueArray>(array->change_array_type(array.get(), dt));
     }
 
     virtual void set_data_type_string(const std::string& s, DataType dt) override

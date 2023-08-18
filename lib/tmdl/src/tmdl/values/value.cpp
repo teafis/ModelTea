@@ -62,6 +62,8 @@ tmdl::ModelValue* tmdl::ModelValue::from_string(const std::string& s, const Data
 
 tmdl::ModelValue* tmdl::ModelValue::convert_type(const ModelValue* val, const DataType dt)
 {
+    if (val == nullptr) throw ModelException("unexpected nullptr");
+
     if (auto ptr = dynamic_cast<const ModelValueBox<DataType::BOOLEAN>*>(val))
     {
         switch (dt)

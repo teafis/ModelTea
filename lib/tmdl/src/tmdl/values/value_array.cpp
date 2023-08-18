@@ -90,24 +90,39 @@ tmdl::ValueArray* tmdl::ValueArray::create_value_array(const std::string& s, con
     }
 
     // Create the array and set values
-    switch (dt)
-    {
-    case DataType::BOOLEAN:
-        return new ValueArrayBox<DataType::BOOLEAN>(rows, cols, values);
-    case DataType::DOUBLE:
-        return new ValueArrayBox<DataType::DOUBLE>(rows, cols, values);
-    case DataType::SINGLE:
-        return new ValueArrayBox<DataType::SINGLE>(rows, cols, values);
-    case DataType::INT32:
-        return new ValueArrayBox<DataType::INT32>(rows, cols, values);
-    case DataType::UINT32:
-        return new ValueArrayBox<DataType::UINT32>(rows, cols, values);
-    default:
-        throw ModelException("cannot create a value array from an unknown data type");
-    }
+    return create_with_type(cols, rows, values, dt);
 }
 
 tmdl::ValueArray* tmdl::ValueArray::change_array_type(const ValueArray* arr, DataType dt)
 {
-    throw ModelException("not implemented!");
+    if (arr == nullptr) throw ModelException("unexpected nullptr");
+
+    const auto old_values = arr->get_values();
+    std::vector<std::unique_ptr<const ModelValue>> model_values;
+
+    for (const auto& ov : old_values)
+    {
+        model_values.emplace_back(ModelValue::convert_type(ov.get(), dt));
+    }
+
+    return create_with_type(arr->cols(), arr->rows(), model_values, dt);
+}
+
+tmdl::ValueArray* tmdl::ValueArray::create_with_type(const size_t cols, size_t rows, const std::vector<std::unique_ptr<const ModelValue>>& values, const tmdl::DataType data_type)
+{
+    switch (data_type)
+    {
+    case DataType::BOOLEAN:
+        return new ValueArrayBox<DataType::BOOLEAN>(cols, rows, values);
+    case DataType::DOUBLE:
+        return new ValueArrayBox<DataType::DOUBLE>(cols, rows, values);
+    case DataType::SINGLE:
+        return new ValueArrayBox<DataType::SINGLE>(cols, rows, values);
+    case DataType::INT32:
+        return new ValueArrayBox<DataType::INT32>(cols, rows, values);
+    case DataType::UINT32:
+        return new ValueArrayBox<DataType::UINT32>(cols, rows, values);
+    default:
+        throw ModelException("cannot create a value array from an unknown data type");
+    }
 }

@@ -440,7 +440,7 @@ void ModelWindow::generateExecutor()
         for (size_t i = 0; i < model->get_num_outputs(); ++i)
         {
             const auto outer_id = tmdl::VariableIdentifier {
-                .block_id = 0, // TODO get_id(),
+                .block_id = 0,
                 .output_port_num = i
             };
 

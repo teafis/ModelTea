@@ -1132,7 +1132,14 @@ std::shared_ptr<tmdl::Model> tmdl::Model::load_model(const std::filesystem::path
     }
 
     nlohmann::json j;
-    iss >> j;
+    try
+    {
+        iss >> j;
+    }
+    catch (const nlohmann::json::exception& err)
+    {
+        throw ModelException(fmt::format("unable to load model '{}' - {}", path.string(), err.what()));
+    }
 
     std::shared_ptr<tmdl::Model> mdl = std::make_shared<tmdl::Model>();
     mdl->set_filename(path);
@@ -1221,7 +1228,7 @@ void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m)
         const auto loc = blk.second->get_loc();
         if (!block_offset)
         {
-            *block_offset = loc;
+            block_offset = loc;
         }
         else
         {

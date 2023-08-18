@@ -230,7 +230,22 @@ void ModelWindow::openFileDialog()
     QString openName = QFileDialog::getOpenFileName(this, tr("Open Model"), get_filename(), tr(default_file_filter.toUtf8()));
     if (!openName.isEmpty())
     {
-        openModelFile(openName);
+        if (!get_model_id()->get_filename().has_value())
+        {
+            openModelFile(openName);
+        }
+        else
+        {
+            auto new_window = new ModelWindow();
+            if (new_window->openModelFile(openName))
+            {
+                new_window->show();
+            }
+            else
+            {
+                new_window->close();
+            }
+        }
     }
 }
 

@@ -19,6 +19,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Charts REQUIRED)
 
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
+find_package(Catch2 CONFIG REQUIRED)
 
 set(PROJECT_SOURCES
     src/main.cpp

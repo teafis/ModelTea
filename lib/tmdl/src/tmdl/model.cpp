@@ -1214,6 +1214,27 @@ void from_json(const nlohmann::json& j, SaveBlock& b)
 
 void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m)
 {
+    // Find the offset XY positions
+    std::optional<BlockLocation> block_offset = std::nullopt;
+    for (const auto& blk : m.blocks)
+    {
+        const auto loc = blk.second->get_loc();
+        if (!block_offset)
+        {
+            *block_offset = loc;
+        }
+        else
+        {
+            block_offset->x = std::min(block_offset->x, loc.x);
+            block_offset->y = std::min(block_offset->y, loc.y);
+        }
+    }
+
+    if (!block_offset)
+    {
+        block_offset.emplace();
+    }
+
     j["description"] = m.description;
     j["preferred_dt"] = m.preferred_dt;
     j["output_ids"] = m.output_ids;
@@ -1241,8 +1262,8 @@ void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m)
             .id = blk->get_id(),
             .name = blk->get_name(),
             .parameters = json_parameters,
-            .x = blk->get_loc().x,
-            .y = blk->get_loc().y
+            .x = blk->get_loc().x - block_offset->x,
+            .y = blk->get_loc().y - block_offset->y
         };
 
         json_blocks.insert({std::to_string(save_blk.id), save_blk});

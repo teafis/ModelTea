@@ -3,13 +3,13 @@
 #include "block_interface.hpp"
 
 tmdl::BlockLocation::BlockLocation() :
-    x(0), y(0)
+    x{0}, y{0}
 {
     // Empty Constructor
 }
 
 tmdl::BlockLocation::BlockLocation(const int64_t x, const int64_t y) :
-    x(x), y(y)
+    x{x}, y{y}
 {
     // Empty Constructor
 }

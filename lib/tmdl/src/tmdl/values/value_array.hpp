@@ -24,6 +24,8 @@ public:
     virtual std::vector<std::unique_ptr<ModelValue>> get_values() const = 0;
 
 public:
+    virtual ~ValueArray() = default;
+
     virtual size_t rows() const = 0;
 
     virtual size_t cols() const = 0;
@@ -45,7 +47,7 @@ template <DataType DT>
 class ValueArrayBox : public ValueArray
 {
 public:
-    using data_t = data_type_t<DT>::type;
+    using data_t = typename data_type_t<DT>::type;
 
 public:
     struct Index
@@ -73,12 +75,12 @@ public:
         return m_rows;
     }
 
-    virtual size_t cols() const
+    virtual size_t cols() const override
     {
         return m_cols;
     }
 
-    virtual size_t size() const
+    virtual size_t size() const override
     {
         return m_rows * m_cols;
     }

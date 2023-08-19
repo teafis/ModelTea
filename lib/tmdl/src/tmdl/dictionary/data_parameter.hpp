@@ -14,6 +14,7 @@ namespace tmdl
 class DataParameter
 {
 public:
+    virtual ~DataParameter() = default;
     virtual void set_from_string(const std::string& s) = 0;
     virtual void set_data_type(DataType dt) = 0;
     virtual void set_data_type_string(const std::string& s, DataType dt) = 0;
@@ -23,26 +24,13 @@ public:
 class DataParameterValue : public DataParameter
 {
 public:
-    DataParameterValue() : value(ModelValue::make_default(DataType::DOUBLE))
-    {
-        // Empty Constructor
-    }
+    DataParameterValue();
 
-    virtual void set_from_string(const std::string& s) override
-    {
-        const auto v = std::unique_ptr<ModelValue>(ModelValue::from_string(s, value->data_type()));
-        value->copy_value(v.get());
-    }
+    virtual void set_from_string(const std::string& s) override;
 
-    virtual void set_data_type(const DataType dt) override
-    {
-        value = std::shared_ptr<ModelValue>(ModelValue::convert_type(value.get(), dt));
-    }
+    virtual void set_data_type(const DataType dt) override;
 
-    virtual void set_data_type_string(const std::string& s, DataType dt) override
-    {
-        value = std::shared_ptr<ModelValue>(ModelValue::from_string(s, dt));
-    }
+    virtual void set_data_type_string(const std::string& s, DataType dt) override;
 
 private:
     std::shared_ptr<ModelValue> value;
@@ -51,31 +39,15 @@ private:
 class DataParameterArray : public DataParameter
 {
 public:
-    DataParameterArray() : array(ValueArray::create_value_array("[]", DataType::DOUBLE))
-    {
-        // Empty Constructor
-    }
+    DataParameterArray();
 
-    virtual void set_from_string(const std::string& s) override
-    {
-        array = std::shared_ptr<ValueArray>(ValueArray::create_value_array(s, array->data_type()));
-    }
+    virtual void set_from_string(const std::string& s) override;
 
-    virtual void set_data_type(const DataType dt) override
-    {
-        //value = convert_value_type(value, dt);
-        array = std::shared_ptr<ValueArray>(array->change_array_type(array.get(), dt));
-    }
+    virtual void set_data_type(const DataType dt) override;
 
-    virtual void set_data_type_string(const std::string& s, DataType dt) override
-    {
-        array = std::shared_ptr<ValueArray>(ValueArray::create_value_array(s, dt));
-    }
+    virtual void set_data_type_string(const std::string& s, DataType dt) override;
 
-    void set_size(const size_t c, const size_t r)
-    {
-        array->resize(c, r);
-    }
+    void set_size(const size_t c, const size_t r);
 
 private:
     std::shared_ptr<ValueArray> array;

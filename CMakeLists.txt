@@ -14,8 +14,11 @@ set(VCPKG_FEATURE_FLAGS "versions")
 
 project(ModelTea VERSION 0.1 LANGUAGES CXX)
 
-find_package(QT NAMES Qt6 COMPONENTS Widgets Charts REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Charts REQUIRED)
+option(MT_USE_ASAN "Enable the use of ASAN when compiling ModelTea")
+option(MT_EXTRA_FLAGS "Enable the use of extra warning flags when compiling ModelTea" ON)
+
+find_package(QT NAMES Qt6 COMPONENTS Core Widgets Charts REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Widgets Charts REQUIRED)
 
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
@@ -95,12 +98,11 @@ endif()
 if(APPLE)
     set(ICONFILE macos)
 else()
-    set(ICONFILE macos)
+    set(ICONFILE icon)
 endif()
 
+set_source_files_properties(rcs/icons/${ICONFILE}.png PROPERTIES QT_RESOURCE_ALIAS /icons/icon.png)
 qt_add_resources(ModelTea "app_icon"
-    PREFIX /icons
-    BASE rcs/icons
     FILES
         rcs/icons/${ICONFILE}.png
 )
@@ -115,13 +117,15 @@ install(TARGETS ModelTea
 qt_finalize_executable(ModelTea)
 
 # Add compiler options
-if (MSVC)
-    add_compile_options(/W4 /WX)
-else()
-    add_compile_options(-Wall -Wextra -pedantic -Werror)
-
-    if (NOT APPLE)
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak")
-        set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak")
+if (MT_EXTRA_FLAGS)
+    if (MSVC)
+        add_compile_options(/W4 /WX)
+    else()
+        add_compile_options(-Wall -Wextra -pedantic -Werror)
     endif()
+endif()
+
+if (MT_USE_ASAN)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak")
+    set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak")
 endif()

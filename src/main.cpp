@@ -4,39 +4,26 @@
 
 #include <QApplication>
 
-#include <array>
-#include <optional>
-
-#include <fmt/format.h>
+#include <iostream>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    std::array<std::string, 2> check_files = {
-        "macos",
-        "icon",
-    };
-    std::optional<QIcon> icon;
+    QIcon icon;
 
-    for (const auto& n : check_files)
+    const std::string icon_file = ":/icons/icon.png";
+    if (QFile::exists(icon_file.c_str()))
     {
-        const std::string f = fmt::format(":/icons/{}.png", n);
-        if (QFile::exists(f.c_str()))
-        {
-            icon.emplace(f.c_str());
-            break;
-        }
-    }
-
-    if (icon)
-    {
-        a.setWindowIcon(*icon);
+        icon = QIcon(icon_file.c_str());
     }
     else
     {
+        std::cerr << "Unable to load icon file :-(\n";
         return 1;
     }
+
+    a.setWindowIcon(icon);
 
     bool anyAdded = false;
 

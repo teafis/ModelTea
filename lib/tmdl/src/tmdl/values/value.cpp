@@ -6,12 +6,12 @@
 #include <utility>
 
 template <tmdl::DataType DT>
-static tmdl::ModelValue* make_default_static()
+static std::unique_ptr<tmdl::ModelValue> make_default_static()
 {
-    return new tmdl::ModelValueBox<DT>();
+    return std::make_unique<tmdl::ModelValueBox<DT>>();
 }
 
-tmdl::ModelValue* tmdl::ModelValue::make_default(const DataType dtype)
+std::unique_ptr<tmdl::ModelValue> tmdl::ModelValue::make_default(const DataType dtype)
 {
     switch (dtype)
     {
@@ -30,22 +30,22 @@ tmdl::ModelValue* tmdl::ModelValue::make_default(const DataType dtype)
     }
 }
 
-tmdl::ModelValue* tmdl::ModelValue::from_string(const std::string& s, const DataType dt)
+std::unique_ptr<tmdl::ModelValue> tmdl::ModelValue::from_string(const std::string& s, const DataType dt)
 {
     try
     {
         switch (dt)
         {
         case DataType::BOOLEAN:
-            return new ModelValueBox<DataType::BOOLEAN>(std::stoi(s) != 0);
+            return std::make_unique<ModelValueBox<DataType::BOOLEAN>>(std::stoi(s) != 0);
         case DataType::INT32:
-            return new ModelValueBox<DataType::INT32>(std::stoi(s));
+            return std::make_unique<ModelValueBox<DataType::INT32>>(std::stoi(s));
         case DataType::UINT32:
-            return new ModelValueBox<DataType::UINT32>(std::stoul(s));
+            return std::make_unique<ModelValueBox<DataType::UINT32>>(std::stoul(s));
         case DataType::SINGLE:
-            return new ModelValueBox<DataType::SINGLE>(std::stof(s));
+            return std::make_unique<ModelValueBox<DataType::SINGLE>>(std::stof(s));
         case DataType::DOUBLE:
-            return new ModelValueBox<DataType::DOUBLE>(std::stod(s));
+            return std::make_unique<ModelValueBox<DataType::DOUBLE>>(std::stod(s));
         default:
             throw ModelException("unknown parse parameter type provided");
         }
@@ -60,7 +60,7 @@ tmdl::ModelValue* tmdl::ModelValue::from_string(const std::string& s, const Data
     }
 }
 
-tmdl::ModelValue* tmdl::ModelValue::convert_type(const ModelValue* val, const DataType dt)
+std::unique_ptr<tmdl::ModelValue> tmdl::ModelValue::convert_type(const ModelValue* val, const DataType dt)
 {
     if (val == nullptr) throw ModelException("unexpected nullptr");
 
@@ -69,15 +69,15 @@ tmdl::ModelValue* tmdl::ModelValue::convert_type(const ModelValue* val, const Da
         switch (dt)
         {
         case DataType::BOOLEAN:
-            return new ModelValueBox<DataType::BOOLEAN>(ptr->value);
+            return std::make_unique<ModelValueBox<DataType::BOOLEAN>>(ptr->value);
         case DataType::INT32:
-            return new ModelValueBox<DataType::INT32>(ptr->value);
+            return std::make_unique<ModelValueBox<DataType::INT32>>(ptr->value);
         case DataType::UINT32:
-            return new ModelValueBox<DataType::UINT32>(ptr->value);
+            return std::make_unique<ModelValueBox<DataType::UINT32>>(ptr->value);
         case DataType::SINGLE:
-            return new ModelValueBox<DataType::SINGLE>(ptr->value);
+            return std::make_unique<ModelValueBox<DataType::SINGLE>>(ptr->value);
         case DataType::DOUBLE:
-            return new ModelValueBox<DataType::DOUBLE>(ptr->value);
+            return std::make_unique<ModelValueBox<DataType::DOUBLE>>(ptr->value);
         default:
             throw ModelException("unknown data type provided");
         }
@@ -87,15 +87,15 @@ tmdl::ModelValue* tmdl::ModelValue::convert_type(const ModelValue* val, const Da
         switch (dt)
         {
         case DataType::BOOLEAN:
-            return new ModelValueBox<DataType::BOOLEAN>(ptr->value != 0);
+            return std::make_unique<ModelValueBox<DataType::BOOLEAN>>(ptr->value != 0);
         case DataType::INT32:
-            return new ModelValueBox<DataType::INT32>(ptr->value);
+            return std::make_unique<ModelValueBox<DataType::INT32>>(ptr->value);
         case DataType::UINT32:
-            return new ModelValueBox<DataType::UINT32>(ptr->value);
+            return std::make_unique<ModelValueBox<DataType::UINT32>>(ptr->value);
         case DataType::SINGLE:
-            return new ModelValueBox<DataType::SINGLE>(ptr->value);
+            return std::make_unique<ModelValueBox<DataType::SINGLE>>(ptr->value);
         case DataType::DOUBLE:
-            return new ModelValueBox<DataType::DOUBLE>(ptr->value);
+            return std::make_unique<ModelValueBox<DataType::DOUBLE>>(ptr->value);
         default:
             throw ModelException("unknown data type provided");
         }
@@ -105,15 +105,15 @@ tmdl::ModelValue* tmdl::ModelValue::convert_type(const ModelValue* val, const Da
         switch (dt)
         {
         case DataType::BOOLEAN:
-            return new ModelValueBox<DataType::BOOLEAN>(ptr->value != 0);
+            return std::make_unique<ModelValueBox<DataType::BOOLEAN>>(ptr->value != 0);
         case DataType::INT32:
-            return new ModelValueBox<DataType::INT32>(ptr->value);
+            return std::make_unique<ModelValueBox<DataType::INT32>>(ptr->value);
         case DataType::UINT32:
-            return new ModelValueBox<DataType::UINT32>(ptr->value);
+            return std::make_unique<ModelValueBox<DataType::UINT32>>(ptr->value);
         case DataType::SINGLE:
-            return new ModelValueBox<DataType::SINGLE>(ptr->value);
+            return std::make_unique<ModelValueBox<DataType::SINGLE>>(ptr->value);
         case DataType::DOUBLE:
-            return new ModelValueBox<DataType::DOUBLE>(ptr->value);
+            return std::make_unique<ModelValueBox<DataType::DOUBLE>>(ptr->value);
         default:
             throw ModelException("unknown data type provided");
         }
@@ -123,15 +123,15 @@ tmdl::ModelValue* tmdl::ModelValue::convert_type(const ModelValue* val, const Da
         switch (dt)
         {
         case DataType::BOOLEAN:
-            return new ModelValueBox<DataType::BOOLEAN>(ptr->value != 0);
+            return std::make_unique<ModelValueBox<DataType::BOOLEAN>>(ptr->value != 0);
         case DataType::INT32:
-            return new ModelValueBox<DataType::INT32>(ptr->value);
+            return std::make_unique<ModelValueBox<DataType::INT32>>(ptr->value);
         case DataType::UINT32:
-            return new ModelValueBox<DataType::UINT32>(ptr->value);
+            return std::make_unique<ModelValueBox<DataType::UINT32>>(ptr->value);
         case DataType::SINGLE:
-            return new ModelValueBox<DataType::SINGLE>(ptr->value);
+            return std::make_unique<ModelValueBox<DataType::SINGLE>>(ptr->value);
         case DataType::DOUBLE:
-            return new ModelValueBox<DataType::DOUBLE>(ptr->value);
+            return std::make_unique<ModelValueBox<DataType::DOUBLE>>(ptr->value);
         default:
             throw ModelException("unknown data type provided");
         }
@@ -141,15 +141,15 @@ tmdl::ModelValue* tmdl::ModelValue::convert_type(const ModelValue* val, const Da
         switch (dt)
         {
         case DataType::BOOLEAN:
-            return new ModelValueBox<DataType::BOOLEAN>(ptr->value != 0);
+            return std::make_unique<ModelValueBox<DataType::BOOLEAN>>(ptr->value != 0);
         case DataType::INT32:
-            return new ModelValueBox<DataType::INT32>(ptr->value);
+            return std::make_unique<ModelValueBox<DataType::INT32>>(ptr->value);
         case DataType::UINT32:
-            return new ModelValueBox<DataType::UINT32>(ptr->value);
+            return std::make_unique<ModelValueBox<DataType::UINT32>>(ptr->value);
         case DataType::SINGLE:
-            return new ModelValueBox<DataType::SINGLE>(ptr->value);
+            return std::make_unique<ModelValueBox<DataType::SINGLE>>(ptr->value);
         case DataType::DOUBLE:
-            return new ModelValueBox<DataType::DOUBLE>(ptr->value);
+            return std::make_unique<ModelValueBox<DataType::DOUBLE>>(ptr->value);
         default:
             throw ModelException("unknown data type provided");
         }

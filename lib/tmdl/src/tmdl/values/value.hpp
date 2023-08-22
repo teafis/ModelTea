@@ -32,11 +32,11 @@ struct ModelValue
 
     virtual std::string to_string() const = 0;
 
-    static ModelValue* make_default(const DataType dtype);
+    static std::unique_ptr<ModelValue> make_default(const DataType dtype);
 
-    static ModelValue* from_string(const std::string& s, const DataType dt);
+    static std::unique_ptr<ModelValue> from_string(const std::string& s, const DataType dt);
 
-    static ModelValue* convert_type(const ModelValue* val, const DataType dt);
+    static std::unique_ptr<ModelValue> convert_type(const ModelValue* val, const DataType dt);
 
     template <DataType DT>
     static typename data_type_t<DT>::type get_inner_value(const ModelValue* value)

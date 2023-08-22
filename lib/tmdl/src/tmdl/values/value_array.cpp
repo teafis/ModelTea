@@ -2,7 +2,7 @@
 
 #include "value_array.hpp"
 
-tmdl::ValueArray* tmdl::ValueArray::create_value_array(const std::string& s, const DataType dt)
+std::unique_ptr<tmdl::ValueArray> tmdl::ValueArray::create_value_array(const std::string& s, const DataType dt)
 {
     // Initialize parameters
     size_t rows = 0;
@@ -93,7 +93,7 @@ tmdl::ValueArray* tmdl::ValueArray::create_value_array(const std::string& s, con
     return create_with_type(cols, rows, values, dt);
 }
 
-tmdl::ValueArray* tmdl::ValueArray::change_array_type(const ValueArray* arr, DataType dt)
+std::unique_ptr<tmdl::ValueArray> tmdl::ValueArray::change_array_type(const ValueArray* arr, DataType dt)
 {
     if (arr == nullptr) throw ModelException("unexpected nullptr");
 
@@ -108,20 +108,20 @@ tmdl::ValueArray* tmdl::ValueArray::change_array_type(const ValueArray* arr, Dat
     return create_with_type(arr->cols(), arr->rows(), model_values, dt);
 }
 
-tmdl::ValueArray* tmdl::ValueArray::create_with_type(const size_t cols, size_t rows, const std::vector<std::unique_ptr<const ModelValue>>& values, const tmdl::DataType data_type)
+std::unique_ptr<tmdl::ValueArray> tmdl::ValueArray::create_with_type(const size_t cols, size_t rows, const std::vector<std::unique_ptr<const ModelValue>>& values, const tmdl::DataType data_type)
 {
     switch (data_type)
     {
     case DataType::BOOLEAN:
-        return new ValueArrayBox<DataType::BOOLEAN>(cols, rows, values);
+        return std::make_unique<ValueArrayBox<DataType::BOOLEAN>>(cols, rows, values);
     case DataType::DOUBLE:
-        return new ValueArrayBox<DataType::DOUBLE>(cols, rows, values);
+        return std::make_unique<ValueArrayBox<DataType::DOUBLE>>(cols, rows, values);
     case DataType::SINGLE:
-        return new ValueArrayBox<DataType::SINGLE>(cols, rows, values);
+        return std::make_unique<ValueArrayBox<DataType::SINGLE>>(cols, rows, values);
     case DataType::INT32:
-        return new ValueArrayBox<DataType::INT32>(cols, rows, values);
+        return std::make_unique<ValueArrayBox<DataType::INT32>>(cols, rows, values);
     case DataType::UINT32:
-        return new ValueArrayBox<DataType::UINT32>(cols, rows, values);
+        return std::make_unique<ValueArrayBox<DataType::UINT32>>(cols, rows, values);
     default:
         throw ModelException("cannot create a value array from an unknown data type");
     }

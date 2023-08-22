@@ -36,11 +36,11 @@ public:
 
     virtual std::string to_string() const = 0;
 
-    static ValueArray* create_value_array(const std::string& s, DataType dt);
+    static std::unique_ptr<ValueArray> create_value_array(const std::string& s, DataType dt);
 
-    static ValueArray* change_array_type(const ValueArray* arr, DataType dt);
+    static std::unique_ptr<ValueArray> change_array_type(const ValueArray* arr, DataType dt);
 
-    static ValueArray* create_with_type(const size_t cols, const size_t rows, const std::vector<std::unique_ptr<const ModelValue>>& values, const tmdl::DataType data_type);
+    static std::unique_ptr<ValueArray> create_with_type(const size_t cols, const size_t rows, const std::vector<std::unique_ptr<const ModelValue>>& values, const tmdl::DataType data_type);
 };
 
 template <DataType DT>

@@ -74,7 +74,15 @@ void ConnectorBlockObject::set_name(const QString s)
 
 QString ConnectorBlockObject::get_name() const
 {
-    return QString(connection->get_name().c_str());
+    const auto n = connection->get_name();
+    if (n.has_value())
+    {
+        return QString(n->get().c_str());
+    }
+    else
+    {
+        return "";
+    }
 }
 
 void ConnectorBlockObject::blockLocationUpdated()

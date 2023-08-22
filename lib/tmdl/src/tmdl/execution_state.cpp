@@ -154,10 +154,7 @@ tmdl::ExecutionState tmdl::ExecutionState::from_model(
     }
 
     // Ensure that the block is updated
-    if (!model->update_block())
-    {
-        throw ModelException("unable to update model block!");
-    }
+    model->update_block();
 
     // Construct and return the executor
     auto exec_state = tmdl::ExecutionState(

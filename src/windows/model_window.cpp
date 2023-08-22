@@ -212,7 +212,8 @@ void ModelWindow::saveModelAs()
 
         try
         {
-            get_model_id()->save_model_to(pth);
+            get_model_id()->set_filename(pth);
+            get_model_id()->save_model();
         }
         catch (const tmdl::ModelException& ex)
         {
@@ -345,11 +346,6 @@ void ModelWindow::closeModel()
 void ModelWindow::saveCode()
 {
     const auto fn = get_filename();
-    if (fn.isEmpty())
-    {
-        QMessageBox::warning(this, "Error", "Must save file before generating code");
-        return;
-    }
 
     try
     {
@@ -450,14 +446,14 @@ void ModelWindow::generateExecutor()
 
         for (auto& c : model->get_connection_manager().get_connections())
         {
-            const auto& varname = c->get_name();
+            const auto varname = c->get_name();
 
-            if (varname.empty())
+            if (!varname.has_value())
             {
                 continue;
             }
 
-            executor->add_name_to_interior_variable(varname, *c);
+            executor->add_name_to_interior_variable(varname->get(), *c);
         }
 
         ExecutorManager::instance().setWindowExecutor(get_model_id());

@@ -118,10 +118,8 @@ public:
 
     void save_model() const;
 
-    void save_model_to(const std::filesystem::path& path) const;
-
 protected:
-    std::string name;
+    std::optional<Identifier> name;
     std::string description;
     std::unordered_map<size_t, std::shared_ptr<BlockInterface>> blocks;
     ConnectionManager connections;

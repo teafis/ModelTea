@@ -57,7 +57,7 @@ protected:
 
 public:
     ModelCodeComponent(
-        const std::string& model_name,
+        const tmdl::Identifier& model_name,
         const tmdl::Model::CompiledModelData& exec_data,
         const std::vector<tmdl::DataType>& input_types,
         const std::vector<tmdl::DataType>& output_types,
@@ -101,7 +101,7 @@ public:
 
     virtual std::string get_name_base() const override
     {
-        return _model_name;
+        return _model_name.get();
     }
 
     virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
@@ -349,8 +349,8 @@ protected:
     }
 
 protected:
-    std::string _model_name;
-    tmdl::Model::CompiledModelData _model_data;
+    const tmdl::Identifier _model_name;
+    const tmdl::Model::CompiledModelData _model_data;
     std::vector<tmdl::DataType> _input_types;
     std::vector<std::string> _input_names;
     std::vector<tmdl::DataType> _output_types;
@@ -427,7 +427,7 @@ protected:
 
 /* ==================== MODEL ==================== */
 
-Model::Model() : name(""), description("user-defined model block"), preferred_dt(0.1)
+Model::Model() : name({}), description("user-defined model block"), preferred_dt(0.1)
 {
 }
 
@@ -546,7 +546,14 @@ void Model::remove_connection(const size_t to_block, const size_t to_port)
 
 std::string Model::get_name() const
 {
-    return name;
+    if (name)
+    {
+        return name->get();
+    }
+    else
+    {
+        return "";
+    }
 }
 
 std::string Model::get_description() const
@@ -960,6 +967,12 @@ std::shared_ptr<ModelExecutionInterface> Model::get_execution_interface(
 
 std::unique_ptr<codegen::CodeComponent> Model::get_codegen_component(const BlockInterface::ModelInfo& state) const
 {
+    // Throw exception if no name provided
+    if (!name.has_value())
+    {
+        throw ModelException("cannot generate code for model without name");
+    }
+
     // Get the execution order
     const auto exec_data = compile_model();
 
@@ -997,7 +1010,7 @@ std::unique_ptr<codegen::CodeComponent> Model::get_codegen_component(const Block
     }
 
     // Return the results
-    return std::make_unique<ModelCodeComponent>(name, exec_data, input_types, output_types, std::move(components));
+    return std::make_unique<ModelCodeComponent>(name->get(), exec_data, input_types, output_types, std::move(components));
 }
 
 std::vector<std::unique_ptr<codegen::CodeComponent>> Model::get_all_sub_components(const BlockInterface::ModelInfo& state) const
@@ -1103,14 +1116,8 @@ void Model::set_filename(const std::filesystem::path& fn)
     }
 
     const std::string name_temp = fn.stem();
-
-    if (!is_valid_identifier(name_temp))
-    {
-        throw ModelException(fmt::format("error setting filename '{}' - '{}' is not a valid identifier", fn.string(), name_temp));
-    }
-
+    name = Identifier(name_temp);
     filename = fn;
-    name = name_temp;
 }
 
 const std::optional<std::filesystem::path>& Model::get_filename() const
@@ -1120,6 +1127,7 @@ const std::optional<std::filesystem::path>& Model::get_filename() const
 
 void Model::clear_filename()
 {
+    name.reset();
     filename.reset();
 }
 
@@ -1153,22 +1161,17 @@ void tmdl::Model::save_model() const
 {
     if (filename.has_value())
     {
-        save_model_to(*filename);
+        std::ofstream oss(*filename);
+
+        nlohmann::json j;
+        j["model"] = *this;
+
+        oss << std::setw(4) << j;
     }
     else
     {
         throw ModelException("cannot save model without stored filename");
     }
-}
-
-void tmdl::Model::save_model_to(const std::filesystem::path& path) const
-{
-    std::ofstream oss(path);
-
-    nlohmann::json j;
-    j["model"] = *this;
-
-    oss << std::setw(4) << j;
 }
 
 struct SaveParameter

@@ -20,14 +20,14 @@ ConnectionParametersDialog::ConnectionParametersDialog(ConnectorBlockObject* con
 void ConnectionParametersDialog::accept()
 {
     const std::string n = ui->lineEditConnectionName->text().toStdString();
-    if (!tmdl::Connection::is_valid_name(n))
-    {
-        QMessageBox::warning(this, "error", QString("Identifier `%1` is not a valid identifier").arg(n.c_str()));
-    }
-    else
+    try
     {
         connector->set_name(n.c_str());
         QDialog::accept();
+    }
+    catch (const tmdl::ModelException& err)
+    {
+        QMessageBox::warning(this, "error", err.what());
     }
 }
 

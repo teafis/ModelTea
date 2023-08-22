@@ -8,7 +8,31 @@
 namespace tmdl
 {
 
-bool is_valid_identifier(const std::string& s);
+class Identifier
+{
+public:
+    Identifier(const Identifier&) = default;
+
+    Identifier(const std::string& s);
+
+    Identifier(Identifier&& other) = default;
+
+    ~Identifier() = default;
+
+    Identifier& operator=(const Identifier&) = default;
+
+    bool operator==(const Identifier&) const = default;
+
+    const std::string& get() const;
+
+    void set(const std::string& s);
+
+private:
+    static bool is_valid_identifier(const std::string& s);
+
+private:
+    std::string _value;
+};
 
 }
 

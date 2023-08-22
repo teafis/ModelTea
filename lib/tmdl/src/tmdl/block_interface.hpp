@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-#include "parameter.hpp"
+#include "values/parameter.hpp"
 
 #include "connection_manager.hpp"
 #include "variable_manager.hpp"

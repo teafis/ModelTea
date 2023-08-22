@@ -2,7 +2,7 @@
 
 #include "parameter.hpp"
 
-#include "model_exception.hpp"
+#include "../model_exception.hpp"
 
 #include <iomanip>
 

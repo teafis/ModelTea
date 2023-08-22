@@ -5,7 +5,7 @@
 
 #include <QWidget>
 
-#include <tmdl/parameter.hpp>
+#include <tmdl/values/parameter.hpp>
 
 
 namespace Ui {

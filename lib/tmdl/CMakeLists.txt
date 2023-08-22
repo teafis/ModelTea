@@ -24,8 +24,9 @@ set(
     src/tmdl/model.hpp src/tmdl/model.cpp
     src/tmdl/model_block.hpp src/tmdl/model_block.cpp
     src/tmdl/model_exception.hpp src/tmdl/model_exception.cpp
-    src/tmdl/parameter.hpp src/tmdl/parameter.cpp
     src/tmdl/values/data_types.hpp src/tmdl/values/data_types.cpp
+    src/tmdl/values/identifiers.hpp src/tmdl/values/identifiers.cpp
+    src/tmdl/values/parameter.hpp src/tmdl/values/parameter.cpp
     src/tmdl/values/value.hpp src/tmdl/values/value.cpp
     src/tmdl/values/value_array.hpp src/tmdl/values/value_array.cpp
     src/tmdl/variable_manager.hpp src/tmdl/variable_manager.cpp
@@ -42,7 +43,6 @@ set(
     src/tmdl/blocks/trig.hpp src/tmdl/blocks/trig.cpp
     src/tmdl/libraries/model_library.hpp src/tmdl/libraries/model_library.cpp
     src/tmdl/libraries/stdlib.hpp src/tmdl/libraries/stdlib.cpp
-    src/tmdl/util/identifiers.hpp src/tmdl/util/identifiers.cpp
     src/tmdl/codegen/generator.hpp src/tmdl/codegen/generator.cpp
     src/tmdl/codegen/component.hpp src/tmdl/codegen/component.cpp
     src/tmdl/codegen/codegen.hpp src/tmdl/codegen/codegen.cpp

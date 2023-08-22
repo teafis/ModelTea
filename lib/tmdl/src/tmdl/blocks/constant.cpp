@@ -45,7 +45,7 @@ bool tmdl::blocks::Constant::update_block()
         oss << "Constant Value (" << data_type_to_string(output_port) << ")";
 
         param_value->set_name(oss.str());
-        param_value->get_value().convert(output_port);
+        param_value->get_value().convert(ParameterValue::parameter_type_from_data_type(output_port));
 
         return true;
     }

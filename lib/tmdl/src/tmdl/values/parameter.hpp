@@ -29,6 +29,8 @@ struct ParameterValue
         ENUM
     };
 
+    static Type parameter_type_from_data_type(DataType dt);
+
     union Value {
         bool tf;
         float f32;
@@ -45,8 +47,6 @@ struct ParameterValue
     std::string to_string() const;
 
     void convert(const Type t);
-
-    void convert(const DataType t);
 
     std::shared_ptr<ModelValue> to_box() const;
 

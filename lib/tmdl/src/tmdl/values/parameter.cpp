@@ -6,6 +6,26 @@
 
 #include <iomanip>
 
+#include <fmt/format.h>
+
+tmdl::ParameterValue::Type tmdl::ParameterValue::parameter_type_from_data_type(const DataType dt)
+{
+    switch (dt)
+    {
+    case DataType::DOUBLE:
+        return Type::DOUBLE;
+    case DataType::SINGLE:
+        return Type::SINGLE;
+    case DataType::INT32:
+        return Type::INT32;
+    case DataType::UINT32:
+        return Type::UINT32;
+    case DataType::BOOLEAN:
+        return Type::BOOLEAN;
+    default:
+        throw ModelException(fmt::format("uanble to get model value for '{}'", data_type_to_string(dt)));
+    }
+}
 
 std::string tmdl::ParameterValue::to_string() const
 {
@@ -151,31 +171,6 @@ void tmdl::ParameterValue::convert(const Type t)
     }
 
     dtype = t;
-}
-
-void tmdl::ParameterValue::convert(const DataType t)
-{
-    switch (t)
-    {
-    case DataType::DOUBLE:
-        convert(Type::DOUBLE);
-        break;
-    case DataType::SINGLE:
-        convert(Type::SINGLE);
-        break;
-    case DataType::INT32:
-        convert(Type::INT32);
-        break;
-    case DataType::UINT32:
-        convert(Type::UINT32);
-        break;
-    case DataType::BOOLEAN:
-        convert(Type::BOOLEAN);
-        break;
-    default:
-        convert(Type::UNKNOWN);
-        break;
-    }
 }
 
 tmdl::ParameterValue tmdl::ParameterValue::from_string(const std::string& s, const Type t)

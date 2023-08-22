@@ -103,6 +103,7 @@ endif()
 
 set_source_files_properties(rcs/icons/${ICONFILE}.png PROPERTIES QT_RESOURCE_ALIAS /icons/icon.png)
 qt_add_resources(ModelTea "app_icon"
+    PREFIX /
     FILES
         rcs/icons/${ICONFILE}.png
 )

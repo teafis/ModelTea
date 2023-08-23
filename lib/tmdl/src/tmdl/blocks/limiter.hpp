@@ -37,6 +37,9 @@ public:
     std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 
 protected:
+    bool use_dynamic_limit() const;
+
+protected:
     DataType input_type;
     DataType input_type_max;
     DataType input_type_min;

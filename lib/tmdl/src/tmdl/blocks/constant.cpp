@@ -9,8 +9,8 @@
 
 
 tmdl::blocks::Constant::Constant() :
-    param_dtype(std::make_shared<Parameter>("dtype", "data type", ParameterValue::from_string("", ParameterValue::Type::DATA_TYPE))),
-    param_value(std::make_shared<Parameter>("value", "Constant Value", ParameterValue::from_string("", ParameterValue::Type::UNKNOWN)))
+    param_dtype(std::make_shared<Parameter>("dtype", "data type", ModelValue::make_default(DataType::DATA_TYPE))),
+    param_value(std::make_shared<Parameter>("value", "Constant Value", ModelValue::make_default(DataType::UNKNOWN)))
 {
     // Empty Constructor
 }
@@ -37,15 +37,17 @@ size_t tmdl::blocks::Constant::get_num_outputs() const
 
 bool tmdl::blocks::Constant::update_block()
 {
-    if (param_dtype->get_value().value.dtype != output_port)
+    const auto selected_dtype = get_data_type();
+
+    if (selected_dtype != output_port)
     {
-        output_port = param_dtype->get_value().value.dtype;
+        output_port = selected_dtype;
 
         std::ostringstream oss;
         oss << "Constant Value (" << data_type_to_string(output_port) << ")";
 
         param_value->set_name(oss.str());
-        param_value->get_value().convert(ParameterValue::parameter_type_from_data_type(output_port));
+        param_value->convert_type(output_port);
 
         return true;
     }
@@ -63,7 +65,9 @@ std::vector<std::shared_ptr<tmdl::Parameter>> tmdl::blocks::Constant::get_parame
 
 std::unique_ptr<const tmdl::BlockError> tmdl::blocks::Constant::has_error() const
 {
-    if (param_dtype->get_value().value.dtype == DataType::UNKNOWN)
+    const auto current_dtype = get_data_type();
+
+    if (current_dtype == DataType::UNKNOWN || current_dtype != param_value->get_value()->data_type())
     {
         return make_error("data type provided is of unknown type");
     }
@@ -93,6 +97,8 @@ tmdl::DataType tmdl::blocks::Constant::get_output_type(const size_t port) const
 template <tmdl::DataType DT>
 class CompiledConstant : public tmdl::CompiledBlockInterface
 {
+    static_assert(tmdl::data_type_t<DT>::is_modelable);
+
 public:
     using type_t = typename tmdl::data_type_t<DT>::type;
 
@@ -193,6 +199,12 @@ protected:
     };
 };
 
+template <tmdl::DataType DT>
+static std::unique_ptr<tmdl::CompiledBlockInterface> create_compiled(const size_t id, const tmdl::ModelValue* value)
+{
+    return std::make_unique<CompiledConstant<DT>>(id, tmdl::ModelValue::get_inner_value<DT>(value));
+}
+
 std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Constant::get_compiled(const ModelInfo&) const
 {
     if (has_error() != nullptr)
@@ -200,19 +212,24 @@ std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Constant::get_compil
         throw ModelException("cannot build constant executor with error present");
     }
 
-    switch (param_dtype->get_value().value.dtype)
+    switch (param_value->get_value()->data_type())
     {
     case DataType::DOUBLE:
-        return std::make_unique<CompiledConstant<DataType::DOUBLE>>(get_id(), param_value->get_value().value.f64);
+        return create_compiled<DataType::DOUBLE>(get_id(), param_value->get_value());
     case DataType::SINGLE:
-        return std::make_unique<CompiledConstant<DataType::SINGLE>>(get_id(), param_value->get_value().value.f32);
+        return create_compiled<DataType::SINGLE>(get_id(), param_value->get_value());
     case DataType::BOOLEAN:
-        return std::make_unique<CompiledConstant<DataType::BOOLEAN>>(get_id(), param_value->get_value().value.tf);
+        return create_compiled<DataType::BOOLEAN>(get_id(), param_value->get_value());
     case DataType::INT32:
-        return std::make_unique<CompiledConstant<DataType::INT32>>(get_id(), param_value->get_value().value.i32);
+        return create_compiled<DataType::INT32>(get_id(), param_value->get_value());
     case DataType::UINT32:
-        return std::make_unique<CompiledConstant<DataType::UINT32>>(get_id(), param_value->get_value().value.u32);
+        return create_compiled<DataType::UINT32>(get_id(), param_value->get_value());
     default:
         throw ModelException("unknown data type provided for executor");
     }
+}
+
+tmdl::DataType tmdl::blocks::Constant::get_data_type() const
+{
+    return ModelValue::get_inner_value<DataType::DATA_TYPE>(param_dtype->get_value());
 }

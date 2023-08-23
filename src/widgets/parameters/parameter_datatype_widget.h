@@ -30,6 +30,9 @@ signals:
     void parameterUpdated();
 
 private:
+    tmdl::DataType& get_value_data_type();
+
+private:
     Ui::ParameterDataTypeWidget *ui;
     std::shared_ptr<tmdl::Parameter> parameter;
 

@@ -38,6 +38,9 @@ public:
 public:
     void set_input_value(const DataType type);
 
+private:
+    DataType get_output_type() const;
+
 protected:
     DataType _port;
     std::shared_ptr<Parameter> dataTypeParameter;

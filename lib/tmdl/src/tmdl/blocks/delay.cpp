@@ -13,6 +13,8 @@
 template <tmdl::DataType DT>
 class CompiledDelay : public tmdl::CompiledBlockInterface
 {
+    static_assert(tmdl::data_type_t<DT>::is_modelable);
+
 public:
     CompiledDelay(const size_t id) : _id{ id }
     {

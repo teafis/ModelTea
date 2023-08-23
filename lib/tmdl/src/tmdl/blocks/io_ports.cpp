@@ -66,16 +66,7 @@ public:
 
 InputPort::InputPort()
 {
-    ParameterValue pv = ParameterValue
-    {
-        .dtype = ParameterValue::Type::DATA_TYPE,
-        .value = ParameterValue::Value
-        {
-            .dtype = DataType::UNKNOWN
-        }
-    };
-
-    dataTypeParameter = std::make_shared<Parameter>("data_type", "parameter data type", pv);
+    dataTypeParameter = std::make_shared<Parameter>("data_type", "parameter data type", std::make_unique<ModelValueBox<DataType::DATA_TYPE>>(DataType::UNKNOWN));
 }
 
 std::string InputPort::get_name() const
@@ -136,7 +127,7 @@ std::vector<std::shared_ptr<tmdl::Parameter>> InputPort::get_parameters() const
 
 bool InputPort::update_block()
 {
-    const auto param_dt = dataTypeParameter->get_value().value.dtype;
+    const auto param_dt = get_output_type();
     if (param_dt != _port)
     {
         _port = param_dt;
@@ -154,6 +145,11 @@ std::unique_ptr<CompiledBlockInterface> InputPort::get_compiled(const ModelInfo&
 void InputPort::set_input_value(const DataType type)
 {
     _port = type;
+}
+
+tmdl::DataType InputPort::get_output_type() const
+{
+    return ModelValue::get_inner_value<DataType::DATA_TYPE>(dataTypeParameter->get_value());
 }
 
 /* ========== OUTPUT PORT ========== */

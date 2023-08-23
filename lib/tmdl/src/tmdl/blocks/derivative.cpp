@@ -14,7 +14,8 @@ class CompiledDerivative : public tmdl::CompiledBlockInterface
 public:
     CompiledDerivative(const size_t id, const tmdl::BlockInterface::ModelInfo& s) : _id{ id }, _state(s)
     {
-        // Empty Constructor
+        static_assert(tmdl::data_type_t<DT>::is_numeric);
+        static_assert(tmdl::data_type_t<DT>::is_modelable);
     }
 
     std::shared_ptr<tmdl::BlockExecutionInterface> get_execution_interface(
@@ -204,7 +205,7 @@ std::unique_ptr<const tmdl::BlockError> tmdl::blocks::Derivative::has_error() co
 {
     if (input_type != DataType::DOUBLE && input_type != DataType::SINGLE)
     {
-        return make_error("integrator only works with floating point types");
+        return make_error(fmt::format("derivative only works with floating point types, not {}", data_type_to_string(input_type)));
     }
     if (input_type != output_port)
     {

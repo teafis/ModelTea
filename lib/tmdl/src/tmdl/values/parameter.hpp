@@ -15,51 +15,13 @@
 namespace tmdl
 {
 
-struct ParameterValue
-{    
-    enum class Type
-    {
-        UNKNOWN = 0,
-        BOOLEAN,
-        SINGLE,
-        DOUBLE,
-        INT32,
-        UINT32,
-        DATA_TYPE,
-        ENUM
-    };
-
-    static Type parameter_type_from_data_type(DataType dt);
-
-    union Value {
-        bool tf;
-        float f32;
-        double f64;
-        int32_t i32;
-        uint32_t u32;
-        DataType dtype;
-    };
-
-    Type dtype = Type::UNKNOWN;
-
-    Value value{};
-
-    std::string to_string() const;
-
-    void convert(const Type t);
-
-    std::shared_ptr<ModelValue> to_box() const;
-
-    static ParameterValue from_string(const std::string& s, const Type t);
-};
-
 class Parameter
 {    
 public:
     Parameter(
         const std::string& id,
         const std::string& name,
-        const ParameterValue value);
+        std::unique_ptr<ModelValue>&& value);
 
     std::string get_id() const;
 
@@ -71,15 +33,19 @@ public:
 
     void set_enabled(const bool v);
 
-    ParameterValue& get_value();
+    ModelValue* get_value();
 
-    const ParameterValue& get_value() const;
+    const ModelValue* get_value() const;
+
+    void set_value(std::unique_ptr<ModelValue>&& val);
+
+    void convert_type(const DataType dt);
 
 protected:
     const std::string id;
     std::string name;
 
-    ParameterValue value;
+    std::unique_ptr<ModelValue> value;
 
     bool enabled;
 };

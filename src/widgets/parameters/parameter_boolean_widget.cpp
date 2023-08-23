@@ -14,13 +14,13 @@ ParameterBooleanWidget::ParameterBooleanWidget(
 {
     ui->setupUi(this);
 
-    if (parameter->get_value().dtype != tmdl::ParameterValue::Type::BOOLEAN)
+    if (parameter->get_value()->data_type() != tmdl::DataType::BOOLEAN)
     {
         throw BlockObjectException("parameter must be a boolean type");
     }
 
     ui->lblName->setText(parameter->get_name().c_str());
-    ui->chkSelection->setChecked(parameter->get_value().value.tf);
+    ui->chkSelection->setChecked(param_value());
 
     connect(
         ui->chkSelection,
@@ -29,15 +29,21 @@ ParameterBooleanWidget::ParameterBooleanWidget(
         &ParameterBooleanWidget::checkedStateChange);
 }
 
+ParameterBooleanWidget::~ParameterBooleanWidget()
+{
+    delete ui;
+}
+
+
 void ParameterBooleanWidget::checkedStateChange(int state)
 {
-    parameter->get_value().value.tf = state == Qt::CheckState::Checked;
-    ui->chkSelection->setChecked(parameter->get_value().value.tf);
+    param_value() = state == Qt::CheckState::Checked;
+    ui->chkSelection->setChecked(param_value());
 
     emit parameterUpdated();
 }
 
-ParameterBooleanWidget::~ParameterBooleanWidget()
+bool& ParameterBooleanWidget::param_value()
 {
-    delete ui;
+    return tmdl::ModelValue::get_inner_value<tmdl::DataType::BOOLEAN>(parameter->get_value());
 }

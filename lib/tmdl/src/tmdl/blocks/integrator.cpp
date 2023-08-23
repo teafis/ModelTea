@@ -104,6 +104,7 @@ protected:
     struct IntegratorExecutor : public tmdl::BlockExecutionInterface
     {
         static_assert(tmdl::data_type_t<DT>::is_numeric);
+        static_assert(tmdl::data_type_t<DT>::is_modelable);
         using type_t = typename tmdl::data_type_t<DT>::type;
 
         IntegratorExecutor(
@@ -214,7 +215,7 @@ std::unique_ptr<const tmdl::BlockError> tmdl::blocks::Integrator::has_error() co
 {
     if (input_type != DataType::DOUBLE && input_type != DataType::SINGLE)
     {
-        return make_error("integrator only works with floating point types");
+        return make_error(fmt::format("integrator only works with floating point types, not {}", data_type_to_string(input_type)));
     }
     if (input_type != output_port)
     {

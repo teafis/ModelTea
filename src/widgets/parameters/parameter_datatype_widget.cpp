@@ -14,7 +14,7 @@ ParameterDataTypeWidget::ParameterDataTypeWidget(
 {
     ui->setupUi(this);
 
-    if (parameter->get_value().dtype != tmdl::ParameterValue::Type::DATA_TYPE)
+    if (parameter->get_value()->data_type() != tmdl::DataType::DATA_TYPE)
     {
         throw BlockObjectException("parameter must be a data type");
     }
@@ -38,7 +38,7 @@ ParameterDataTypeWidget::ParameterDataTypeWidget(
     for (const auto& kv : map_values)
     {
         current_string = kv.first;
-        if (kv.second == parameter->get_value().value.dtype)
+        if (kv.second == get_value_data_type())
         {
             break;
         }
@@ -53,6 +53,11 @@ ParameterDataTypeWidget::ParameterDataTypeWidget(
         &ParameterDataTypeWidget::selectionChanged);
 }
 
+ParameterDataTypeWidget::~ParameterDataTypeWidget()
+{
+    delete ui;
+}
+
 void ParameterDataTypeWidget::selectionChanged(int)
 {
     const auto it = map_values.find(ui->comboBox->currentText().toStdString());
@@ -63,14 +68,14 @@ void ParameterDataTypeWidget::selectionChanged(int)
         new_dtype = it->second;
     }
 
-    if (new_dtype != parameter->get_value().value.dtype)
+    if (new_dtype != parameter->get_value()->data_type())
     {
-        parameter->get_value().value.dtype = new_dtype;
+        get_value_data_type() = new_dtype;
         emit parameterUpdated();
     }
 }
 
-ParameterDataTypeWidget::~ParameterDataTypeWidget()
+tmdl::DataType& ParameterDataTypeWidget::get_value_data_type()
 {
-    delete ui;
+    return tmdl::ModelValue::get_inner_value<tmdl::DataType::DATA_TYPE>(parameter->get_value());
 }

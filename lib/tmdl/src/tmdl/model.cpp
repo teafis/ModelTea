@@ -1177,7 +1177,7 @@ void tmdl::Model::save_model() const
 struct SaveParameter
 {
     std::string id;
-    tmdl::ParameterValue::Type dtype;
+    tmdl::DataType dtype;
     std::string value;
 };
 
@@ -1260,11 +1260,11 @@ void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m)
         for (const auto& p : blk->get_parameters())
         {
             json_parameters.push_back(SaveParameter
-           {
-               .id = p->get_id(),
-               .dtype = p->get_value().dtype,
-               .value = p->get_value().to_string(),
-           });
+            {
+                .id = p->get_id(),
+                .dtype = p->get_value()->data_type(),
+                .value = p->get_value()->to_string(),
+            });
         }
 
         SaveBlock save_blk
@@ -1339,7 +1339,7 @@ void tmdl::from_json(const nlohmann::json& j, tmdl::Model& m)
             {
                if (p->get_id() != prm.id) continue;
 
-               p->get_value() = ParameterValue::from_string(prm.value, prm.dtype);
+               p->set_value(ModelValue::from_string(prm.value, prm.dtype));
 
                prm_found = true;
                break;

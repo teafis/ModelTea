@@ -18,7 +18,7 @@ ParameterNumericWidget::ParameterNumericWidget(
     ui->setupUi(this);
 
     ui->lblName->setText(parameter->get_name().c_str());
-    ui->textEntry->setText(parameter->get_value().to_string().c_str());
+    ui->textEntry->setText(parameter->get_value()->to_string().c_str());
 
     connect(
         ui->textEntry,
@@ -31,11 +31,11 @@ void ParameterNumericWidget::textChanged()
 {
     try
     {
-        const auto value = tmdl::ParameterValue::from_string(
+        auto value = tmdl::ModelValue::from_string(
             ui->textEntry->text().toStdString(),
-            parameter->get_value().dtype);
+            parameter->get_value()->data_type());
 
-        parameter->get_value() = value;
+        parameter->set_value(std::move(value));
     }
     catch (const tmdl::ModelException& ex)
     {
@@ -46,7 +46,7 @@ void ParameterNumericWidget::textChanged()
         return;
     }
 
-    ui->textEntry->text() = parameter->get_value().to_string().c_str();
+    ui->textEntry->text() = parameter->get_value()->to_string().c_str();
     emit parameterUpdated();
 }
 

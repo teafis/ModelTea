@@ -14,6 +14,8 @@
 template <tmdl::DataType DT, tmdl::stdlib::ArithType OP>
 class ArithCompiled : public tmdl::CompiledBlockInterface
 {
+    static_assert(tmdl::data_type_t<DT>::is_numeric);
+    static_assert(tmdl::data_type_t<DT>::is_modelable);
 public:
     using type_t = typename tmdl::data_type_t<DT>::type;
 
@@ -182,7 +184,7 @@ protected:
 // Arithmetic Base
 
 tmdl::blocks::ArithmeticBase::ArithmeticBase() :
-    _prmNumInputPorts(std::make_shared<Parameter>("num_inputs", "number of input ports", ParameterValue::from_string("2", ParameterValue::Type::UINT32)))
+    _prmNumInputPorts(std::make_shared<Parameter>("num_inputs", "number of input ports", std::make_unique<ModelValueBox<DataType::UINT32>>(2)))
 {
     _inputTypes.resize(currentPrmPortCount(), DataType::UNKNOWN);
 }
@@ -307,7 +309,7 @@ std::unique_ptr<tmdl::CompiledBlockInterface> generate_compiled(
 
 size_t tmdl::blocks::ArithmeticBase::currentPrmPortCount() const
 {
-    return _prmNumInputPorts->get_value().value.u32;
+    return ModelValue::get_inner_value<DataType::UINT32>(_prmNumInputPorts->get_value());
 }
 
 // Addition Block

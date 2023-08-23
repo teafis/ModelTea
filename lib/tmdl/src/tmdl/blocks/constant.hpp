@@ -35,6 +35,9 @@ public:
 
     std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 
+private:
+    DataType get_data_type() const;
+
 protected:
     std::shared_ptr<Parameter> param_dtype;
     std::shared_ptr<Parameter> param_value;

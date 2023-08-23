@@ -30,6 +30,9 @@ signals:
     void parameterUpdated();
 
 private:
+    bool& param_value();
+
+private:
     Ui::ParameterBooleanWidget *ui;
     std::shared_ptr<tmdl::Parameter> parameter;
 };

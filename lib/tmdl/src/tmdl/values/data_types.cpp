@@ -16,6 +16,8 @@ protected:
             { tmdl::DataType::SINGLE, "f32" },
             { tmdl::DataType::INT32, "i32" },
             { tmdl::DataType::UINT32, "u32" },
+            { tmdl::DataType::DATA_TYPE, "data_type" },
+            { tmdl::DataType::IDENTIFIER, "identifier" },
         };
 
         for (const auto& [t, n] : type_vals)

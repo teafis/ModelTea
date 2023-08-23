@@ -43,9 +43,9 @@ void BlockParameterDialog::reloadParameters()
             continue;
         }
 
-        switch (prm->get_value().dtype)
+        switch (prm->get_value()->data_type())
         {
-        case tmdl::ParameterValue::Type::BOOLEAN:
+        case tmdl::DataType::BOOLEAN:
         {
             ParameterBooleanWidget* w = new ParameterBooleanWidget(prm, this);
             ui->parameterItemLayout->addWidget(w);
@@ -56,10 +56,10 @@ void BlockParameterDialog::reloadParameters()
                 &BlockParameterDialog::updateForParameters);
             break;
         }
-        case tmdl::ParameterValue::Type::SINGLE:
-        case tmdl::ParameterValue::Type::DOUBLE:
-        case tmdl::ParameterValue::Type::INT32:
-        case tmdl::ParameterValue::Type::UINT32:
+        case tmdl::DataType::SINGLE:
+        case tmdl::DataType::DOUBLE:
+        case tmdl::DataType::INT32:
+        case tmdl::DataType::UINT32:
         {
             ParameterNumericWidget* w = new ParameterNumericWidget(prm, this);
             ui->parameterItemLayout->addWidget(w);
@@ -70,7 +70,7 @@ void BlockParameterDialog::reloadParameters()
                 &BlockParameterDialog::updateForParameters);
             break;
         }
-        case tmdl::ParameterValue::Type::DATA_TYPE:
+        case tmdl::DataType::DATA_TYPE:
         {
             ParameterDataTypeWidget* w = new ParameterDataTypeWidget(prm, this);
             ui->parameterItemLayout->addWidget(w);

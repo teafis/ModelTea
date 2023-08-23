@@ -239,24 +239,17 @@ Limiter::Limiter()
     dynamicLimiter = std::make_shared<Parameter>(
         "dynamic_limiter",
         "Use Dynamic Limits",
-        ParameterValue
-        {
-            .dtype = ParameterValue::Type::BOOLEAN,
-            .value = ParameterValue::Value
-            {
-                .tf = false
-            }
-        });
+        std::make_unique<ModelValueBox<DataType::BOOLEAN>>(false));
 
     prmMaxValue = std::make_shared<Parameter>(
         "max_value",
         "Maximum Value",
-        ParameterValue{});
+        std::make_unique<ModelValueBox<DataType::UNKNOWN>>());
 
     prmMinValue = std::make_shared<Parameter>(
         "min_value",
         "Minimum Value",
-        ParameterValue{});
+        std::make_unique<ModelValueBox<DataType::UNKNOWN>>());
 
     input_type = DataType::UNKNOWN;
     output_port = DataType::UNKNOWN;
@@ -285,7 +278,7 @@ std::vector<std::shared_ptr<Parameter>> Limiter::get_parameters() const
 
 size_t Limiter::get_num_inputs() const
 {
-    if (dynamicLimiter->get_value().value.tf)
+    if (use_dynamic_limit())
     {
         return 3;
     }
@@ -303,36 +296,31 @@ size_t Limiter::get_num_outputs() const
 bool Limiter::update_block()
 {
     bool updated = false;
+    const bool use_dyn_lim = use_dynamic_limit();
 
-    prmMaxValue->set_enabled(!dynamicLimiter->get_value().value.tf);
-    prmMinValue->set_enabled(!dynamicLimiter->get_value().value.tf);
+    prmMaxValue->set_enabled(!use_dyn_lim);
+    prmMinValue->set_enabled(!use_dyn_lim);
 
     if (input_type != output_port)
     {
-        ParameterValue::Type new_dtype = ParameterValue::Type::UNKNOWN;
+        DataType new_dtype = DataType::UNKNOWN;
 
         switch (input_type)
         {
         case DataType::DOUBLE:
-            new_dtype = ParameterValue::Type::DOUBLE;
-            break;
         case DataType::SINGLE:
-            new_dtype = ParameterValue::Type::SINGLE;
-            break;
         case DataType::UINT32:
-            new_dtype = ParameterValue::Type::UINT32;
-            break;
         case DataType::INT32:
-            new_dtype = ParameterValue::Type::INT32;
+            new_dtype = input_type;
             break;
         default:
             break;
         }
 
-        if (new_dtype != ParameterValue::Type::UNKNOWN)
+        if (new_dtype != DataType::UNKNOWN)
         {
-            prmMaxValue->get_value().convert(new_dtype);
-            prmMinValue->get_value().convert(new_dtype);
+            prmMaxValue->convert_type(new_dtype);
+            prmMinValue->convert_type(new_dtype);
         }
 
         output_port = input_type;
@@ -356,7 +344,7 @@ std::unique_ptr<const BlockError> Limiter::has_error() const
         return make_error("input port not set");
     }
 
-    if (dynamicLimiter->get_value().value.tf)
+    if (use_dynamic_limit())
     {
         if (input_type_max != input_type || input_type_min != input_type)
         {
@@ -367,7 +355,7 @@ std::unique_ptr<const BlockError> Limiter::has_error() const
     {
         for (const auto& p : get_parameters())
         {
-            if (p->get_value().dtype == ParameterValue::Type::UNKNOWN)
+            if (p->get_value()->data_type() == DataType::UNKNOWN)
             {
                 return make_error("min or max value is not able to be set");
             }
@@ -423,11 +411,11 @@ std::unique_ptr<CompiledBlockInterface> Limiter::get_compiled(const ModelInfo&) 
 
     std::optional<LimiterValues> limitValues{};
 
-    if (!dynamicLimiter->get_value().value.tf)
+    if (!use_dynamic_limit())
     {
         limitValues = LimiterValues{
-            .upper = prmMaxValue->get_value().to_box(),
-            .lower = prmMinValue->get_value().to_box()
+            .upper = prmMaxValue->get_value()->clone(),
+            .lower = prmMinValue->get_value()->clone()
         };
     }
 
@@ -444,4 +432,9 @@ std::unique_ptr<CompiledBlockInterface> Limiter::get_compiled(const ModelInfo&) 
     default:
         throw ModelException("unable to generate limitor executor");
     }
+}
+
+bool Limiter::use_dynamic_limit() const
+{
+    return ModelValue::get_inner_value<DataType::BOOLEAN>(dynamicLimiter->get_value());
 }

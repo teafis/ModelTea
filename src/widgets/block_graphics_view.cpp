@@ -128,6 +128,8 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
             {
                 foundConnector->setSelected(true);
                 selectedItem = foundConnector;
+                scene()->removeItem(foundConnector);
+                scene()->addItem(foundConnector);
             }
         }
     }

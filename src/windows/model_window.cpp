@@ -132,6 +132,9 @@ void ModelWindow::keyPressEvent(QKeyEvent* event)
         case Qt::Key_E:
             showModelParameters();
             break;
+        case Qt::Key_S:
+            saveModel();
+            break;
         default:
             handled = false;
         }

@@ -214,7 +214,7 @@
    <sender>actionExit</sender>
    <signal>triggered()</signal>
    <receiver>ModelWindow</receiver>
-   <slot>close()</slot>
+   <slot>exit_all()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -499,5 +499,6 @@
   <slot>closeModel()</slot>
   <slot>newModel()</slot>
   <slot>saveCode()</slot>
+  <slot>exit_all()</slot>
  </slots>
 </ui>

@@ -31,6 +31,8 @@ public:
 
     const ModelWindow* window_for_model(const tmdl::Model* model) const;
 
+    std::vector<const ModelWindow*> all_windows();
+
 private:
     std::unordered_map<const ModelWindow*, const tmdl::Model*> window_id_values;
 };

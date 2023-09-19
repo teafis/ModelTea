@@ -139,7 +139,7 @@ void ModelWindow::keyPressEvent(QKeyEvent* event)
 
     if (!handled)
     {
-        QMainWindow::keyPressEvent(event);
+        event->ignore();
     }
 }
 
@@ -358,6 +358,14 @@ void ModelWindow::saveCode()
     catch (const tmdl::codegen::CodegenError& err)
     {
         QMessageBox::warning(this, "Error", err.what());
+    }
+}
+
+void ModelWindow::exit_all()
+{
+    for (const auto& window : WindowManager::instance().all_windows())
+    {
+        const_cast<ModelWindow*>(window)->close();
     }
 }
 

@@ -10,7 +10,7 @@ tmdl::DataParameterValue::DataParameterValue() : value(ModelValue::make_default(
 void tmdl::DataParameterValue::set_from_string(const std::string& s)
 {
     const auto v = std::unique_ptr<ModelValue>(ModelValue::from_string(s, value->data_type()));
-    value->copy_value(v.get());
+    value->copy_from(v.get());
 }
 
 void tmdl::DataParameterValue::set_data_type(const DataType dt)

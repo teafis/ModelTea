@@ -14,11 +14,11 @@
 
 #include <fmt/format.h>
 
-const double PADDING_TB = 0;
-const double PADDING_LR = 30;
-const double BASE_SIZE = 50;
-const double HEIGHT_PER_IO = 50;
-const double IO_RADIUS = 5;
+static const double PADDING_TB = 0;
+static const double PADDING_LR = 30;
+static const double BASE_SIZE = 50;
+static const double HEIGHT_PER_IO = 50;
+static const double IO_RADIUS = 5;
 
 
 BlockObject::BlockObject(const std::shared_ptr<tmdl::BlockInterface> block) :
@@ -122,7 +122,7 @@ void BlockObject::paint(
         QString("%1").arg(block->get_id()));
 }
 
-QPointF BlockObject::getIOPortLocation(
+BlockObject::PortLocation BlockObject::getIOPortLocation(
     const int number,
     const PortType type) const
 {
@@ -132,19 +132,36 @@ QPointF BlockObject::getIOPortLocation(
 
     // Define the X and Y offset values
     const double init_x_offset = IO_RADIUS;
-    double x_loc = 0.0;
+    double x_loc = init_x_offset;
+    PortSide port_side;
 
     // Obtain the vector of points
     switch (type)
     {
     case PortType::INPUT:
-        x_loc = init_x_offset;
+        port_side = PortSide::LEFT;
         break;
     case PortType::OUTPUT:
-        x_loc = rect_width - init_x_offset;
+        x_loc = rect_width - x_loc;
+        port_side = PortSide::RIGHT;
         break;
     default:
         throw BlockObjectException("unexpected port type provided");
+    }
+
+    // Switch if inverted
+    if (block->get_inverted())
+    {
+        if (port_side == PortSide::LEFT)
+        {
+            port_side = PortSide::RIGHT;
+        }
+        else if (port_side == PortSide::RIGHT)
+        {
+            port_side = PortSide::LEFT;
+        }
+
+        x_loc = rect_width - x_loc;
     }
 
     // Define the I/O size
@@ -167,9 +184,13 @@ QPointF BlockObject::getIOPortLocation(
     const double y_loc = init_y_offset + HEIGHT_PER_IO * number;
 
     // Return the resulting location
-    return QPointF(
-        x_loc,
-        y_loc);
+    return PortLocation
+    {
+        .location = QPointF(
+            x_loc,
+            y_loc),
+        .side = port_side,
+    };
 }
 
 void BlockObject::drawIOPorts(
@@ -205,9 +226,9 @@ void BlockObject::drawIOPorts(
         // Add each line width value, and draw the resulting line
         for (size_t i = 0; i < num_ports; ++i)
         {
-            const QPointF& loc = getIOPortLocation(
+            const auto loc = getIOPortLocation(
                 i,
-                type);
+                type).location;
 
             painter->drawEllipse(
                 loc,
@@ -253,7 +274,7 @@ bool BlockObject::blockRectContainsPoint(const QPointF& loc) const
     return blockRect().contains(loc - pos());
 }
 
-void BlockObject::update_block()
+void BlockObject::updateBlock()
 {
     const size_t ITER_LIM = 100;
     size_t i = 0;
@@ -265,13 +286,25 @@ std::shared_ptr<const tmdl::BlockInterface> BlockObject::get_block() const
     return block;
 }
 
-const QPointF BlockObject::getInputPortLocation(const size_t port_num) const
+void BlockObject::setInverted(const bool value)
+{
+    block->set_inverted(value);
+    update();
+    emit sceneLocationUpdated();
+}
+
+bool BlockObject::getInverted() const
+{
+    return block->get_inverted();
+}
+
+QPointF BlockObject::getInputPortLocation(const size_t port_num) const
 {
     if (port_num < block->get_num_inputs())
     {
         return getIOPortLocation(
             port_num,
-            PortType::INPUT);
+            PortType::INPUT).location;
     }
     else
     {
@@ -279,13 +312,41 @@ const QPointF BlockObject::getInputPortLocation(const size_t port_num) const
     }
 }
 
-const QPointF BlockObject::getOutputPortLocation(const size_t port_num) const
+QPointF BlockObject::getOutputPortLocation(const size_t port_num) const
 {
     if (port_num < block->get_num_outputs())
     {
         return getIOPortLocation(
             port_num,
-            PortType::OUTPUT);
+            PortType::OUTPUT).location;
+    }
+    else
+    {
+        throw BlockObjectException(fmt::format("provided output port {} is too large for size {}", port_num, block->get_num_outputs()));
+    }
+}
+
+BlockObject::PortSide BlockObject::getInputPortSide(const size_t port_num) const
+{
+    if (port_num < block->get_num_inputs())
+    {
+        return getIOPortLocation(
+                   port_num,
+                   PortType::INPUT).side;
+    }
+    else
+    {
+        throw BlockObjectException(fmt::format("provided input port {} is too large for size {}", port_num, block->get_num_inputs()));
+    }
+}
+
+BlockObject::PortSide BlockObject::getOutputPortSide(const size_t port_num) const
+{
+    if (port_num < block->get_num_outputs())
+    {
+        return getIOPortLocation(
+                   port_num,
+                   PortType::OUTPUT).side;
     }
     else
     {
@@ -306,7 +367,7 @@ size_t BlockObject::getNumPortsForType(const PortType type) const
     }
 }
 
-std::optional<BlockObject::PortInformation> BlockObject::get_port_for_pos(const QPointF& loc) const
+std::optional<BlockObject::PortInformation> BlockObject::getPortForPosition(const QPointF& loc) const
 {
     for (const auto& t : { PortType::INPUT, PortType::OUTPUT })
     {
@@ -314,7 +375,8 @@ std::optional<BlockObject::PortInformation> BlockObject::get_port_for_pos(const 
 
         for (size_t i = 0; i < num_ports; ++i)
         {
-            const auto loc_diff = (getIOPortLocation(i, t) - (loc - pos()));
+            const auto port_pos = getIOPortLocation(i, t);
+            const auto loc_diff = (port_pos.location - (loc - pos()));
             const double radius = std::sqrt(loc_diff.x() * loc_diff.x() + loc_diff.y() * loc_diff.y());
 
             if (radius < IO_RADIUS)

@@ -27,7 +27,7 @@ BlockParameterDialog::BlockParameterDialog(
 
 void BlockParameterDialog::reloadParameters()
 {
-    block->update_block();
+    block->updateBlock();
 
     while (QLayoutItem* item = ui->parameterItemLayout->itemAt(0))
     {

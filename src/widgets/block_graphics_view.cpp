@@ -295,6 +295,29 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
     }
 }
 
+void BlockGraphicsView::keyPressEvent(QKeyEvent* event)
+{
+    if (event->modifiers() == Qt::ControlModifier)
+    {
+        if (event->key() == Qt::Key_I)
+        {
+            if (auto blk = dynamic_cast<BlockObject*>(selectedItem))
+            {
+                blk->setInverted(!blk->getInverted());
+                emit modelChanged();
+            }
+        }
+        else
+        {
+            event->ignore();
+        }
+    }
+    else
+    {
+        event->ignore();
+    }
+}
+
 void BlockGraphicsView::changeEvent(QEvent* event)
 {
     if (event->type() == QEvent::EnabledChange)
@@ -418,7 +441,7 @@ std::optional<BlockObject::PortInformation> BlockGraphicsView::findBlockIOForMou
         return std::nullopt;
     }
 
-    return block->get_port_for_pos(pos);
+    return block->getPortForPosition(pos);
 }
 
 bool BlockGraphicsView::blockBodyContainsMouse(

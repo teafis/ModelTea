@@ -30,7 +30,7 @@ struct ModelValue
 
     virtual DataType data_type() const = 0;
 
-    virtual void copy_value(const ModelValue* value) = 0;
+    virtual void copy_from(const ModelValue* value) = 0;
 
     virtual std::unique_ptr<ModelValue> clone() const = 0;
 
@@ -96,7 +96,7 @@ struct ModelValueBox : public ModelValue
         }
     }
 
-    virtual void copy_value(const ModelValue* in) override
+    virtual void copy_from(const ModelValue* in) override
     {
         if (auto ptr = dynamic_cast<const ModelValueBox<DT>*>(in))
         {
@@ -128,10 +128,10 @@ struct ModelValueBox<DataType::UNKNOWN> : public ModelValue
 
     virtual std::string to_string() const override
     {
-        return "unknown";
+        return "??";
     }
 
-    virtual void copy_value(const ModelValue* in) override
+    virtual void copy_from(const ModelValue* in) override
     {
         // Do Nothing?
     }

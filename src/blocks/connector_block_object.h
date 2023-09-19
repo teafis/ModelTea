@@ -35,6 +35,8 @@ public:
 
     QString get_name() const;
 
+    virtual QRectF boundingRect() const override;
+
 public slots:
     void blockLocationUpdated();
 
@@ -43,11 +45,16 @@ protected:
 
     virtual double getLineWidth() const override;
 
+    virtual QVector<QPointF> getLinePoints() const override;
+
 protected:
     const std::shared_ptr<tmdl::Connection> connection;
 
     const BlockObject* from_block;
     const BlockObject* to_block;
+
+    BlockObject::PortSide side_a;
+    BlockObject::PortSide side_b;
 };
 
 #endif // CONNECTOR_BLOCK_OBJECT_H

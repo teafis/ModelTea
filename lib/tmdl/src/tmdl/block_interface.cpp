@@ -92,6 +92,16 @@ const tmdl::BlockLocation& tmdl::BlockInterface::get_loc() const
     return _loc;
 }
 
+void tmdl::BlockInterface::set_inverted(bool inverted)
+{
+    _inverted = inverted;
+}
+
+bool tmdl::BlockInterface::get_inverted() const
+{
+    return _inverted;
+}
+
 std::vector<std::shared_ptr<tmdl::Parameter>> tmdl::BlockInterface::get_parameters() const
 {
     return {};

@@ -6,6 +6,8 @@
 #include <QPainter>
 #include <QPalette>
 
+#include <cmath>
+
 #include "exceptions/block_object_exception.h"
 
 
@@ -18,6 +20,7 @@ ConnectorBlockObject::ConnectorBlockObject(
     from_block(from_block),
     to_block(to_block)
 {
+    // Check Inputs
     if (from_block == nullptr || to_block == nullptr || connection == nullptr)
     {
         throw BlockObjectException("input parameter cannot be null");
@@ -26,6 +29,10 @@ ConnectorBlockObject::ConnectorBlockObject(
     {
         throw BlockObjectException("provided connector object does not match connections");
     }
+
+    // Set side values
+    side_a = from_block->getOutputPortSide(connection->get_from_port());
+    side_b = to_block->getInputPortSide(connection->get_to_port());
 
     // Set the provided parent to help with destruction
     setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -85,6 +92,29 @@ QString ConnectorBlockObject::get_name() const
     }
 }
 
+QRectF ConnectorBlockObject::boundingRect() const
+{
+    const auto pts = getLinePoints();
+    float min_x = pts.first().x();
+    float max_x = min_x;
+    float min_y = pts.first().y();
+    float max_y = min_y;
+
+    for (const auto& p : pts)
+    {
+        min_x = std::min(min_x, static_cast<float>(p.x()));
+        max_x = std::max(max_x, static_cast<float>(p.x()));
+        min_y = std::min(min_y, static_cast<float>(p.y()));
+        max_y = std::max(max_y, static_cast<float>(p.y()));
+    }
+
+    return QRectF(
+        min_x,
+        min_y,
+        max_x - min_x,
+        max_y - min_y);
+}
+
 void ConnectorBlockObject::blockLocationUpdated()
 {
     if (!isValidConnection())
@@ -94,6 +124,9 @@ void ConnectorBlockObject::blockLocationUpdated()
 
     const auto loc_a_s = to_block->mapToScene(to_block->getInputPortLocation(get_to_port()));
     const auto loc_b_s = from_block->mapToScene(from_block->getOutputPortLocation(get_from_port()));
+
+    side_a = from_block->getOutputPortSide(connection->get_from_port());
+    side_b = to_block->getInputPortSide(connection->get_to_port());
 
     updateLocations(loc_a_s, loc_b_s);
 }
@@ -125,5 +158,41 @@ double ConnectorBlockObject::getLineWidth() const
     else
     {
         return 3.0;
+    }
+}
+
+QVector<QPointF> ConnectorBlockObject::getLinePoints() const
+{
+    if (side_a != side_b)
+    {
+        const auto halfway = (loc_a + loc_b) / 2.0;
+
+        return {
+            loc_b,
+            QPointF(halfway.x(), loc_b.y()),
+            QPointF(halfway.x(), loc_a.y()),
+            loc_a
+        };
+    }
+    else
+    {
+        const float offset_val = 10.0f;
+        float offset_x;
+
+        if (side_a == BlockObject::PortSide::RIGHT)
+        {
+            offset_x = std::max(loc_a.x(), loc_b.x()) + offset_val;
+        }
+        else
+        {
+            offset_x = std::min(loc_a.x(), loc_b.x()) - offset_val;
+        }
+
+        return {
+            loc_b,
+            QPointF(offset_x, loc_b.y()),
+            QPointF(offset_x, loc_a.y()),
+            loc_a
+        };
     }
 }

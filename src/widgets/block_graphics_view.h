@@ -35,6 +35,8 @@ public:
 
     virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
 
+    virtual void keyPressEvent(QKeyEvent *event) override;
+
     virtual void changeEvent(QEvent* event) override;
 
 protected:

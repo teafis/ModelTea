@@ -52,6 +52,8 @@ public slots:
 
     void saveCode();
 
+    void exit_all();
+
 protected:
     void changeModel(std::shared_ptr<tmdl::Model> model);
 

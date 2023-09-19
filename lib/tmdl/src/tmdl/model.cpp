@@ -1202,6 +1202,7 @@ struct SaveBlock
     std::vector<SaveParameter> parameters;
     int64_t x;
     int64_t y;
+    bool inverted;
 };
 
 void to_json(nlohmann::json& j, const SaveBlock& b)
@@ -1211,6 +1212,7 @@ void to_json(nlohmann::json& j, const SaveBlock& b)
     j["parameters"] = b.parameters;
     j["x"] = b.x;
     j["y"] = b.y;
+    j["inverted"] = b.inverted;
 }
 
 void from_json(const nlohmann::json& j, SaveBlock& b)
@@ -1220,6 +1222,15 @@ void from_json(const nlohmann::json& j, SaveBlock& b)
     j.at("parameters").get_to(b.parameters);
     j.at("x").get_to(b.x);
     j.at("y").get_to(b.y);
+
+    if (auto it = j.find("inverted"); it != j.end())
+    {
+        it->get_to(b.inverted);
+    }
+    else
+    {
+        b.inverted = false;
+    }
 }
 
 void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m)
@@ -1273,7 +1284,8 @@ void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m)
             .name = blk->get_name(),
             .parameters = json_parameters,
             .x = blk->get_loc().x - block_offset->x,
-            .y = blk->get_loc().y - block_offset->y
+            .y = blk->get_loc().y - block_offset->y,
+            .inverted = blk->get_inverted(),
         };
 
         json_blocks.insert({std::to_string(save_blk.id), save_blk});
@@ -1330,6 +1342,7 @@ void tmdl::from_json(const nlohmann::json& j, tmdl::Model& m)
 
         blk->set_id(json_blk.id);
         blk->set_loc(BlockLocation{json_blk.x, json_blk.y});
+        blk->set_inverted(json_blk.inverted);
 
         for (const auto& prm : json_blk.parameters)
         {

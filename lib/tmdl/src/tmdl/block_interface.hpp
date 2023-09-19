@@ -82,6 +82,10 @@ public:
 
     const BlockLocation& get_loc() const;
 
+    void set_inverted(bool);
+
+    bool get_inverted() const;
+
     virtual std::string get_name() const = 0;
 
     virtual std::string get_description() const = 0;
@@ -114,6 +118,7 @@ protected:
 protected:
     size_t _id;
     BlockLocation _loc;
+    bool _inverted;
 };
 
 class BlockExecutionInterface

@@ -65,3 +65,13 @@ const ModelWindow* WindowManager::window_for_model(const tmdl::Model* model) con
 
     return nullptr;
 }
+
+std::vector<const ModelWindow*> WindowManager::all_windows()
+{
+    std::vector<const ModelWindow*> ws;
+    for (const auto& it : window_id_values)
+    {
+        ws.push_back(it.first);
+    }
+    return ws;
+}

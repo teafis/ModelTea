@@ -6,7 +6,7 @@
 
 #include <fmt/format.h>
 
-tmdl::Identifier::Identifier(const std::string& s)
+tmdl::Identifier::Identifier(const std::string_view s)
 {
     set(s);
 }
@@ -16,7 +16,7 @@ const std::string& tmdl::Identifier::get() const
     return _value;
 }
 
-void tmdl::Identifier::set(const std::string& s)
+void tmdl::Identifier::set(const std::string_view s)
 {
     if (!is_valid_identifier(s))
     {
@@ -26,7 +26,7 @@ void tmdl::Identifier::set(const std::string& s)
     _value = s;
 }
 
-bool tmdl::Identifier::is_valid_identifier(const std::string& s)
+bool tmdl::Identifier::is_valid_identifier(const std::string_view s)
 {
     for (const auto c : s)
     {

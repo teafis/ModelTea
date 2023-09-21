@@ -24,8 +24,12 @@ class BlockExecutionInterface;
 
 struct BlockError
 {
-    size_t id;
-    std::string message;
+    BlockError(
+        const size_t id,
+        const std::string& message);
+
+    const size_t id;
+    const std::string message;
 };
 
 struct BlockLocation
@@ -41,7 +45,7 @@ struct BlockLocation
 class CompiledBlockInterface
 {
 public:
-    virtual ~CompiledBlockInterface();
+    virtual ~CompiledBlockInterface() = default;
 
     virtual std::shared_ptr<BlockExecutionInterface> get_execution_interface(
         const ConnectionManager& connections,
@@ -61,7 +65,7 @@ public:
     class ModelInfo
     {
     public:
-        ModelInfo(const double dt);
+        explicit ModelInfo(const double dt);
 
         double get_dt() const;
 
@@ -69,10 +73,7 @@ public:
         const double dt;
     };
 
-public:
-    explicit BlockInterface();
-
-    virtual ~BlockInterface();
+    virtual ~BlockInterface() = default;
 
     size_t get_id() const;
 
@@ -115,16 +116,16 @@ public:
 protected:
     std::unique_ptr<const BlockError> make_error(const std::string& msg) const;
 
-protected:
-    size_t _id;
-    BlockLocation _loc;
-    bool _inverted;
+private:
+    size_t _id{ 0 };
+    BlockLocation _loc{};
+    bool _inverted{ false };
 };
 
 class BlockExecutionInterface
 {
 public:
-    virtual ~BlockExecutionInterface();
+    virtual ~BlockExecutionInterface() = default;
 
     virtual void init();
 

@@ -27,13 +27,12 @@ tmdl::LibraryManager::LibraryManager()
 
 void tmdl::LibraryManager::register_library(const std::string& name, std::shared_ptr<LibraryBase> library)
 {
-    const auto it = libraries.find(name);
-    if (it != libraries.end())
+    if (const auto it = libraries.find(name); it != libraries.end())
     {
         throw ModelException("library name already exists in manager");
     }
 
-    libraries.insert({name, library});
+    libraries.try_emplace(name, library);
 }
 
 void tmdl::LibraryManager::deregister_library(const std::string& name)
@@ -63,11 +62,11 @@ std::shared_ptr<const tmdl::LibraryBase> tmdl::LibraryManager::get_library(const
 std::vector<std::string> tmdl::LibraryManager::get_library_names() const
 {
     std::vector<std::string> names;
-    for (const auto& kv : libraries)
+    for (const auto& k : libraries | std::views::keys)
     {
-        names.push_back(kv.first);
+        names.push_back(k);
     }
-    std::sort(names.begin(), names.end());
+    std::ranges::sort(names);
     return names;
 }
 
@@ -85,11 +84,11 @@ std::shared_ptr<tmdl::BlockInterface> tmdl::LibraryManager::create_block(const s
 
 std::shared_ptr<tmdl::BlockInterface> tmdl::LibraryManager::try_create_block(const std::string& name) const
 {
-    for (const auto& kv : libraries)
+    for (const auto& lib : libraries | std::views::values)
     {
-        if (kv.second->has_block(name))
+        if (lib->has_block(name))
         {
-            return kv.second->create_block(name);
+            return lib->create_block(name);
         }
     }
 

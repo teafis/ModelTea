@@ -34,7 +34,7 @@ public:
 
     std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 
-protected:
+private:
     DataType input_type_tf;
     DataType input_type_a;
     DataType input_type_b;

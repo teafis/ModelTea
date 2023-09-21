@@ -17,7 +17,7 @@ template <tmdl::DataType DT, tmdl::stdlib::RelationalOperator OP>
 class CompiledRelational : public tmdl::CompiledBlockInterface
 {
 public:
-    CompiledRelational(const size_t id) : _id(id)
+    explicit CompiledRelational(const size_t id) : _id(id)
     {
         // Empty Constructor
     }
@@ -46,38 +46,38 @@ public:
         return std::make_unique<RelationalComponent>();
     }
 
-protected:
+private:
     const size_t _id;
 
 protected:
     struct RelationalComponent : public tmdl::codegen::CodeComponent
     {
-        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+        std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
         {
             return tmdl::codegen::InterfaceDefinition("s_in", {"val_a", "val_b"});
         }
 
-        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+        std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
         {
             return tmdl::codegen::InterfaceDefinition("s_out", {"output_value"});
         }
 
-        virtual std::string get_module_name() const override
+        std::string get_module_name() const override
         {
             return "tmdlstd/tmdlstd.hpp";
         }
 
-        virtual std::string get_name_base() const override
+        std::string get_name_base() const override
         {
             return "relational_block";
         }
 
-        virtual std::string get_type_name() const override
+        std::string get_type_name() const override
         {
             return fmt::format("tmdl::stdlib::relational_block<{}, {}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT), tmdl::stdlib::relational_to_string(OP));
         }
 
-        virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
+        std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
         {
             switch (ft)
             {
@@ -91,7 +91,6 @@ protected:
         }
     };
 
-protected:
     struct RelationalExecutor : public tmdl::BlockExecutionInterface
     {
         using type_t = typename tmdl::data_type_t<DT>::type;
@@ -127,7 +126,7 @@ protected:
             output_value->value = block.s_out.output_value;
         }
 
-    protected:
+    private:
         std::shared_ptr<const tmdl::ModelValueBox<DT>> input_a;
         std::shared_ptr<const tmdl::ModelValueBox<DT>> input_b;
         std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> output_value;
@@ -140,9 +139,10 @@ protected:
 
 tmdl::blocks::RelationalBase::RelationalBase()
 {
-    _inputA = DataType::UNKNOWN;
-    _inputB = DataType::UNKNOWN;
-    _outputPort = DataType::BOOLEAN;
+    using enum DataType;
+    _inputA = UNKNOWN;
+    _inputB = UNKNOWN;
+    _outputPort = BOOLEAN;
 }
 
 size_t tmdl::blocks::RelationalBase::get_num_inputs() const
@@ -167,9 +167,7 @@ std::unique_ptr<const tmdl::BlockError> tmdl::blocks::RelationalBase::has_error(
         return make_error("input port must have the same type");
     }
 
-    const std::vector<DataType> availableTypes = get_supported_types();
-
-    if (std::find(availableTypes.begin(), availableTypes.end(), _inputA) == availableTypes.end())
+    if (const std::vector<DataType> aTypes = get_supported_types(); std::ranges::find(aTypes, _inputA) == aTypes.end())
     {
         return make_error(fmt::format("relational block {} does not support provided types", get_name()));
     }
@@ -208,20 +206,32 @@ tmdl::DataType tmdl::blocks::RelationalBase::get_output_type(const size_t port) 
 
 std::vector<tmdl::DataType> tmdl::blocks::RelationalNumericBase::get_supported_types() const
 {
+    using enum DataType;
     return {
-        tmdl::DataType::DOUBLE,
-        tmdl::DataType::SINGLE,
-        tmdl::DataType::INT32,
-        tmdl::DataType::UINT32,
+        DOUBLE,
+        SINGLE,
+        INT32,
+        UINT32,
     };
+}
+
+tmdl::DataType tmdl::blocks::RelationalBase::get_input_type() const
+{
+    if (_inputA != _inputB)
+    {
+        throw ModelException("mismatch in input types");
+    }
+
+    return _inputA;
 }
 
 std::vector<tmdl::DataType> tmdl::blocks::RelationalEqualityBase::get_supported_types() const
 {
+    using enum DataType;
     return {
-        tmdl::DataType::INT32,
-        tmdl::DataType::UINT32,
-        tmdl::DataType::BOOLEAN,
+        INT32,
+        UINT32,
+        BOOLEAN,
     };
 }
 
@@ -240,16 +250,17 @@ static std::unique_ptr<tmdl::CompiledBlockInterface> generate_compiled(const tmd
 
     switch (dt)
     {
-    case tmdl::DataType::DOUBLE:
-        return std::make_unique<CompiledRelational<tmdl::DataType::DOUBLE, OP>>(id);
-    case tmdl::DataType::SINGLE:
-        return std::make_unique<CompiledRelational<tmdl::DataType::SINGLE, OP>>(id);
-    case tmdl::DataType::INT32:
-        return std::make_unique<CompiledRelational<tmdl::DataType::INT32, OP>>(id);
-    case tmdl::DataType::UINT32:
-        return std::make_unique<CompiledRelational<tmdl::DataType::UINT32, OP>>(id);
-    case tmdl::DataType::BOOLEAN:
-        return std::make_unique<CompiledRelational<tmdl::DataType::BOOLEAN, OP>>(id);
+    using enum tmdl::DataType;
+    case DOUBLE:
+        return std::make_unique<CompiledRelational<DOUBLE, OP>>(id);
+    case SINGLE:
+        return std::make_unique<CompiledRelational<SINGLE, OP>>(id);
+    case INT32:
+        return std::make_unique<CompiledRelational<INT32, OP>>(id);
+    case UINT32:
+        return std::make_unique<CompiledRelational<UINT32, OP>>(id);
+    case BOOLEAN:
+        return std::make_unique<CompiledRelational<BOOLEAN, OP>>(id);
     default:
         throw tmdl::ModelException("unable to generate relational instance");
     }
@@ -269,7 +280,7 @@ std::string tmdl::blocks::GreaterThan::get_description() const
 
 std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::GreaterThan::get_compiled(const ModelInfo&) const
 {
-    return generate_compiled<tmdl::stdlib::RelationalOperator::GREATER_THAN>(this, _inputA);
+    return generate_compiled<tmdl::stdlib::RelationalOperator::GREATER_THAN>(this, get_input_type());
 }
 
 // GreaterThanEqual Block
@@ -286,7 +297,7 @@ std::string tmdl::blocks::GreaterThanEqual::get_description() const
 
 std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::GreaterThanEqual::get_compiled(const ModelInfo&) const
 {
-    return generate_compiled<tmdl::stdlib::RelationalOperator::GREATER_THAN_EQUAL>(this, _inputA);
+    return generate_compiled<tmdl::stdlib::RelationalOperator::GREATER_THAN_EQUAL>(this, get_input_type());
 }
 
 // LessThan Block
@@ -303,7 +314,7 @@ std::string tmdl::blocks::LessThan::get_description() const
 
 std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::LessThan::get_compiled(const ModelInfo&) const
 {
-    return generate_compiled<tmdl::stdlib::RelationalOperator::LESS_THAN>(this, _inputA);
+    return generate_compiled<tmdl::stdlib::RelationalOperator::LESS_THAN>(this, get_input_type());
 }
 
 // LessThanEqual Block
@@ -320,7 +331,7 @@ std::string tmdl::blocks::LessThanEqual::get_description() const
 
 std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::LessThanEqual::get_compiled(const ModelInfo&) const
 {
-    return generate_compiled<tmdl::stdlib::RelationalOperator::LESS_THAN_EQUAL>(this, _inputA);
+    return generate_compiled<tmdl::stdlib::RelationalOperator::LESS_THAN_EQUAL>(this, get_input_type());
 }
 
 // Equal Block
@@ -337,7 +348,7 @@ std::string tmdl::blocks::Equal::get_description() const
 
 std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Equal::get_compiled(const ModelInfo&) const
 {
-    return generate_compiled<tmdl::stdlib::RelationalOperator::EQUAL>(this, _inputA);
+    return generate_compiled<tmdl::stdlib::RelationalOperator::EQUAL>(this, get_input_type());
 }
 
 // NotEqual Block
@@ -354,5 +365,5 @@ std::string tmdl::blocks::NotEqual::get_description() const
 
 std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::NotEqual::get_compiled(const ModelInfo&) const
 {
-    return generate_compiled<tmdl::stdlib::RelationalOperator::NOT_EQUAL>(this, _inputA);
+    return generate_compiled<tmdl::stdlib::RelationalOperator::NOT_EQUAL>(this, get_input_type());
 }

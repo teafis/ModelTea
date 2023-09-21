@@ -2,6 +2,11 @@
 
 #include "block_interface.hpp"
 
+tmdl::BlockError::BlockError(const size_t id, const std::string& message) : id{ id }, message{ message }
+{
+    // Empty Constructor
+}
+
 tmdl::BlockLocation::BlockLocation() :
     x{0}, y{0}
 {
@@ -14,17 +19,11 @@ tmdl::BlockLocation::BlockLocation(const int64_t x, const int64_t y) :
     // Empty Constructor
 }
 
-tmdl::CompiledBlockInterface::~CompiledBlockInterface()
-{
-    // Empty Destructor
-}
-
 std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> tmdl::CompiledBlockInterface::get_codegen_components() const
 {
     std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> components;
-    auto self_block = get_codegen_self();
 
-    if (!self_block->is_virtual())
+    if (auto self_block = get_codegen_self(); !self_block->is_virtual())
     {
         components.push_back(std::move(self_block));
     }
@@ -36,7 +35,7 @@ std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> tmdl::CompiledBlockIn
             continue;
         }
 
-        if (std::find_if(components.begin(), components.end(), [&c](std::unique_ptr<tmdl::codegen::CodeComponent>& x) { return c->get_name_base() == x->get_name_base(); }) == components.end())
+        if (std::ranges::find_if(components, [&c](const std::unique_ptr<tmdl::codegen::CodeComponent>& x) { return c->get_name_base() == x->get_name_base(); }) == components.end())
         {
             components.push_back(std::move(c));
         }
@@ -48,18 +47,6 @@ std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> tmdl::CompiledBlockIn
 std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> tmdl::CompiledBlockInterface::get_codegen_other() const
 {
     return {};
-}
-
-tmdl::BlockInterface::BlockInterface() :
-    _id(0),
-    _loc{}
-{
-    // Empty Constructor
-}
-
-tmdl::BlockInterface::~BlockInterface()
-{
-    // Empty Destructor
 }
 
 tmdl::BlockInterface::ModelInfo::ModelInfo(const double dt) : dt(dt)
@@ -114,16 +101,7 @@ bool tmdl::BlockInterface::outputs_are_delayed() const
 
 std::unique_ptr<const tmdl::BlockError> tmdl::BlockInterface::make_error(const std::string& msg) const
 {
-    return std::make_unique<BlockError>(BlockError
-    {
-        .id = get_id(),
-        .message = msg
-    });
-}
-
-tmdl::BlockExecutionInterface::~BlockExecutionInterface()
-{
-    // Empty Destructor
+    return std::make_unique<BlockError>(get_id(), msg);
 }
 
 void tmdl::BlockExecutionInterface::init()

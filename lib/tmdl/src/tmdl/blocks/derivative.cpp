@@ -38,7 +38,7 @@ public:
         return std::make_unique<DerivativeComponent>(_state);
     }
 
-protected:
+private:
     const size_t _id;
     const tmdl::BlockInterface::ModelInfo _state;
 
@@ -46,37 +46,37 @@ protected:
     class DerivativeComponent : public tmdl::codegen::CodeComponent
     {
     public:
-        DerivativeComponent(const tmdl::BlockInterface::ModelInfo& s) : _state(s)
+        explicit DerivativeComponent(const tmdl::BlockInterface::ModelInfo& s) : _state(s)
         {
             // Empty Constructor
         }
 
-        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+        std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
         {
             return tmdl::codegen::InterfaceDefinition("s_in", {"input_value", "reset_flag"});
         }
 
-        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+        std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
         {
             return tmdl::codegen::InterfaceDefinition("s_out", {"output_value"});
         }
 
-        virtual std::string get_module_name() const override
+        std::string get_module_name() const override
         {
             return "tmdlstd/tmdlstd.hpp";
         }
 
-        virtual std::string get_name_base() const override
+        std::string get_name_base() const override
         {
             return "derivative_block";
         }
 
-        virtual std::string get_type_name() const override
+        std::string get_type_name() const override
         {
             return fmt::format("tmdl::stdlib::derivative_block<{}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT));
         }
 
-        virtual std::optional<std::string> get_function_name(const tmdl::codegen::BlockFunction fcn) const override
+        std::optional<std::string> get_function_name(const tmdl::codegen::BlockFunction fcn) const override
         {
             switch (fcn)
             {
@@ -91,11 +91,12 @@ protected:
             }
         }
 
-        virtual std::vector<std::string> constructor_arguments() const override
+        std::vector<std::string> constructor_arguments() const override
         {
             return { std::to_string(_state.get_dt()) };
         }
 
+    private:
         const tmdl::BlockInterface::ModelInfo _state;
     };
 
@@ -104,7 +105,7 @@ protected:
     public:
         using type_t = typename tmdl::data_type_t<DT>::type;
 
-        DerivativeExecutor(
+        explicit DerivativeExecutor(
             std::shared_ptr<const tmdl::ModelValue> input,
             std::shared_ptr<tmdl::ModelValue> output,
             std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> reset_flag,
@@ -153,7 +154,7 @@ protected:
             block->s_in.reset_flag = _reset_flag->value;
         }
 
-    protected:
+    private:
         std::shared_ptr<const tmdl::ModelValueBox<DT>> _input;
         std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> _reset_flag;
         std::shared_ptr<tmdl::ModelValueBox<DT>> _output;
@@ -250,8 +251,7 @@ tmdl::DataType tmdl::blocks::Derivative::get_output_type(const size_t port) cons
 
 std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Derivative::get_compiled(const ModelInfo& s) const
 {
-    const auto err = has_error();
-    if (err != nullptr)
+    if (const auto err = has_error())
     {
         throw ModelException("cannot create componentwith an error");
     }

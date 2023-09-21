@@ -31,7 +31,9 @@ enum class BlockFunction
 class CodegenError
 {
 public:
-    CodegenError(const std::string& msg);
+    explicit CodegenError(std::string_view msg);
+
+    virtual ~CodegenError() = default;
 
     virtual const char* what() const noexcept;
 

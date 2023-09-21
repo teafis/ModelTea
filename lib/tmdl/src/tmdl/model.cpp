@@ -51,8 +51,16 @@ class ModelCodeComponent : public tmdl::codegen::CodeComponent
 protected:
     struct ComponentVariable
     {
-        std::string name;
-        std::unique_ptr<const codegen::CodeComponent> component;
+        ComponentVariable(
+            const std::string_view name,
+            std::unique_ptr<const codegen::CodeComponent>&& component)
+            : name{ name }, component{ std::move(component) }
+        {
+            // Empty Constructor
+        }
+
+        const std::string name;
+        const std::unique_ptr<const codegen::CodeComponent> component;
     };
 
 public:
@@ -67,14 +75,12 @@ public:
         _input_types(input_types),
         _output_types(output_types)
     {
-        for (auto& [bid, comp] : components)
+        for (auto& [bid, comp] : std::move(components))
         {
-            _blocks.emplace(
+            _blocks.try_emplace(
                 bid,
-                ComponentVariable {
-                    .name = fmt::format("_block_{}", bid),
-                    .component = std::move(comp)
-            });
+                fmt::format("_block_{}", bid),
+                std::move(comp));
         }
         components.clear();
 
@@ -89,30 +95,31 @@ public:
         }
     }
 
-    virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+    std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
     {
         return tmdl::codegen::InterfaceDefinition("s_in", _input_names);
     }
 
-    virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+    std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
     {
         return tmdl::codegen::InterfaceDefinition("s_out", _output_names);
     }
 
-    virtual std::string get_name_base() const override
+    std::string get_name_base() const override
     {
         return _model_name.get();
     }
 
-    virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
+    std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
     {
         switch (ft)
         {
-        case tmdl::codegen::BlockFunction::INIT:
+        using enum tmdl::codegen::BlockFunction;
+        case INIT:
             return "init";
-        case tmdl::codegen::BlockFunction::STEP:
+        case STEP:
             return "step";
-        case tmdl::codegen::BlockFunction::RESET:
+        case RESET:
             return "reset";
         default:
             return {};
@@ -120,13 +127,14 @@ public:
     }
 
 protected:
-    virtual std::vector<std::string> write_cpp_code(tmdl::codegen::CodeSection section) const override
+    std::vector<std::string> write_cpp_code(tmdl::codegen::CodeSection section) const override
     {
-        switch (section)
+        if (section == tmdl::codegen::CodeSection::DECLARATION)
         {
-        case tmdl::codegen::CodeSection::DECLARATION:
             return write_cpp_implementation();
-        default:
+        }
+        else
+        {
             return {};
         }
     }
@@ -136,89 +144,81 @@ protected:
         std::string name_base_upper = get_name_base();
         for (auto& c : name_base_upper)
         {
-            c = std::toupper(c);
+            c = static_cast<char>(std::toupper(c));
         }
 
         const std::string HDR_GUARD = fmt::format("GEN_MDL_BLOCK_{}_GUARD", name_base_upper);
 
         std::vector<std::string> lines;
-        lines.push_back(fmt::format("#ifndef {}", HDR_GUARD));
-        lines.push_back(fmt::format("#define {}", HDR_GUARD));
-        lines.push_back("");
+        lines.emplace_back(fmt::format("#ifndef {}", HDR_GUARD));
+        lines.emplace_back(fmt::format("#define {}", HDR_GUARD));
+        lines.emplace_back("");
 
         std::vector<std::string> include_files;
-        for (const auto& kv : _blocks)
+        for (const auto& [varname, comp] : _blocks | std::views::values)
         {
-            const auto& [varname, comp] = kv.second;
-
             const auto fcn_name = comp->get_module_name();
             if (fcn_name.empty())
             {
                 continue;
             }
 
-            if (std::find(include_files.begin(), include_files.end(), fcn_name) == include_files.end())
+            if (std::ranges::find(include_files, fcn_name) == include_files.end())
             {
-                include_files.push_back(fcn_name);
+                include_files.emplace_back(fcn_name);
             }
         }
 
-        std::sort(include_files.begin(), include_files.end());
+        std::ranges::sort(include_files);
 
         for (const auto& f : include_files)
         {
-            lines.push_back(fmt::format("#include \"{}\"", f));
+            lines.emplace_back(fmt::format("#include \"{}\"", f));
         }
 
-        lines.push_back("");
+        lines.emplace_back("");
 
-        lines.push_back(fmt::format("struct {}", get_name_base()));
-        lines.push_back("{");
+        lines.emplace_back(fmt::format("struct {}", get_name_base()));
+        lines.emplace_back("{");
 
-        lines.push_back("    struct input_t");
-        lines.push_back("    {");
+        lines.emplace_back("    struct input_t");
+        lines.emplace_back("    {");
 
         for (size_t i = 0; i < _input_types.size(); ++i)
         {
             const auto dt = _input_types[i];
-            lines.push_back(fmt::format("        {} {}{{}};", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, dt), _input_names[i]));
+            lines.emplace_back(fmt::format("        {} {}{{}};", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, dt), _input_names[i]));
         }
 
-        lines.push_back("    };");
-        lines.push_back("");
+        lines.emplace_back("    };");
+        lines.emplace_back("");
 
-        lines.push_back("    struct output_t");
-        lines.push_back("    {");
+        lines.emplace_back("    struct output_t");
+        lines.emplace_back("    {");
 
         for (size_t i = 0; i < _output_types.size(); ++i)
         {
             const auto dt = _output_types[i];
-            lines.push_back(fmt::format("        {} {}{{}};", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, dt), _output_names[i]));
+            lines.emplace_back(fmt::format("        {} {}{{}};", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, dt), _output_names[i]));
         }
 
-        lines.push_back("    };");
-        lines.push_back("");
+        lines.emplace_back("    };");
+        lines.emplace_back("");
 
-        lines.push_back(fmt::format("    {}()", get_name_base()));
-        lines.push_back("    {");
-        lines.push_back("    }");
+        lines.emplace_back(fmt::format("    {}()", get_name_base()));
+        lines.emplace_back("    {");
+        lines.emplace_back("    }");
 
-        lines.push_back("");
+        lines.emplace_back("");
 
         lines.push_back(fmt::format("    {}(const {}&) = delete;", get_name_base(), get_name_base()));
         lines.push_back(fmt::format("    {}& operator=(const {}&) = delete;", get_name_base(), get_name_base()));
 
-        const std::vector<codegen::BlockFunction> functions = {
-            tmdl::codegen::BlockFunction::INIT,
-            tmdl::codegen::BlockFunction::RESET,
-            tmdl::codegen::BlockFunction::STEP,
-        };
-
-        for (const auto fcn : functions)
+        for (const auto fcn : { tmdl::codegen::BlockFunction::INIT, tmdl::codegen::BlockFunction::RESET, tmdl::codegen::BlockFunction::STEP })
         {
-            lines.push_back("");
+            lines.emplace_back("");
             lines.push_back(fmt::format("    void {}()", *get_function_name(fcn)));
-            lines.push_back("    {");
+            lines.emplace_back("    {");
 
             for (const auto& bid : _model_data.execution_order)
             {
@@ -293,7 +293,7 @@ protected:
 
             if (fcn == tmdl::codegen::BlockFunction::STEP || fcn == tmdl::codegen::BlockFunction::RESET || fcn == tmdl::codegen::BlockFunction::INIT)
             {
-                lines.push_back("        // Copy Output Values");
+                lines.emplace_back("        // Copy Output Values");
                 const auto output_def = get_output_type();
                 for (const auto& [port_num, src] : _model_data.links.output_port_links)
                 {
@@ -303,20 +303,19 @@ protected:
                 }
             }
 
-            lines.push_back("    }");
+            lines.emplace_back("    }");
         }
 
-        lines.push_back("");
+        lines.emplace_back("");
         lines.push_back(fmt::format("    input_t {};", get_input_type()->get_name()));
         lines.push_back(fmt::format("    output_t {};", get_output_type()->get_name()));
 
-        if (_blocks.size() > 0)
+        if (!_blocks.empty())
         {
-            lines.push_back("");
-            lines.push_back("private:");
-            for (const auto& kv : _blocks)
+            lines.emplace_back("");
+            lines.emplace_back("private:");
+            for (const auto& [varname, comp] : _blocks | std::views::values)
             {
-                const auto& [varname, comp] = kv.second;
                 std::string args = "";
 
                 for (const auto& a : comp->constructor_arguments())
@@ -340,15 +339,15 @@ protected:
             }
         }
 
-        lines.push_back("};");
+        lines.emplace_back("};");
 
-        lines.push_back("");
+        lines.emplace_back("");
         lines.push_back(fmt::format("#endif // {}", HDR_GUARD));
 
         return lines;
     }
 
-protected:
+private:
     const tmdl::Identifier _model_name;
     const tmdl::Model::CompiledModelData _model_data;
     std::vector<tmdl::DataType> _input_types;
@@ -420,16 +419,12 @@ public:
         return variable_manager;
     }
 
-protected:
+private:
     std::shared_ptr<const VariableManager> variable_manager;
     std::vector<std::shared_ptr<BlockExecutionInterface>> blocks;
 };
 
 /* ==================== MODEL ==================== */
-
-Model::Model() : name({}), description("user-defined model block"), preferred_dt(0.1)
-{
-}
 
 void Model::add_block(const std::shared_ptr<BlockInterface> block)
 {
@@ -438,14 +433,13 @@ void Model::add_block(const std::shared_ptr<BlockInterface> block)
 
 void Model::add_block(const std::shared_ptr<BlockInterface> block, const size_t id)
 {
-    if (blocks.find(id) != blocks.end())
+    if (blocks.contains(id))
     {
         throw ModelException(fmt::format("block already contains provided ID {}", id));
     }
 
     // Check if the block is a model pointer value, and if so, prevent recursive additions
-    const auto mdl_ptr = std::dynamic_pointer_cast<ModelBlock>(block);
-    if (mdl_ptr)
+    if (const auto mdl_ptr = std::dynamic_pointer_cast<ModelBlock>(block))
     {
         if (mdl_ptr->get_name() == get_name() || mdl_ptr->get_model()->contains_model_name(get_name()))
         {
@@ -453,17 +447,17 @@ void Model::add_block(const std::shared_ptr<BlockInterface> block, const size_t 
         }
     }
 
-    if (const auto ptr = std::dynamic_pointer_cast<InputPort>(block); ptr != nullptr)
+    if (const auto in_ptr = std::dynamic_pointer_cast<InputPort>(block))
     {
         input_ids.push_back(id);
     }
-    else if (const auto ptr = std::dynamic_pointer_cast<OutputPort>(block); ptr != nullptr)
+    else if (const auto out_ptr = std::dynamic_pointer_cast<OutputPort>(block))
     {
         output_ids.push_back(id);
     }
 
     block->set_id(id);
-    blocks.insert({id, block});
+    blocks.try_emplace(id, block);
 }
 
 void Model::remove_block(const size_t id)
@@ -480,10 +474,7 @@ void Model::remove_block(const size_t id)
     // Remove references in the port vectors
     for (auto* vec : { &input_ids, &output_ids })
     {
-        auto it = std::find(
-            vec->begin(),
-            vec->end(),
-            id);
+        auto it = std::ranges::find(*vec, id);
         if (it != vec->end())
         {
             vec->erase(it);
@@ -491,7 +482,7 @@ void Model::remove_block(const size_t id)
     }
 
     // Set any inputs that have the current id value
-    for (auto& c : connections.get_connections())
+    for (const auto& c : connections.get_connections())
     {
         if (c->get_from_id() != id) continue;
 
@@ -535,8 +526,7 @@ void Model::remove_connection(const size_t to_block, const size_t to_port)
 {
     const auto c = connections.get_connection_to(to_block, to_port);
 
-    auto blk = get_block(c->get_to_id());
-    if (c->get_to_port() < blk->get_num_inputs())
+    if (auto blk = get_block(c->get_to_id()); c->get_to_port() < blk->get_num_inputs())
     {
         blk->set_input_type(c->get_to_port(), DataType::UNKNOWN);
     }
@@ -561,7 +551,7 @@ std::string Model::get_description() const
     return description;
 }
 
-void Model::set_description(const std::string& s)
+void Model::set_description(const std::string_view s)
 {
     description = s;
 }
@@ -625,9 +615,9 @@ bool Model::update_block()
         }
 
         // Check each port for updates
-        for (auto& blk : blocks)
+        for (const auto& blk : blocks | std::views::values)
         {
-            any_updated |= blk.second->update_block();
+            any_updated |= blk->update_block();
         }
 
         // Mark as updated, and break if the count has been exceeded
@@ -649,9 +639,9 @@ bool Model::update_block()
 
 std::unique_ptr<const BlockError> Model::has_error() const
 {
-    for (const auto& b : blocks)
+    for (const auto& blk : blocks | std::views::values)
     {
-        auto blk_error = b.second->has_error();
+        auto blk_error = blk->has_error();
         if (blk_error != nullptr)
         {
             return blk_error;
@@ -663,30 +653,18 @@ std::unique_ptr<const BlockError> Model::has_error() const
 
 std::unique_ptr<const BlockError> Model::own_error() const
 {
-    for (const auto& b : blocks)
+    for (const auto& blk : blocks | std::views::values)
     {
-        const auto blk = b.second;
-
-        const auto mdl_test = std::dynamic_pointer_cast<ModelBlock>(blk);
-
-        if (mdl_test && mdl_test->get_model()->contains_model_name(get_name()))
+        if (const auto mdl_test = std::dynamic_pointer_cast<ModelBlock>(blk); mdl_test && mdl_test->get_model()->contains_model_name(get_name()))
         {
-            return std::make_unique<BlockError>(BlockError
-            {
-                .id = 0,
-                .message = fmt::format("model {} contains recursive reference to itself", get_name())
-            });
+            return std::make_unique<BlockError>(0, fmt::format("model {} contains recursive reference to itself", get_name()));
         }
 
         for (size_t i = 0; i < blk->get_num_inputs(); ++i)
         {
             if (!connections.has_connection_to(blk->get_id(), i))
             {
-                return std::make_unique<BlockError>(BlockError
-                {
-                    .id = 0,
-                    .message = fmt::format("missing input connection to {} port {}", blk->get_id(), i)
-                });
+                return std::make_unique<BlockError>(0, fmt::format("missing input connection to {} port {}", blk->get_id(), i));
             }
         }
     }
@@ -749,19 +727,19 @@ tmdl::Model::CompiledModelData Model::compile_model() const
 
     // Create a list of remaining ID values
     std::vector<size_t> remaining_id_values;
-    for (const auto& it : blocks)
+    for (const auto& blk_id : blocks | std::views::keys)
     {
-        const bool is_input = std::find(input_ids.begin(), input_ids.end(), it.first) != input_ids.end();
-        const bool is_output = std::find(output_ids.begin(), output_ids.end(), it.first) != output_ids.end();
+        const bool is_input = std::ranges::find(input_ids, blk_id) != input_ids.end();
+        const bool is_output = std::ranges::find(output_ids, blk_id) != output_ids.end();
 
         if (!is_input && !is_output)
         {
-            remaining_id_values.push_back(it.first);
+            remaining_id_values.push_back(blk_id);
         }
     }
 
     // Add blocks to the list that have all input ports accounted for
-    while (remaining_id_values.size() > 0)
+    while (!remaining_id_values.empty())
     {
         std::optional<size_t> index;
 
@@ -780,9 +758,8 @@ tmdl::Model::CompiledModelData Model::compile_model() const
                 // Skip if the input port is a delayed input, but after need to check
                 // connections to ensure that all blocks are connected
                 const auto from_conn = connections.get_connection_to(id, port);
-                const auto from_block = get_block(from_conn->get_from_id());
 
-                if (from_block->outputs_are_delayed())
+                if (const auto from_block = get_block(from_conn->get_from_id()); from_block->outputs_are_delayed())
                 {
                     continue;
                 }
@@ -791,9 +768,8 @@ tmdl::Model::CompiledModelData Model::compile_model() const
                 const auto conn = connections.get_connection_to(id, port);
 
                 // Check if the from block is already in the execution order
-                const auto from_it = std::find(
-                    data.execution_order.begin(),
-                    data.execution_order.end(),
+                const auto from_it = std::ranges::find(
+                    data.execution_order,
                     conn->get_from_id());
 
                 if (from_it == data.execution_order.end())
@@ -859,11 +835,11 @@ tmdl::Model::CompiledModelData Model::compile_model() const
 
     for (const auto& c : connections.get_connections())
     {
-        if (std::find(input_ids.begin(), input_ids.end(), c->get_from_id()) != input_ids.end())
+        if (std::ranges::find(input_ids, c->get_from_id()) != input_ids.end())
         {
             continue;
         }
-        else if (std::find(output_ids.begin(), output_ids.end(), c->get_to_id()) != output_ids.end())
+        else if (std::ranges::find(output_ids, c->get_to_id()) != output_ids.end())
         {
             continue;
         }
@@ -927,11 +903,9 @@ std::shared_ptr<ModelExecutionInterface> Model::get_execution_interface(
     }
 
     // Add interior block types
-    for (const auto& bv : blocks)
+    for (const auto& [blk_id, blk] : blocks)
     {
         // Grab block, but skip if an input or output port, as it would have been updated above
-        const auto blk = bv.second;
-
         for (size_t i = 0; i < blk->get_num_outputs(); ++i)
         {
             const VariableIdentifier vid{
@@ -980,12 +954,12 @@ std::unique_ptr<codegen::CodeComponent> Model::get_codegen_component(const Block
     std::unordered_map<size_t, std::unique_ptr<const codegen::CodeComponent>> components;
     for (const auto& id : exec_data.execution_order)
     {
-        if (std::find(input_ids.begin(), input_ids.end(), id) != input_ids.end())
+        if (std::ranges::find(input_ids, id) != input_ids.end())
         {
             // Skip Input
         }
 
-        else if (std::find(output_ids.begin(), output_ids.end(), id) != output_ids.end())
+        else if (std::ranges::find(output_ids, id) != output_ids.end())
         {
             // Skip Output
         }
@@ -1010,16 +984,16 @@ std::unique_ptr<codegen::CodeComponent> Model::get_codegen_component(const Block
     }
 
     // Return the results
-    return std::make_unique<ModelCodeComponent>(name->get(), exec_data, input_types, output_types, std::move(components));
+    return std::make_unique<ModelCodeComponent>(*name, exec_data, input_types, output_types, std::move(components));
 }
 
 std::vector<std::unique_ptr<codegen::CodeComponent>> Model::get_all_sub_components(const BlockInterface::ModelInfo& state) const
 {
     std::vector<std::unique_ptr<codegen::CodeComponent>> components;
 
-    for (const auto& kv : blocks)
+    for (const auto& [blk_id, blk] : blocks)
     {
-        for (auto& c : kv.second->get_compiled(state)->get_codegen_components())
+        for (auto& c : blk->get_compiled(state)->get_codegen_components())
         {
             components.push_back(std::move(c));
         }
@@ -1032,18 +1006,15 @@ std::vector<std::unique_ptr<const BlockError>> Model::get_all_errors() const
 {
     std::vector<std::unique_ptr<const BlockError>> error_vals;
 
-    for (const auto& kv : blocks)
+    for (const auto& [blk_id, blk] : blocks)
     {
-        const auto blk = kv.second;
-        auto err = blk->has_error();
-        if (err != nullptr)
+        if (auto err = blk->has_error())
         {
             error_vals.push_back(std::move(err));
         }
     }
 
-    auto oe = own_error();
-    if (oe != nullptr)
+    if (auto oe = own_error())
     {
         error_vals.push_back(std::move(oe));
     }
@@ -1059,7 +1030,7 @@ const ConnectionManager& Model::get_connection_manager() const
 size_t Model::get_next_id() const
 {
     size_t current_id = 0;
-    while (blocks.find(current_id) != blocks.end())
+    while (blocks.contains(current_id))
     {
         current_id += 1;
     }
@@ -1081,31 +1052,32 @@ std::vector<std::shared_ptr<BlockInterface>> Model::get_blocks() const
 {
     std::vector<std::shared_ptr<BlockInterface>> retval;
 
-    for (const auto& b : blocks)
+    for (const auto& [blk_id, blk] : blocks)
     {
-        retval.push_back(b.second);
+        retval.push_back(blk);
     }
 
     return retval;
 }
 
-bool Model::contains_model_name(const std::string& n) const
+bool Model::contains_model_name(const std::string_view n) const
 {
-    if (n == name)
+    if (name && n == name->get())
     {
         return true;
     }
 
-    for (const auto& b : blocks)
+    return std::ranges::any_of(blocks | std::views::values, [&n](const std::shared_ptr<BlockInterface>& blk)
     {
-        const auto mdl = std::dynamic_pointer_cast<ModelBlock>(b.second);
-        if (mdl && mdl->get_name() == n)
+        if (const auto mdl = std::dynamic_pointer_cast<ModelBlock>(blk); mdl && mdl->get_name() == n)
         {
             return true;
         }
-    }
-
-    return false;
+        else
+        {
+            return false;
+        }
+    });
 }
 
 void Model::set_filename(const std::filesystem::path& fn)
@@ -1149,7 +1121,7 @@ std::shared_ptr<tmdl::Model> tmdl::Model::load_model(const std::filesystem::path
         throw ModelException(fmt::format("unable to load model '{}' - {}", path.string(), err.what()));
     }
 
-    std::shared_ptr<tmdl::Model> mdl = std::make_shared<tmdl::Model>();
+    const auto mdl = std::make_shared<tmdl::Model>();
     mdl->set_filename(path);
 
     tmdl::from_json(j["model"], *mdl);
@@ -1176,8 +1148,16 @@ void tmdl::Model::save_model() const
 
 struct SaveParameter
 {
+    SaveParameter() = default;
+
+    SaveParameter(std::string_view id, tmdl::DataType dtype, std::string_view value)
+        : id{ id }, dtype{ dtype }, value{ value }
+    {
+        // Empty Constructor
+    }
+
     std::string id;
-    tmdl::DataType dtype;
+    tmdl::DataType dtype{ tmdl::DataType::UNKNOWN };
     std::string value;
 };
 
@@ -1237,9 +1217,9 @@ void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m)
 {
     // Find the offset XY positions
     std::optional<BlockLocation> block_offset = std::nullopt;
-    for (const auto& blk : m.blocks)
+    for (const auto& blk : m.blocks | std::views::values)
     {
-        const auto loc = blk.second->get_loc();
+        const auto loc = blk->get_loc();
         if (!block_offset)
         {
             block_offset = loc;
@@ -1262,20 +1242,16 @@ void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m)
     j["input_ids"] = m.input_ids;
     j["connections"] = m.connections;
 
-    std::unordered_map<std::string, SaveBlock> json_blocks;
-    for (const auto& kv : m.blocks)
+    std::unordered_map<size_t, SaveBlock> json_blocks;
+    for (const auto& [blk_id, blk] : m.blocks)
     {
-        const auto blk = kv.second;
-
         std::vector<SaveParameter> json_parameters;
         for (const auto& p : blk->get_parameters())
         {
-            json_parameters.push_back(SaveParameter
-            {
-                .id = p->get_id(),
-                .dtype = p->get_value()->data_type(),
-                .value = p->get_value()->to_string(),
-            });
+            json_parameters.emplace_back(
+                p->get_id(),
+                p->get_value()->data_type(),
+                p->get_value()->to_string());
         }
 
         SaveBlock save_blk
@@ -1288,7 +1264,7 @@ void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m)
             .inverted = blk->get_inverted(),
         };
 
-        json_blocks.insert({std::to_string(save_blk.id), save_blk});
+        json_blocks.try_emplace(save_blk.id, save_blk);
     }
 
     j["blocks"] = json_blocks;
@@ -1316,10 +1292,8 @@ void tmdl::from_json(const nlohmann::json& j, tmdl::Model& m)
     const auto& lib = tmdl::LibraryManager::get_instance();
     const auto modellib = lib.default_model_library();
 
-    for (const auto& kv : json_blocks)
+    for (const auto& [json_blk_id, json_blk] : json_blocks)
     {
-        const auto& json_blk = kv.second;
-
         auto blk = lib.try_create_block(json_blk.name);
 
         if (blk == nullptr)
@@ -1344,23 +1318,18 @@ void tmdl::from_json(const nlohmann::json& j, tmdl::Model& m)
         blk->set_loc(BlockLocation{json_blk.x, json_blk.y});
         blk->set_inverted(json_blk.inverted);
 
+        const auto blk_params = blk->get_parameters();
+
         for (const auto& prm : json_blk.parameters)
         {
-            bool prm_found = false;
-
-            for (const auto& p : blk->get_parameters())
-            {
-               if (p->get_id() != prm.id) continue;
-
-               p->set_value(ModelValue::from_string(prm.value, prm.dtype));
-
-               prm_found = true;
-               break;
-            }
-
-            if (!prm_found)
+            const auto it = std::ranges::find_if(blk_params, [&prm](const auto& p) { return p->get_id() == prm.id; });
+            if (it == blk_params.end())
             {
                 throw tmdl::ModelException("missing parameter id for provided block");
+            }
+            else
+            {
+                (*it)->set_value(ModelValue::from_string(prm.value, prm.dtype));
             }
         }
 

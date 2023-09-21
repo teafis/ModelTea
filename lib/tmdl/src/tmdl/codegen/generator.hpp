@@ -15,7 +15,7 @@ namespace tmdl::codegen
 class CodeGenerator
 {
 public:
-    CodeGenerator(std::unique_ptr<CompiledBlockInterface>&& comp);
+    explicit CodeGenerator(std::unique_ptr<CompiledBlockInterface>&& comp);
 
     Language get_language() const;
 

@@ -26,7 +26,7 @@ class ModelValueBox;
 
 struct ModelValue
 {
-    virtual ~ModelValue() { }
+    virtual ~ModelValue() = default;
 
     virtual DataType data_type() const = 0;
 
@@ -72,15 +72,15 @@ struct ModelValueBox : public ModelValue
 
     ModelValueBox() = default;
 
-    ModelValueBox(const type_t inval) : value(inval) { }
+    explicit ModelValueBox(const type_t inval) : value(inval) { }
 
-    virtual DataType data_type() const override
+    DataType data_type() const override
     {
         static_assert(DT != DataType::UNKNOWN);
         return DT;
     }
 
-    virtual std::string to_string() const override
+    std::string to_string() const override
     {
         if constexpr (DT == DataType::DATA_TYPE)
         {
@@ -96,7 +96,7 @@ struct ModelValueBox : public ModelValue
         }
     }
 
-    virtual void copy_from(const ModelValue* in) override
+    void copy_from(const ModelValue* in) override
     {
         if (auto ptr = dynamic_cast<const ModelValueBox<DT>*>(in))
         {
@@ -108,7 +108,7 @@ struct ModelValueBox : public ModelValue
         }
     }
 
-    virtual std::unique_ptr<ModelValue> clone() const override
+    std::unique_ptr<ModelValue> clone() const override
     {
         return std::make_unique<ModelValueBox<DT>>(value);
     }
@@ -121,22 +121,22 @@ struct ModelValueBox<DataType::UNKNOWN> : public ModelValue
 {
     ModelValueBox() = default;
 
-    virtual DataType data_type() const override
+    DataType data_type() const override
     {
         return DataType::UNKNOWN;
     }
 
-    virtual std::string to_string() const override
+    std::string to_string() const override
     {
         return "??";
     }
 
-    virtual void copy_from(const ModelValue* in) override
+    void copy_from(const ModelValue* in) override
     {
         // Do Nothing?
     }
 
-    virtual std::unique_ptr<ModelValue> clone() const override
+    std::unique_ptr<ModelValue> clone() const override
     {
         return std::make_unique<ModelValueBox<DataType::UNKNOWN>>();
     }

@@ -48,9 +48,9 @@ const std::optional<tmdl::Identifier>& tmdl::Connection::get_name() const
     return name;
 }
 
-void tmdl::Connection::set_name(const std::optional<Identifier>& n)
+void tmdl::Connection::set_name(const std::string_view n)
 {
-    name = n;
+    name = Identifier(n);
 }
 
 void tmdl::to_json(nlohmann::json& j, const tmdl::Connection& c)
@@ -60,8 +60,7 @@ void tmdl::to_json(nlohmann::json& j, const tmdl::Connection& c)
     j["from_block"] = c.get_from_id();
     j["from_port"] = c.get_from_port();
 
-    const auto n = c.get_name();
-    if (n.has_value())
+    if (const auto& n = c.get_name(); n.has_value())
     {
         j["name"] = n->get();
     }

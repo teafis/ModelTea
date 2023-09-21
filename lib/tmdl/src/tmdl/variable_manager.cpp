@@ -36,7 +36,7 @@ void tmdl::VariableManager::add_variable(const VariableIdentifier id, const std:
     }
     else
     {
-        variables.insert({ id, value });
+        variables.try_emplace(id, value);
     }
 }
 
@@ -60,7 +60,7 @@ std::shared_ptr<tmdl::ModelValue> tmdl::VariableManager::get_ptr(const Connectio
 
 bool tmdl::VariableManager::has_variable(const VariableIdentifier& id) const
 {
-    return variables.find(id) != variables.end();
+    return variables.contains(id);
 }
 
 bool tmdl::VariableManager::has_variable(const Connection& c) const

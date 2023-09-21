@@ -15,20 +15,21 @@ std::unique_ptr<tmdl::ModelValue> tmdl::ModelValue::make_default(const DataType 
 {
     switch (dtype)
     {
-    case tmdl::DataType::BOOLEAN:
-        return make_default_static<tmdl::DataType::BOOLEAN>();
-    case tmdl::DataType::DOUBLE:
-        return make_default_static<tmdl::DataType::DOUBLE>();
-    case tmdl::DataType::SINGLE:
-        return make_default_static<tmdl::DataType::SINGLE>();
-    case tmdl::DataType::INT32:
-        return make_default_static<tmdl::DataType::INT32>();
-    case tmdl::DataType::UINT32:
-        return make_default_static<tmdl::DataType::UINT32>();
-    case tmdl::DataType::DATA_TYPE:
-        return make_default_static<tmdl::DataType::DATA_TYPE>();
-    case tmdl::DataType::UNKNOWN:
-        return make_default_static<tmdl::DataType::UNKNOWN>();
+    using enum tmdl::DataType;
+    case BOOLEAN:
+        return make_default_static<BOOLEAN>();
+    case DOUBLE:
+        return make_default_static<DOUBLE>();
+    case SINGLE:
+        return make_default_static<SINGLE>();
+    case INT32:
+        return make_default_static<INT32>();
+    case UINT32:
+        return make_default_static<UINT32>();
+    case DATA_TYPE:
+        return make_default_static<DATA_TYPE>();
+    case UNKNOWN:
+        return make_default_static<UNKNOWN>();
     default:
         throw ModelException(fmt::format("unable to construct value for type {}", data_type_to_string(dtype)));
     }
@@ -40,22 +41,23 @@ std::unique_ptr<tmdl::ModelValue> tmdl::ModelValue::from_string(const std::strin
     {
         switch (dt)
         {
-        case DataType::BOOLEAN:
-            return std::make_unique<ModelValueBox<DataType::BOOLEAN>>(std::stoi(s) != 0);
-        case DataType::INT32:
-            return std::make_unique<ModelValueBox<DataType::INT32>>(std::stoi(s));
-        case DataType::UINT32:
-            return std::make_unique<ModelValueBox<DataType::UINT32>>(std::stoul(s));
-        case DataType::SINGLE:
-            return std::make_unique<ModelValueBox<DataType::SINGLE>>(std::stof(s));
-        case DataType::DOUBLE:
-            return std::make_unique<ModelValueBox<DataType::DOUBLE>>(std::stod(s));
-        case DataType::DATA_TYPE:
-            return std::make_unique<ModelValueBox<DataType::DATA_TYPE>>(data_type_from_string(s));
-        case DataType::IDENTIFIER:
-            return std::make_unique<ModelValueBox<DataType::IDENTIFIER>>(Identifier(s));
-        case DataType::UNKNOWN:
-            return make_default_static<tmdl::DataType::UNKNOWN>();
+        using enum tmdl::DataType;
+        case BOOLEAN:
+            return std::make_unique<ModelValueBox<BOOLEAN>>(std::stoi(s) != 0);
+        case INT32:
+            return std::make_unique<ModelValueBox<INT32>>(std::stoi(s));
+        case UINT32:
+            return std::make_unique<ModelValueBox<UINT32>>(std::stoul(s));
+        case SINGLE:
+            return std::make_unique<ModelValueBox<SINGLE>>(std::stof(s));
+        case DOUBLE:
+            return std::make_unique<ModelValueBox<DOUBLE>>(std::stod(s));
+        case DATA_TYPE:
+            return std::make_unique<ModelValueBox<DATA_TYPE>>(data_type_from_string(s));
+        case IDENTIFIER:
+            return std::make_unique<ModelValueBox<IDENTIFIER>>(Identifier(s));
+        case UNKNOWN:
+            return make_default_static<UNKNOWN>();
         default:
             throw ModelException("unknown parse parameter type provided");
         }
@@ -75,23 +77,24 @@ static std::unique_ptr<tmdl::ModelValue> convert_numeric_type_helper(const tmdl:
 {
     switch (dt)
     {
-    case tmdl::DataType::BOOLEAN:
-        if constexpr (DT == tmdl::DataType::BOOLEAN)
+    using enum tmdl::DataType;
+    case BOOLEAN:
+        if constexpr (DT == BOOLEAN)
         {
-            return std::make_unique<tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>>(ptr->value);
+            return std::make_unique<tmdl::ModelValueBox<BOOLEAN>>(ptr->value);
         }
         else
         {
-            return std::make_unique<tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>>(ptr->value != 0);
+            return std::make_unique<tmdl::ModelValueBox<BOOLEAN>>(ptr->value != 0);
         }
-    case tmdl::DataType::INT32:
-        return std::make_unique<tmdl::ModelValueBox<tmdl::DataType::INT32>>(ptr->value);
-    case tmdl::DataType::UINT32:
-        return std::make_unique<tmdl::ModelValueBox<tmdl::DataType::UINT32>>(ptr->value);
-    case tmdl::DataType::SINGLE:
-        return std::make_unique<tmdl::ModelValueBox<tmdl::DataType::SINGLE>>(ptr->value);
-    case tmdl::DataType::DOUBLE:
-        return std::make_unique<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>>(ptr->value);
+    case INT32:
+        return std::make_unique<tmdl::ModelValueBox<INT32>>(ptr->value);
+    case UINT32:
+        return std::make_unique<tmdl::ModelValueBox<UINT32>>(ptr->value);
+    case SINGLE:
+        return std::make_unique<tmdl::ModelValueBox<SINGLE>>(ptr->value);
+    case DOUBLE:
+        return std::make_unique<tmdl::ModelValueBox<DOUBLE>>(ptr->value);
     default:
         throw tmdl::ModelException("unsupported data type provided");
     }
@@ -101,25 +104,27 @@ std::unique_ptr<tmdl::ModelValue> tmdl::ModelValue::convert_type(const ModelValu
 {
     if (val == nullptr) throw ModelException("unexpected nullptr");
 
-    if (auto ptr = dynamic_cast<const ModelValueBox<DataType::BOOLEAN>*>(val))
+    using enum DataType;
+
+    if (auto ptr_bool = dynamic_cast<const ModelValueBox<BOOLEAN>*>(val))
     {
-        return convert_numeric_type_helper<DataType::BOOLEAN>(ptr, dt);
+        return convert_numeric_type_helper<BOOLEAN>(ptr_bool, dt);
     }
-    else if (auto ptr = dynamic_cast<const ModelValueBox<DataType::INT32>*>(val))
+    else if (auto ptr_i32 = dynamic_cast<const ModelValueBox<INT32>*>(val))
     {
-        return convert_numeric_type_helper<DataType::INT32>(ptr, dt);
+        return convert_numeric_type_helper<INT32>(ptr_i32, dt);
     }
-    else if (auto ptr = dynamic_cast<const ModelValueBox<DataType::UINT32>*>(val))
+    else if (auto ptr_u32 = dynamic_cast<const ModelValueBox<UINT32>*>(val))
     {
-        return convert_numeric_type_helper<DataType::UINT32>(ptr, dt);
+        return convert_numeric_type_helper<UINT32>(ptr_u32, dt);
     }
-    else if (auto ptr = dynamic_cast<const ModelValueBox<DataType::SINGLE>*>(val))
+    else if (auto ptr_f32 = dynamic_cast<const ModelValueBox<SINGLE>*>(val))
     {
-        return convert_numeric_type_helper<DataType::SINGLE>(ptr, dt);
+        return convert_numeric_type_helper<SINGLE>(ptr_f32, dt);
     }
-    else if (auto ptr = dynamic_cast<const ModelValueBox<DataType::DOUBLE>*>(val))
+    else if (auto ptr_f64 = dynamic_cast<const ModelValueBox<DOUBLE>*>(val))
     {
-        return convert_numeric_type_helper<DataType::DOUBLE>(ptr, dt);
+        return convert_numeric_type_helper<DOUBLE>(ptr_f64, dt);
     }
     else
     {

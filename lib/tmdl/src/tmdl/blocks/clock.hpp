@@ -11,7 +11,7 @@ namespace tmdl::blocks
 class Clock : public BlockInterface
 {
 public:
-    Clock();
+    Clock() = default;
 
     std::string get_name() const override;
 

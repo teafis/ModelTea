@@ -30,6 +30,9 @@ public:
     virtual std::vector<DataType> get_supported_types() const = 0;
 
 protected:
+    DataType get_input_type() const;
+
+private:
     DataType _inputA;
     DataType _inputB;
     DataType _outputPort;

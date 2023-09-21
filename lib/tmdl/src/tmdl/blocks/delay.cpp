@@ -44,46 +44,47 @@ public:
         return std::make_unique<DelayComponent>();
     }
 
-protected:
+private:
     const size_t _id;
 
 protected:
     struct DelayComponent : public tmdl::codegen::CodeComponent
     {
-        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+        std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
         {
             return tmdl::codegen::InterfaceDefinition("s_out", {"input_value", "reset_flag", "reset_value"});
         }
 
-        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+        std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
         {
             return tmdl::codegen::InterfaceDefinition("s_out", {"output_value"});
         }
 
-        virtual std::string get_module_name() const override
+        std::string get_module_name() const override
         {
             return "tmdlstd/tmdlstd.hpp";
         }
 
-        virtual std::string get_name_base() const override
+        std::string get_name_base() const override
         {
             return "delay_block";
         }
 
-        virtual std::string get_type_name() const override
+        std::string get_type_name() const override
         {
             return fmt::format("tmdl::stdlib::delay_block<{}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT));
         }
 
-        virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
+        std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
         {
             switch (ft)
             {
-            case tmdl::codegen::BlockFunction::INIT:
+            using enum tmdl::codegen::BlockFunction;
+            case INIT:
                 return "init";
-            case tmdl::codegen::BlockFunction::RESET:
+            case RESET:
                 return "reset";
-            case tmdl::codegen::BlockFunction::STEP:
+            case STEP:
                 return "step";
             default:
                 return {};
@@ -96,7 +97,7 @@ protected:
     public:
         using type_t = typename tmdl::data_type_t<DT>::type;
 
-        DelayExecutor(
+        explicit DelayExecutor(
             const std::shared_ptr<const tmdl::ModelValue> input,
             const std::shared_ptr<tmdl::ModelValue> output,
             const std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> reset_flag,
@@ -139,7 +140,7 @@ protected:
             block.s_in.reset_flag = _reset_flag->value;
         }
 
-    protected:
+    private:
         tmdl::stdlib::delay_block<type_t> block;
 
         std::shared_ptr<const tmdl::ModelValueBox<DT>> _input;
@@ -151,10 +152,11 @@ protected:
 
 tmdl::blocks::Delay::Delay()
 {
-    input_type = DataType::UNKNOWN;
-    input_reset_flag = DataType::UNKNOWN;
-    input_reset_value = DataType::UNKNOWN;
-    output_port = DataType::UNKNOWN;
+    using enum DataType;
+    input_type = UNKNOWN;
+    input_reset_flag = UNKNOWN;
+    input_reset_value = UNKNOWN;
+    output_port = UNKNOWN;
 }
 
 std::string tmdl::blocks::Delay::get_name() const
@@ -249,16 +251,17 @@ std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Delay::get_compiled(
 
     switch (output_port)
     {
-    case DataType::DOUBLE:
-        return std::make_unique<CompiledDelay<DataType::DOUBLE>>(_id_val);
-    case DataType::SINGLE:
-        return std::make_unique<CompiledDelay<DataType::SINGLE>>(_id_val);
-    case DataType::BOOLEAN:
-        return std::make_unique<CompiledDelay<DataType::BOOLEAN>>(_id_val);
-    case DataType::INT32:
-        return std::make_unique<CompiledDelay<DataType::INT32>>(_id_val);
-    case DataType::UINT32:
-        return std::make_unique<CompiledDelay<DataType::UINT32>>(_id_val);
+    using enum DataType;
+    case DOUBLE:
+        return std::make_unique<CompiledDelay<DOUBLE>>(_id_val);
+    case SINGLE:
+        return std::make_unique<CompiledDelay<SINGLE>>(_id_val);
+    case BOOLEAN:
+        return std::make_unique<CompiledDelay<BOOLEAN>>(_id_val);
+    case INT32:
+        return std::make_unique<CompiledDelay<INT32>>(_id_val);
+    case UINT32:
+        return std::make_unique<CompiledDelay<UINT32>>(_id_val);
     default:
         throw ModelException("unknown data type provided");
     }

@@ -15,7 +15,7 @@ namespace tmdl
 class DataDictionary
 {
 public:
-    DataDictionary();
+    DataDictionary() = default;
 
 private:
     std::unordered_map<std::string, std::unique_ptr<DataParameter>> vals;

@@ -40,11 +40,11 @@ public:
 
     const std::optional<Identifier>& get_name() const;
 
-    void set_name(const std::optional<Identifier>& n);
+    void set_name(std::string_view n);
 
     bool operator==(const Connection& other) const = default;
 
-protected:
+private:
     size_t from_id;
     size_t from_port;
     size_t to_id;

@@ -37,9 +37,7 @@ size_t tmdl::blocks::Constant::get_num_outputs() const
 
 bool tmdl::blocks::Constant::update_block()
 {
-    const auto selected_dtype = get_data_type();
-
-    if (selected_dtype != output_port)
+    if (const auto selected_dtype = get_data_type(); selected_dtype != output_port)
     {
         output_port = selected_dtype;
 
@@ -65,9 +63,7 @@ std::vector<std::shared_ptr<tmdl::Parameter>> tmdl::blocks::Constant::get_parame
 
 std::unique_ptr<const tmdl::BlockError> tmdl::blocks::Constant::has_error() const
 {
-    const auto current_dtype = get_data_type();
-
-    if (current_dtype == DataType::UNKNOWN || current_dtype != param_value->get_value()->data_type())
+    if (const auto current_dtype = get_data_type(); current_dtype == DataType::UNKNOWN || current_dtype != param_value->get_value()->data_type())
     {
         return make_error("data type provided is of unknown type");
     }
@@ -102,7 +98,6 @@ class CompiledConstant : public tmdl::CompiledBlockInterface
 public:
     using type_t = typename tmdl::data_type_t<DT>::type;
 
-public:
     explicit CompiledConstant(const size_t id, const type_t value) : _id{ id }, _value{ value }
     {
         // Empty Constructor
@@ -128,49 +123,49 @@ public:
         return std::make_unique<ConstantComponent>(_value);
     }
 
-protected:
+private:
     const size_t _id;
     const type_t _value;
 
 protected:
     struct ConstantComponent : public tmdl::codegen::CodeComponent
     {
-        ConstantComponent(type_t val) : value(val)
+        explicit ConstantComponent(type_t val) : value(val)
         {
             // Empty Constructor
         }
 
-        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+        std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
         {
             return {};
         }
 
-        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+        std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
         {
             return tmdl::codegen::InterfaceDefinition("s_out", {"val"});
         }
 
-        virtual std::string get_module_name() const override
+        std::string get_module_name() const override
         {
             return "tmdlstd/tmdlstd.hpp";
         }
 
-        virtual std::string get_name_base() const override
+        std::string get_name_base() const override
         {
             return "const_block";
         }
 
-        virtual std::string get_type_name() const override
+        std::string get_type_name() const override
         {
             return fmt::format("tmdl::stdlib::const_block<{}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT));
         }
 
-        virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction) const override
+        std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction) const override
         {
             return {};
         }
 
-        virtual std::vector<std::string> constructor_arguments() const override
+        std::vector<std::string> constructor_arguments() const override
         {
             return { std::to_string(value) };
         }
@@ -214,16 +209,17 @@ std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Constant::get_compil
 
     switch (param_value->get_value()->data_type())
     {
-    case DataType::DOUBLE:
-        return create_compiled<DataType::DOUBLE>(get_id(), param_value->get_value());
-    case DataType::SINGLE:
-        return create_compiled<DataType::SINGLE>(get_id(), param_value->get_value());
-    case DataType::BOOLEAN:
-        return create_compiled<DataType::BOOLEAN>(get_id(), param_value->get_value());
-    case DataType::INT32:
-        return create_compiled<DataType::INT32>(get_id(), param_value->get_value());
-    case DataType::UINT32:
-        return create_compiled<DataType::UINT32>(get_id(), param_value->get_value());
+    using enum DataType;
+    case DOUBLE:
+        return create_compiled<DOUBLE>(get_id(), param_value->get_value());
+    case SINGLE:
+        return create_compiled<SINGLE>(get_id(), param_value->get_value());
+    case BOOLEAN:
+        return create_compiled<BOOLEAN>(get_id(), param_value->get_value());
+    case INT32:
+        return create_compiled<INT32>(get_id(), param_value->get_value());
+    case UINT32:
+        return create_compiled<UINT32>(get_id(), param_value->get_value());
     default:
         throw ModelException("unknown data type provided for executor");
     }

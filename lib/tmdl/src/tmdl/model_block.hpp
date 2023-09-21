@@ -17,7 +17,7 @@ namespace tmdl
 class ModelBlock : public BlockInterface
 {
 public:
-    ModelBlock(std::shared_ptr<Model> model);
+    explicit ModelBlock(std::shared_ptr<Model> model);
 
     std::string get_name() const override;
 
@@ -43,10 +43,9 @@ public:
 
     std::shared_ptr<const Model> get_model() const;
 
-protected:
+private:
     std::vector<DataType> input_types;
     std::vector<DataType> output_types;
-
     std::shared_ptr<Model> model;
 };
 

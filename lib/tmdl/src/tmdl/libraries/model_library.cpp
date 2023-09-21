@@ -12,8 +12,7 @@
 
 const std::string& tmdl::ModelLibrary::get_library_name() const
 {
-    const static std::string n = "models";
-    return n;
+    return library_name;
 }
 
 std::vector<std::string> tmdl::ModelLibrary::get_block_names() const
@@ -30,19 +29,19 @@ std::vector<std::string> tmdl::ModelLibrary::get_block_names() const
     return names;
 }
 
-bool tmdl::ModelLibrary::has_block(const std::string name) const
+bool tmdl::ModelLibrary::has_block(const std::string_view name) const
 {
     return try_get_model(name) != nullptr;
 }
 
-std::shared_ptr<tmdl::BlockInterface> tmdl::ModelLibrary::create_block(const std::string& name) const
+std::shared_ptr<tmdl::BlockInterface> tmdl::ModelLibrary::create_block(const std::string_view name) const
 {
     auto m = std::make_shared<ModelBlock>(get_model(name));
     m->update_block();
     return m;
 }
 
-std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::get_model(const std::string& name) const
+std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::get_model(const std::string_view name) const
 {
     const auto mdl = try_get_model(name);
 
@@ -82,9 +81,8 @@ void tmdl::ModelLibrary::close_model(const tmdl::Model* model)
         return;
     }
 
-    const auto it = std::find_if(
-        models.begin(),
-        models.end(),
+    const auto it = std::ranges::find_if(
+        models,
         [&model](const std::shared_ptr<const Model> m) {
             return m.get() == model;
     });
@@ -126,11 +124,10 @@ void tmdl::ModelLibrary::close_unused_models()
     }
 }
 
-std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::try_get_model(const std::string& name) const
+std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::try_get_model(const std::string_view name) const
 {
-    const auto it = std::find_if(
-        models.begin(),
-        models.end(),
+    const auto it = std::ranges::find_if(
+        models,
         [&name](const std::shared_ptr<const Model> m) {
             return m->get_name() == name;
     });

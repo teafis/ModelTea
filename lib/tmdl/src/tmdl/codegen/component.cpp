@@ -2,16 +2,6 @@
 
 #include <fmt/format.h>
 
-tmdl::codegen::CodeComponent::CodeComponent()
-{
-    // Empty Constructor
-}
-
-tmdl::codegen::CodeComponent::~CodeComponent()
-{
-    // Empty Destructor
-}
-
 bool tmdl::codegen::CodeComponent::is_virtual() const
 {
     return false;

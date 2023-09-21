@@ -29,10 +29,12 @@ public:
 
     DataType get_output_type(const size_t port) const override;
 
+protected:
+    DataType get_output_type() const;
+
 private:
     size_t currentPrmPortCount() const;
 
-protected:
     std::shared_ptr<Parameter> _prmNumInputPorts;
     std::vector<DataType> _inputTypes;
     DataType _outputPort;

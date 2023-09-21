@@ -38,7 +38,6 @@ public:
 private:
     DataType get_data_type() const;
 
-protected:
     std::shared_ptr<Parameter> param_dtype;
     std::shared_ptr<Parameter> param_value;
     DataType output_port;

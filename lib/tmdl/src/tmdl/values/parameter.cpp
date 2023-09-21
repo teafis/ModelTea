@@ -10,13 +10,12 @@
 
 
 tmdl::Parameter::Parameter(
-    const std::string& id,
-    const std::string& name,
+    const std::string_view id,
+    const std::string_view name,
     std::unique_ptr<ModelValue>&& value) :
     id(id),
     name(name),
-    value(std::move(value)),
-    enabled(true)
+    value(std::move(value))
 {
     // Empty Constructor
 }
@@ -31,7 +30,7 @@ std::string tmdl::Parameter::get_name() const
     return name;
 }
 
-void tmdl::Parameter::set_name(const std::string& n)
+void tmdl::Parameter::set_name(const std::string_view n)
 {
     name = n;
 }

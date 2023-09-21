@@ -20,7 +20,7 @@ protected:
     using limit_t = typename tmdl::data_type_t<DT>::type;
 
 public:
-    CompiledSwitch(const size_t id) :
+    explicit CompiledSwitch(const size_t id) :
         _id{ id }
     {
         // Empty Constructor
@@ -53,38 +53,38 @@ public:
         return std::make_unique<SwitchComponent>();
     }
 
-protected:
+private:
     const size_t _id;
 
 protected:
     struct SwitchComponent : public tmdl::codegen::CodeComponent
     {
-        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+        std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
         {
             return tmdl::codegen::InterfaceDefinition("s_in", {"switch_value", "value_a", "value_b"});
         }
 
-        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+        std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
         {
             return tmdl::codegen::InterfaceDefinition("s_out", {"value"});
         }
 
-        virtual std::string get_module_name() const override
+        std::string get_module_name() const override
         {
             return "tmdlstd/tmdlstd.hpp";
         }
 
-        virtual std::string get_name_base() const override
+        std::string get_name_base() const override
         {
             return "switch_block";
         }
 
-        virtual std::string get_type_name() const override
+        std::string get_type_name() const override
         {
             return fmt::format("tmdl::stdlib::switch_block<{}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT));
         }
 
-        virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
+        std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
         {
             switch (ft)
             {
@@ -98,7 +98,6 @@ protected:
         }
     };
 
-protected:
     class SwitchExecutor : public BlockExecutionInterface
     {
     public:
@@ -118,7 +117,6 @@ protected:
             }
         }
 
-    public:
         void init() override
         {
             block.s_in.switch_value = _ptr_switch->value;
@@ -137,7 +135,7 @@ protected:
             _ptr_output->value = block.s_out.value;
         }
 
-    protected:
+    private:
         std::shared_ptr<const ModelValueBox<DataType::BOOLEAN>> _ptr_switch;
         std::shared_ptr<ModelValueBox<DT>> _ptr_output;
         std::shared_ptr<const ModelValueBox<DT>> _ptr_val_a;
@@ -226,6 +224,8 @@ void Switch::set_input_type(
         case 2:
             input_type_b = type;
             break;
+        default:
+        throw ModelException("provided input port too high");
         }
     }
     else

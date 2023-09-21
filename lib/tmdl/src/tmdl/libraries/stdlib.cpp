@@ -51,39 +51,30 @@ tmdl::blocks::StandardLibrary::StandardLibrary()
     };
 }
 
-bool tmdl::blocks::StandardLibrary::has_block(const std::string& name) const
+bool tmdl::blocks::StandardLibrary::has_block(const std::string_view name) const
 {
-    const auto it = block_map.find(name);
-    return it != block_map.end();
+    return block_map.contains(std::string(name));
 }
 
 const std::string& tmdl::blocks::StandardLibrary::get_library_name() const
 {
-    const static std::string n = "stdlib";
-    return n;
+    return library_name;
 }
 
 std::vector<std::string> tmdl::blocks::StandardLibrary::get_block_names() const
 {
     std::vector<std::string> keys;
-    for (const auto& i : block_map)
+    for (const auto& k : block_map | std::views::keys)
     {
-        keys.push_back(i.first);
+        keys.push_back(k);
     }
-    std::sort(keys.begin(), keys.end());
+    std::ranges::sort(keys);
     return keys;
 }
 
-bool tmdl::blocks::StandardLibrary::has_block(const std::string name) const
+std::shared_ptr<tmdl::BlockInterface> tmdl::blocks::StandardLibrary::create_block(const std::string_view name) const
 {
-    return block_map.find(name) != block_map.end();
-}
-
-std::shared_ptr<tmdl::BlockInterface> tmdl::blocks::StandardLibrary::create_block(const std::string& name) const
-{
-    auto it = block_map.find(name);
-
-    if (it != block_map.end())
+    if (auto it = block_map.find(std::string(name)); it != block_map.end())
     {
         return it->second();
     }

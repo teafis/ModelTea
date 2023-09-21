@@ -81,7 +81,7 @@ template <tmdl::DataType DT, tmdl::stdlib::TrigFunction FCN>
 class CompiledTrig : public tmdl::CompiledBlockInterface
 {
 public:
-    CompiledTrig(const size_t id) :
+    explicit CompiledTrig(const size_t id) :
         _id{ id }
     {
         // Empty Constructor
@@ -108,38 +108,38 @@ public:
         return std::make_unique<TrigComponent>();
     }
 
-protected:
+private:
     const size_t _id;
 
 protected:
     struct TrigComponent : public tmdl::codegen::CodeComponent
     {
-        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+        std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
         {
             return tmdl::codegen::InterfaceDefinition("s_in", {"value"});
         }
 
-        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+        std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
         {
             return tmdl::codegen::InterfaceDefinition("s_out", {"value"});
         }
 
-        virtual std::string get_module_name() const override
+        std::string get_module_name() const override
         {
             return "tmdlstd/tmdlstd.hpp";
         }
 
-        virtual std::string get_name_base() const override
+        std::string get_name_base() const override
         {
             return "trig_block";
         }
 
-        virtual std::string get_type_name() const override
+        std::string get_type_name() const override
         {
             return fmt::format("tmdl::stdlib::trig_block<{}, {}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT), tmdl::stdlib::trig_func_to_string(FCN));
         }
 
-        virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
+        std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
         {
             switch (ft)
             {
@@ -153,13 +153,11 @@ protected:
         }
     };
 
-protected:
     class TrigExecutor : public tmdl::BlockExecutionInterface
     {
     public:
         using val_t = typename tmdl::data_type_t<DT>::type;
 
-    public:
         TrigExecutor(
             std::shared_ptr<const tmdl::ModelValue> ptr_input,
             std::shared_ptr<tmdl::ModelValue> ptr_output) :
@@ -172,7 +170,6 @@ protected:
             }
         }
 
-    public:
         void init() override
         {
             block.s_in.value = _ptr_input->value;
@@ -187,7 +184,7 @@ protected:
             _ptr_output->value = block.s_out.value;
         }
 
-    protected:
+    private:
         const std::shared_ptr<const tmdl::ModelValueBox<DT>> _ptr_input;
         const std::shared_ptr<tmdl::ModelValueBox<DT>> _ptr_output;
         tmdl::stdlib::trig_block<val_t, FCN> block;

@@ -20,10 +20,11 @@ class ValueArray
 {
 public:
     virtual void resize(const size_t c, const size_t r) = 0;
+
     virtual void set_values(const std::vector<std::unique_ptr<const ModelValue>>& values) = 0;
+
     virtual std::vector<std::unique_ptr<ModelValue>> get_values() const = 0;
 
-public:
     virtual ~ValueArray() = default;
 
     virtual size_t rows() const = 0;
@@ -49,14 +50,12 @@ class ValueArrayBox : public ValueArray
 public:
     using data_t = typename data_type_t<DT>::type;
 
-public:
     struct Index
     {
         size_t col;
         size_t row;
     };
 
-public:
     ValueArrayBox(const size_t c, const size_t r, const std::vector<std::unique_ptr<const ModelValue>>& values = {}) :
         m_data(r * c),
         m_cols{c},
@@ -70,27 +69,27 @@ public:
         set_values(values);
     }
 
-    virtual size_t rows() const override
+    size_t rows() const override
     {
         return m_rows;
     }
 
-    virtual size_t cols() const override
+    size_t cols() const override
     {
         return m_cols;
     }
 
-    virtual size_t size() const override
+    size_t size() const override
     {
         return m_rows * m_cols;
     }
 
-    virtual DataType data_type() const override
+    DataType data_type() const override
     {
         return DT;
     }
 
-    virtual std::string to_string() const override
+    std::string to_string() const override
     {
         std::ostringstream oss;
         oss << '[';
@@ -114,7 +113,7 @@ public:
         return oss.str();
     }
 
-    virtual void resize(const size_t c, const size_t r) override
+    void resize(const size_t c, const size_t r) override
     {
         const size_t new_size = r * c;
         if (new_size == 0 && (r != 0 || c != 0))
@@ -134,7 +133,7 @@ public:
         return m_data[rc_to_index(i)];
     }
 
-    virtual void set_values(const std::vector<std::unique_ptr<const ModelValue>>& values) override
+    void set_values(const std::vector<std::unique_ptr<const ModelValue>>& values) override
     {
         if (values.size() != m_data.size())
         {
@@ -154,7 +153,7 @@ public:
         }
     }
 
-    virtual std::vector<std::unique_ptr<ModelValue>> get_values() const override
+    std::vector<std::unique_ptr<ModelValue>> get_values() const override
     {
         std::vector<std::unique_ptr<ModelValue>> values;
         for (const auto& v : m_data)
@@ -176,7 +175,6 @@ private:
         return rc.row + rc.col * m_rows;
     }
 
-private:
     std::vector<data_t> m_data;
     size_t m_cols;
     size_t m_rows;

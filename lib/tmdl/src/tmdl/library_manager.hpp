@@ -17,7 +17,7 @@ namespace tmdl
 class LibraryManager
 {
 public:
-    static LibraryManager& get_instance();
+    static LibraryManager& get_instance(); // TODO - Remove Singleton
 
 protected:
     LibraryManager();
@@ -39,7 +39,7 @@ public:
 
     std::shared_ptr<ModelLibrary> default_model_library() const;
 
-protected:
+private:
     std::unordered_map<std::string, std::shared_ptr<LibraryBase>> libraries;
     std::shared_ptr<ModelLibrary> model_library;
 };

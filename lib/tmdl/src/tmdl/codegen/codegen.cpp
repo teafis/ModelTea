@@ -1,6 +1,6 @@
 #include "codegen.hpp"
 
-tmdl::codegen::CodegenError::CodegenError(const std::string& msg) : _msg(msg)
+tmdl::codegen::CodegenError::CodegenError(const std::string_view msg) : _msg(msg)
 {
     // Empty Constructor
 }
@@ -16,15 +16,16 @@ std::string tmdl::codegen::get_datatype_name(const Language code, const tmdl::Da
     {
         switch (datatype)
         {
-        case tmdl::DataType::BOOLEAN:
+        using enum tmdl::DataType;
+        case BOOLEAN:
             return "bool";
-        case tmdl::DataType::INT32:
+        case INT32:
             return "int32_t";
-        case tmdl::DataType::UINT32:
+        case UINT32:
             return "uint32_t";
-        case tmdl::DataType::SINGLE:
+        case SINGLE:
             return "float";
-        case tmdl::DataType::DOUBLE:
+        case DOUBLE:
             return "double";
         default:
             throw CodegenError("type not supported for C++ code");

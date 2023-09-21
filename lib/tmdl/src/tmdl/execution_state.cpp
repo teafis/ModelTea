@@ -15,8 +15,7 @@ tmdl::ExecutionState::ExecutionState(
     const double dt) :
     model{ model },
     variables{ variables },
-    state{ dt },
-    iterations{ 0 }
+    state{ dt }
 {
     // Empty Constructor
 }
@@ -45,7 +44,7 @@ void tmdl::ExecutionState::reset()
 
 double tmdl::ExecutionState::get_current_time() const
 {
-    return iterations * state.get_dt();
+    return static_cast<double>(iterations) * state.get_dt();
 }
 
 std::shared_ptr<const tmdl::BlockExecutionInterface> tmdl::ExecutionState::get_model() const
@@ -66,11 +65,11 @@ std::shared_ptr<const tmdl::VariableManager> tmdl::ExecutionState::get_variable_
 std::vector<std::string> tmdl::ExecutionState::get_variable_names() const
 {
     std::vector<std::string> names;
-    for (const auto& it : named_variables)
+    for (const auto& k : named_variables | std::views::keys)
     {
-        names.push_back(it.first);
+        names.push_back(k);
     }
-    std::sort(names.begin(), names.end());
+    std::ranges::sort(names);
     return names;
 }
 
@@ -92,7 +91,7 @@ void tmdl::ExecutionState::add_name_to_variable(const std::string& name, const V
     add_name_to_variable(name, variables->get_ptr(id));
 }
 
-void tmdl::ExecutionState::add_name_to_variable(const std::string& name, const Connection conn)
+void tmdl::ExecutionState::add_name_to_variable(const std::string& name, const Connection& conn)
 {
     add_name_to_variable(name, variables->get_ptr(conn));
 }
@@ -102,7 +101,7 @@ void tmdl::ExecutionState::add_name_to_interior_variable(const std::string& name
     add_name_to_variable(name, get_model_exec_interface()->get_variable_manager()->get_ptr(id));
 }
 
-void tmdl::ExecutionState::add_name_to_interior_variable(const std::string& name, Connection conn)
+void tmdl::ExecutionState::add_name_to_interior_variable(const std::string& name, const Connection& conn)
 {
     add_name_to_variable(name, get_model_exec_interface()->get_variable_manager()->get_ptr(conn));
 }
@@ -120,8 +119,7 @@ std::shared_ptr<const tmdl::ModelExecutionInterface> tmdl::ExecutionState::get_m
 
 void tmdl::ExecutionState::add_name_to_variable(const std::string& name, std::shared_ptr<const ModelValue> variable)
 {
-    const auto it = named_variables.find(name);
-    if (it != named_variables.end())
+    if (const auto it = named_variables.find(name); it != named_variables.end())
     {
         throw tmdl::ModelException(fmt::format("name '{}' already exists for variable", name));
     }
@@ -135,14 +133,14 @@ tmdl::ExecutionState tmdl::ExecutionState::from_model(
 {
     // Parameter generator
     tmdl::ConnectionManager connections;
-    std::shared_ptr<VariableManager> manager = std::make_shared<VariableManager>();
+    const auto manager = std::make_shared<VariableManager>();
 
     // Add each output variable to the manager
     for (size_t i = 0; i < model->get_num_outputs(); ++i)
     {
         const auto pv = model->get_output_datatype(i);
 
-        const std::shared_ptr<ModelValue> value = std::shared_ptr<ModelValue>(ModelValue::make_default(pv));
+        const auto value = std::shared_ptr<ModelValue>(ModelValue::make_default(pv));
 
         const auto vid = VariableIdentifier
         {

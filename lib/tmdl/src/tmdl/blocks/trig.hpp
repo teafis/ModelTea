@@ -29,7 +29,7 @@ public:
 
     DataType get_output_type(const size_t port) const override;
 
-protected:
+private:
     DataType input_type;
     DataType output_port;
 };

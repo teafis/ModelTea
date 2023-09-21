@@ -39,7 +39,7 @@ public:
 protected:
     bool use_dynamic_limit() const;
 
-protected:
+private:
     DataType input_type;
     DataType input_type_max;
     DataType input_type_min;

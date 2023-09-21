@@ -12,13 +12,14 @@ namespace tmdl
 class ModelException
 {
 public:
-    ModelException(const std::string& msg);
+    explicit ModelException(const std::string& msg);
+    explicit ModelException(const char* msg);
 
     const char* what() const noexcept;
 
-    virtual ~ModelException();
+    virtual ~ModelException() = default;
 
-protected:
+private:
     std::string _msg;
 };
 
@@ -31,7 +32,7 @@ public:
 
     size_t get_id() const;
 
-protected:
+private:
     size_t _id;
 };
 

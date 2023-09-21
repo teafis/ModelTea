@@ -66,8 +66,7 @@ bool tmdl::ModelBlock::update_block()
 
 std::unique_ptr<const tmdl::BlockError> tmdl::ModelBlock::has_error() const
 {
-    auto err = model->has_error();
-    if (err != nullptr) return err;
+    if (auto err = model->has_error()) return err;
 
     const std::vector<std::tuple<const std::vector<DataType>&, std::function<DataType (const size_t)>, std::function<size_t ()>>> portvec
     {
@@ -141,24 +140,24 @@ struct CompiledModelBlock : public tmdl::CompiledBlockInterface
         // Empty Constructor
     }
 
-    virtual std::shared_ptr<tmdl::BlockExecutionInterface> get_execution_interface(
+    std::shared_ptr<tmdl::BlockExecutionInterface> get_execution_interface(
         const tmdl::ConnectionManager& connections,
         const tmdl::VariableManager& manager) const override
     {
         return _model->get_execution_interface(_id, connections, manager, _state);
     }
 
-    virtual std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> get_codegen_other() const override
+    std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> get_codegen_other() const override
     {
         return _model->get_all_sub_components(_state);
     }
 
-    virtual std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_self() const override
+    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_self() const override
     {
         return _model->get_codegen_component(_state);
     }
 
-protected:
+private:
     const size_t _id;
     std::shared_ptr<const tmdl::Model> _model;
     const tmdl::BlockInterface::ModelInfo& _state;

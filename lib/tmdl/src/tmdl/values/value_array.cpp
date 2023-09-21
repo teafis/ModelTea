@@ -21,17 +21,21 @@ std::unique_ptr<tmdl::ValueArray> tmdl::ValueArray::create_value_array(const std
     size_t current = start_index + 1;
     size_t next = current;
     size_t current_row = 0;
-    while ((next = s.find_first_of(";,]", next)) != std::string::npos)
+    while ((next = s.find_first_of(";,]", next)) != std::string::npos && !found_end)
     {
         // Extract the value
         std::string string_value = s.substr(current, next - current);
 
         // Trim the start and end value spaces
-        const size_t t_start = string_value.find_first_not_of(' ');
-        if (t_start != std::string::npos) string_value = string_value.substr(t_start);
+        if (const size_t t_start = string_value.find_first_not_of(' '); t_start != std::string::npos)
+        {
+            string_value = string_value.substr(t_start);
+        }
 
-        const size_t t_end = string_value.find_first_of(' ');
-        if (t_end != std::string::npos) string_value = string_value.substr(0, t_end);
+        if (const size_t t_end = string_value.find_first_of(' '); t_end != std::string::npos)
+        {
+            string_value = string_value.substr(0, t_end);
+        }
 
         // Set the value
         values.push_back(std::unique_ptr<ModelValue>(ModelValue::from_string(string_value, dt)));
@@ -48,7 +52,6 @@ std::unique_ptr<tmdl::ValueArray> tmdl::ValueArray::create_value_array(const std
         else if (s[next] == ']' && rows == 0 && cols == 0)
         {
             found_end = true;
-            break;
         }
         else if (s[next] == ';' || s[next] == ']')
         {
@@ -68,7 +71,6 @@ std::unique_ptr<tmdl::ValueArray> tmdl::ValueArray::create_value_array(const std
             if (s[next] == ']')
             {
                 found_end = true;
-                break;
             }
         }
         else
@@ -77,7 +79,10 @@ std::unique_ptr<tmdl::ValueArray> tmdl::ValueArray::create_value_array(const std
         }
 
         // Update output
-        next = current + 1;
+        if (!found_end)
+        {
+            next = current + 1;
+        }
     }
 
     if (!found_end)
@@ -112,16 +117,17 @@ std::unique_ptr<tmdl::ValueArray> tmdl::ValueArray::create_with_type(const size_
 {
     switch (data_type)
     {
-    case DataType::BOOLEAN:
-        return std::make_unique<ValueArrayBox<DataType::BOOLEAN>>(cols, rows, values);
-    case DataType::DOUBLE:
-        return std::make_unique<ValueArrayBox<DataType::DOUBLE>>(cols, rows, values);
-    case DataType::SINGLE:
-        return std::make_unique<ValueArrayBox<DataType::SINGLE>>(cols, rows, values);
-    case DataType::INT32:
-        return std::make_unique<ValueArrayBox<DataType::INT32>>(cols, rows, values);
-    case DataType::UINT32:
-        return std::make_unique<ValueArrayBox<DataType::UINT32>>(cols, rows, values);
+    using enum DataType;
+    case BOOLEAN:
+        return std::make_unique<ValueArrayBox<BOOLEAN>>(cols, rows, values);
+    case DOUBLE:
+        return std::make_unique<ValueArrayBox<DOUBLE>>(cols, rows, values);
+    case SINGLE:
+        return std::make_unique<ValueArrayBox<SINGLE>>(cols, rows, values);
+    case INT32:
+        return std::make_unique<ValueArrayBox<INT32>>(cols, rows, values);
+    case UINT32:
+        return std::make_unique<ValueArrayBox<UINT32>>(cols, rows, values);
     default:
         throw ModelException("cannot create a value array from an unknown data type");
     }

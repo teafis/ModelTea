@@ -127,8 +127,7 @@ std::vector<std::shared_ptr<tmdl::Parameter>> InputPort::get_parameters() const
 
 bool InputPort::update_block()
 {
-    const auto param_dt = get_output_type();
-    if (param_dt != _port)
+    if (const auto param_dt = get_output_type(); param_dt != _port)
     {
         _port = param_dt;
         return true;

@@ -33,7 +33,7 @@ public:
 
     std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo& s) const override;
 
-protected:
+private:
     DataType input_type;
     DataType input_reset_flag_type;
     DataType output_port;

@@ -55,7 +55,7 @@ public:
 
     bool has_variable(const Connection& c) const;
 
-protected:
+private:
     std::unordered_map<VariableIdentifier, std::shared_ptr<ModelValue>> variables;
 };
 

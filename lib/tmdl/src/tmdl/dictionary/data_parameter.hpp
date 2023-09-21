@@ -24,33 +24,33 @@ public:
 class DataParameterValue : public DataParameter
 {
 public:
-    DataParameterValue();
+    DataParameterValue() = default;
 
-    virtual void set_from_string(const std::string& s) override;
+    void set_from_string(const std::string& s) override;
 
-    virtual void set_data_type(const DataType dt) override;
+    void set_data_type(const DataType dt) override;
 
-    virtual void set_data_type_string(const std::string& s, DataType dt) override;
+    void set_data_type_string(const std::string& s, DataType dt) override;
 
 private:
-    std::shared_ptr<ModelValue> value;
+    std::shared_ptr<ModelValue> value{ ModelValue::make_default(DataType::DOUBLE) };
 };
 
 class DataParameterArray : public DataParameter
 {
 public:
-    DataParameterArray();
+    DataParameterArray() = default;
 
-    virtual void set_from_string(const std::string& s) override;
+    void set_from_string(const std::string& s) override;
 
-    virtual void set_data_type(const DataType dt) override;
+    void set_data_type(const DataType dt) override;
 
-    virtual void set_data_type_string(const std::string& s, DataType dt) override;
+    void set_data_type_string(const std::string& s, DataType dt) override;
 
     void set_size(const size_t c, const size_t r);
 
 private:
-    std::shared_ptr<ValueArray> array;
+    std::shared_ptr<ValueArray> array{ ValueArray::create_value_array("[]", DataType::DOUBLE) };
 };
 
 }

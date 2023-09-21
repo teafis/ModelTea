@@ -46,11 +46,11 @@ public:
 
     void add_name_to_variable(const std::string& name, VariableIdentifier id);
 
-    void add_name_to_variable(const std::string& name, Connection conn);
+    void add_name_to_variable(const std::string& name, const Connection& conn);
 
     void add_name_to_interior_variable(const std::string& name, VariableIdentifier id);
 
-    void add_name_to_interior_variable(const std::string& name, Connection conn);
+    void add_name_to_interior_variable(const std::string& name, const Connection& conn);
 
     static ExecutionState from_model(
         const std::shared_ptr<Model> model,
@@ -61,12 +61,12 @@ protected:
 
     void add_name_to_variable(const std::string& name, std::shared_ptr<const ModelValue> variable);
 
-protected:
+private:
     std::shared_ptr<BlockExecutionInterface> model;
     std::shared_ptr<VariableManager> variables;
     std::unordered_map<std::string, std::shared_ptr<const ModelValue>> named_variables;
     BlockInterface::ModelInfo state;
-    uint64_t iterations;
+    uint64_t iterations{ 0 };
 };
 
 }

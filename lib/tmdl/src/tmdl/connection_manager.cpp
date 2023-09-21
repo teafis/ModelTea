@@ -11,7 +11,7 @@ std::vector<std::shared_ptr<tmdl::Connection>>::const_iterator get_iter_for_bloc
     const size_t to_block,
     const size_t to_port)
 {
-    return std::find_if(connections.begin(), connections.end(), [to_block,to_port](const std::shared_ptr<const tmdl::Connection>& c)
+    return std::ranges::find_if(connections, [to_block, to_port](const auto& c)
     {
         return c->get_to_id() == to_block && c->get_to_port() == to_port;
     });
@@ -109,7 +109,7 @@ void tmdl::from_json(const nlohmann::json& j, ConnectionManager& cm)
 {
     for (const auto& i : j)
     {
-        std::shared_ptr<tmdl::Connection> c = std::make_shared<tmdl::Connection>(0, 0, 0, 0);
+        const auto c = std::make_shared<tmdl::Connection>(0, 0, 0, 0);
         from_json(i, *c);
         cm.add_connection(c);
     }

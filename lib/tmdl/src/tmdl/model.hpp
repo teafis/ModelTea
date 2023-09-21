@@ -33,9 +33,6 @@ class Model
 public:
     friend class ModelBlock;
 
-    Model();
-
-public:
     void add_block(const std::shared_ptr<BlockInterface> block);
 
     void add_block(const std::shared_ptr<BlockInterface> block, const size_t id);
@@ -46,12 +43,11 @@ public:
 
     void remove_connection(const size_t to_block, const size_t to_port);
 
-public:
     std::string get_name() const;
 
     std::string get_description() const;
 
-    void set_description(const std::string& s);
+    void set_description(const std::string_view s);
 
     double get_preferred_dt() const;
 
@@ -73,7 +69,6 @@ public:
 
     std::unique_ptr<const BlockError> has_error() const;
 
-public:
     struct CompiledModelData;
 
 protected:
@@ -92,7 +87,6 @@ public:
 
     std::vector<std::unique_ptr<tmdl::codegen::CodeComponent>> get_all_sub_components(const BlockInterface::ModelInfo& state) const;
 
-public:
     std::vector<std::unique_ptr<const BlockError>> get_all_errors() const;
 
     const ConnectionManager& get_connection_manager() const;
@@ -105,9 +99,8 @@ public:
 
     std::vector<std::shared_ptr<BlockInterface>> get_blocks() const;
 
-    bool contains_model_name(const std::string& name) const;
+    bool contains_model_name(const std::string_view name) const;
 
-public:
     void set_filename(const std::filesystem::path& fn);
 
     const std::optional<std::filesystem::path>& get_filename() const;
@@ -118,20 +111,19 @@ public:
 
     void save_model() const;
 
-protected:
+private:
     std::optional<Identifier> name;
-    std::string description;
+    std::string description{ "user-defined model block" };
     std::unordered_map<size_t, std::shared_ptr<BlockInterface>> blocks;
     ConnectionManager connections;
     std::vector<size_t> input_ids;
     std::vector<size_t> output_ids;
-    double preferred_dt;
+    double preferred_dt{ 0.1 };
     std::optional<std::filesystem::path> filename;
 
 public:
     static const std::string DEFAULT_MODEL_EXTENSION;
 
-public:
     friend void to_json(nlohmann::json&, const Model&);
 
     friend void from_json(const nlohmann::json&, Model&);

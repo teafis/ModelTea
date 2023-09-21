@@ -16,18 +16,18 @@ namespace tmdl
 {
 
 class Parameter
-{    
+{
 public:
-    Parameter(
-        const std::string& id,
-        const std::string& name,
+    explicit Parameter(
+        std::string_view id,
+        std::string_view name,
         std::unique_ptr<ModelValue>&& value);
 
     std::string get_id() const;
 
     std::string get_name() const;
 
-    void set_name(const std::string& n);
+    void set_name(std::string_view n);
 
     bool get_enabled() const;
 
@@ -41,13 +41,13 @@ public:
 
     void convert_type(const DataType dt);
 
-protected:
+private:
     const std::string id;
     std::string name;
 
     std::unique_ptr<ModelValue> value;
 
-    bool enabled;
+    bool enabled{ true };
 };
 
 }

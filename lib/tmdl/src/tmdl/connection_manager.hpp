@@ -29,7 +29,7 @@ public:
 
     std::vector<std::shared_ptr<const Connection>> get_connections() const;
 
-protected:
+private:
     std::vector<std::shared_ptr<Connection>> connections;
 };
 

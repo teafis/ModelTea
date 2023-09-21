@@ -7,16 +7,15 @@ tmdl::ModelException::ModelException(const std::string& msg) : _msg(msg)
     // Empty Constructor
 }
 
+tmdl::ModelException::ModelException(const char* msg) : _msg(msg)
+{
+    // Empty Constructor
+}
+
 const char* tmdl::ModelException::what() const noexcept
 {
     return _msg.c_str();
 }
-
-tmdl::ModelException::~ModelException()
-{
-    // Empty Destructor
-}
-
 
 tmdl::ExecutionException::ExecutionException(
     const std::string& msg,

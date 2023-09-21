@@ -35,13 +35,11 @@ public:
 
     std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 
-public:
     void set_input_value(const DataType type);
 
 private:
     DataType get_output_type() const;
 
-protected:
     DataType _port;
     std::shared_ptr<Parameter> dataTypeParameter;
 };
@@ -69,10 +67,9 @@ public:
 
     std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 
-public:
     DataType get_output_value() const;
 
-protected:
+private:
     DataType _port;
 };
 

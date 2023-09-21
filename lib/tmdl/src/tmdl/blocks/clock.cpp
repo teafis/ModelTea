@@ -36,7 +36,7 @@ public:
         return std::make_unique<ClockComponent>(_state);
     }
 
-protected:
+private:
     const size_t _id;
     const tmdl::BlockInterface::ModelInfo _state;
 
@@ -48,37 +48,37 @@ protected:
             // Empty Constructor
         }
 
-        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+        std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
         {
             return {};
         }
 
-        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+        std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
         {
             return tmdl::codegen::InterfaceDefinition("s_out", {"val"});
         }
 
-        virtual std::string get_module_name() const override
+        std::string get_module_name() const override
         {
             return "tmdlstd/tmdlstd.hpp";
         }
 
-        virtual std::string get_name_base() const override
+        std::string get_name_base() const override
         {
             return "clock_block";
         }
 
-        virtual std::string get_type_name() const override
+        std::string get_type_name() const override
         {
             return "tmdl::stdlib::clock_block";
         }
 
-        virtual std::vector<std::string> constructor_arguments() const override
+        std::vector<std::string> constructor_arguments() const override
         {
             return { std::to_string(_state.get_dt()) };
         }
 
-        virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
+        std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
         {
             if (ft == tmdl::codegen::BlockFunction::STEP)
             {
@@ -113,7 +113,6 @@ protected:
             }
         }
 
-    public:
         void init() override
         {
             block = std::make_unique<tmdl::stdlib::clock_block>(state.get_dt());
@@ -131,18 +130,12 @@ protected:
             block = nullptr;
         }
 
-    protected:
+    private:
         std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>> output_value;
         std::unique_ptr<tmdl::stdlib::clock_block> block;
         const tmdl::BlockInterface::ModelInfo state;
     };
 };
-
-
-tmdl::blocks::Clock::Clock()
-{
-    // Empty Constructor
-}
 
 std::string tmdl::blocks::Clock::get_name() const
 {

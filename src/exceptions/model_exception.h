@@ -8,8 +8,8 @@
 class ModelException : public TeafisException
 {
 public:
-    ModelException(const std::string& s) : TeafisException(s) { }
-    ModelException(const char* c) : TeafisException(c) { }
+    explicit ModelException(const std::string& s) : TeafisException(s) { }
+    explicit ModelException(const char* c) : TeafisException(c) { }
 };
 
 

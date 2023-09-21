@@ -13,7 +13,7 @@ class Identifier
 public:
     Identifier(const Identifier&) = default;
 
-    Identifier(const std::string& s);
+    explicit Identifier(std::string_view s);
 
     Identifier(Identifier&& other) = default;
 
@@ -25,13 +25,12 @@ public:
 
     const std::string& get() const;
 
-    void set(const std::string& s);
-
-private:
-    static bool is_valid_identifier(const std::string& s);
+    void set(std::string_view s);
 
 private:
     std::string _value;
+
+    static bool is_valid_identifier(std::string_view s);
 };
 
 }

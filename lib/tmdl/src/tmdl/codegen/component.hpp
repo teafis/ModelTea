@@ -16,7 +16,7 @@ namespace tmdl::codegen
 class InterfaceDefinition
 {
 public:
-    InterfaceDefinition(const std::string& type_name, const std::vector<std::string>& fields) :
+    explicit InterfaceDefinition(std::string_view type_name, const std::vector<std::string>& fields) :
         name(type_name),
         fields(fields)
     {
@@ -38,7 +38,7 @@ public:
         return fields.at(i);
     }
 
-protected:
+private:
     std::string name;
     std::vector<std::string> fields;
 };
@@ -46,9 +46,9 @@ protected:
 class CodeComponent
 {
 public:
-    CodeComponent();
+    CodeComponent() = default;
 
-    virtual ~CodeComponent();
+    virtual ~CodeComponent() = default;
 
     virtual bool is_virtual() const;
 

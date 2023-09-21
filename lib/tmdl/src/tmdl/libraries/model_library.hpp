@@ -20,12 +20,11 @@ public:
 
     std::vector<std::string> get_block_names() const override;
 
-    bool has_block(const std::string name) const override;
+    bool has_block(std::string_view name) const override;
 
-    std::shared_ptr<BlockInterface> create_block(const std::string& name) const override;
+    std::shared_ptr<BlockInterface> create_block(std::string_view name) const override;
 
-public:
-    std::shared_ptr<Model> get_model(const std::string& name) const;
+    std::shared_ptr<Model> get_model(std::string_view name) const;
 
     std::shared_ptr<Model> create_model();
 
@@ -35,12 +34,13 @@ public:
 
     void close_unused_models();
 
-    std::shared_ptr<Model> try_get_model(const std::string& name) const;
+    std::shared_ptr<Model> try_get_model(std::string_view name) const;
 
 protected:
     static bool is_valid_model(const std::shared_ptr<Model> mdl);
 
-protected:
+private:
+    inline static std::string library_name = "models";
     std::vector<std::shared_ptr<Model>> models;
 };
 

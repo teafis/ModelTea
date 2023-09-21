@@ -53,19 +53,19 @@ public:
         return std::make_unique<ArithComponent>(_input_size);
     }
 
-protected:
+private:
     const size_t _id;
     const size_t _input_size;
 
 protected:
     struct ArithComponent : public tmdl::codegen::CodeComponent
     {
-        ArithComponent(size_t size) : _size(size)
+        explicit ArithComponent(size_t size) : _size(size)
         {
             // Empty Constructor
         }
 
-        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
+        std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override
         {
             std::vector<std::string> num_fields;
 
@@ -77,22 +77,22 @@ protected:
             return tmdl::codegen::InterfaceDefinition("s_in", num_fields);
         }
 
-        virtual std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
+        std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override
         {
             return tmdl::codegen::InterfaceDefinition("s_out", {"val"});
         }
 
-        virtual std::string get_module_name() const override
+        std::string get_module_name() const override
         {
             return "tmdlstd/tmdlstd.hpp";
         }
 
-        virtual std::string get_name_base() const override
+        std::string get_name_base() const override
         {
             return "arith_block";
         }
 
-        virtual std::string get_type_name() const override
+        std::string get_type_name() const override
         {
             return fmt::format(
                 "tmdl::stdlib::arith_block<{}, {}, {}>",
@@ -101,7 +101,7 @@ protected:
                 _size);
         }
 
-        virtual std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
+        std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override
         {
             if (ft == tmdl::codegen::BlockFunction::STEP)
             {
@@ -117,15 +117,14 @@ protected:
             }
         }
 
-    protected:
+    private:
         const size_t _size;
     };
 
-protected:
     struct ArithmeticExecutor : public tmdl::BlockExecutionInterface
     {
-        ArithmeticExecutor(
-            std::vector<std::shared_ptr<const tmdl::ModelValue>> inputValues,
+        explicit ArithmeticExecutor(
+            const std::vector<std::shared_ptr<const tmdl::ModelValue>>& inputValues,
             std::shared_ptr<tmdl::ModelValue> outputValue)
         {
             output_value = std::dynamic_pointer_cast<tmdl::ModelValueBox<DT>>(outputValue);
@@ -172,7 +171,7 @@ protected:
             output_value->value = block.s_out.val;
         }
 
-    protected:
+    private:
         std::vector<std::shared_ptr<const tmdl::ModelValueBox<DT>>> input_values;
         std::vector<type_t> input_value_ptr_array;
         std::shared_ptr<tmdl::ModelValueBox<DT>> output_value;
@@ -286,6 +285,11 @@ tmdl::DataType tmdl::blocks::ArithmeticBase::get_output_type(const size_t port) 
     }
 }
 
+tmdl::DataType tmdl::blocks::ArithmeticBase::get_output_type() const
+{
+    return _outputPort;
+}
+
 template <tmdl::stdlib::ArithType OP>
 std::unique_ptr<tmdl::CompiledBlockInterface> generate_compiled(
     const tmdl::DataType output_type,
@@ -331,7 +335,7 @@ std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Addition::get_compil
         throw ModelException("cannot generate a addition block with an error");
     }
 
-    return generate_compiled<tmdl::stdlib::ArithType::ADD>(_outputPort, get_id(), _inputTypes.size());
+    return generate_compiled<tmdl::stdlib::ArithType::ADD>(get_output_type(), get_id(), get_num_inputs());
 }
 
 // Subtraction Block
@@ -353,7 +357,7 @@ std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Subtraction::get_com
         throw ModelException("cannot generate a subtraction block with an error");
     }
 
-    return generate_compiled<tmdl::stdlib::ArithType::SUB>(_outputPort, get_id(), _inputTypes.size());
+    return generate_compiled<tmdl::stdlib::ArithType::SUB>(get_output_type(), get_id(), get_num_inputs());
 }
 
 // Product Block
@@ -375,7 +379,7 @@ std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Multiplication::get_
         throw ModelException("cannot generate a multiplication block with an error");
     }
 
-    return generate_compiled<tmdl::stdlib::ArithType::MUL>(_outputPort, get_id(), _inputTypes.size());
+    return generate_compiled<tmdl::stdlib::ArithType::MUL>(get_output_type(), get_id(), get_num_inputs());
 }
 
 // Division Block
@@ -397,5 +401,5 @@ std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Division::get_compil
         throw ModelException("cannot generate a division block with an error");
     }
 
-    return generate_compiled<tmdl::stdlib::ArithType::DIV>(_outputPort, get_id(), _inputTypes.size());
+    return generate_compiled<tmdl::stdlib::ArithType::DIV>(get_output_type(), get_id(), get_num_inputs());
 }

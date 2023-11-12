@@ -207,7 +207,7 @@ void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
                 portDragState->get_input().block);
 
             const auto& items = scene()->items();
-            for (auto* i : qAsConst(items))
+            for (auto* i : std::as_const(items))
             {
                 auto* blk = dynamic_cast<BlockObject*>(i);
                 if (blk != nullptr)
@@ -264,7 +264,7 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
 
                 const auto sceneItems = scene()->items();
 
-                for (auto ptr : qAsConst(sceneItems))
+                for (auto* ptr : std::as_const(sceneItems))
                 {
                     const auto c = dynamic_cast<ConnectorBlockObject*>(ptr);
                     if (c == nullptr) continue;
@@ -387,7 +387,7 @@ void BlockGraphicsView::updateModel()
     }
 
     const auto sceneItems = scene()->items();
-    for (auto* item : qAsConst(sceneItems))
+    for (auto* item : std::as_const(sceneItems))
     {
         auto* block = dynamic_cast<BlockObject*>(item);
         if (block != nullptr)
@@ -405,7 +405,7 @@ void BlockGraphicsView::updateModel()
 BlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
 {
     const auto sceneItems = scene()->items();
-    for (auto itm : qAsConst(sceneItems))
+    for (auto* itm : std::as_const(sceneItems))
     {
         BlockObject* blk = dynamic_cast<BlockObject*>(itm);
         if (blk != nullptr && blk->sceneBoundingRect().contains(pos))
@@ -420,7 +420,7 @@ BlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
 ConnectorBlockObject* BlockGraphicsView::findConnectorForMousePress(const QPointF& pos)
 {
     const auto sceneItems = scene()->items();
-    for (auto itm : qAsConst(sceneItems))
+    for (auto* itm : std::as_const(sceneItems))
     {
         ConnectorBlockObject* conn = dynamic_cast<ConnectorBlockObject*>(itm);
         if (conn != nullptr && conn->positionOnLine(conn->mapFromScene(pos)))

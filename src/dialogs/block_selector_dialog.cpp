@@ -35,7 +35,7 @@ void BlockSelectorDialog::librarySelectionUpdated()
     const tmdl::LibraryManager& manager = tmdl::LibraryManager::get_instance();
 
     const auto& items = ui->listLibraries->selectedItems();
-    for (const auto* itm : qAsConst(items))
+    for (const auto* itm : std::as_const(items))
     {
         const auto libName = itm->data(Qt::UserRole).toString().toStdString();
         const auto lib = manager.get_library(libName);

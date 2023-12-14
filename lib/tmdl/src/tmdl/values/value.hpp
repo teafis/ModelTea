@@ -133,7 +133,7 @@ struct ModelValueBox<DataType::UNKNOWN> : public ModelValue
 
     void copy_from(const ModelValue* in) override
     {
-        // Do Nothing?
+        throw ModelException(fmt::format("unable to copy from {} into an unknown data type", data_type_to_string(data_type())));
     }
 
     std::unique_ptr<ModelValue> clone() const override

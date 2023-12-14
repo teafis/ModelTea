@@ -554,7 +554,9 @@ void ModelWindow::showPlot()
         window_plot = new PlotWindow(executor);
 
         connect(this, &ModelWindow::executorEvent, window_plot, &PlotWindow::executorEvent);
-        connect(window_plot, &PlotWindow::destroyed, [this]() { window_plot = nullptr; });
+        connect(window_plot, &PlotWindow::destroyed, [this]() {
+            window_plot = nullptr;
+        });
     }
 
     window_plot->show();

@@ -63,7 +63,6 @@ PlotWindow::PlotWindow(
 
 PlotWindow::~PlotWindow()
 {
-    QApplication::exit();
     delete ui;
 }
 

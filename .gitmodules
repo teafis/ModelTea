@@ -1,6 +1,6 @@
 [submodule "vcpkg"]
 	path = vcpkg
-	url = https://github.com/Microsoft/vcpkg.git
+	url = ../../Microsoft/vcpkg.git
 [submodule "lib/tmdlstd"]
 	path = lib/tmdlstd
-	url = git@github.com:teafis/ModelTea-stdlib.git
+	url = ../ModelTea-stdlib.git

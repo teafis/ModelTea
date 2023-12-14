@@ -7,7 +7,6 @@
 
 #include <string>
 #include <unordered_map>
-#include <functional>
 
 namespace tmdl
 {
@@ -20,7 +19,7 @@ class StandardLibrary : public LibraryBase
 public:
     StandardLibrary();
 
-    bool has_block(std::string_view name) const;
+    bool has_block(std::string_view name) const override;
 
     const std::string& get_library_name() const override;
 

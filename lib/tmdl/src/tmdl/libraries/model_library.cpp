@@ -10,7 +10,7 @@
 #include <fmt/format.h>
 
 
-const std::string& tmdl::ModelLibrary::get_library_name() const
+const std::string tmdl::ModelLibrary::get_library_name() const
 {
     return library_name;
 }
@@ -18,9 +18,13 @@ const std::string& tmdl::ModelLibrary::get_library_name() const
 std::vector<std::string> tmdl::ModelLibrary::get_block_names() const
 {
     std::vector<std::string> names;
-    for (const auto& m : models)
+    for (const auto& m : models | std::views::values)
     {
-        if (!is_valid_model(m))
+        if (m == nullptr)
+        {
+            continue;
+        }
+        else if (!is_valid_model(m))
         {
             continue;
         }
@@ -60,18 +64,18 @@ std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::get_model(const std::string_vie
 std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::create_model()
 {
     const auto mdl = std::make_shared<tmdl::Model>();
-    models.push_back(mdl);
-    return mdl;
+    return add_model(mdl);
 }
 
-void tmdl::ModelLibrary::add_model(std::shared_ptr<Model> model)
+std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::add_model(std::shared_ptr<Model> model)
 {
     if (try_get_model(model->get_name()) != nullptr)
     {
         throw ModelException(fmt::format("cannot add model - model with name '{}' already exists", model->get_name()));
     }
 
-    models.push_back(model);
+    models.insert({model->get_name(), model});
+    return model;
 }
 
 void tmdl::ModelLibrary::close_model(const tmdl::Model* model)
@@ -81,18 +85,12 @@ void tmdl::ModelLibrary::close_model(const tmdl::Model* model)
         return;
     }
 
-    const auto it = std::ranges::find_if(
-        models,
-        [&model](const std::shared_ptr<const Model> m) {
-            return m.get() == model;
-    });
-
-    if (it == models.end())
-    {
+    const auto it = models.find(model->get_name());
+    if (it == models.end()) {
         throw ModelException(fmt::format("cannot find model '{}' to close", model->get_name()));
-    }
-    else if (it->use_count() > 1)
-    {
+    } else if (it->second.get() != model) {
+        throw ModelException(fmt::format("model '{}' doesn't match library version of model", model->get_name()));
+    } else if (it->second.use_count() > 1) {
         throw ModelException(fmt::format("model '{}' is still in use - cannot close", model->get_name()));
     }
 
@@ -101,48 +99,38 @@ void tmdl::ModelLibrary::close_model(const tmdl::Model* model)
 
 void tmdl::ModelLibrary::close_unused_models()
 {
-    const size_t iter_count = models.size();
-    bool any_closed = true;
+    std::unordered_map<std::string, std::weak_ptr<tmdl::Model>> weak_models;
+    for (const auto& [n, m] : models) {
+        weak_models.insert({n, m});
+    }
 
-    for (size_t i = 0; i < iter_count && any_closed; ++i)
-    {
-        any_closed = false;
+    models.clear();
 
-        auto it = models.begin();
-        while (it != models.end())
-        {
-            if (it->use_count() > 1)
-            {
-                ++it;
-            }
-            else
-            {
-                it = models.erase(it);
-                any_closed = true;
-            }
+    for (const auto& [n, mw] : weak_models) {
+        const auto m = mw.lock();
+        if (m != nullptr) {
+            models.insert({n, m});
         }
     }
 }
 
 std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::try_get_model(const std::string_view name) const
 {
-    const auto it = std::ranges::find_if(
-        models,
-        [&name](const std::shared_ptr<const Model> m) {
-            return m->get_name() == name;
-    });
-
-    if (it != models.end() && is_valid_model(*it))
-    {
-        return *it;
+    const auto it = models.find(std::string(name));
+    if (it == models.end()) {
+        return nullptr;
     }
-    else
-    {
+
+    const auto mdl = it->second;
+    if (mdl && is_valid_model(mdl)) {
+        return mdl;
+    } else {
         return nullptr;
     }
 }
 
 bool tmdl::ModelLibrary::is_valid_model(const std::shared_ptr<Model> mdl)
 {
-    return mdl->get_name().size() > 0;
+    const auto name = mdl->get_name();
+    return name.size() > 0 && Identifier::is_valid_identifier(name);
 }

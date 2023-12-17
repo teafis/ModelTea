@@ -56,7 +56,7 @@ bool tmdl::blocks::StandardLibrary::has_block(const std::string_view name) const
     return block_map.contains(std::string(name));
 }
 
-const std::string& tmdl::blocks::StandardLibrary::get_library_name() const
+const std::string tmdl::blocks::StandardLibrary::get_library_name() const
 {
     return library_name;
 }

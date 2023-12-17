@@ -1304,8 +1304,9 @@ void tmdl::from_json(const nlohmann::json& j, tmdl::Model& m)
                 auto pth = *test_path;
                 pth = pth.parent_path() / std::filesystem::path(json_blk.name).replace_extension(tmdl::Model::DEFAULT_MODEL_EXTENSION);
 
-                modellib->add_model(tmdl::Model::load_model(pth));
-                blk = lib.try_create_block(json_blk.name);
+                const auto mdl = tmdl::Model::load_model(pth); // TODO - Move load model into the model library?
+                (void)modellib->add_model(mdl);
+                blk = lib.try_create_block(mdl->get_name());
             }
         }
 

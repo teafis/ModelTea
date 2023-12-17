@@ -30,6 +30,7 @@ public:
 private:
     std::string _value;
 
+public:
     static bool is_valid_identifier(std::string_view s);
 };
 

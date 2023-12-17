@@ -5,7 +5,6 @@
 
 #include <array>
 #include <filesystem>
-#include <fstream>
 
 #include <QIcon>
 #include <QPixmap>
@@ -259,7 +258,7 @@ bool ModelWindow::openModelFile(QString openFilename)
 
     try
     {
-        mdl = tmdl::Model::load_model(openFilename.toStdString());
+        mdl = tmdl::Model::load_model(openFilename.toStdString()); // TODO - Move to load_model through the block library
     }
     catch (const tmdl::ModelException& ex)
     {
@@ -285,7 +284,7 @@ bool ModelWindow::openModel(std::shared_ptr<tmdl::Model> model)
     }
     else
     {
-        mdl_library->add_model(model);
+        (void)mdl_library->add_model(model); // TODO - check where this is loaded and move add model to block library
     }
 
     if (WindowManager::instance().model_is_open(model.get()))

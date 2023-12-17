@@ -2,6 +2,8 @@
 
 cmake_minimum_required(VERSION 3.18)
 
+enable_testing()
+
 set(VCPKG_BOOTSTRAP_OPTIONS "-disableMetrics")
 
 set(

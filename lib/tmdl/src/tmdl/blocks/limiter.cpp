@@ -65,11 +65,11 @@ private:
 protected:
     struct LimiterComponent : public tmdl::codegen::CodeComponent {
         std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override {
-            return tmdl::codegen::InterfaceDefinition("s_in", {"input_value", "limit_upper", "limit_lower"});
+            return tmdl::codegen::InterfaceDefinition("s_in", {"value", "limit_upper", "limit_lower"});
         }
 
         std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override {
-            return tmdl::codegen::InterfaceDefinition("s_out", {"output_value"});
+            return tmdl::codegen::InterfaceDefinition("s_out", {"value"});
         }
 
         std::string get_module_name() const override { return "tmdlstd/tmdlstd.hpp"; }
@@ -98,11 +98,11 @@ protected:
         }
 
         std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override {
-            return tmdl::codegen::InterfaceDefinition("s_in", {"input_value"});
+            return tmdl::codegen::InterfaceDefinition("s_in", {"value"});
         }
 
         std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override {
-            return tmdl::codegen::InterfaceDefinition("s_out", {"output_value"});
+            return tmdl::codegen::InterfaceDefinition("s_out", {"value"});
         }
 
         std::string get_module_name() const override { return "tmdlstd/tmdlstd.hpp"; }

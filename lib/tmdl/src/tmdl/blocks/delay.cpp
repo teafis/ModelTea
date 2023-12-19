@@ -38,11 +38,11 @@ private:
 protected:
     struct DelayComponent : public tmdl::codegen::CodeComponent {
         std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override {
-            return tmdl::codegen::InterfaceDefinition("s_out", {"input_value", "reset_flag", "reset_value"});
+            return tmdl::codegen::InterfaceDefinition("s_out", {"input", "reset_flag", "reset"});
         }
 
         std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override {
-            return tmdl::codegen::InterfaceDefinition("s_out", {"output_value"});
+            return tmdl::codegen::InterfaceDefinition("s_out", {"value"});
         }
 
         std::string get_module_name() const override { return "tmdlstd/tmdlstd.hpp"; }

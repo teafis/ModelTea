@@ -28,6 +28,9 @@ find_package(nlohmann_json CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 find_package(Catch2 CONFIG REQUIRED)
 
+set(TMDLSTD_USE_DEFAULT_MATH_FUNCS ON)
+set(TMDLSTD_USE_STRING_FUNCS ON)
+
 add_subdirectory(lib/tmdl)
 add_subdirectory(lib/tmdlstd)
 
@@ -64,9 +67,6 @@ qt_add_executable(ModelTea
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES}
 )
-
-set(TMDLSTD_USE_DEFAULT_MATH_FUNCS ON)
-set(TMDLSTD_USE_STRING_FUNCS ON)
 
 set_property(TARGET ModelTea PROPERTY AUTOUIC ON)
 set_property(TARGET ModelTea PROPERTY AUTOMOC ON)

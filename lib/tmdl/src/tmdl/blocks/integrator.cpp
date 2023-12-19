@@ -44,11 +44,11 @@ protected:
         }
 
         std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override {
-            return tmdl::codegen::InterfaceDefinition("s_in", {"input_value", "reset_value", "reset_flag"});
+            return tmdl::codegen::InterfaceDefinition("s_in", {"value", "reset", "reset_flag"}); // TODO - Make ordering consistent with derivative
         }
 
         std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override {
-            return tmdl::codegen::InterfaceDefinition("s_out", {"output_value"});
+            return tmdl::codegen::InterfaceDefinition("s_out", {"value"});
         }
 
         std::string get_module_name() const override { return "tmdlstd/tmdlstd.hpp"; }

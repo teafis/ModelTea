@@ -39,11 +39,11 @@ private:
 protected:
     struct RelationalComponent : public tmdl::codegen::CodeComponent {
         std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override {
-            return tmdl::codegen::InterfaceDefinition("s_in", {"val_a", "val_b"});
+            return tmdl::codegen::InterfaceDefinition("s_in", {"value_a", "value_b"});
         }
 
         std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override {
-            return tmdl::codegen::InterfaceDefinition("s_out", {"output_value"});
+            return tmdl::codegen::InterfaceDefinition("s_out", {"value"});
         }
 
         std::string get_module_name() const override { return "tmdlstd/tmdlstd.hpp"; }
@@ -87,7 +87,7 @@ protected:
             block.s_in.value_b = input_b->value;
         }
 
-        void update_outputs() override { output_value->value = block.s_out.output_value; }
+        void update_outputs() override { output_value->value = block.s_out.value; }
 
         void blk_reset() override { block.reset(); }
 

@@ -53,14 +53,14 @@ protected:
             std::vector<std::string> num_fields;
 
             for (size_t i = 0; i < _size; ++i) {
-                num_fields.push_back(fmt::format("vals[{}]", i));
+                num_fields.push_back(fmt::format("values[{}]", i));
             }
 
             return tmdl::codegen::InterfaceDefinition("s_in", num_fields);
         }
 
         std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override {
-            return tmdl::codegen::InterfaceDefinition("s_out", {"val"});
+            return tmdl::codegen::InterfaceDefinition("s_out", {"value"});
         }
 
         std::string get_module_name() const override { return "tmdlstd/tmdlstd.hpp"; }
@@ -120,7 +120,7 @@ protected:
             }
         }
 
-        void update_outputs() override { output_value->value = block.s_out.val; }
+        void update_outputs() override { output_value->value = block.s_out.value; }
 
     private:
         std::vector<std::shared_ptr<const tmdl::ModelValueBox<DT>>> input_values;

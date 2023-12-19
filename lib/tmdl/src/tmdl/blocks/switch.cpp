@@ -41,7 +41,7 @@ private:
 protected:
     struct SwitchComponent : public tmdl::codegen::CodeComponent {
         std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override {
-            return tmdl::codegen::InterfaceDefinition("s_in", {"switch_value", "value_a", "value_b"});
+            return tmdl::codegen::InterfaceDefinition("s_in", {"value_flag", "value_a", "value_b"});
         }
 
         std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override {

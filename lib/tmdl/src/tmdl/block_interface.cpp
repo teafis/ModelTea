@@ -64,9 +64,9 @@ std::unique_ptr<const tmdl::BlockError> tmdl::BlockInterface::make_error(const s
     return std::make_unique<BlockError>(get_id(), msg);
 }
 
-void tmdl::BlockExecutionInterface::init() {
+void tmdl::BlockExecutionInterface::reset() {
     update_inputs();
-    blk_init();
+    blk_reset();
     update_outputs();
 }
 
@@ -76,20 +76,10 @@ void tmdl::BlockExecutionInterface::step() {
     update_outputs();
 }
 
-void tmdl::BlockExecutionInterface::reset() {
-    update_inputs();
-    blk_reset();
-    update_outputs();
-}
-
-void tmdl::BlockExecutionInterface::blk_init() {
+void tmdl::BlockExecutionInterface::blk_reset() {
     // Empty Function
 }
 
 void tmdl::BlockExecutionInterface::blk_step() {
-    // Empty Function
-}
-
-void tmdl::BlockExecutionInterface::blk_reset() {
     // Empty Function
 }

@@ -75,8 +75,8 @@ protected:
         std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override {
             if (ft == tmdl::codegen::BlockFunction::STEP) {
                 return "step";
-            } else if (ft == tmdl::codegen::BlockFunction::INIT) {
-                return "init";
+            } else if (ft == tmdl::codegen::BlockFunction::RESET) {
+                return "reset";
             } else {
                 return {};
             }
@@ -110,7 +110,7 @@ protected:
         }
 
     protected:
-        void blk_init() override { block.init(); }
+        void blk_reset() override { block.reset(); }
 
         void blk_step() override { block.step(); }
 

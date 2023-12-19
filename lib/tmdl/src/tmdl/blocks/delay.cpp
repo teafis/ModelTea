@@ -56,8 +56,6 @@ protected:
         std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override {
             switch (ft) {
                 using enum tmdl::codegen::BlockFunction;
-            case INIT:
-                return "init";
             case RESET:
                 return "reset";
             case STEP:
@@ -92,11 +90,9 @@ protected:
 
         void update_outputs() override { _output->value = block.s_out.value; }
 
-        void blk_init() override { block.init(); }
+        void blk_reset() override { block.reset(); }
 
         void blk_step() override { block.step(); }
-
-        void blk_reset() override { block.reset(); }
 
     private:
         tmdl::stdlib::delay_block<type_t> block;

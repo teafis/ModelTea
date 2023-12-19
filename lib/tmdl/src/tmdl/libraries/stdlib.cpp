@@ -13,7 +13,6 @@
 #include "../blocks/relational.hpp"
 #include "../blocks/switch.hpp"
 #include "../blocks/trig.hpp"
-#include "../blocks/trig2.hpp"
 
 #include "../model_exception.hpp"
 

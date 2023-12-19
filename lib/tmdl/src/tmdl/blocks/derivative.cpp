@@ -59,8 +59,6 @@ protected:
 
         std::optional<std::string> get_function_name(const tmdl::codegen::BlockFunction fcn) const override {
             switch (fcn) {
-            case tmdl::codegen::BlockFunction::INIT:
-                return "init";
             case tmdl::codegen::BlockFunction::STEP:
                 return "step";
             case tmdl::codegen::BlockFunction::RESET:
@@ -84,34 +82,30 @@ protected:
                                     std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> reset_flag,
                                     const tmdl::BlockInterface::ModelInfo& s)
             : _input(std::dynamic_pointer_cast<const tmdl::ModelValueBox<DT>>(input)), _reset_flag(reset_flag),
-              _output(std::dynamic_pointer_cast<tmdl::ModelValueBox<DT>>(output)), state(s) {
+              _output(std::dynamic_pointer_cast<tmdl::ModelValueBox<DT>>(output)), block(s.get_dt()), state(s) {
             if (_input == nullptr || _output == nullptr || _reset_flag == nullptr) {
                 throw tmdl::ModelException("input parameters are null");
             }
-
-            block = std::make_unique<tmdl::stdlib::derivative_block<type_t>>(state.get_dt());
         }
 
     protected:
-        void blk_init() override { block->init(); }
+        void blk_reset() override { block.reset(); }
 
-        void blk_step() override { block->step(); }
-
-        void blk_reset() override { block->reset(); }
+        void blk_step() override { block.step(); }
 
         void update_inputs() override {
-            block->s_in.value = _input->value;
-            block->s_in.reset_flag = _reset_flag->value;
+            block.s_in.value = _input->value;
+            block.s_in.reset_flag = _reset_flag->value;
         }
 
-        void update_outputs() override { _output->value = block->s_out.value; }
+        void update_outputs() override { _output->value = block.s_out.value; }
 
     private:
         std::shared_ptr<const tmdl::ModelValueBox<DT>> _input;
         std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> _reset_flag;
         std::shared_ptr<tmdl::ModelValueBox<DT>> _output;
 
-        std::unique_ptr<tmdl::stdlib::derivative_block<type_t>> block;
+        tmdl::stdlib::derivative_block<type_t> block;
         const tmdl::BlockInterface::ModelInfo state;
     };
 };

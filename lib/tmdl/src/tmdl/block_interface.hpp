@@ -114,19 +114,15 @@ class BlockExecutionInterface {
 public:
     virtual ~BlockExecutionInterface() = default;
 
-    void init();
-
-    void step();
-
     void reset();
+    void step();
 
 protected:
     virtual void update_inputs() = 0;
     virtual void update_outputs() = 0;
 
-    virtual void blk_init();
-    virtual void blk_step();
     virtual void blk_reset();
+    virtual void blk_step();
 };
 
 }

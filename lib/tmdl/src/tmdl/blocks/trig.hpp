@@ -9,7 +9,7 @@ namespace tmdl::blocks {
 
 class TrigFunction : public BlockInterface {
 public:
-    TrigFunction();
+    TrigFunction(size_t num_inputs);
 
     size_t get_num_inputs() const override;
 
@@ -24,12 +24,14 @@ public:
     DataType get_output_type(const size_t port) const override;
 
 private:
-    DataType input_type;
+    std::vector<DataType> input_types;
     DataType output_port;
 };
 
 class TrigSin : public TrigFunction {
 public:
+    TrigSin();
+
     std::string get_name() const override;
 
     std::string get_description() const override;
@@ -39,6 +41,8 @@ public:
 
 class TrigCos : public TrigFunction {
 public:
+    TrigCos();
+
     std::string get_name() const override;
 
     std::string get_description() const override;
@@ -48,6 +52,8 @@ public:
 
 class TrigTan : public TrigFunction {
 public:
+    TrigTan();
+
     std::string get_name() const override;
 
     std::string get_description() const override;
@@ -57,6 +63,8 @@ public:
 
 class TrigASin : public TrigFunction {
 public:
+    TrigASin();
+
     std::string get_name() const override;
 
     std::string get_description() const override;
@@ -66,6 +74,8 @@ public:
 
 class TrigACos : public TrigFunction {
 public:
+    TrigACos();
+
     std::string get_name() const override;
 
     std::string get_description() const override;
@@ -75,6 +85,19 @@ public:
 
 class TrigATan : public TrigFunction {
 public:
+    TrigATan();
+
+    std::string get_name() const override;
+
+    std::string get_description() const override;
+
+    std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
+};
+
+class TrigATan2 : public TrigFunction {
+public:
+    TrigATan2();
+
     std::string get_name() const override;
 
     std::string get_description() const override;

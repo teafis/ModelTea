@@ -87,8 +87,6 @@ public:
     std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override {
         switch (ft) {
             using enum tmdl::codegen::BlockFunction;
-        case INIT:
-            return "init";
         case STEP:
             return "step";
         case RESET:
@@ -176,8 +174,7 @@ protected:
         lines.push_back(fmt::format("    {}(const {}&) = delete;", get_name_base(), get_name_base()));
         lines.push_back(fmt::format("    {}& operator=(const {}&) = delete;", get_name_base(), get_name_base()));
 
-        for (const auto fcn :
-             {tmdl::codegen::BlockFunction::INIT, tmdl::codegen::BlockFunction::RESET, tmdl::codegen::BlockFunction::STEP}) {
+        for (const auto fcn : {tmdl::codegen::BlockFunction::RESET, tmdl::codegen::BlockFunction::STEP}) {
             lines.emplace_back("");
             lines.push_back(fmt::format("    void {}()", *get_function_name(fcn)));
             lines.emplace_back("    {");
@@ -233,8 +230,7 @@ protected:
                 }
             }
 
-            if (fcn == tmdl::codegen::BlockFunction::STEP || fcn == tmdl::codegen::BlockFunction::RESET ||
-                fcn == tmdl::codegen::BlockFunction::INIT) {
+            if (fcn == tmdl::codegen::BlockFunction::STEP || fcn == tmdl::codegen::BlockFunction::RESET) {
                 lines.emplace_back("        // Copy Output Values");
                 const auto output_def = get_output_type();
                 for (const auto& [port_num, src] : _model_data.links.output_port_links) {
@@ -303,21 +299,15 @@ public:
     }
 
 protected:
-    void blk_init() override {
+    void blk_reset() override {
         for (const auto& b : blocks) {
-            b->init();
+            b->reset();
         }
     }
 
     void blk_step() override {
         for (const auto& b : blocks) {
             b->step();
-        }
-    }
-
-    void blk_reset() override {
-        for (const auto& b : blocks) {
-            b->reset();
         }
     }
 

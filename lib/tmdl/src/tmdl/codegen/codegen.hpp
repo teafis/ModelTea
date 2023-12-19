@@ -19,8 +19,7 @@ enum class CodeSection {
 };
 
 enum class BlockFunction {
-    INIT = 0,
-    RESET,
+    RESET = 0,
     STEP,
 };
 

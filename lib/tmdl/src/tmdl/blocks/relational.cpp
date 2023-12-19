@@ -59,8 +59,8 @@ protected:
             switch (ft) {
             case tmdl::codegen::BlockFunction::STEP:
                 return "step";
-            case tmdl::codegen::BlockFunction::INIT:
-                return "init";
+            case tmdl::codegen::BlockFunction::RESET:
+                return "reset";
             default:
                 return {};
             }
@@ -89,7 +89,7 @@ protected:
 
         void update_outputs() override { output_value->value = block.s_out.output_value; }
 
-        void blk_init() override { block.init(); }
+        void blk_reset() override { block.reset(); }
 
         void blk_step() override { block.step(); }
 

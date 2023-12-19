@@ -82,8 +82,8 @@ protected:
 
         std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override {
             switch (ft) {
-            case tmdl::codegen::BlockFunction::INIT:
-                return "init";
+            case tmdl::codegen::BlockFunction::RESET:
+                return "reset";
             case tmdl::codegen::BlockFunction::STEP:
                 return "step";
             default:
@@ -117,8 +117,8 @@ protected:
             switch (ft) {
             case tmdl::codegen::BlockFunction::STEP:
                 return "step";
-            case tmdl::codegen::BlockFunction::INIT:
-                return "init";
+            case tmdl::codegen::BlockFunction::RESET:
+                return "reset";
             default:
                 return {};
             }
@@ -157,7 +157,7 @@ protected:
 
         void update_outputs() override { _ptr_output->value = block.s_out.value; }
 
-        void blk_init() override { block.init(); }
+        void blk_reset() override { block.reset(); }
 
         void blk_step() override { block.step(); }
 

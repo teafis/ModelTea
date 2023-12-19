@@ -53,8 +53,8 @@ protected:
         std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override {
             if (ft == tmdl::codegen::BlockFunction::STEP) {
                 return "step";
-            } else if (ft == tmdl::codegen::BlockFunction::INIT) {
-                return "init";
+            } else if (ft == tmdl::codegen::BlockFunction::RESET) {
+                return "reset";
             } else {
                 return {};
             }
@@ -66,27 +66,23 @@ protected:
     class ClockExecutor : public tmdl::BlockExecutionInterface {
     public:
         ClockExecutor(std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>> ptr_output, const tmdl::BlockInterface::ModelInfo& s)
-            : output_value(ptr_output), block(nullptr), state(s) {
+            : output_value(ptr_output), block(s.get_dt()), state(s) {
             if (ptr_output == nullptr) {
                 throw tmdl::ModelException("input pointers cannot be null");
             }
-
-            block = std::make_unique<tmdl::stdlib::clock_block>(state.get_dt());
         }
 
     protected:
-        void blk_init() override { block->init(); }
+        void blk_reset() override { block.reset(); }
 
-        void blk_step() override { block->step(); }
-
-        void blk_reset() override { block->reset(); }
+        void blk_step() override { block.step(); }
 
         void update_inputs() override {}
-        void update_outputs() override { output_value->value = block->s_out.val; }
+        void update_outputs() override { output_value->value = block.s_out.val; }
 
     private:
         std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>> output_value;
-        std::unique_ptr<tmdl::stdlib::clock_block> block;
+        tmdl::stdlib::clock_block block;
         const tmdl::BlockInterface::ModelInfo state;
     };
 };

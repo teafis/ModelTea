@@ -14,7 +14,7 @@ tmdl::ExecutionState::ExecutionState(std::shared_ptr<BlockExecutionInterface> mo
     // Empty Constructor
 }
 
-void tmdl::ExecutionState::init() { model->init(); }
+void tmdl::ExecutionState::init() { model->reset(); }
 
 void tmdl::ExecutionState::step() {
     iterations += 1;

@@ -14,9 +14,6 @@
 
 #include <QMouseEvent>
 
-#include <algorithm>
-#include <iomanip>
-
 #include <tmdl/library_manager.hpp>
 #include <tmdl/model_exception.hpp>
 

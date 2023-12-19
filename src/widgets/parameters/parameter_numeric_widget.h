@@ -7,19 +7,15 @@
 
 #include <tmdl/values/parameter.hpp>
 
-
 namespace Ui {
 class ParameterNumericWidget;
 }
 
-class ParameterNumericWidget : public QWidget
-{
+class ParameterNumericWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit ParameterNumericWidget(
-        std::shared_ptr<tmdl::Parameter> parameter,
-        QWidget *parent = nullptr);
+    explicit ParameterNumericWidget(std::shared_ptr<tmdl::Parameter> parameter, QWidget* parent = nullptr);
 
     ~ParameterNumericWidget();
 
@@ -30,7 +26,7 @@ signals:
     void parameterUpdated();
 
 private:
-    Ui::ParameterNumericWidget *ui;
+    Ui::ParameterNumericWidget* ui;
     std::shared_ptr<tmdl::Parameter> parameter;
 };
 

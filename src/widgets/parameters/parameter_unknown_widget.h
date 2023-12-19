@@ -11,19 +11,16 @@ namespace Ui {
 class ParameterUnknownWidget;
 }
 
-class ParameterUnknownWidget : public QWidget
-{
+class ParameterUnknownWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit ParameterUnknownWidget(
-        std::shared_ptr<tmdl::Parameter> parameter,
-        QWidget *parent = nullptr);
+    explicit ParameterUnknownWidget(std::shared_ptr<tmdl::Parameter> parameter, QWidget* parent = nullptr);
 
     ~ParameterUnknownWidget();
 
 private:
-    Ui::ParameterUnknownWidget *ui;
+    Ui::ParameterUnknownWidget* ui;
 };
 
 #endif // PARAMETER_UNKNOWN_WIDGET_H

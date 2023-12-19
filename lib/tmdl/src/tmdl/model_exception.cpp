@@ -2,31 +2,18 @@
 
 #include "model_exception.hpp"
 
-tmdl::ModelException::ModelException(const std::string& msg) : _msg(msg)
-{
+tmdl::ModelException::ModelException(const std::string& msg) : _msg(msg) {
     // Empty Constructor
 }
 
-tmdl::ModelException::ModelException(const char* msg) : _msg(msg)
-{
+tmdl::ModelException::ModelException(const char* msg) : _msg(msg) {
     // Empty Constructor
 }
 
-const char* tmdl::ModelException::what() const noexcept
-{
-    return _msg.c_str();
-}
+const char* tmdl::ModelException::what() const noexcept { return _msg.c_str(); }
 
-tmdl::ExecutionException::ExecutionException(
-    const std::string& msg,
-    const size_t id) :
-    ModelException(msg),
-    _id(id)
-{
+tmdl::ExecutionException::ExecutionException(const std::string& msg, const size_t id) : ModelException(msg), _id(id) {
     // Empty Constructor
 }
 
-size_t tmdl::ExecutionException::get_id() const
-{
-    return _id;
-}
+size_t tmdl::ExecutionException::get_id() const { return _id; }

@@ -12,12 +12,11 @@ namespace Ui {
 class BlockSelectorDialog;
 }
 
-class BlockSelectorDialog : public QDialog
-{
+class BlockSelectorDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit BlockSelectorDialog(QWidget *parent = nullptr);
+    explicit BlockSelectorDialog(QWidget* parent = nullptr);
     ~BlockSelectorDialog();
 
 protected slots:
@@ -32,7 +31,7 @@ signals:
     void blockSelected(QString l, QString s);
 
 private:
-    Ui::BlockSelectorDialog *ui;
+    Ui::BlockSelectorDialog* ui;
 };
 
 #endif // BLOCK_SELECTOR_DIALOG_H

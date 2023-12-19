@@ -6,20 +6,16 @@
 #include <QGraphicsObject>
 #include <memory>
 
-#include "connector_object.h"
 #include "block_object.h"
+#include "connector_object.h"
 
 #include <tmdl/model.hpp>
 
-class ConnectorBlockObject : public ConnectorObject
-{
+class ConnectorBlockObject : public ConnectorObject {
     Q_OBJECT
 
 public:
-    ConnectorBlockObject(
-        std::shared_ptr<tmdl::Connection> connection,
-        const BlockObject* from_block,
-        const BlockObject* to_block);
+    ConnectorBlockObject(std::shared_ptr<tmdl::Connection> connection, const BlockObject* from_block, const BlockObject* to_block);
 
     bool isValidConnection() const;
 

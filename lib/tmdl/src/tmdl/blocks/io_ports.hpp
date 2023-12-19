@@ -5,11 +5,9 @@
 
 #include "../block_interface.hpp"
 
-namespace tmdl
-{
+namespace tmdl {
 
-class InputPort : public BlockInterface
-{
+class InputPort : public BlockInterface {
 public:
     InputPort();
 
@@ -21,9 +19,7 @@ public:
 
     size_t get_num_outputs() const override;
 
-    void set_input_type(
-        const size_t port,
-        const DataType type) override;
+    void set_input_type(const size_t port, const DataType type) override;
 
     DataType get_output_type(const size_t port) const override;
 
@@ -44,8 +40,7 @@ private:
     std::shared_ptr<Parameter> dataTypeParameter;
 };
 
-class OutputPort : public BlockInterface
-{
+class OutputPort : public BlockInterface {
 public:
     std::string get_name() const override;
 
@@ -55,9 +50,7 @@ public:
 
     size_t get_num_outputs() const override;
 
-    void set_input_type(
-        const size_t port,
-        const DataType type) override;
+    void set_input_type(const size_t port, const DataType type) override;
 
     DataType get_output_type(const size_t port) const override;
 

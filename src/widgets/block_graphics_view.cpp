@@ -4,13 +4,13 @@
 
 #include <QtGlobal>
 
-#include <QPainter>
 #include <QBrush>
+#include <QPainter>
 
 #include <QDebug>
 
-#include <QTextStream>
 #include <QMessageBox>
+#include <QTextStream>
 
 #include <QMouseEvent>
 
@@ -32,13 +32,9 @@
 #include "exceptions/model_exception.h"
 #include "windows/model_window.h"
 
-
 static const int CONNECTOR_Z_ORDER = -1;
 
-BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
-    QGraphicsView(parent),
-    selectedItem(nullptr)
-{
+BlockGraphicsView::BlockGraphicsView(QWidget* parent) : QGraphicsView(parent), selectedItem(nullptr) {
     // Attempt to create a new model
     model_block = std::make_shared<tmdl::ModelBlock>(tmdl::LibraryManager::get_instance().default_model_library()->create_model());
 
@@ -47,17 +43,14 @@ BlockGraphicsView::BlockGraphicsView(QWidget* parent) :
     setAlignment(Qt::AlignTop | Qt::AlignLeft);
 }
 
-void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
-{
-    if (!isEnabled())
-    {
+void BlockGraphicsView::mousePressEvent(QMouseEvent* event) {
+    if (!isEnabled()) {
         mouseState = nullptr;
         return;
     }
 
     // Determine if a block is under the mouse press event
-    if ((event->buttons() & Qt::LeftButton) == Qt::LeftButton)
-    {
+    if ((event->buttons() & Qt::LeftButton) == Qt::LeftButton) {
         const auto mappedPos = mapToScene(event->pos());
 
         BlockObject* const selectedBlock = dynamic_cast<BlockObject*>(selectedItem);
@@ -68,16 +61,13 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
         {
             BlockObject* block = findBlockForMousePress(mappedPos);
 
-            if (block != selectedBlock && selectedBlock != nullptr)
-            {
+            if (block != selectedBlock && selectedBlock != nullptr) {
                 selectedBlock->setSelected(false);
                 update();
             }
 
-            if (block != nullptr)
-            {
-                if (selectedConnector != nullptr)
-                {
+            if (block != nullptr) {
+                if (selectedConnector != nullptr) {
                     selectedConnector->setSelected(false);
                 }
 
@@ -86,8 +76,7 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
 
                 const auto block_port = findBlockIOForMousePress(mappedPos, block);
 
-                if (block_port)
-                {
+                if (block_port) {
                     auto pds = std::make_unique<PortDragState>(*block_port);
 
                     scene()->addItem(pds->get_connector());
@@ -95,34 +84,27 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
                     pds->get_connector()->updateLocations(mappedPos, mappedPos);
 
                     mouseState = std::move(pds);
-                }
-                else if (blockBodyContainsMouse(mappedPos, block))
-                {
+                } else if (blockBodyContainsMouse(mappedPos, block)) {
                     // Update the blocks to bring the clicked block to the foreground
                     scene()->removeItem(block);
                     scene()->addItem(block);
 
                     // Setup the drag state object
-                    mouseState = std::make_unique<BlockDragState>(
-                        block,
-                        block->sceneBoundingRect().center() - mappedPos,
-                        snapMousePositionToGrid(block->pos().toPoint()));
+                    mouseState = std::make_unique<BlockDragState>(block, block->sceneBoundingRect().center() - mappedPos,
+                                                                  snapMousePositionToGrid(block->pos().toPoint()));
                 }
             }
         }
 
         // Check for a selected connector
-        if (selectedItem == nullptr)
-        {
+        if (selectedItem == nullptr) {
             ConnectorBlockObject* foundConnector = findConnectorForMousePress(mappedPos);
 
-            if (foundConnector != selectedConnector && selectedConnector != nullptr)
-            {
+            if (foundConnector != selectedConnector && selectedConnector != nullptr) {
                 selectedConnector->setSelected(false);
             }
 
-            if (foundConnector != nullptr)
-            {
+            if (foundConnector != nullptr) {
                 foundConnector->setSelected(true);
                 selectedItem = foundConnector;
                 scene()->removeItem(foundConnector);
@@ -132,83 +114,62 @@ void BlockGraphicsView::mousePressEvent(QMouseEvent* event)
     }
 }
 
-void BlockGraphicsView::mouseMoveEvent(QMouseEvent* event)
-{
-    if (!isEnabled())
-    {
+void BlockGraphicsView::mouseMoveEvent(QMouseEvent* event) {
+    if (!isEnabled()) {
         mouseState = nullptr;
         return;
     }
 
     const auto scenePos = mapToScene(event->pos());
 
-    if (auto* blockState = dynamic_cast<BlockDragState*>(mouseState.get()))
-    {
+    if (auto* blockState = dynamic_cast<BlockDragState*>(mouseState.get())) {
         const QPointF newBlockPos = scenePos - blockState->getBlock()->boundingRect().center() + blockState->getOffset();
         const QPoint newBlockPosInt = snapMousePositionToGrid(newBlockPos.toPoint());
 
-        if (newBlockPosInt != blockState->getCurrent())
-        {
+        if (newBlockPosInt != blockState->getCurrent()) {
             blockState->getBlock()->setPos(newBlockPosInt);
             blockState->setCurrent(newBlockPosInt);
             emit modelChanged();
         }
-    }
-    else if (auto* connState = dynamic_cast<PortDragState*>(mouseState.get()))
-    {
+    } else if (auto* connState = dynamic_cast<PortDragState*>(mouseState.get())) {
         connState->updateMouseLocation(scenePos);
     }
 }
 
-void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
-{
-    if (!isEnabled())
-    {
+void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event) {
+    if (!isEnabled()) {
         mouseState = nullptr;
         return;
     }
 
-    if (auto* portDragState = dynamic_cast<PortDragState*>(mouseState.get()))
-    {
+    if (auto* portDragState = dynamic_cast<PortDragState*>(mouseState.get())) {
         const auto mappedPos = mapToScene(event->pos());
         BlockObject* block = findBlockForMousePress(mappedPos);
         const auto block_port = findBlockIOForMousePress(mappedPos, block);
 
-        if (block_port)
-        {
+        if (block_port) {
             portDragState->add_port(block_port.value());
         }
 
-        if (portDragState->is_complete())
-        {
+        if (portDragState->is_complete()) {
             const auto conn = std::make_shared<tmdl::Connection>(
-                portDragState->get_output().block->get_block()->get_id(),
-                portDragState->get_output().port_count,
-                portDragState->get_input().block->get_block()->get_id(),
-                portDragState->get_input().port_count);
+                portDragState->get_output().block->get_block()->get_id(), portDragState->get_output().port_count,
+                portDragState->get_input().block->get_block()->get_id(), portDragState->get_input().port_count);
 
-            try
-            {
+            try {
                 get_model()->add_connection(conn);
-            }
-            catch (const tmdl::ModelException& ex)
-            {
+            } catch (const tmdl::ModelException& ex) {
                 QMessageBox::warning(this, "error", ex.what());
                 mouseState = nullptr;
                 return;
             }
 
-            addConnectionItem(
-                conn,
-                portDragState->get_output().block,
-                portDragState->get_input().block);
+            addConnectionItem(conn, portDragState->get_output().block, portDragState->get_input().block);
 
             const auto& items = scene()->items();
-            for (auto* i : std::as_const(items))
-            {
+            for (auto* i : std::as_const(items)) {
                 auto* blk = dynamic_cast<BlockObject*>(i);
-                if (blk != nullptr)
-                {
+                if (blk != nullptr) {
                     blk->update();
                 }
             }
@@ -220,40 +181,31 @@ void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event)
     mouseState = nullptr;
 }
 
-void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
-{
-    if (!isEnabled())
-    {
+void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event) {
+    if (!isEnabled()) {
         mouseState = nullptr;
         return;
     }
 
-    if ((event->buttons() & Qt::LeftButton) == Qt::LeftButton)
-    {
+    if ((event->buttons() & Qt::LeftButton) == Qt::LeftButton) {
         const auto mappedPos = mapToScene(event->pos());
         ;
 
-        if (BlockObject* block = findBlockForMousePress(mappedPos); block != nullptr)
-        {
-            if (const auto mdl_block = std::dynamic_pointer_cast<const tmdl::ModelBlock>(block->get_block()))
-            {
-                if (const auto wnd = WindowManager::instance().window_for_model(mdl_block->get_model().get()))
-                {
+        if (BlockObject* block = findBlockForMousePress(mappedPos); block != nullptr) {
+            if (const auto mdl_block = std::dynamic_pointer_cast<const tmdl::ModelBlock>(block->get_block())) {
+                if (const auto wnd = WindowManager::instance().window_for_model(mdl_block->get_model().get())) {
                     const_cast<ModelWindow*>(wnd)->show();
                     const_cast<ModelWindow*>(wnd)->raise();
                     const_cast<ModelWindow*>(wnd)->activateWindow();
-                }
-                else
-                {
+                } else {
                     auto new_window = new ModelWindow();
-                    auto load_mdl = tmdl::LibraryManager::get_instance().default_model_library()->get_model(mdl_block->get_model()->get_name());
+                    auto load_mdl =
+                        tmdl::LibraryManager::get_instance().default_model_library()->get_model(mdl_block->get_model()->get_name());
                     new_window->openModel(load_mdl);
 
                     new_window->show();
                 }
-            }
-            else
-            {
+            } else {
                 BlockParameterDialog* dialog = new BlockParameterDialog(block, this);
 
                 dialog->exec();
@@ -261,16 +213,13 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
 
                 const auto sceneItems = scene()->items();
 
-                for (auto* ptr : std::as_const(sceneItems))
-                {
+                for (auto* ptr : std::as_const(sceneItems)) {
                     const auto c = dynamic_cast<ConnectorBlockObject*>(ptr);
-                    if (c == nullptr) continue;
+                    if (c == nullptr)
+                        continue;
 
-                    if (!c->isValidConnection())
-                    {
-                        get_model()->remove_connection(
-                            c->get_to_block()->get_block()->get_id(),
-                            c->get_to_port());
+                    if (!c->isValidConnection()) {
+                        get_model()->remove_connection(c->get_to_block()->get_block()->get_id(), c->get_to_port());
                         c->deleteLater();
                     }
                 }
@@ -279,12 +228,9 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
 
                 updateModel();
             }
-        }
-        else if (ConnectorBlockObject* conn = findConnectorForMousePress(mappedPos); conn != nullptr)
-        {
+        } else if (ConnectorBlockObject* conn = findConnectorForMousePress(mappedPos); conn != nullptr) {
             auto dialog = new ConnectionParametersDialog(conn, this);
-            if (dialog->exec())
-            {
+            if (dialog->exec()) {
                 conn->update();
                 emit modelChanged();
             }
@@ -292,73 +238,48 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event)
     }
 }
 
-void BlockGraphicsView::keyPressEvent(QKeyEvent* event)
-{
-    if (event->modifiers() == Qt::ControlModifier)
-    {
-        if (event->key() == Qt::Key_I)
-        {
-            if (auto blk = dynamic_cast<BlockObject*>(selectedItem))
-            {
+void BlockGraphicsView::keyPressEvent(QKeyEvent* event) {
+    if (event->modifiers() == Qt::ControlModifier) {
+        if (event->key() == Qt::Key_I) {
+            if (auto blk = dynamic_cast<BlockObject*>(selectedItem)) {
                 blk->setInverted(!blk->getInverted());
                 emit modelChanged();
             }
-        }
-        else
-        {
+        } else {
             event->ignore();
         }
-    }
-    else
-    {
+    } else {
         event->ignore();
     }
 }
 
-void BlockGraphicsView::changeEvent(QEvent* event)
-{
-    if (event->type() == QEvent::EnabledChange)
-    {
-        if (selectedItem != nullptr)
-        {
+void BlockGraphicsView::changeEvent(QEvent* event) {
+    if (event->type() == QEvent::EnabledChange) {
+        if (selectedItem != nullptr) {
             selectedItem->setSelected(false);
             selectedItem = nullptr;
             mouseState = nullptr;
         }
 
-        if (isEnabled())
-        {
+        if (isEnabled()) {
             scene()->setForegroundBrush(Qt::transparent);
-        }
-        else
-        {
+        } else {
             scene()->setForegroundBrush(QColor(100, 100, 100, 100));
         }
     }
 }
 
-QPoint BlockGraphicsView::snapMousePositionToGrid(const QPoint& input)
-{
-    return input - QPoint(
-        input.x() % 10,
-        input.y() % 10);
-}
+QPoint BlockGraphicsView::snapMousePositionToGrid(const QPoint& input) { return input - QPoint(input.x() % 10, input.y() % 10); }
 
-void BlockGraphicsView::removeSelectedBlock()
-{
-    if (!isEnabled())
-    {
+void BlockGraphicsView::removeSelectedBlock() {
+    if (!isEnabled()) {
         return;
     }
 
-    if (selectedItem != nullptr)
-    {
-        if (auto* selectedBlock = dynamic_cast<BlockObject*>(selectedItem))
-        {
+    if (selectedItem != nullptr) {
+        if (auto* selectedBlock = dynamic_cast<BlockObject*>(selectedItem)) {
             get_model()->remove_block(selectedBlock->get_block()->get_id());
-        }
-        else if (auto* selectedConnector = dynamic_cast<ConnectorBlockObject*>(selectedItem))
-        {
+        } else if (auto* selectedConnector = dynamic_cast<ConnectorBlockObject*>(selectedItem)) {
             get_model()->remove_connection(selectedConnector->get_to_block()->get_block()->get_id(), selectedConnector->get_to_port());
         }
 
@@ -371,24 +292,19 @@ void BlockGraphicsView::removeSelectedBlock()
     }
 }
 
-void BlockGraphicsView::updateModel()
-{
-    if (!isEnabled() || !model_block)
-    {
+void BlockGraphicsView::updateModel() {
+    if (!isEnabled() || !model_block) {
         return;
     }
 
-    if (model_block->update_block())
-    {
+    if (model_block->update_block()) {
         emit modelChanged();
     }
 
     const auto sceneItems = scene()->items();
-    for (auto* item : std::as_const(sceneItems))
-    {
+    for (auto* item : std::as_const(sceneItems)) {
         auto* block = dynamic_cast<BlockObject*>(item);
-        if (block != nullptr)
-        {
+        if (block != nullptr) {
             block->update();
         }
     }
@@ -399,14 +315,11 @@ void BlockGraphicsView::updateModel()
     emit modelUpdated();
 }
 
-BlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
-{
+BlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos) {
     const auto sceneItems = scene()->items();
-    for (auto* itm : std::as_const(sceneItems))
-    {
+    for (auto* itm : std::as_const(sceneItems)) {
         BlockObject* blk = dynamic_cast<BlockObject*>(itm);
-        if (blk != nullptr && blk->sceneBoundingRect().contains(pos))
-        {
+        if (blk != nullptr && blk->sceneBoundingRect().contains(pos)) {
             return blk;
         }
     }
@@ -414,14 +327,11 @@ BlockObject* BlockGraphicsView::findBlockForMousePress(const QPointF& pos)
     return nullptr;
 }
 
-ConnectorBlockObject* BlockGraphicsView::findConnectorForMousePress(const QPointF& pos)
-{
+ConnectorBlockObject* BlockGraphicsView::findConnectorForMousePress(const QPointF& pos) {
     const auto sceneItems = scene()->items();
-    for (auto* itm : std::as_const(sceneItems))
-    {
+    for (auto* itm : std::as_const(sceneItems)) {
         ConnectorBlockObject* conn = dynamic_cast<ConnectorBlockObject*>(itm);
-        if (conn != nullptr && conn->positionOnLine(conn->mapFromScene(pos)))
-        {
+        if (conn != nullptr && conn->positionOnLine(conn->mapFromScene(pos))) {
             return conn;
         }
     }
@@ -429,84 +339,49 @@ ConnectorBlockObject* BlockGraphicsView::findConnectorForMousePress(const QPoint
     return nullptr;
 }
 
-std::optional<BlockObject::PortInformation> BlockGraphicsView::findBlockIOForMousePress(
-    const QPointF& pos,
-    const BlockObject* block)
-{
-    if (block == nullptr)
-    {
+std::optional<BlockObject::PortInformation> BlockGraphicsView::findBlockIOForMousePress(const QPointF& pos, const BlockObject* block) {
+    if (block == nullptr) {
         return std::nullopt;
     }
 
     return block->getPortForPosition(pos);
 }
 
-bool BlockGraphicsView::blockBodyContainsMouse(
-    const QPointF& pos,
-    const BlockObject* block)
-{
-    if (block == nullptr) return false;
+bool BlockGraphicsView::blockBodyContainsMouse(const QPointF& pos, const BlockObject* block) {
+    if (block == nullptr)
+        return false;
     return block->blockRectContainsPoint(pos);
 }
 
-void BlockGraphicsView::addConnectionItem(
-    const std::shared_ptr<tmdl::Connection> connection,
-    const BlockObject* from_block,
-    const BlockObject* to_block)
-{
+void BlockGraphicsView::addConnectionItem(const std::shared_ptr<tmdl::Connection> connection, const BlockObject* from_block,
+                                          const BlockObject* to_block) {
     // Construct the connector object
-    ConnectorBlockObject* conn_obj = new ConnectorBlockObject(
-        connection,
-        from_block,
-        to_block);
+    ConnectorBlockObject* conn_obj = new ConnectorBlockObject(connection, from_block, to_block);
     conn_obj->blockLocationUpdated();
 
     // Connect up location and destroyed items
-    connect(
-        from_block,
-        &BlockObject::sceneLocationUpdated,
-        conn_obj,
-        &ConnectorBlockObject::blockLocationUpdated);
-    connect(
-        to_block,
-        &BlockObject::sceneLocationUpdated,
-        conn_obj,
-        &ConnectorBlockObject::blockLocationUpdated);
+    connect(from_block, &BlockObject::sceneLocationUpdated, conn_obj, &ConnectorBlockObject::blockLocationUpdated);
+    connect(to_block, &BlockObject::sceneLocationUpdated, conn_obj, &ConnectorBlockObject::blockLocationUpdated);
 
-    connect(
-        from_block,
-        &BlockObject::destroyed,
-        conn_obj,
-        &ConnectorBlockObject::deleteLater);
-    connect(
-        to_block,
-        &BlockObject::destroyed,
-        conn_obj,
-        &ConnectorBlockObject::deleteLater);
+    connect(from_block, &BlockObject::destroyed, conn_obj, &ConnectorBlockObject::deleteLater);
+    connect(to_block, &BlockObject::destroyed, conn_obj, &ConnectorBlockObject::deleteLater);
 
     scene()->addItem(conn_obj);
     conn_obj->setZValue(static_cast<double>(CONNECTOR_Z_ORDER));
 }
 
-std::shared_ptr<tmdl::Model> BlockGraphicsView::get_model() const
-{
-    if (!model_block)
-    {
+std::shared_ptr<tmdl::Model> BlockGraphicsView::get_model() const {
+    if (!model_block) {
         return nullptr;
     }
 
     return model_block->get_model();
 }
 
-std::shared_ptr<tmdl::ModelBlock> BlockGraphicsView::get_block() const
-{
-    return model_block;
-}
+std::shared_ptr<tmdl::ModelBlock> BlockGraphicsView::get_block() const { return model_block; }
 
-void BlockGraphicsView::set_model(std::shared_ptr<tmdl::Model> mdl)
-{
-    if (!isEnabled())
-    {
+void BlockGraphicsView::set_model(std::shared_ptr<tmdl::Model> mdl) {
+    if (!isEnabled()) {
         throw ModelException("cannot change model while disabled");
     }
 
@@ -518,8 +393,7 @@ void BlockGraphicsView::set_model(std::shared_ptr<tmdl::Model> mdl)
     selectedItem = nullptr;
     model_block = nullptr;
 
-    if (!mdl)
-    {
+    if (!mdl) {
         return;
     }
 
@@ -528,8 +402,7 @@ void BlockGraphicsView::set_model(std::shared_ptr<tmdl::Model> mdl)
     model_block->set_id(0);
 
     // Add new block objects
-    for (const auto& blk : get_model()->get_blocks())
-    {
+    for (const auto& blk : get_model()->get_blocks()) {
         // Create the block object
         BlockObject* block_obj = new BlockObject(blk);
 
@@ -540,32 +413,32 @@ void BlockGraphicsView::set_model(std::shared_ptr<tmdl::Model> mdl)
     // Add new connection objects
     const auto& cm = get_model()->get_connection_manager();
 
-    for (const auto& conn : cm.get_connections())
-    {
+    for (const auto& conn : cm.get_connections()) {
         // Get the from/to block objects
         BlockObject* from_block = nullptr;
         BlockObject* to_block = nullptr;
 
         const auto& items = scene()->items();
-        for (auto it = items.begin(); it != items.end() && (from_block == nullptr || to_block == nullptr); ++it)
-        {
+        for (auto it = items.begin(); it != items.end() && (from_block == nullptr || to_block == nullptr); ++it) {
             BlockObject* tmp = dynamic_cast<BlockObject*>(*it);
-            if (tmp == nullptr) continue;
+            if (tmp == nullptr)
+                continue;
 
-            if (tmp->get_block()->get_id() == conn->get_from_id())
-            {
-                if (from_block != nullptr) throw ModelException("from block connection is not null");
+            if (tmp->get_block()->get_id() == conn->get_from_id()) {
+                if (from_block != nullptr)
+                    throw ModelException("from block connection is not null");
                 from_block = tmp;
             }
 
-            if (tmp->get_block()->get_id() == conn->get_to_id())
-            {
-                if (to_block != nullptr) throw ModelException("to block connection is not null");
+            if (tmp->get_block()->get_id() == conn->get_to_id()) {
+                if (to_block != nullptr)
+                    throw ModelException("to block connection is not null");
                 to_block = tmp;
             }
         }
 
-        if (from_block == nullptr || to_block == nullptr) throw ModelException("to or from block connection is null after setting");
+        if (from_block == nullptr || to_block == nullptr)
+            throw ModelException("to or from block connection is null after setting");
 
         // Construct the connector object
         addConnectionItem(cm.get_connection_to(conn->get_to_id(), conn->get_to_port()), from_block, to_block);
@@ -575,20 +448,15 @@ void BlockGraphicsView::set_model(std::shared_ptr<tmdl::Model> mdl)
     updateModel();
 }
 
-void BlockGraphicsView::addBlock(std::shared_ptr<tmdl::BlockInterface> blk)
-{
-    if (!isEnabled())
-    {
+void BlockGraphicsView::addBlock(std::shared_ptr<tmdl::BlockInterface> blk) {
+    if (!isEnabled()) {
         return;
     }
 
     // Add the block to the model
-    try
-    {
+    try {
         get_model()->add_block(blk);
-    }
-    catch (const tmdl::ModelException& ex)
-    {
+    } catch (const tmdl::ModelException& ex) {
         QMessageBox::warning(this, "error", ex.what());
         return;
     }

@@ -10,12 +10,9 @@
 
 #include <nlohmann/json.hpp>
 
+namespace tmdl {
 
-namespace tmdl
-{
-
-class ConnectionManager
-{
+class ConnectionManager {
 public:
     void add_connection(const std::shared_ptr<Connection> c);
 

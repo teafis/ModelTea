@@ -12,26 +12,21 @@
 
 #include <tmdl/block_interface.hpp>
 
-
-class BlockObject : public QGraphicsObject
-{
+class BlockObject : public QGraphicsObject {
     Q_OBJECT
 
 public:
-    enum class PortType
-    {
+    enum class PortType {
         OUTPUT = 0,
         INPUT,
     };
 
-    enum class PortSide
-    {
+    enum class PortSide {
         LEFT = 0,
         RIGHT,
     };
 
-    struct PortInformation
-    {
+    struct PortInformation {
         const BlockObject* block;
         PortType type;
         size_t port_count;
@@ -40,10 +35,7 @@ public:
 public:
     BlockObject(const std::shared_ptr<tmdl::BlockInterface> block);
 
-    virtual void paint(
-        QPainter* painter,
-        const QStyleOptionGraphicsItem* option,
-        QWidget* widget = nullptr);
+    virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr);
 
     virtual QRectF boundingRect() const;
 
@@ -77,19 +69,14 @@ protected slots:
     void locUpdated();
 
 protected:
-    struct PortLocation
-    {
+    struct PortLocation {
         QPointF location;
         PortSide side;
     };
 
-    PortLocation getIOPortLocation(
-        const int number,
-        const PortType type) const;
+    PortLocation getIOPortLocation(const int number, const PortType type) const;
 
-    void drawIOPorts(
-        QPainter* painter,
-        const PortType type);
+    void drawIOPorts(QPainter* painter, const PortType type);
 
     QRectF blockRect() const;
 

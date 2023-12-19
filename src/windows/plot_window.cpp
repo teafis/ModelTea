@@ -7,14 +7,8 @@
 
 #include <tmdl/values/value.hpp>
 
-
-PlotWindow::PlotWindow(
-    std::shared_ptr<tmdl::ExecutionState> execution,
-    QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::PlotWindow),
-    execution_state(execution)
-{
+PlotWindow::PlotWindow(std::shared_ptr<tmdl::ExecutionState> execution, QWidget* parent)
+    : QMainWindow(parent), ui(new Ui::PlotWindow), execution_state(execution) {
     ui->setupUi(this);
 
     setAttribute(Qt::WA_DeleteOnClose, true);
@@ -29,8 +23,7 @@ PlotWindow::PlotWindow(
 
     list_model = new PlotVariableSelectionModel(this);
 
-    for (const auto& n : names)
-    {
+    for (const auto& n : names) {
         const auto name = QString(n.c_str());
         auto* s = new QLineSeries();
         s->setName(name);
@@ -38,12 +31,7 @@ PlotWindow::PlotWindow(
         series.push_back(s);
         chart->addSeries(s);
 
-        list_model->addItem(ItemSelector
-        {
-            .var = execution_state->get_variable_for_name(n),
-            .name = name,
-            .series = s
-        });
+        list_model->addItem(ItemSelector{.var = execution_state->get_variable_for_name(n), .name = name, .series = s});
     }
 
     chart->createDefaultAxes();
@@ -52,78 +40,50 @@ PlotWindow::PlotWindow(
 
     ui->outputSelectionView->selectionModel();
 
-    connect(
-        ui->outputSelectionView->selectionModel(),
-        &QItemSelectionModel::selectionChanged,
-        this,
-        &PlotWindow::seriesListChanged);
+    connect(ui->outputSelectionView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &PlotWindow::seriesListChanged);
 
     ui->outputSelectionView->selectAll();
 }
 
-PlotWindow::~PlotWindow()
-{
-    delete ui;
-}
+PlotWindow::~PlotWindow() { delete ui; }
 
-void PlotWindow::keyPressEvent(QKeyEvent* event)
-{
-    QMainWindow::keyPressEvent(event);
-}
+void PlotWindow::keyPressEvent(QKeyEvent* event) { QMainWindow::keyPressEvent(event); }
 
-void PlotWindow::seriesListChanged()
-{
+void PlotWindow::seriesListChanged() {
     const auto& items = list_model->items();
-    for (const auto& it : items)
-    {
+    for (const auto& it : items) {
         it.series->setVisible(false);
     }
 
     const auto& indexes = ui->outputSelectionView->selectionModel()->selectedIndexes();
 
-    for (int i = 0; i < indexes.size(); ++i)
-    {
+    for (int i = 0; i < indexes.size(); ++i) {
         const auto it = qvariant_cast<ItemSelector>(list_model->data(indexes[i], Qt::UserRole));
         it.series->setVisible(true);
     }
 }
 
-static std::optional<double> double_from_variable(std::shared_ptr<const tmdl::ModelValue> ptr)
-{
-    if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::DOUBLE>>(ptr))
-    {
+static std::optional<double> double_from_variable(std::shared_ptr<const tmdl::ModelValue> ptr) {
+    if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::DOUBLE>>(ptr)) {
         return v->value;
-    }
-    else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::SINGLE>>(ptr))
-    {
+    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::SINGLE>>(ptr)) {
         return static_cast<double>(v->value);
-    }
-    else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::INT32>>(ptr))
-    {
+    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::INT32>>(ptr)) {
         return static_cast<double>(v->value);
-    }
-    else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::UINT32>>(ptr))
-    {
+    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::UINT32>>(ptr)) {
         return static_cast<double>(v->value);
-    }
-    else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>>(ptr))
-    {
+    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>>(ptr)) {
         return (v->value) ? 1.0 : 0.0;
-    }
-    else
-    {
+    } else {
         return std::nullopt;
     }
 }
 
-void PlotWindow::executorEvent(SimEvent event)
-{
-    if (event.event() == SimEvent::EventType::Step)
-    {
+void PlotWindow::executorEvent(SimEvent event) {
+    if (event.event() == SimEvent::EventType::Step) {
         const auto& names = execution_state->get_variable_names();
 
-        for (size_t i = 0; i < names.size(); ++i)
-        {
+        for (size_t i = 0; i < names.size(); ++i) {
             const auto& n = names[i];
             auto var = execution_state->get_variable_for_name(n);
 
@@ -139,11 +99,8 @@ void PlotWindow::executorEvent(SimEvent event)
 
             ui->chartView->chart()->axes(Qt::Vertical)[0]->setRange(y_min, y_max);
         }
-    }
-    else if (event.event() == SimEvent::EventType::Reset)
-    {
-        for (int i = 0; i < series.size(); ++i)
-        {
+    } else if (event.event() == SimEvent::EventType::Reset) {
+        for (int i = 0; i < series.size(); ++i) {
             series[i]->clear();
         }
 

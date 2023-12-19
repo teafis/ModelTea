@@ -3,22 +3,20 @@
 #ifndef TF_MODEL_HPP
 #define TF_MODEL_HPP
 
+#include <filesystem>
 #include <memory>
 #include <string>
-#include <vector>
-#include <filesystem>
 #include <unordered_map>
+#include <vector>
 
 #include "block_interface.hpp"
 #include "connection_manager.hpp"
 
 #include <nlohmann/json.hpp>
 
-namespace tmdl
-{
+namespace tmdl {
 
-class ModelExecutionInterface : public BlockExecutionInterface
-{
+class ModelExecutionInterface : public BlockExecutionInterface {
 public:
     virtual std::shared_ptr<const VariableManager> get_variable_manager() const = 0;
 };
@@ -28,8 +26,7 @@ class Model;
 void to_json(nlohmann::json& j, const Model& m);
 void from_json(const nlohmann::json& j, Model& m);
 
-class Model
-{
+class Model {
 public:
     friend class ModelBlock;
 
@@ -77,11 +74,9 @@ protected:
     CompiledModelData compile_model() const;
 
 public:
-    std::shared_ptr<ModelExecutionInterface> get_execution_interface(
-        const size_t block_id,
-        const ConnectionManager& connections,
-        const VariableManager& manager,
-            const BlockInterface::ModelInfo& state) const;
+    std::shared_ptr<ModelExecutionInterface> get_execution_interface(const size_t block_id, const ConnectionManager& connections,
+                                                                     const VariableManager& manager,
+                                                                     const BlockInterface::ModelInfo& state) const;
 
     std::unique_ptr<codegen::CodeComponent> get_codegen_component(const BlockInterface::ModelInfo& state) const;
 
@@ -113,12 +108,12 @@ public:
 
 private:
     std::optional<Identifier> name;
-    std::string description{ "user-defined model block" };
+    std::string description{"user-defined model block"};
     std::unordered_map<size_t, std::shared_ptr<BlockInterface>> blocks;
     ConnectionManager connections;
     std::vector<size_t> input_ids;
     std::vector<size_t> output_ids;
-    double preferred_dt{ 0.1 };
+    double preferred_dt{0.1};
     std::optional<std::filesystem::path> filename;
 
 public:

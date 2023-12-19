@@ -9,8 +9,7 @@
 
 #include <memory>
 
-template <tmdl::DataType DT>
-class CompiledDelay : public tmdl::CompiledBlockInterface {
+template <tmdl::DataType DT> class CompiledDelay : public tmdl::CompiledBlockInterface {
     static_assert(tmdl::data_type_t<DT>::is_modelable);
 
 public:
@@ -18,62 +17,43 @@ public:
         // Empty Constructor
     }
 
-    std::shared_ptr<tmdl::BlockExecutionInterface> get_execution_interface(
-        const tmdl::ConnectionManager& connections,
-        const tmdl::VariableManager& manager) const override {
-        auto input_value =
-            manager.get_ptr(*connections.get_connection_to(_id, 0));
+    std::shared_ptr<tmdl::BlockExecutionInterface> get_execution_interface(const tmdl::ConnectionManager& connections,
+                                                                           const tmdl::VariableManager& manager) const override {
+        auto input_value = manager.get_ptr(*connections.get_connection_to(_id, 0));
 
-        auto input_value_reset_flag = std::dynamic_pointer_cast<
-            const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>>(
+        auto input_value_reset_flag = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>>(
             manager.get_ptr(*connections.get_connection_to(_id, 1)));
-        auto input_value_reset_value =
-            manager.get_ptr(*connections.get_connection_to(_id, 2));
+        auto input_value_reset_value = manager.get_ptr(*connections.get_connection_to(_id, 2));
 
-        auto output_value = manager.get_ptr(
-            tmdl::VariableIdentifier{.block_id = _id, .output_port_num = 0});
+        auto output_value = manager.get_ptr(tmdl::VariableIdentifier{.block_id = _id, .output_port_num = 0});
 
-        return std::make_shared<DelayExecutor>(input_value, output_value,
-                                               input_value_reset_flag,
-                                               input_value_reset_value);
+        return std::make_shared<DelayExecutor>(input_value, output_value, input_value_reset_flag, input_value_reset_value);
     }
 
-    std::unique_ptr<tmdl::codegen::CodeComponent>
-    get_codegen_self() const override {
-        return std::make_unique<DelayComponent>();
-    }
+    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_self() const override { return std::make_unique<DelayComponent>(); }
 
 private:
     const size_t _id;
 
 protected:
     struct DelayComponent : public tmdl::codegen::CodeComponent {
-        std::optional<const tmdl::codegen::InterfaceDefinition>
-        get_input_type() const override {
-            return tmdl::codegen::InterfaceDefinition(
-                "s_out", {"input_value", "reset_flag", "reset_value"});
+        std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override {
+            return tmdl::codegen::InterfaceDefinition("s_out", {"input_value", "reset_flag", "reset_value"});
         }
 
-        std::optional<const tmdl::codegen::InterfaceDefinition>
-        get_output_type() const override {
-            return tmdl::codegen::InterfaceDefinition("s_out",
-                                                      {"output_value"});
+        std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override {
+            return tmdl::codegen::InterfaceDefinition("s_out", {"output_value"});
         }
 
-        std::string get_module_name() const override {
-            return "tmdlstd/tmdlstd.hpp";
-        }
+        std::string get_module_name() const override { return "tmdlstd/tmdlstd.hpp"; }
 
         std::string get_name_base() const override { return "delay_block"; }
 
         std::string get_type_name() const override {
-            return fmt::format("tmdl::stdlib::delay_block<{}>",
-                               tmdl::codegen::get_datatype_name(
-                                   tmdl::codegen::Language::CPP, DT));
+            return fmt::format("tmdl::stdlib::delay_block<{}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT));
         }
 
-        std::optional<std::string>
-        get_function_name(tmdl::codegen::BlockFunction ft) const override {
+        std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override {
             switch (ft) {
                 using enum tmdl::codegen::BlockFunction;
             case INIT:
@@ -92,61 +72,38 @@ protected:
     public:
         using type_t = typename tmdl::data_type_t<DT>::type;
 
-        explicit DelayExecutor(
-            const std::shared_ptr<const tmdl::ModelValue> input,
-            const std::shared_ptr<tmdl::ModelValue> output,
-            const std::shared_ptr<
-                const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>>
-                reset_flag,
-            const std::shared_ptr<const tmdl::ModelValue> reset_value)
-            : _input(std::dynamic_pointer_cast<const tmdl::ModelValueBox<DT>>(
-                  input)),
-              _output(
-                  std::dynamic_pointer_cast<tmdl::ModelValueBox<DT>>(output)),
-              _reset_flag(reset_flag),
-              _reset_value(
-                  std::dynamic_pointer_cast<const tmdl::ModelValueBox<DT>>(
-                      reset_value)) {
-            if (_input == nullptr || _output == nullptr ||
-                _reset_flag == nullptr || _reset_value == nullptr) {
+        explicit DelayExecutor(const std::shared_ptr<const tmdl::ModelValue> input, const std::shared_ptr<tmdl::ModelValue> output,
+                               const std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> reset_flag,
+                               const std::shared_ptr<const tmdl::ModelValue> reset_value)
+            : _input(std::dynamic_pointer_cast<const tmdl::ModelValueBox<DT>>(input)),
+              _output(std::dynamic_pointer_cast<tmdl::ModelValueBox<DT>>(output)), _reset_flag(reset_flag),
+              _reset_value(std::dynamic_pointer_cast<const tmdl::ModelValueBox<DT>>(reset_value)) {
+            if (_input == nullptr || _output == nullptr || _reset_flag == nullptr || _reset_value == nullptr) {
                 throw tmdl::ModelException("input values must be non-null");
             }
         }
 
-        void init() override {
-            update_inputs();
-            block.init();
-            update_outputs();
-        }
-
-        void step() override {
-            update_inputs();
-            block.step();
-            update_outputs();
-        }
-
-        void reset() override {
-            update_inputs();
-            block.reset();
-            update_outputs();
-        }
-
     protected:
-        void update_inputs() {
+        void update_inputs() override {
             block.s_in.value = _input->value;
             block.s_in.reset = _reset_value->value;
             block.s_in.reset_flag = _reset_flag->value;
         }
 
-        void update_outputs() { _output->value = block.s_out.value; }
+        void update_outputs() override { _output->value = block.s_out.value; }
+
+        void blk_init() override { block.init(); }
+
+        void blk_step() override { block.step(); }
+
+        void blk_reset() override { block.reset(); }
 
     private:
         tmdl::stdlib::delay_block<type_t> block;
 
         std::shared_ptr<const tmdl::ModelValueBox<DT>> _input;
         std::shared_ptr<tmdl::ModelValueBox<DT>> _output;
-        std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>>
-            _reset_flag;
+        std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> _reset_flag;
         std::shared_ptr<const tmdl::ModelValueBox<DT>> _reset_value;
     };
 };
@@ -161,9 +118,7 @@ tmdl::blocks::Delay::Delay() {
 
 std::string tmdl::blocks::Delay::get_name() const { return "delay"; }
 
-std::string tmdl::blocks::Delay::get_description() const {
-    return "delays the provided input value by one cycle";
-}
+std::string tmdl::blocks::Delay::get_description() const { return "delays the provided input value by one cycle"; }
 
 size_t tmdl::blocks::Delay::get_num_inputs() const { return 3; }
 
@@ -190,8 +145,7 @@ std::unique_ptr<const tmdl::BlockError> tmdl::blocks::Delay::has_error() const {
     return nullptr;
 }
 
-void tmdl::blocks::Delay::set_input_type(const size_t port,
-                                         const DataType type) {
+void tmdl::blocks::Delay::set_input_type(const size_t port, const DataType type) {
     switch (port) {
     case 0:
         input_type = type;
@@ -215,8 +169,7 @@ tmdl::DataType tmdl::blocks::Delay::get_output_type(const size_t port) const {
     }
 }
 
-std::unique_ptr<tmdl::CompiledBlockInterface>
-tmdl::blocks::Delay::get_compiled(const ModelInfo&) const {
+std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Delay::get_compiled(const ModelInfo&) const {
     if (has_error() != nullptr) {
         throw ModelException("cannot build component with error");
     }

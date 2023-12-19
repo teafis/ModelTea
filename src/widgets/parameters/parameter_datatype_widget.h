@@ -13,14 +13,11 @@ namespace Ui {
 class ParameterDataTypeWidget;
 }
 
-class ParameterDataTypeWidget : public QWidget
-{
+class ParameterDataTypeWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit ParameterDataTypeWidget(
-        std::shared_ptr<tmdl::Parameter> parameter,
-        QWidget *parent = nullptr);
+    explicit ParameterDataTypeWidget(std::shared_ptr<tmdl::Parameter> parameter, QWidget* parent = nullptr);
     ~ParameterDataTypeWidget();
 
 protected slots:
@@ -33,7 +30,7 @@ private:
     tmdl::DataType& get_value_data_type();
 
 private:
-    Ui::ParameterDataTypeWidget *ui;
+    Ui::ParameterDataTypeWidget* ui;
     std::shared_ptr<tmdl::Parameter> parameter;
 
     std::unordered_map<std::string, tmdl::DataType> map_values;

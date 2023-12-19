@@ -7,19 +7,15 @@
 
 #include <tmdl/values/parameter.hpp>
 
-
 namespace Ui {
 class ParameterBooleanWidget;
 }
 
-class ParameterBooleanWidget : public QWidget
-{
+class ParameterBooleanWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit ParameterBooleanWidget(
-        std::shared_ptr<tmdl::Parameter> parameter,
-        QWidget *parent = nullptr);
+    explicit ParameterBooleanWidget(std::shared_ptr<tmdl::Parameter> parameter, QWidget* parent = nullptr);
 
     ~ParameterBooleanWidget();
 
@@ -33,7 +29,7 @@ private:
     bool& param_value();
 
 private:
-    Ui::ParameterBooleanWidget *ui;
+    Ui::ParameterBooleanWidget* ui;
     std::shared_ptr<tmdl::Parameter> parameter;
 };
 

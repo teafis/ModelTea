@@ -9,19 +9,18 @@ namespace Ui {
 class ConnectionParametersDialog;
 }
 
-class ConnectionParametersDialog : public QDialog
-{
+class ConnectionParametersDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit ConnectionParametersDialog(ConnectorBlockObject* conn, QWidget *parent = nullptr);
+    explicit ConnectionParametersDialog(ConnectorBlockObject* conn, QWidget* parent = nullptr);
     ~ConnectionParametersDialog();
 
 public slots:
     virtual void accept() override;
 
 private:
-    Ui::ConnectionParametersDialog *ui;
+    Ui::ConnectionParametersDialog* ui;
     ConnectorBlockObject* const connector;
 };
 

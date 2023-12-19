@@ -5,11 +5,9 @@
 
 #include "../block_interface.hpp"
 
-namespace tmdl::blocks
-{
+namespace tmdl::blocks {
 
-class ArithmeticBase : public BlockInterface
-{
+class ArithmeticBase : public BlockInterface {
 public:
     ArithmeticBase();
 
@@ -23,9 +21,7 @@ public:
 
     std::unique_ptr<const BlockError> has_error() const override;
 
-    void set_input_type(
-        const size_t port,
-        const DataType type) override;
+    void set_input_type(const size_t port, const DataType type) override;
 
     DataType get_output_type(const size_t port) const override;
 
@@ -40,8 +36,7 @@ private:
     DataType _outputPort;
 };
 
-class Addition : public ArithmeticBase
-{
+class Addition : public ArithmeticBase {
 public:
     std::string get_name() const override;
 
@@ -50,8 +45,7 @@ public:
     std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 };
 
-class Subtraction : public ArithmeticBase
-{
+class Subtraction : public ArithmeticBase {
 public:
     std::string get_name() const override;
 
@@ -60,8 +54,7 @@ public:
     std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 };
 
-class Multiplication : public ArithmeticBase
-{
+class Multiplication : public ArithmeticBase {
 public:
     std::string get_name() const override;
 
@@ -70,8 +63,7 @@ public:
     std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 };
 
-class Division : public ArithmeticBase
-{
+class Division : public ArithmeticBase {
 public:
     std::string get_name() const override;
 
@@ -80,8 +72,7 @@ public:
     std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 };
 
-class Modulus : public ArithmeticBase
-{
+class Modulus : public ArithmeticBase {
 public:
     std::string get_name() const override;
 

@@ -17,15 +17,11 @@
 
 #include <fmt/format.h>
 
+namespace tmdl {
 
-namespace tmdl
-{
+template <DataType> class ModelValueBox;
 
-template <DataType>
-class ModelValueBox;
-
-struct ModelValue
-{
+struct ModelValue {
     virtual ~ModelValue() = default;
 
     virtual DataType data_type() const = 0;
@@ -42,104 +38,70 @@ struct ModelValue
 
     static std::unique_ptr<ModelValue> convert_type(const ModelValue* val, const DataType dt);
 
-    template <DataType DT>
-    static const typename data_type_t<DT>::type& get_inner_value(const ModelValue* value)
-    {
+    template <DataType DT> static const typename data_type_t<DT>::type& get_inner_value(const ModelValue* value) {
         const auto* ptr = dynamic_cast<const ModelValueBox<DT>*>(value);
-        if (ptr == nullptr)
-        {
+        if (ptr == nullptr) {
             throw ModelException("unable to convert data type parameters");
         }
         return ptr->value;
     }
 
-    template <DataType DT>
-    static typename data_type_t<DT>::type& get_inner_value(ModelValue* value)
-    {
+    template <DataType DT> static typename data_type_t<DT>::type& get_inner_value(ModelValue* value) {
         auto* ptr = dynamic_cast<ModelValueBox<DT>*>(value);
-        if (ptr == nullptr)
-        {
+        if (ptr == nullptr) {
             throw ModelException("unable to convert data type parameters");
         }
         return ptr->value;
     }
 };
 
-template <DataType DT>
-struct ModelValueBox : public ModelValue
-{
+template <DataType DT> struct ModelValueBox : public ModelValue {
     using type_t = typename data_type_t<DT>::type;
 
     ModelValueBox() = default;
 
-    explicit ModelValueBox(const type_t inval) : value(inval) { }
+    explicit ModelValueBox(const type_t inval) : value(inval) {}
 
-    DataType data_type() const override
-    {
+    DataType data_type() const override {
         static_assert(DT != DataType::UNKNOWN);
         return DT;
     }
 
-    std::string to_string() const override
-    {
-        if constexpr (DT == DataType::DATA_TYPE)
-        {
+    std::string to_string() const override {
+        if constexpr (DT == DataType::DATA_TYPE) {
             return data_type_to_string(value);
-        }
-        else if constexpr (DT == DataType::IDENTIFIER)
-        {
+        } else if constexpr (DT == DataType::IDENTIFIER) {
             return fmt::format("\"{}\"", value.get());
-        }
-        else
-        {
+        } else {
             return std::to_string(value);
         }
     }
 
-    void copy_from(const ModelValue* in) override
-    {
-        if (auto ptr = dynamic_cast<const ModelValueBox<DT>*>(in))
-        {
+    void copy_from(const ModelValue* in) override {
+        if (auto ptr = dynamic_cast<const ModelValueBox<DT>*>(in)) {
             value = ptr->value;
-        }
-        else
-        {
+        } else {
             throw ModelException("mismatch in data type - unable to copy value");
         }
     }
 
-    std::unique_ptr<ModelValue> clone() const override
-    {
-        return std::make_unique<ModelValueBox<DT>>(value);
-    }
+    std::unique_ptr<ModelValue> clone() const override { return std::make_unique<ModelValueBox<DT>>(value); }
 
     type_t value{};
 };
 
-template <>
-struct ModelValueBox<DataType::UNKNOWN> : public ModelValue
-{
+template <> struct ModelValueBox<DataType::UNKNOWN> : public ModelValue {
     ModelValueBox() = default;
 
-    DataType data_type() const override
-    {
-        return DataType::UNKNOWN;
-    }
+    DataType data_type() const override { return DataType::UNKNOWN; }
 
-    std::string to_string() const override
-    {
-        return "??";
-    }
+    std::string to_string() const override { return "??"; }
 
-    void copy_from(const ModelValue* in) override
-    {
+    void copy_from(const ModelValue* in) override {
         throw ModelException(fmt::format("unable to copy from {} into an unknown data type", data_type_to_string(data_type())));
     }
 
-    std::unique_ptr<ModelValue> clone() const override
-    {
-        return std::make_unique<ModelValueBox<DataType::UNKNOWN>>();
-    }
+    std::unique_ptr<ModelValue> clone() const override { return std::make_unique<ModelValueBox<DataType::UNKNOWN>>(); }
 };
 
 }

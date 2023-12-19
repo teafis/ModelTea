@@ -3,8 +3,8 @@
 #ifndef BLOCK_GRAPHICS_VIEW_H
 #define BLOCK_GRAPHICS_VIEW_H
 
-#include <QWidget>
 #include <QGraphicsView>
+#include <QWidget>
 
 #include "blocks/block_object.h"
 #include "blocks/connector_block_object.h"
@@ -12,15 +12,13 @@
 
 #include <memory>
 
-#include <QPoint>
 #include <QGraphicsObject>
+#include <QPoint>
 
 #include <tmdl/model.hpp>
 #include <tmdl/model_block.hpp>
 
-
-class BlockGraphicsView : public QGraphicsView
-{
+class BlockGraphicsView : public QGraphicsView {
     Q_OBJECT
 
 public:
@@ -35,7 +33,7 @@ public:
 
     virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
 
-    virtual void keyPressEvent(QKeyEvent *event) override;
+    virtual void keyPressEvent(QKeyEvent* event) override;
 
     virtual void changeEvent(QEvent* event) override;
 
@@ -57,18 +55,11 @@ protected:
 
     ConnectorBlockObject* findConnectorForMousePress(const QPointF& pos);
 
-    std::optional<BlockObject::PortInformation> findBlockIOForMousePress(
-        const QPointF& pos,
-        const BlockObject* block);
+    std::optional<BlockObject::PortInformation> findBlockIOForMousePress(const QPointF& pos, const BlockObject* block);
 
-    bool blockBodyContainsMouse(
-        const QPointF& pos,
-        const BlockObject* block);
+    bool blockBodyContainsMouse(const QPointF& pos, const BlockObject* block);
 
-    void addConnectionItem(
-        const std::shared_ptr<tmdl::Connection> connection,
-        const BlockObject* from_block,
-        const BlockObject* to_block);
+    void addConnectionItem(const std::shared_ptr<tmdl::Connection> connection, const BlockObject* from_block, const BlockObject* to_block);
 
 public:
     std::shared_ptr<tmdl::Model> get_model() const;

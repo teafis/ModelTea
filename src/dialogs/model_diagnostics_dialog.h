@@ -9,19 +9,15 @@
 
 #include <tmdl/model.hpp>
 
-
 namespace Ui {
 class ModelDiagnosticsDialog;
 }
 
-class ModelDiagnosticsDialog : public QDialog
-{
+class ModelDiagnosticsDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit ModelDiagnosticsDialog(
-        const std::shared_ptr<const tmdl::Model> model,
-        QWidget *parent = nullptr);
+    explicit ModelDiagnosticsDialog(const std::shared_ptr<const tmdl::Model> model, QWidget* parent = nullptr);
     ~ModelDiagnosticsDialog();
 
 public:
@@ -31,7 +27,7 @@ public slots:
     void updateDiagnostics();
 
 private:
-    Ui::ModelDiagnosticsDialog *ui;
+    Ui::ModelDiagnosticsDialog* ui;
     std::shared_ptr<const tmdl::Model> model;
 };
 

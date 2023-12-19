@@ -5,16 +5,9 @@
 
 #include <cstddef>
 
-class SimEvent
-{
+class SimEvent {
 public:
-    enum class EventType
-    {
-        Reset,
-        Close,
-        Create,
-        Step
-    };
+    enum class EventType { Reset, Close, Create, Step };
 
 public:
     explicit SimEvent(const EventType t);

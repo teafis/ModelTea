@@ -8,14 +8,11 @@
 #include <string>
 #include <unordered_map>
 
-namespace tmdl
-{
+namespace tmdl {
 
-namespace blocks
-{
+namespace blocks {
 
-class StandardLibrary : public LibraryBase
-{
+class StandardLibrary : public LibraryBase {
 public:
     StandardLibrary();
 

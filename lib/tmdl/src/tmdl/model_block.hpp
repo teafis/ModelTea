@@ -11,11 +11,9 @@
 
 #include <nlohmann/json.hpp>
 
-namespace tmdl
-{
+namespace tmdl {
 
-class ModelBlock : public BlockInterface
-{
+class ModelBlock : public BlockInterface {
 public:
     explicit ModelBlock(std::shared_ptr<Model> model);
 
@@ -31,9 +29,7 @@ public:
 
     std::unique_ptr<const BlockError> has_error() const override;
 
-    void set_input_type(
-        const size_t port,
-        const DataType type) override;
+    void set_input_type(const size_t port, const DataType type) override;
 
     DataType get_output_type(const size_t port) const override;
 

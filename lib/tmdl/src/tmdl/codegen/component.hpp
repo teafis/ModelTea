@@ -10,41 +10,26 @@
 
 #include "codegen.hpp"
 
-namespace tmdl::codegen
-{
+namespace tmdl::codegen {
 
-class InterfaceDefinition
-{
+class InterfaceDefinition {
 public:
-    explicit InterfaceDefinition(std::string_view type_name, const std::vector<std::string>& fields) :
-        name(type_name),
-        fields(fields)
-    {
+    explicit InterfaceDefinition(std::string_view type_name, const std::vector<std::string>& fields) : name(type_name), fields(fields) {
         // Empty Constructor
     }
 
-    const std::string& get_name() const
-    {
-        return name;
-    }
+    const std::string& get_name() const { return name; }
 
-    size_t get_size() const
-    {
-        return fields.size();
-    }
+    size_t get_size() const { return fields.size(); }
 
-    const std::string& get_field(const size_t i) const
-    {
-        return fields.at(i);
-    }
+    const std::string& get_field(const size_t i) const { return fields.at(i); }
 
 private:
     std::string name;
     std::vector<std::string> fields;
 };
 
-class CodeComponent
-{
+class CodeComponent {
 public:
     CodeComponent() = default;
 

@@ -3,11 +3,9 @@
 #ifndef BLOCK_MOUSE_STATE_BASE_H
 #define BLOCK_MOUSE_STATE_BASE_H
 
-class MouseStateBase
-{
+class MouseStateBase {
 public:
-    virtual ~MouseStateBase()
-    {
+    virtual ~MouseStateBase() {
         // Empty Constructor
     }
 };

@@ -9,11 +9,9 @@
 
 #include "../block_interface.hpp"
 
-namespace tmdl::codegen
-{
+namespace tmdl::codegen {
 
-class CodeGenerator
-{
+class CodeGenerator {
 public:
     explicit CodeGenerator(std::unique_ptr<CompiledBlockInterface>&& comp);
 

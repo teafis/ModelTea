@@ -7,38 +7,22 @@
 
 #include <QMessageBox>
 
-
-ParameterNumericWidget::ParameterNumericWidget(
-    std::shared_ptr<tmdl::Parameter> parameter,
-    QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::ParameterNumericWidget),
-    parameter(parameter)
-{
+ParameterNumericWidget::ParameterNumericWidget(std::shared_ptr<tmdl::Parameter> parameter, QWidget* parent)
+    : QWidget(parent), ui(new Ui::ParameterNumericWidget), parameter(parameter) {
     ui->setupUi(this);
 
     ui->lblName->setText(parameter->get_name().c_str());
     ui->textEntry->setText(parameter->get_value()->to_string().c_str());
 
-    connect(
-        ui->textEntry,
-        &QLineEdit::editingFinished,
-        this,
-        &ParameterNumericWidget::textChanged);
+    connect(ui->textEntry, &QLineEdit::editingFinished, this, &ParameterNumericWidget::textChanged);
 }
 
-void ParameterNumericWidget::textChanged()
-{
-    try
-    {
-        auto value = tmdl::ModelValue::from_string(
-            ui->textEntry->text().toStdString(),
-            parameter->get_value()->data_type());
+void ParameterNumericWidget::textChanged() {
+    try {
+        auto value = tmdl::ModelValue::from_string(ui->textEntry->text().toStdString(), parameter->get_value()->data_type());
 
         parameter->set_value(std::move(value));
-    }
-    catch (const tmdl::ModelException& ex)
-    {
+    } catch (const tmdl::ModelException& ex) {
         auto* msg = new QMessageBox(this);
         msg->setText(ex.what());
         msg->setWindowTitle("Parameter Error");
@@ -50,7 +34,4 @@ void ParameterNumericWidget::textChanged()
     emit parameterUpdated();
 }
 
-ParameterNumericWidget::~ParameterNumericWidget()
-{
-    delete ui;
-}
+ParameterNumericWidget::~ParameterNumericWidget() { delete ui; }

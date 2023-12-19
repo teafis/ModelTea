@@ -12,15 +12,14 @@
 
 class ModelWindow;
 
-class WindowManager : public QObject
-{
+class WindowManager : public QObject {
     Q_OBJECT
 
 public:
     static WindowManager& instance();
 
 private:
-    explicit WindowManager(QObject *parent = nullptr);
+    explicit WindowManager(QObject* parent = nullptr);
 
 public:
     void register_window(const ModelWindow* window, const tmdl::Model* model);

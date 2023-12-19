@@ -9,8 +9,7 @@
 
 #include <tmdl/model.hpp>
 
-class ExecutorManager : public QObject
-{
+class ExecutorManager : public QObject {
     Q_OBJECT
 
 public:

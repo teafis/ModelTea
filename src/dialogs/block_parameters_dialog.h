@@ -11,14 +11,11 @@ namespace Ui {
 class BlockParameterDialog;
 }
 
-class BlockParameterDialog : public QDialog
-{
+class BlockParameterDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit BlockParameterDialog(
-        BlockObject* block,
-        QWidget *parent = nullptr);
+    explicit BlockParameterDialog(BlockObject* block, QWidget* parent = nullptr);
 
     ~BlockParameterDialog();
 
@@ -29,7 +26,7 @@ protected slots:
     void updateForParameters();
 
 private:
-    Ui::BlockParameterDialog *ui;
+    Ui::BlockParameterDialog* ui;
     BlockObject* block;
 };
 

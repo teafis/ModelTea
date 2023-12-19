@@ -5,12 +5,10 @@
 
 #include "teafis_exception.h"
 
-class ModelException : public TeafisException
-{
+class ModelException : public TeafisException {
 public:
-    explicit ModelException(const std::string& s) : TeafisException(s) { }
-    explicit ModelException(const char* c) : TeafisException(c) { }
+    explicit ModelException(const std::string& s) : TeafisException(s) {}
+    explicit ModelException(const char* c) : TeafisException(c) {}
 };
-
 
 #endif // MODEL_EXCEPTION_H

@@ -4,17 +4,15 @@
 #define TF_MODEL_MODEL_LIBRARY_HPP
 
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 #include "../library.hpp"
 #include "../model.hpp"
 
-namespace tmdl
-{
+namespace tmdl {
 
-class ModelLibrary : public LibraryBase
-{
+class ModelLibrary : public LibraryBase {
 public:
     [[nodiscard]] const std::string get_library_name() const override;
 

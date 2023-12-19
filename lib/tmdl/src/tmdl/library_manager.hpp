@@ -4,18 +4,16 @@
 #define TF_MODEL_LIBRARY_MANAGER_HPP
 
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 #include "library.hpp"
 
 #include "libraries/model_library.hpp"
 
-namespace tmdl
-{
+namespace tmdl {
 
-class LibraryManager
-{
+class LibraryManager {
 public:
     static LibraryManager& get_instance(); // TODO - Remove Singleton
 

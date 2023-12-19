@@ -8,13 +8,9 @@
 #include "blocks/block_object.h"
 #include "mouse_state_base.h"
 
-class BlockDragState : public MouseStateBase
-{
+class BlockDragState : public MouseStateBase {
 public:
-    BlockDragState(
-        BlockObject* block,
-        const QPointF& offset,
-        const QPoint& original);
+    BlockDragState(BlockObject* block, const QPointF& offset, const QPoint& original);
 
     BlockObject* getBlock() const;
 

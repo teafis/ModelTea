@@ -5,17 +5,13 @@
 
 #include <utility>
 
-template <tmdl::DataType DT>
-static std::unique_ptr<tmdl::ModelValue> make_default_static()
-{
+template <tmdl::DataType DT> static std::unique_ptr<tmdl::ModelValue> make_default_static() {
     return std::make_unique<tmdl::ModelValueBox<DT>>();
 }
 
-std::unique_ptr<tmdl::ModelValue> tmdl::ModelValue::make_default(const DataType dtype)
-{
-    switch (dtype)
-    {
-    using enum tmdl::DataType;
+std::unique_ptr<tmdl::ModelValue> tmdl::ModelValue::make_default(const DataType dtype) {
+    switch (dtype) {
+        using enum tmdl::DataType;
     case BOOLEAN:
         return make_default_static<BOOLEAN>();
     case DOUBLE:
@@ -35,13 +31,10 @@ std::unique_ptr<tmdl::ModelValue> tmdl::ModelValue::make_default(const DataType 
     }
 }
 
-std::unique_ptr<tmdl::ModelValue> tmdl::ModelValue::from_string(const std::string& s, const DataType dt)
-{
-    try
-    {
-        switch (dt)
-        {
-        using enum tmdl::DataType;
+std::unique_ptr<tmdl::ModelValue> tmdl::ModelValue::from_string(const std::string& s, const DataType dt) {
+    try {
+        switch (dt) {
+            using enum tmdl::DataType;
         case BOOLEAN:
             return std::make_unique<ModelValueBox<BOOLEAN>>(std::stoi(s) != 0);
         case INT32:
@@ -61,30 +54,21 @@ std::unique_ptr<tmdl::ModelValue> tmdl::ModelValue::from_string(const std::strin
         default:
             throw ModelException("unknown parse parameter type provided");
         }
-    }
-    catch (const std::invalid_argument&)
-    {
+    } catch (const std::invalid_argument&) {
         throw ModelException("error parsing parameter - invalid argument");
-    }
-    catch (const std::out_of_range&)
-    {
+    } catch (const std::out_of_range&) {
         throw ModelException("error parsing parameter - out of range");
     }
 }
 
 template <tmdl::DataType DT>
-static std::unique_ptr<tmdl::ModelValue> convert_numeric_type_helper(const tmdl::ModelValueBox<DT>* ptr, const tmdl::DataType dt)
-{
-    switch (dt)
-    {
-    using enum tmdl::DataType;
+static std::unique_ptr<tmdl::ModelValue> convert_numeric_type_helper(const tmdl::ModelValueBox<DT>* ptr, const tmdl::DataType dt) {
+    switch (dt) {
+        using enum tmdl::DataType;
     case BOOLEAN:
-        if constexpr (DT == BOOLEAN)
-        {
+        if constexpr (DT == BOOLEAN) {
             return std::make_unique<tmdl::ModelValueBox<BOOLEAN>>(ptr->value);
-        }
-        else
-        {
+        } else {
             return std::make_unique<tmdl::ModelValueBox<BOOLEAN>>(ptr->value != 0);
         }
     case INT32:
@@ -100,34 +84,23 @@ static std::unique_ptr<tmdl::ModelValue> convert_numeric_type_helper(const tmdl:
     }
 }
 
-std::unique_ptr<tmdl::ModelValue> tmdl::ModelValue::convert_type(const ModelValue* val, const DataType dt)
-{
-    if (val == nullptr) throw ModelException("unexpected nullptr");
+std::unique_ptr<tmdl::ModelValue> tmdl::ModelValue::convert_type(const ModelValue* val, const DataType dt) {
+    if (val == nullptr)
+        throw ModelException("unexpected nullptr");
 
     using enum DataType;
 
-    if (auto ptr_bool = dynamic_cast<const ModelValueBox<BOOLEAN>*>(val))
-    {
+    if (auto ptr_bool = dynamic_cast<const ModelValueBox<BOOLEAN>*>(val)) {
         return convert_numeric_type_helper<BOOLEAN>(ptr_bool, dt);
-    }
-    else if (auto ptr_i32 = dynamic_cast<const ModelValueBox<INT32>*>(val))
-    {
+    } else if (auto ptr_i32 = dynamic_cast<const ModelValueBox<INT32>*>(val)) {
         return convert_numeric_type_helper<INT32>(ptr_i32, dt);
-    }
-    else if (auto ptr_u32 = dynamic_cast<const ModelValueBox<UINT32>*>(val))
-    {
+    } else if (auto ptr_u32 = dynamic_cast<const ModelValueBox<UINT32>*>(val)) {
         return convert_numeric_type_helper<UINT32>(ptr_u32, dt);
-    }
-    else if (auto ptr_f32 = dynamic_cast<const ModelValueBox<SINGLE>*>(val))
-    {
+    } else if (auto ptr_f32 = dynamic_cast<const ModelValueBox<SINGLE>*>(val)) {
         return convert_numeric_type_helper<SINGLE>(ptr_f32, dt);
-    }
-    else if (auto ptr_f64 = dynamic_cast<const ModelValueBox<DOUBLE>*>(val))
-    {
+    } else if (auto ptr_f64 = dynamic_cast<const ModelValueBox<DOUBLE>*>(val)) {
         return convert_numeric_type_helper<DOUBLE>(ptr_f64, dt);
-    }
-    else
-    {
+    } else {
         throw ModelException("unsupported input value type");
     }
 }

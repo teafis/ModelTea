@@ -5,11 +5,10 @@
 
 #include "teafis_exception.h"
 
-class BlockObjectException : public TeafisException
-{
+class BlockObjectException : public TeafisException {
 public:
-    BlockObjectException(const std::string& s) : TeafisException(s) { }
-    BlockObjectException(const char* c) : TeafisException(c) { }
+    BlockObjectException(const std::string& s) : TeafisException(s) {}
+    BlockObjectException(const char* c) : TeafisException(c) {}
 };
 
 #endif // BLOCK_OBJECT_EXCEPTION_H

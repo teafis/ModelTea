@@ -5,11 +5,9 @@
 
 #include <string>
 
-namespace tmdl
-{
+namespace tmdl {
 
-class Identifier
-{
+class Identifier {
 public:
     Identifier(const Identifier&) = default;
 

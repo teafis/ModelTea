@@ -13,11 +13,9 @@
 
 #include "value.hpp"
 
-namespace tmdl
-{
+namespace tmdl {
 
-class ValueArray
-{
+class ValueArray {
 public:
     virtual void resize(const size_t c, const size_t r) = 0;
 
@@ -41,71 +39,49 @@ public:
 
     static std::unique_ptr<ValueArray> change_array_type(const ValueArray* arr, DataType dt);
 
-    static std::unique_ptr<ValueArray> create_with_type(const size_t cols, const size_t rows, const std::vector<std::unique_ptr<const ModelValue>>& values, const tmdl::DataType data_type);
+    static std::unique_ptr<ValueArray> create_with_type(const size_t cols, const size_t rows,
+                                                        const std::vector<std::unique_ptr<const ModelValue>>& values,
+                                                        const tmdl::DataType data_type);
 };
 
-template <DataType DT>
-class ValueArrayBox : public ValueArray
-{
+template <DataType DT> class ValueArrayBox : public ValueArray {
 public:
     using data_t = typename data_type_t<DT>::type;
 
-    struct Index
-    {
+    struct Index {
         size_t col;
         size_t row;
     };
 
-    ValueArrayBox(const size_t c, const size_t r, const std::vector<std::unique_ptr<const ModelValue>>& values = {}) :
-        m_data(r * c),
-        m_cols{c},
-        m_rows{r}
-    {
-        if (m_data.size() == 0 && (r != 0 || c != 0))
-        {
+    ValueArrayBox(const size_t c, const size_t r, const std::vector<std::unique_ptr<const ModelValue>>& values = {})
+        : m_data(r * c), m_cols{c}, m_rows{r} {
+        if (m_data.size() == 0 && (r != 0 || c != 0)) {
             throw ModelException("2D array cannot have value with size 0");
         }
 
         set_values(values);
     }
 
-    size_t rows() const override
-    {
-        return m_rows;
-    }
+    size_t rows() const override { return m_rows; }
 
-    size_t cols() const override
-    {
-        return m_cols;
-    }
+    size_t cols() const override { return m_cols; }
 
-    size_t size() const override
-    {
-        return m_rows * m_cols;
-    }
+    size_t size() const override { return m_rows * m_cols; }
 
-    DataType data_type() const override
-    {
-        return DT;
-    }
+    DataType data_type() const override { return DT; }
 
-    std::string to_string() const override
-    {
+    std::string to_string() const override {
         std::ostringstream oss;
         oss << '[';
-        for (size_t r = 0; r < m_rows; ++r)
-        {
-            for (size_t c = 0; c < m_cols; ++c)
-            {
+        for (size_t r = 0; r < m_rows; ++r) {
+            for (size_t c = 0; c < m_cols; ++c) {
                 const size_t ind = rc_to_index({c, r});
                 oss << std::to_string(m_data[ind]);
-                if (c + 1 < m_cols)
-                {
+                if (c + 1 < m_cols) {
                     oss << ", ";
                 }
             }
-            if (r + 1 < m_rows)
-            {
+            if (r + 1 < m_rows) {
                 oss << "; ";
             }
         }
@@ -113,56 +89,39 @@ public:
         return oss.str();
     }
 
-    void resize(const size_t c, const size_t r) override
-    {
+    void resize(const size_t c, const size_t r) override {
         const size_t new_size = r * c;
-        if (new_size == 0 && (r != 0 || c != 0))
-        {
+        if (new_size == 0 && (r != 0 || c != 0)) {
             throw ModelException("2D array cannot have value with size 0");
         }
         m_data.resize(new_size);
     }
 
-    data_t& operator[](Index i)
-    {
-        return m_data[rc_to_index(i)];
-    }
+    data_t& operator[](Index i) { return m_data[rc_to_index(i)]; }
 
-    const data_t& operator[](Index i) const
-    {
-        return m_data[rc_to_index(i)];
-    }
+    const data_t& operator[](Index i) const { return m_data[rc_to_index(i)]; }
 
-    void set_values(const std::vector<std::unique_ptr<const ModelValue>>& values) override
-    {
-        if (values.size() != m_data.size())
-        {
+    void set_values(const std::vector<std::unique_ptr<const ModelValue>>& values) override {
+        if (values.size() != m_data.size()) {
             throw ModelException("values has a different size than array");
         }
 
-        for (size_t i = 0; i < values.size(); ++i)
-        {
-            if (auto v = dynamic_cast<const ModelValueBox<DT>*>(values[i].get()))
-            {
+        for (size_t i = 0; i < values.size(); ++i) {
+            if (auto v = dynamic_cast<const ModelValueBox<DT>*>(values[i].get())) {
                 m_data[i] = v->value;
-            }
-            else
-            {
+            } else {
                 throw ModelException("cannot set array with mismatching data type");
             }
         }
     }
 
-    std::vector<std::unique_ptr<ModelValue>> get_values() const override
-    {
+    std::vector<std::unique_ptr<ModelValue>> get_values() const override {
         std::vector<std::unique_ptr<ModelValue>> values;
-        for (const auto& v : m_data)
-        {
+        for (const auto& v : m_data) {
             values.push_back(std::make_unique<ModelValueBox<DT>>(v));
         }
 
-        if (values.size() != m_data.size())
-        {
+        if (values.size() != m_data.size()) {
             throw ModelException("mismatch in data sizes for get_values() in model array");
         }
 
@@ -170,10 +129,7 @@ public:
     }
 
 private:
-    size_t rc_to_index(const Index& rc) const
-    {
-        return rc.row + rc.col * m_rows;
-    }
+    size_t rc_to_index(const Index& rc) const { return rc.row + rc.col * m_rows; }
 
     std::vector<data_t> m_data;
     size_t m_cols;

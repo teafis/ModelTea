@@ -5,8 +5,8 @@
 
 #include <QMainWindow>
 
-#include <QtCharts>
 #include <QVector>
+#include <QtCharts>
 
 #include <tmdl/execution_state.hpp>
 
@@ -14,19 +14,15 @@
 
 #include "models/plot_variable_selection_model.h"
 
-
 namespace Ui {
 class PlotWindow;
 }
 
-class PlotWindow : public QMainWindow
-{
+class PlotWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit PlotWindow(
-        std::shared_ptr<tmdl::ExecutionState> execution,
-        QWidget *parent = nullptr);
+    explicit PlotWindow(std::shared_ptr<tmdl::ExecutionState> execution, QWidget* parent = nullptr);
     ~PlotWindow();
 
     virtual void keyPressEvent(QKeyEvent* event) override;

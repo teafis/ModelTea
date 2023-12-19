@@ -10,23 +10,16 @@
 
 #include "values/identifiers.hpp"
 
-
-namespace tmdl
-{
+namespace tmdl {
 
 class Connection;
 
 void to_json(nlohmann::json&, const Connection&);
 void from_json(const nlohmann::json&, Connection&);
 
-class Connection
-{
+class Connection {
 public:
-    Connection(
-        const size_t from_id,
-        const size_t from_port,
-        const size_t to_id,
-        const size_t to_port);
+    Connection(const size_t from_id, const size_t from_port, const size_t to_id, const size_t to_port);
 
     bool contains_id(const size_t id) const;
 

@@ -13,18 +13,11 @@
 #include "model.hpp"
 #include "variable_manager.hpp"
 
-namespace tmdl
-{
+namespace tmdl {
 
-class ExecutionState
-{
+class ExecutionState {
 public:
-    ExecutionState(
-        std::shared_ptr<BlockExecutionInterface> model,
-        std::shared_ptr<VariableManager> variables,
-        const double dt);
-
-    ~ExecutionState();
+    ExecutionState(std::shared_ptr<BlockExecutionInterface> model, std::shared_ptr<VariableManager> variables, const double dt);
 
     void init();
 
@@ -52,9 +45,7 @@ public:
 
     void add_name_to_interior_variable(const std::string& name, const Connection& conn);
 
-    static ExecutionState from_model(
-        const std::shared_ptr<Model> model,
-        const double dt);
+    static ExecutionState from_model(const std::shared_ptr<Model> model, const double dt);
 
 protected:
     std::shared_ptr<const ModelExecutionInterface> get_model_exec_interface() const;
@@ -66,7 +57,7 @@ private:
     std::shared_ptr<VariableManager> variables;
     std::unordered_map<std::string, std::shared_ptr<const ModelValue>> named_variables;
     BlockInterface::ModelInfo state;
-    uint64_t iterations{ 0 };
+    uint64_t iterations{0};
 };
 
 }

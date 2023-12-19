@@ -8,12 +8,8 @@
 
 #include <QMessageBox>
 
-
-ModelParametersDialog::ModelParametersDialog(std::shared_ptr<tmdl::Model> model, const QString& model_name, QWidget* parent) :
-    QDialog(parent),
-    ui(new Ui::ModelParametersDialog),
-    model(model)
-{
+ModelParametersDialog::ModelParametersDialog(std::shared_ptr<tmdl::Model> model, const QString& model_name, QWidget* parent)
+    : QDialog(parent), ui(new Ui::ModelParametersDialog), model(model) {
     ui->setupUi(this);
 
     ui->nameLabel->setText(model_name);
@@ -23,15 +19,13 @@ ModelParametersDialog::ModelParametersDialog(std::shared_ptr<tmdl::Model> model,
     setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
-void ModelParametersDialog::accept()
-{
+void ModelParametersDialog::accept() {
     const auto& model_lib = tmdl::LibraryManager::get_instance().default_model_library();
 
     bool success = false;
     const double dtVal = ui->dtLineEdit->text().toDouble(&success);
 
-    if (!success)
-    {
+    if (!success) {
         QMessageBox::warning(this, "error", QString("Unable to convert `%1` to double").arg(ui->dtLineEdit->text()));
         return;
     }
@@ -39,13 +33,10 @@ void ModelParametersDialog::accept()
     const std::string orig_desc = model->get_description();
     const double orig_dt = model->get_preferred_dt();
 
-    try
-    {
+    try {
         model->set_description(ui->descriptionTextEdit->document()->toPlainText().toStdString());
         model->set_preferred_dt(dtVal);
-    }
-    catch (const tmdl::ModelException& ex)
-    {
+    } catch (const tmdl::ModelException& ex) {
         model->set_description(orig_desc);
         model->set_preferred_dt(orig_dt);
 
@@ -56,7 +47,4 @@ void ModelParametersDialog::accept()
     QDialog::accept();
 }
 
-ModelParametersDialog::~ModelParametersDialog()
-{
-    delete ui;
-}
+ModelParametersDialog::~ModelParametersDialog() { delete ui; }

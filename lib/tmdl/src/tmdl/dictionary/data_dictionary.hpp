@@ -9,11 +9,9 @@
 
 #include "data_parameter.hpp"
 
-namespace tmdl
-{
+namespace tmdl {
 
-class DataDictionary
-{
+class DataDictionary {
 public:
     DataDictionary() = default;
 

@@ -3,22 +3,18 @@
 #ifndef CONNECTOR_OBJECT_H
 #define CONNECTOR_OBJECT_H
 
-#include <QWidget>
 #include <QGraphicsObject>
+#include <QWidget>
 
 #include <memory>
 
-class ConnectorObject : public QGraphicsObject
-{
+class ConnectorObject : public QGraphicsObject {
     Q_OBJECT
 
 public:
     ConnectorObject();
 
-    virtual void paint(
-        QPainter* painter,
-        const QStyleOptionGraphicsItem* option,
-        QWidget* widget = nullptr) override;
+    virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override;
 
     virtual bool positionOnLine(const QPointF& localCoords) const;
 

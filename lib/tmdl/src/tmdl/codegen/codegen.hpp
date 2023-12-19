@@ -7,29 +7,24 @@
 
 #include "../values/data_types.hpp"
 
-namespace tmdl::codegen
-{
+namespace tmdl::codegen {
 
-enum class Language
-{
+enum class Language {
     CPP = 0,
 };
 
-enum class CodeSection
-{
+enum class CodeSection {
     DEFINITION = 0,
     DECLARATION,
 };
 
-enum class BlockFunction
-{
+enum class BlockFunction {
     INIT = 0,
     RESET,
     STEP,
 };
 
-class CodegenError
-{
+class CodegenError {
 public:
     explicit CodegenError(std::string_view msg);
 

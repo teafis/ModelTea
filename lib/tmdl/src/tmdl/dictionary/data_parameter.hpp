@@ -8,11 +8,9 @@
 #include "../values/value.hpp"
 #include "../values/value_array.hpp"
 
-namespace tmdl
-{
+namespace tmdl {
 
-class DataParameter
-{
+class DataParameter {
 public:
     virtual ~DataParameter() = default;
     virtual void set_from_string(const std::string& s) = 0;
@@ -21,8 +19,7 @@ public:
     virtual DataType data_type() const = 0;
 };
 
-class DataParameterValue : public DataParameter
-{
+class DataParameterValue : public DataParameter {
 public:
     DataParameterValue() = default;
 
@@ -33,11 +30,10 @@ public:
     void set_data_type_string(const std::string& s, DataType dt) override;
 
 private:
-    std::shared_ptr<ModelValue> value{ ModelValue::make_default(DataType::DOUBLE) };
+    std::shared_ptr<ModelValue> value{ModelValue::make_default(DataType::DOUBLE)};
 };
 
-class DataParameterArray : public DataParameter
-{
+class DataParameterArray : public DataParameter {
 public:
     DataParameterArray() = default;
 
@@ -50,7 +46,7 @@ public:
     void set_size(const size_t c, const size_t r);
 
 private:
-    std::shared_ptr<ValueArray> array{ ValueArray::create_value_array("[]", DataType::DOUBLE) };
+    std::shared_ptr<ValueArray> array{ValueArray::create_value_array("[]", DataType::DOUBLE)};
 };
 
 }

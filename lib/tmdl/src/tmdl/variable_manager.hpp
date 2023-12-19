@@ -8,11 +8,9 @@
 
 #include <unordered_map>
 
-namespace tmdl
-{
+namespace tmdl {
 
-struct VariableIdentifier
-{
+struct VariableIdentifier {
     size_t block_id;
     size_t output_port_num;
 
@@ -23,29 +21,19 @@ struct VariableIdentifier
 
 }
 
-namespace std
-{
+namespace std {
 
-template<>
-struct hash<tmdl::VariableIdentifier>
-{
-    size_t operator()(const tmdl::VariableIdentifier& x) const
-    {
-        return x.block_id ^ x.output_port_num;
-    }
+template <> struct hash<tmdl::VariableIdentifier> {
+    size_t operator()(const tmdl::VariableIdentifier& x) const { return x.block_id ^ x.output_port_num; }
 };
 
 }
 
-namespace tmdl
-{
+namespace tmdl {
 
-class VariableManager
-{
+class VariableManager {
 public:
-    void add_variable(
-        const VariableIdentifier id,
-        const std::shared_ptr<ModelValue> value);
+    void add_variable(const VariableIdentifier id, const std::shared_ptr<ModelValue> value);
 
     std::shared_ptr<ModelValue> get_ptr(const VariableIdentifier& id) const;
 

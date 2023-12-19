@@ -5,11 +5,9 @@
 
 #include "../block_interface.hpp"
 
-namespace tmdl::blocks
-{
+namespace tmdl::blocks {
 
-class TrigFunction : public BlockInterface
-{
+class TrigFunction : public BlockInterface {
 public:
     TrigFunction();
 
@@ -21,9 +19,7 @@ public:
 
     std::unique_ptr<const BlockError> has_error() const override;
 
-    void set_input_type(
-        const size_t port,
-        const DataType type) override;
+    void set_input_type(const size_t port, const DataType type) override;
 
     DataType get_output_type(const size_t port) const override;
 
@@ -32,8 +28,7 @@ private:
     DataType output_port;
 };
 
-class TrigSin : public TrigFunction
-{
+class TrigSin : public TrigFunction {
 public:
     std::string get_name() const override;
 
@@ -42,8 +37,7 @@ public:
     std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 };
 
-class TrigCos : public TrigFunction
-{
+class TrigCos : public TrigFunction {
 public:
     std::string get_name() const override;
 
@@ -52,8 +46,7 @@ public:
     std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 };
 
-class TrigTan : public TrigFunction
-{
+class TrigTan : public TrigFunction {
 public:
     std::string get_name() const override;
 
@@ -62,8 +55,7 @@ public:
     std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 };
 
-class TrigASin : public TrigFunction
-{
+class TrigASin : public TrigFunction {
 public:
     std::string get_name() const override;
 
@@ -72,8 +64,7 @@ public:
     std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 };
 
-class TrigACos : public TrigFunction
-{
+class TrigACos : public TrigFunction {
 public:
     std::string get_name() const override;
 
@@ -82,8 +73,7 @@ public:
     std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 };
 
-class TrigATan : public TrigFunction
-{
+class TrigATan : public TrigFunction {
 public:
     std::string get_name() const override;
 

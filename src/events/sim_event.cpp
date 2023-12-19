@@ -2,14 +2,8 @@
 
 #include "sim_event.h"
 
-SimEvent::SimEvent(const SimEvent::EventType t) :
-    _type(t)
-{
+SimEvent::SimEvent(const SimEvent::EventType t) : _type(t) {
     // Empty Constructor
 }
 
-
-SimEvent::EventType SimEvent::event() const
-{
-    return _type;
-}
+SimEvent::EventType SimEvent::event() const { return _type; }

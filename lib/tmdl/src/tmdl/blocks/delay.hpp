@@ -5,11 +5,9 @@
 
 #include "../block_interface.hpp"
 
-namespace tmdl::blocks
-{
+namespace tmdl::blocks {
 
-class Delay : public BlockInterface
-{
+class Delay : public BlockInterface {
 public:
     Delay();
 
@@ -25,9 +23,7 @@ public:
 
     std::unique_ptr<const BlockError> has_error() const override;
 
-    void set_input_type(
-        const size_t port,
-        const DataType type) override;
+    void set_input_type(const size_t port, const DataType type) override;
 
     DataType get_output_type(const size_t port) const override;
 

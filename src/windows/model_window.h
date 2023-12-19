@@ -15,20 +15,20 @@
 #include <tmdl/block_interface.hpp>
 #include <tmdl/execution_state.hpp>
 
+namespace Ui {
+class ModelWindow;
+}
 
-namespace Ui { class ModelWindow; }
-
-class ModelWindow : public QMainWindow
-{
+class ModelWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    ModelWindow(QWidget *parent = nullptr);
+    ModelWindow(QWidget* parent = nullptr);
     ~ModelWindow();
 
     void closeEvent(QCloseEvent* event) override;
 
-    void keyPressEvent(QKeyEvent *event) override;
+    void keyPressEvent(QKeyEvent* event) override;
 
 protected slots:
     void updateWindowItems();
@@ -93,7 +93,7 @@ private:
     QString get_filename() const;
 
 private:
-    Ui::ModelWindow *ui;
+    Ui::ModelWindow* ui;
 
     ModelDiagnosticsDialog* window_diagnostics = nullptr;
     BlockSelectorDialog* window_library = nullptr;

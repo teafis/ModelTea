@@ -3,15 +3,14 @@
 
 #include <QAbstractListModel>
 
-#include <QtCharts>
 #include <QtCharts/QLineSeries>
+#include <QtCharts>
 
 #include <QVariant>
 
 #include <tmdl/variable_manager.hpp>
 
-struct ItemSelector
-{
+struct ItemSelector {
     std::shared_ptr<const tmdl::ModelValue> var;
     QString name;
     QLineSeries* series;
@@ -19,8 +18,7 @@ struct ItemSelector
 
 Q_DECLARE_METATYPE(ItemSelector)
 
-class PlotVariableSelectionModel : public QAbstractListModel
-{
+class PlotVariableSelectionModel : public QAbstractListModel {
     Q_OBJECT
 
 public:

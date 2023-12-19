@@ -5,11 +5,9 @@
 
 #include "../block_interface.hpp"
 
-namespace tmdl::blocks
-{
+namespace tmdl::blocks {
 
-class RelationalBase : public BlockInterface
-{
+class RelationalBase : public BlockInterface {
 public:
     RelationalBase();
 
@@ -21,9 +19,7 @@ public:
 
     std::unique_ptr<const BlockError> has_error() const override;
 
-    void set_input_type(
-        const size_t port,
-        const DataType type) override;
+    void set_input_type(const size_t port, const DataType type) override;
 
     DataType get_output_type(const size_t port) const override;
 
@@ -38,20 +34,17 @@ private:
     DataType _outputPort;
 };
 
-class RelationalNumericBase : public RelationalBase
-{
+class RelationalNumericBase : public RelationalBase {
 protected:
     virtual std::vector<DataType> get_supported_types() const override;
 };
 
-class RelationalEqualityBase : public RelationalBase
-{
+class RelationalEqualityBase : public RelationalBase {
 protected:
     virtual std::vector<DataType> get_supported_types() const override;
 };
 
-class GreaterThan : public RelationalNumericBase
-{
+class GreaterThan : public RelationalNumericBase {
 public:
     std::string get_name() const override;
 
@@ -60,8 +53,7 @@ public:
     std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 };
 
-class GreaterThanEqual : public RelationalNumericBase
-{
+class GreaterThanEqual : public RelationalNumericBase {
 public:
     std::string get_name() const override;
 
@@ -70,8 +62,7 @@ public:
     std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 };
 
-class LessThan : public RelationalNumericBase
-{
+class LessThan : public RelationalNumericBase {
 public:
     std::string get_name() const override;
 
@@ -80,8 +71,7 @@ public:
     std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 };
 
-class LessThanEqual : public RelationalNumericBase
-{
+class LessThanEqual : public RelationalNumericBase {
 public:
     std::string get_name() const override;
 
@@ -90,8 +80,7 @@ public:
     std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 };
 
-class Equal : public RelationalEqualityBase
-{
+class Equal : public RelationalEqualityBase {
 public:
     std::string get_name() const override;
 
@@ -100,8 +89,7 @@ public:
     std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 };
 
-class NotEqual : public RelationalEqualityBase
-{
+class NotEqual : public RelationalEqualityBase {
 public:
     std::string get_name() const override;
 

@@ -7,13 +7,11 @@
 
 #include <tmdl/model.hpp>
 
-
 namespace Ui {
 class ModelParametersDialog;
 }
 
-class ModelParametersDialog : public QDialog
-{
+class ModelParametersDialog : public QDialog {
     Q_OBJECT
 
 public:
@@ -23,7 +21,7 @@ public:
     virtual void accept() override;
 
 private:
-    Ui::ModelParametersDialog *ui;
+    Ui::ModelParametersDialog* ui;
     std::shared_ptr<tmdl::Model> model;
 };
 

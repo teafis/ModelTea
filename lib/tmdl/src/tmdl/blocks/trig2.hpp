@@ -5,11 +5,9 @@
 
 #include "../block_interface.hpp"
 
-namespace tmdl::blocks
-{
+namespace tmdl::blocks {
 
-class TrigFunction2 : public BlockInterface
-{
+class TrigFunction2 : public BlockInterface {
 public:
     TrigFunction2();
 
@@ -21,9 +19,7 @@ public:
 
     std::unique_ptr<const BlockError> has_error() const override;
 
-    void set_input_type(
-        const size_t port,
-        const DataType type) override;
+    void set_input_type(const size_t port, const DataType type) override;
 
     DataType get_output_type(const size_t port) const override;
 
@@ -33,8 +29,7 @@ private:
     DataType output_port;
 };
 
-class TrigATan2 : public TrigFunction2
-{
+class TrigATan2 : public TrigFunction2 {
 public:
     std::string get_name() const override;
 

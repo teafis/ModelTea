@@ -5,33 +5,22 @@
 
 #include <QMessageBox>
 
-
-ConnectionParametersDialog::ConnectionParametersDialog(ConnectorBlockObject* conn, QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::ConnectionParametersDialog),
-    connector(conn)
-{
+ConnectionParametersDialog::ConnectionParametersDialog(ConnectorBlockObject* conn, QWidget* parent)
+    : QDialog(parent), ui(new Ui::ConnectionParametersDialog), connector(conn) {
     ui->setupUi(this);
     ui->lineEditConnectionName->setText(connector->get_name());
 
     setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
-void ConnectionParametersDialog::accept()
-{
+void ConnectionParametersDialog::accept() {
     const std::string n = ui->lineEditConnectionName->text().toStdString();
-    try
-    {
+    try {
         connector->set_name(n.c_str());
         QDialog::accept();
-    }
-    catch (const tmdl::ModelException& err)
-    {
+    } catch (const tmdl::ModelException& err) {
         QMessageBox::warning(this, "error", err.what());
     }
 }
 
-ConnectionParametersDialog::~ConnectionParametersDialog()
-{
-    delete ui;
-}
+ConnectionParametersDialog::~ConnectionParametersDialog() { delete ui; }

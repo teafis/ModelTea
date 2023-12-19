@@ -4,16 +4,14 @@
 #define TF_MODEL_LIBRARY_HPP
 
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 #include "block_interface.hpp"
 
-namespace tmdl
-{
+namespace tmdl {
 
-class LibraryBase
-{
+class LibraryBase {
 public:
     virtual ~LibraryBase() = default;
 

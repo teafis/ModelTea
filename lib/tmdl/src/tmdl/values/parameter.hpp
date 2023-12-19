@@ -11,17 +11,11 @@
 #include <string>
 #include <unordered_map>
 
+namespace tmdl {
 
-namespace tmdl
-{
-
-class Parameter
-{
+class Parameter {
 public:
-    explicit Parameter(
-        std::string_view id,
-        std::string_view name,
-        std::unique_ptr<ModelValue>&& value);
+    explicit Parameter(std::string_view id, std::string_view name, std::unique_ptr<ModelValue>&& value);
 
     std::string get_id() const;
 
@@ -47,7 +41,7 @@ private:
 
     std::unique_ptr<ModelValue> value;
 
-    bool enabled{ true };
+    bool enabled{true};
 };
 
 }

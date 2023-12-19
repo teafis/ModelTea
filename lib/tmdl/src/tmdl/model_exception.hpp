@@ -5,12 +5,9 @@
 
 #include <string>
 
+namespace tmdl {
 
-namespace tmdl
-{
-
-class ModelException
-{
+class ModelException {
 public:
     explicit ModelException(const std::string& msg);
     explicit ModelException(const char* msg);
@@ -23,12 +20,9 @@ private:
     std::string _msg;
 };
 
-class ExecutionException : public ModelException
-{
+class ExecutionException : public ModelException {
 public:
-    ExecutionException(
-        const std::string& msg,
-        const size_t id);
+    ExecutionException(const std::string& msg, const size_t id);
 
     size_t get_id() const;
 

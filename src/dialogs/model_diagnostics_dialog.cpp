@@ -5,15 +5,9 @@
 
 #include "exceptions/model_exception.h"
 
-ModelDiagnosticsDialog::ModelDiagnosticsDialog(
-    const std::shared_ptr<const tmdl::Model> model,
-    QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::ModelDiagnosticsDialog),
-    model(model)
-{
-    if (model == nullptr)
-    {
+ModelDiagnosticsDialog::ModelDiagnosticsDialog(const std::shared_ptr<const tmdl::Model> model, QWidget* parent)
+    : QDialog(parent), ui(new Ui::ModelDiagnosticsDialog), model(model) {
+    if (model == nullptr) {
         throw ModelException("model cannot be null");
     }
 
@@ -23,37 +17,27 @@ ModelDiagnosticsDialog::ModelDiagnosticsDialog(
     setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
-void ModelDiagnosticsDialog::setModel(std::shared_ptr<const tmdl::Model> m)
-{
-    if (m == nullptr)
-    {
+void ModelDiagnosticsDialog::setModel(std::shared_ptr<const tmdl::Model> m) {
+    if (m == nullptr) {
         throw ModelException("model cannot be null");
-    }
-    else
-    {
+    } else {
         model = m;
         updateDiagnostics();
     }
 }
 
-void ModelDiagnosticsDialog::updateDiagnostics()
-{
+void ModelDiagnosticsDialog::updateDiagnostics() {
     ui->errors->clear();
     bool added = false;
 
-    for (const auto& p : model->get_all_errors())
-    {
+    for (const auto& p : model->get_all_errors()) {
         ui->errors->addItem(QString("Block %1: %2").arg(p->id).arg(p->message.c_str()));
         added = true;
     }
 
-    if (!added)
-    {
+    if (!added) {
         ui->errors->addItem(QString("No Errors"));
     }
 }
 
-ModelDiagnosticsDialog::~ModelDiagnosticsDialog()
-{
-    delete ui;
-}
+ModelDiagnosticsDialog::~ModelDiagnosticsDialog() { delete ui; }

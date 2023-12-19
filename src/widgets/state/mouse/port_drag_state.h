@@ -7,9 +7,7 @@
 #include "blocks/connector_object.h"
 #include "mouse_state_base.h"
 
-
-class PortDragState : public MouseStateBase
-{
+class PortDragState : public MouseStateBase {
 public:
     PortDragState(const BlockObject::PortInformation& port);
 

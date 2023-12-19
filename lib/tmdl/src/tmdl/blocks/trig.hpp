@@ -5,8 +5,6 @@
 
 #include "../block_interface.hpp"
 
-#include <cmath>
-
 namespace tmdl::blocks
 {
 
@@ -45,6 +43,46 @@ public:
 };
 
 class TrigCos : public TrigFunction
+{
+public:
+    std::string get_name() const override;
+
+    std::string get_description() const override;
+
+    std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
+};
+
+class TrigTan : public TrigFunction
+{
+public:
+    std::string get_name() const override;
+
+    std::string get_description() const override;
+
+    std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
+};
+
+class TrigASin : public TrigFunction
+{
+public:
+    std::string get_name() const override;
+
+    std::string get_description() const override;
+
+    std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
+};
+
+class TrigACos : public TrigFunction
+{
+public:
+    std::string get_name() const override;
+
+    std::string get_description() const override;
+
+    std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
+};
+
+class TrigATan : public TrigFunction
 {
 public:
     std::string get_name() const override;

@@ -80,6 +80,16 @@ public:
     std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
 };
 
+class Modulus : public ArithmeticBase
+{
+public:
+    std::string get_name() const override;
+
+    std::string get_description() const override;
+
+    std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
+};
+
 }
 
 #endif // TF_MODEL_BLOCKS_ARITHMETIC_HPP

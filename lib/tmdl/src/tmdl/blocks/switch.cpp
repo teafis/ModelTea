@@ -119,7 +119,7 @@ protected:
 
         void init() override
         {
-            block.s_in.switch_value = _ptr_switch->value;
+            block.s_in.value_flag = _ptr_switch->value;
             block.s_in.value_a = _ptr_val_a->value;
             block.s_in.value_b = _ptr_val_b->value;
             block.init();
@@ -128,7 +128,7 @@ protected:
 
         void step() override
         {
-            block.s_in.switch_value = _ptr_switch->value;
+            block.s_in.value_flag = _ptr_switch->value;
             block.s_in.value_a = _ptr_val_a->value;
             block.s_in.value_b = _ptr_val_b->value;
             block.step();

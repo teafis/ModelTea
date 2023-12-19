@@ -109,15 +109,15 @@ protected:
         }
 
         void init() override {
-            block.s_in.val_a = input_a->value;
-            block.s_in.val_b = input_b->value;
+            block.s_in.value_a = input_a->value;
+            block.s_in.value_b = input_b->value;
             block.init();
             output_value->value = block.s_out.output_value;
         }
 
         void step() override {
-            block.s_in.val_a = input_a->value;
-            block.s_in.val_b = input_b->value;
+            block.s_in.value_a = input_a->value;
+            block.s_in.value_b = input_b->value;
             block.step();
             output_value->value = block.s_out.output_value;
         }

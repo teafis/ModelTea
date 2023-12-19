@@ -13,6 +13,7 @@
 #include "../blocks/relational.hpp"
 #include "../blocks/switch.hpp"
 #include "../blocks/trig.hpp"
+#include "../blocks/trig2.hpp"
 
 #include "../model_exception.hpp"
 
@@ -31,6 +32,11 @@ tmdl::blocks::StandardLibrary::StandardLibrary()
         {"switch", &make_block<Switch>},
         {"cos", &make_block<TrigCos>},
         {"sin", &make_block<TrigSin>},
+        {"tan", &make_block<TrigTan>},
+        {"acos", &make_block<TrigACos>},
+        {"asin", &make_block<TrigASin>},
+        {"atan", &make_block<TrigATan>},
+        {"atan2", &make_block<TrigATan2>},
         {"clock", &make_block<Clock>},
         {"input", &make_block<InputPort>},
         {"output", &make_block<OutputPort>},
@@ -38,6 +44,7 @@ tmdl::blocks::StandardLibrary::StandardLibrary()
         {"-", &make_block<Subtraction>},
         {"*", &make_block<Multiplication>},
         {"/", &make_block<Division>},
+        {"%", &make_block<Modulus>},
         {"integrator", &make_block<Integrator>},
         {"<", &make_block<LessThan>},
         {"<=", &make_block<LessThanEqual>},

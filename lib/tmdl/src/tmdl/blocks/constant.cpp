@@ -187,7 +187,7 @@ protected:
 
             block = std::make_unique<tmdl::stdlib::const_block<type_t>>(value);
 
-            ptr_type->value = block->s_out.val;
+            ptr_type->value = block->s_out.value;
         }
 
         std::unique_ptr<tmdl::stdlib::const_block<type_t>> block;

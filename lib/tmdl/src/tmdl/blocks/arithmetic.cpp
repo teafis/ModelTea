@@ -123,7 +123,7 @@ protected:
             }
 
             block.s_in.size = input_value_ptr_array.size();
-            block.s_in.vals = input_value_ptr_array.data();
+            block.s_in.values = input_value_ptr_array.data();
         }
 
         void init() override {
@@ -339,5 +339,23 @@ tmdl::blocks::Division::get_compiled(const ModelInfo&) const {
     }
 
     return generate_compiled<tmdl::stdlib::ArithType::DIV>(
+        get_output_type(), get_id(), get_num_inputs());
+}
+
+// Modulus Block
+
+std::string tmdl::blocks::Modulus::get_name() const { return "%"; }
+
+std::string tmdl::blocks::Modulus::get_description() const {
+    return "provides the modulus of the provided inputs together";
+}
+
+std::unique_ptr<tmdl::CompiledBlockInterface>
+tmdl::blocks::Modulus::get_compiled(const ModelInfo&) const {
+    if (has_error() != nullptr) {
+        throw ModelException("cannot generate a modulus block with an error");
+    }
+
+    return generate_compiled<tmdl::stdlib::ArithType::MOD>(
         get_output_type(), get_id(), get_num_inputs());
 }

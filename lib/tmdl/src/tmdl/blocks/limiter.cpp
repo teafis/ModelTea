@@ -205,20 +205,20 @@ protected:
 
         void init() override
         {
-            block.s_in.input_value = _ptr_input->value;
+            block.s_in.value = _ptr_input->value;
             block.s_in.limit_lower = _val_min->value;
             block.s_in.limit_upper = _val_max->value;
             block.init();
-            _ptr_output->value = block.s_out.output_value;
+            _ptr_output->value = block.s_out.value;
         }
 
         void step() override
         {
-            block.s_in.input_value = _ptr_input->value;
+            block.s_in.value = _ptr_input->value;
             block.s_in.limit_lower = _val_min->value;
             block.s_in.limit_upper = _val_max->value;
             block.step();
-            _ptr_output->value = block.s_out.output_value;
+            _ptr_output->value = block.s_out.value;
         }
 
     private:

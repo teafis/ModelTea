@@ -127,19 +127,21 @@ protected:
 
             update_inputs();
             block->init();
+            _output->value = block->s_out.value;
         }
 
         void step() override
         {
             update_inputs();
             block->step();
-            _output->value = block->s_out.output_value;
+            _output->value = block->s_out.value;
         }
 
         void reset() override
         {
             update_inputs();
             block->reset();
+            _output->value = block->s_out.value;
         }
 
         void close() override
@@ -150,7 +152,7 @@ protected:
     protected:
         void update_inputs()
         {
-            block->s_in.input_value = _input->value;
+            block->s_in.value = _input->value;
             block->s_in.reset_flag = _reset_flag->value;
         }
 

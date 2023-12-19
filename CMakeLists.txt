@@ -16,6 +16,8 @@ set(VCPKG_FEATURE_FLAGS "versions")
 
 project(ModelTea VERSION 0.1 LANGUAGES CXX)
 
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 option(MT_USE_ASAN "Enable the use of ASAN when compiling ModelTea")
 option(MT_EXTRA_FLAGS "Enable the use of extra warning flags when compiling ModelTea" ON)
 
@@ -25,6 +27,9 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Widgets Charts REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 find_package(Catch2 CONFIG REQUIRED)
+
+add_subdirectory(lib/tmdl)
+add_subdirectory(lib/tmdlstd)
 
 set(PROJECT_SOURCES
     src/main.cpp
@@ -60,6 +65,9 @@ qt_add_executable(ModelTea
     ${PROJECT_SOURCES}
 )
 
+set(TMDLSTD_USE_DEFAULT_MATH_FUNCS ON)
+set(TMDLSTD_USE_STRING_FUNCS ON)
+
 set_property(TARGET ModelTea PROPERTY AUTOUIC ON)
 set_property(TARGET ModelTea PROPERTY AUTOMOC ON)
 set_property(TARGET ModelTea PROPERTY AUTORCC ON)
@@ -67,16 +75,13 @@ set_property(TARGET ModelTea PROPERTY AUTORCC ON)
 set_property(TARGET ModelTea PROPERTY CXX_STANDARD 20)
 set_property(TARGET ModelTea PROPERTY CXX_STANDARD_REQUIRED ON)
 
-add_subdirectory(lib/tmdl)
-add_subdirectory(lib/tmdlstd)
-
 target_include_directories(ModelTea PRIVATE src/)
 
 target_link_libraries(ModelTea PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(ModelTea PRIVATE tmdl)
 
 target_link_libraries(ModelTea PRIVATE Qt::Widgets Qt::Charts)
-target_link_libraries(ModelTea PUBLIC nlohmann_json::nlohmann_json)
+target_link_libraries(ModelTea PRIVATE nlohmann_json::nlohmann_json)
 
 set_target_properties(ModelTea PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER org.teafis.ModelTea

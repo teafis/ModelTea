@@ -31,6 +31,8 @@ find_package(Catch2 CONFIG REQUIRED)
 set(TMDLSTD_USE_DEFAULT_MATH_FUNCS ON)
 set(TMDLSTD_USE_STRING_FUNCS ON)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 add_subdirectory(lib/tmdl)
 add_subdirectory(lib/tmdlstd)
 

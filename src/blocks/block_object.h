@@ -8,7 +8,6 @@
 #include <cstddef>
 #include <memory>
 #include <optional>
-#include <string>
 
 #include <tmdl/block_interface.hpp>
 

@@ -105,7 +105,7 @@ protected:
         std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> _reset_flag;
         std::shared_ptr<tmdl::ModelValueBox<DT>> _output;
 
-        mt::stdlib::derivative_block<type_t> block;
+        mt::stdlib::derivative_block<tmdl::data_type_t<DT>::mt_data_type> block;
         const tmdl::BlockInterface::ModelInfo state;
     };
 };

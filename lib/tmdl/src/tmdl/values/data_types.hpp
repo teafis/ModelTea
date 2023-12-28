@@ -8,6 +8,8 @@
 
 #include "identifiers.hpp"
 
+#include "mtstd_types.hpp"
+
 namespace tmdl {
 
 enum class DataType : uint32_t {
@@ -28,38 +30,43 @@ template <DataType> struct data_type_t {
 };
 
 template <> struct data_type_t<DataType::SINGLE> {
-    using type = float;
     static const bool has_value = true;
     static const bool is_numeric = true;
     static const bool is_modelable = true;
+    static const mt::stdlib::DataType mt_data_type = mt::stdlib::DataType::F32;
+    using type = mt::stdlib::type_info<mt_data_type>::type_t;
 };
 
 template <> struct data_type_t<DataType::DOUBLE> {
-    using type = double;
     static const bool has_value = true;
     static const bool is_numeric = true;
     static const bool is_modelable = true;
+    static const mt::stdlib::DataType mt_data_type = mt::stdlib::DataType::F64;
+    using type = mt::stdlib::type_info<mt_data_type>::type_t;
 };
 
 template <> struct data_type_t<DataType::INT32> {
-    using type = int32_t;
     static const bool has_value = true;
     static const bool is_numeric = true;
     static const bool is_modelable = true;
+    static const mt::stdlib::DataType mt_data_type = mt::stdlib::DataType::I32;
+    using type = mt::stdlib::type_info<mt_data_type>::type_t;
 };
 
 template <> struct data_type_t<DataType::UINT32> {
-    using type = uint32_t;
     static const bool has_value = true;
     static const bool is_numeric = true;
     static const bool is_modelable = true;
+    static const mt::stdlib::DataType mt_data_type = mt::stdlib::DataType::U32;
+    using type = mt::stdlib::type_info<mt_data_type>::type_t;
 };
 
 template <> struct data_type_t<DataType::BOOLEAN> {
-    using type = bool;
     static const bool has_value = true;
     static const bool is_numeric = false;
     static const bool is_modelable = true;
+    static const mt::stdlib::DataType mt_data_type = mt::stdlib::DataType::BOOL;
+    using type = mt::stdlib::type_info<mt_data_type>::type_t;
 };
 
 template <> struct data_type_t<DataType::DATA_TYPE> {

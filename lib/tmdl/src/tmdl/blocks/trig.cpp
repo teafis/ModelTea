@@ -172,7 +172,7 @@ protected:
     private:
         std::vector<std::shared_ptr<const tmdl::ModelValueBox<DT>>> _ptr_inputs;
         const std::shared_ptr<tmdl::ModelValueBox<DT>> _ptr_output;
-        mt::stdlib::trig_block<val_t, FCN> block;
+        mt::stdlib::trig_block<tmdl::data_type_t<DT>::mt_data_type, FCN> block;
     };
 };
 

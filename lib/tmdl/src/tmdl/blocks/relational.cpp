@@ -98,7 +98,7 @@ protected:
         std::shared_ptr<const tmdl::ModelValueBox<DT>> input_b;
         std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> output_value;
 
-        mt::stdlib::relational_block<type_t, OP> block;
+        mt::stdlib::relational_block<tmdl::data_type_t<DT>::mt_data_type, OP> block;
     };
 };
 

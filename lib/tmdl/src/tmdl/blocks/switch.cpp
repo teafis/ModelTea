@@ -100,7 +100,7 @@ protected:
         std::shared_ptr<const ModelValueBox<DT>> _ptr_val_a;
         std::shared_ptr<const ModelValueBox<DT>> _ptr_val_b;
 
-        mt::stdlib::switch_block<limit_t> block;
+        mt::stdlib::switch_block<tmdl::data_type_t<DT>::mt_data_type> block;
     };
 };
 

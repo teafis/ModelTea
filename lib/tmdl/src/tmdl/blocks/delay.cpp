@@ -95,7 +95,7 @@ protected:
         void blk_step() override { block.step(); }
 
     private:
-        mt::stdlib::delay_block<type_t> block;
+        mt::stdlib::delay_block<tmdl::data_type_t<DT>::mt_data_type> block;
 
         std::shared_ptr<const tmdl::ModelValueBox<DT>> _input;
         std::shared_ptr<tmdl::ModelValueBox<DT>> _output;

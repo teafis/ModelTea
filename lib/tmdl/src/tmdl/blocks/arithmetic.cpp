@@ -127,7 +127,7 @@ protected:
         std::vector<type_t> input_value_ptr_array;
         std::shared_ptr<tmdl::ModelValueBox<DT>> output_value;
 
-        mt::stdlib::arith_block_dynamic<type_t, OP> block;
+        mt::stdlib::arith_block_dynamic<tmdl::data_type_t<DT>::mt_data_type, OP> block;
     };
 };
 

@@ -116,12 +116,12 @@ protected:
                 throw tmdl::ModelException("provided output pointer cannot be null");
             }
 
-            block = std::make_unique<mt::stdlib::const_block<type_t>>(value);
+            block = std::make_unique<mt::stdlib::const_block<tmdl::data_type_t<DT>::mt_data_type>>(value);
             update_outputs();
         }
 
         std::shared_ptr<tmdl::ModelValueBox<DT>> const_ptr;
-        std::unique_ptr<mt::stdlib::const_block<type_t>> block;
+        std::unique_ptr<mt::stdlib::const_block<tmdl::data_type_t<DT>::mt_data_type>> block;
 
     protected:
         void update_inputs() override {}

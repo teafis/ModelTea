@@ -167,7 +167,7 @@ protected:
         std::shared_ptr<const ModelValueBox<DT>> _val_min;
         std::shared_ptr<const ModelValueBox<DT>> _val_max;
 
-        mt::stdlib::limiter_block<limit_t> block;
+        mt::stdlib::limiter_block<tmdl::data_type_t<DT>::mt_data_type> block;
     };
 };
 

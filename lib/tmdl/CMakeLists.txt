@@ -62,7 +62,7 @@ set_property(TARGET tmdl PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(tmdl PUBLIC nlohmann_json::nlohmann_json)
 target_link_libraries(tmdl PUBLIC fmt::fmt)
 
-target_link_libraries(tmdl PRIVATE tmdlstd)
+target_link_libraries(tmdl PRIVATE mtstdlib)
 
 # Include Directories
 target_include_directories(tmdl PUBLIC src)

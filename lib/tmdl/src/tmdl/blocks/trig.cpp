@@ -6,8 +6,8 @@
 #include "tmdl/values/value.hpp"
 
 #include <ranges>
-#include <tmdlstd/tmdlstd.hpp>
-#include <tmdlstd/tmdlstd_string.hpp>
+#include <mtstd.hpp>
+#include <mtstd_string.hpp>
 
 #include <fmt/format.h>
 
@@ -65,7 +65,7 @@ tmdl::DataType tmdl::blocks::TrigFunction::get_output_type(const size_t port) co
     }
 }
 
-template <tmdl::DataType DT, tmdl::stdlib::TrigFunction FCN> class CompiledTrig : public tmdl::CompiledBlockInterface {
+template <tmdl::DataType DT, mt::stdlib::TrigFunction FCN> class CompiledTrig : public tmdl::CompiledBlockInterface {
 public:
     explicit CompiledTrig(const size_t id, const size_t num_inputs) : _id{id}, _num_inputs{num_inputs} {
         // Empty Constructor
@@ -111,8 +111,8 @@ protected:
         std::string get_name_base() const override { return "trig_block"; }
 
         std::string get_type_name() const override {
-            return fmt::format("tmdl::stdlib::trig_block<{}, {}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT),
-                               tmdl::stdlib::trig_func_to_string(FCN));
+            return fmt::format("mt::stdlib::trig_block<{}, {}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT),
+                               mt::stdlib::trig_func_to_string(FCN));
         }
 
         std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override {
@@ -154,7 +154,7 @@ protected:
 
     protected:
         void update_inputs() override {
-            if (_ptr_inputs.size() != tmdl::stdlib::TrigInfo<FCN>::input_count) {
+            if (_ptr_inputs.size() != mt::stdlib::TrigInfo<FCN>::input_count) {
                 throw tmdl::ModelException("input input_size_mismatch!");
             }
 
@@ -172,11 +172,11 @@ protected:
     private:
         std::vector<std::shared_ptr<const tmdl::ModelValueBox<DT>>> _ptr_inputs;
         const std::shared_ptr<tmdl::ModelValueBox<DT>> _ptr_output;
-        tmdl::stdlib::trig_block<val_t, FCN> block;
+        mt::stdlib::trig_block<val_t, FCN> block;
     };
 };
 
-template <tmdl::stdlib::TrigFunction FCN>
+template <mt::stdlib::TrigFunction FCN>
 static std::unique_ptr<tmdl::CompiledBlockInterface> generate_compiler_interface(const tmdl::blocks::TrigFunction* model) {
     if (model->has_error() != nullptr) {
         throw tmdl::ModelException(fmt::format("cannot execute {} with incomplete input parameters", model->get_name()));
@@ -193,19 +193,19 @@ static std::unique_ptr<tmdl::CompiledBlockInterface> generate_compiler_interface
 }
 
 #define MAKE_TRIG1_BLOCK(CLASS_NAME, TYPE_CODE, NAME)                                                                                      \
-    tmdl::blocks::CLASS_NAME::CLASS_NAME() : TrigFunction(tmdl::stdlib::TrigInfo<TYPE_CODE>::input_count) {}                               \
+    tmdl::blocks::CLASS_NAME::CLASS_NAME() : TrigFunction(mt::stdlib::TrigInfo<TYPE_CODE>::input_count) {}                               \
     std::string tmdl::blocks::CLASS_NAME::get_name() const {                                                                               \
-        return tmdl::stdlib::trig_func_to_string((TYPE_CODE), tmdl::stdlib::SpecificationType::NONE);                                      \
+        return mt::stdlib::trig_func_to_string((TYPE_CODE), mt::stdlib::SpecificationType::NONE);                                      \
     }                                                                                                                                      \
     std::string tmdl::blocks::CLASS_NAME::get_description() const { return fmt::format("computes {} for the input parameter", (NAME)); }   \
     std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::CLASS_NAME::get_compiled(const ModelInfo&) const {                         \
         return generate_compiler_interface<(TYPE_CODE)>(this);                                                                             \
     }
 
-MAKE_TRIG1_BLOCK(TrigSin, tmdl::stdlib::TrigFunction::SIN, "sine")
-MAKE_TRIG1_BLOCK(TrigCos, tmdl::stdlib::TrigFunction::COS, "cosine")
-MAKE_TRIG1_BLOCK(TrigTan, tmdl::stdlib::TrigFunction::TAN, "tangent")
-MAKE_TRIG1_BLOCK(TrigASin, tmdl::stdlib::TrigFunction::ASIN, "arcsine")
-MAKE_TRIG1_BLOCK(TrigACos, tmdl::stdlib::TrigFunction::ACOS, "arccosine")
-MAKE_TRIG1_BLOCK(TrigATan, tmdl::stdlib::TrigFunction::ATAN, "arctangent (atan(x))")
-MAKE_TRIG1_BLOCK(TrigATan2, tmdl::stdlib::TrigFunction::ATAN2, "arctangent (atan(y = in[0], x = in[1]))")
+MAKE_TRIG1_BLOCK(TrigSin, mt::stdlib::TrigFunction::SIN, "sine")
+MAKE_TRIG1_BLOCK(TrigCos, mt::stdlib::TrigFunction::COS, "cosine")
+MAKE_TRIG1_BLOCK(TrigTan, mt::stdlib::TrigFunction::TAN, "tangent")
+MAKE_TRIG1_BLOCK(TrigASin, mt::stdlib::TrigFunction::ASIN, "arcsine")
+MAKE_TRIG1_BLOCK(TrigACos, mt::stdlib::TrigFunction::ACOS, "arccosine")
+MAKE_TRIG1_BLOCK(TrigATan, mt::stdlib::TrigFunction::ATAN, "arctangent (atan(x))")
+MAKE_TRIG1_BLOCK(TrigATan2, mt::stdlib::TrigFunction::ATAN2, "arctangent (atan(y = in[0], x = in[1]))")

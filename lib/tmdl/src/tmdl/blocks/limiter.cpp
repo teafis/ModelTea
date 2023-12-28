@@ -8,7 +8,7 @@
 
 #include <fmt/format.h>
 
-#include <tmdlstd/tmdlstd.hpp>
+#include <mtstd.hpp>
 
 using namespace tmdl;
 using namespace tmdl::blocks;
@@ -77,7 +77,7 @@ protected:
         std::string get_name_base() const override { return "limiter_block"; }
 
         std::string get_type_name() const override {
-            return fmt::format("tmdl::stdlib::limiter_block<{}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT));
+            return fmt::format("mt::stdlib::limiter_block<{}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT));
         }
 
         std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override {
@@ -110,7 +110,7 @@ protected:
         std::string get_name_base() const override { return "limiter_block_const"; }
 
         std::string get_type_name() const override {
-            return fmt::format("tmdl::stdlib::limiter_block_const<{}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT));
+            return fmt::format("mt::stdlib::limiter_block_const<{}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT));
         }
 
         std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override {
@@ -167,7 +167,7 @@ protected:
         std::shared_ptr<const ModelValueBox<DT>> _val_min;
         std::shared_ptr<const ModelValueBox<DT>> _val_max;
 
-        tmdl::stdlib::limiter_block<limit_t> block;
+        mt::stdlib::limiter_block<limit_t> block;
     };
 };
 

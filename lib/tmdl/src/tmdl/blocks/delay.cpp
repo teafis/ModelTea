@@ -5,7 +5,7 @@
 
 #include <fmt/format.h>
 
-#include <tmdlstd/tmdlstd.hpp>
+#include <mtstd.hpp>
 
 #include <memory>
 
@@ -50,7 +50,7 @@ protected:
         std::string get_name_base() const override { return "delay_block"; }
 
         std::string get_type_name() const override {
-            return fmt::format("tmdl::stdlib::delay_block<{}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT));
+            return fmt::format("mt::stdlib::delay_block<{}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT));
         }
 
         std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override {
@@ -95,7 +95,7 @@ protected:
         void blk_step() override { block.step(); }
 
     private:
-        tmdl::stdlib::delay_block<type_t> block;
+        mt::stdlib::delay_block<type_t> block;
 
         std::shared_ptr<const tmdl::ModelValueBox<DT>> _input;
         std::shared_ptr<tmdl::ModelValueBox<DT>> _output;

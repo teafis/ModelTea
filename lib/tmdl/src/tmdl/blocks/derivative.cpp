@@ -4,7 +4,7 @@
 
 #include "../model_exception.hpp"
 
-#include <tmdlstd/tmdlstd.hpp>
+#include <mtstd.hpp>
 
 #include <fmt/format.h>
 
@@ -54,7 +54,7 @@ protected:
         std::string get_name_base() const override { return "derivative_block"; }
 
         std::string get_type_name() const override {
-            return fmt::format("tmdl::stdlib::derivative_block<{}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT));
+            return fmt::format("mt::stdlib::derivative_block<{}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT));
         }
 
         std::optional<std::string> get_function_name(const tmdl::codegen::BlockFunction fcn) const override {
@@ -105,7 +105,7 @@ protected:
         std::shared_ptr<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>> _reset_flag;
         std::shared_ptr<tmdl::ModelValueBox<DT>> _output;
 
-        tmdl::stdlib::derivative_block<type_t> block;
+        mt::stdlib::derivative_block<type_t> block;
         const tmdl::BlockInterface::ModelInfo state;
     };
 };

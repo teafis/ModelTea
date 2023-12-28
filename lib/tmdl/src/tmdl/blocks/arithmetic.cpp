@@ -6,12 +6,12 @@
 #include <memory>
 
 #include <fmt/format.h>
-#include <tmdlstd/tmdlstd.hpp>
-#include <tmdlstd/tmdlstd_string.hpp>
+#include <mtstd.hpp>
+#include <mtstd_string.hpp>
 
 // Arithmetic Executor
 
-template <tmdl::DataType DT, tmdl::stdlib::ArithType OP> class ArithCompiled : public tmdl::CompiledBlockInterface {
+template <tmdl::DataType DT, mt::stdlib::ArithType OP> class ArithCompiled : public tmdl::CompiledBlockInterface {
     static_assert(tmdl::data_type_t<DT>::is_numeric);
     static_assert(tmdl::data_type_t<DT>::is_modelable);
 
@@ -68,8 +68,8 @@ protected:
         std::string get_name_base() const override { return "arith_block"; }
 
         std::string get_type_name() const override {
-            return fmt::format("tmdl::stdlib::arith_block<{}, {}, {}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT),
-                               tmdl::stdlib::arith_to_string(OP), _size);
+            return fmt::format("mt::stdlib::arith_block<{}, {}, {}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT),
+                               mt::stdlib::arith_to_string(OP), _size);
         }
 
         std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override {
@@ -127,7 +127,7 @@ protected:
         std::vector<type_t> input_value_ptr_array;
         std::shared_ptr<tmdl::ModelValueBox<DT>> output_value;
 
-        tmdl::stdlib::arith_block_dynamic<type_t, OP> block;
+        mt::stdlib::arith_block_dynamic<type_t, OP> block;
     };
 };
 
@@ -208,7 +208,7 @@ tmdl::DataType tmdl::blocks::ArithmeticBase::get_output_type(const size_t port) 
 
 tmdl::DataType tmdl::blocks::ArithmeticBase::get_output_type() const { return _outputPort; }
 
-template <tmdl::stdlib::ArithType OP>
+template <mt::stdlib::ArithType OP>
 std::unique_ptr<tmdl::CompiledBlockInterface> generate_compiled(const tmdl::DataType output_type, const size_t block_id,
                                                                 const size_t input_size) {
     switch (output_type) {
@@ -240,7 +240,7 @@ std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Addition::get_compil
         throw ModelException("cannot generate a addition block with an error");
     }
 
-    return generate_compiled<tmdl::stdlib::ArithType::ADD>(get_output_type(), get_id(), get_num_inputs());
+    return generate_compiled<mt::stdlib::ArithType::ADD>(get_output_type(), get_id(), get_num_inputs());
 }
 
 // Subtraction Block
@@ -254,7 +254,7 @@ std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Subtraction::get_com
         throw ModelException("cannot generate a subtraction block with an error");
     }
 
-    return generate_compiled<tmdl::stdlib::ArithType::SUB>(get_output_type(), get_id(), get_num_inputs());
+    return generate_compiled<mt::stdlib::ArithType::SUB>(get_output_type(), get_id(), get_num_inputs());
 }
 
 // Product Block
@@ -268,7 +268,7 @@ std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Multiplication::get_
         throw ModelException("cannot generate a multiplication block with an error");
     }
 
-    return generate_compiled<tmdl::stdlib::ArithType::MUL>(get_output_type(), get_id(), get_num_inputs());
+    return generate_compiled<mt::stdlib::ArithType::MUL>(get_output_type(), get_id(), get_num_inputs());
 }
 
 // Division Block
@@ -282,7 +282,7 @@ std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Division::get_compil
         throw ModelException("cannot generate a division block with an error");
     }
 
-    return generate_compiled<tmdl::stdlib::ArithType::DIV>(get_output_type(), get_id(), get_num_inputs());
+    return generate_compiled<mt::stdlib::ArithType::DIV>(get_output_type(), get_id(), get_num_inputs());
 }
 
 // Modulus Block
@@ -296,5 +296,5 @@ std::unique_ptr<tmdl::CompiledBlockInterface> tmdl::blocks::Modulus::get_compile
         throw ModelException("cannot generate a modulus block with an error");
     }
 
-    return generate_compiled<tmdl::stdlib::ArithType::MOD>(get_output_type(), get_id(), get_num_inputs());
+    return generate_compiled<mt::stdlib::ArithType::MOD>(get_output_type(), get_id(), get_num_inputs());
 }

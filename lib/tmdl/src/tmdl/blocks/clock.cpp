@@ -7,7 +7,7 @@
 
 #include <fmt/format.h>
 
-#include "tmdlstd/tmdlstd.hpp"
+#include <mtstd.hpp>
 
 class CompiledClock : public tmdl::CompiledBlockInterface {
 public:
@@ -46,7 +46,7 @@ protected:
 
         std::string get_name_base() const override { return "clock_block"; }
 
-        std::string get_type_name() const override { return "tmdl::stdlib::clock_block"; }
+        std::string get_type_name() const override { return "mt::stdlib::clock_block"; }
 
         std::vector<std::string> constructor_arguments() const override { return {std::to_string(_state.get_dt())}; }
 
@@ -82,7 +82,7 @@ protected:
 
     private:
         std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>> output_value;
-        tmdl::stdlib::clock_block block;
+        mt::stdlib::clock_block block;
         const tmdl::BlockInterface::ModelInfo state;
     };
 };

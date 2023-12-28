@@ -6,7 +6,7 @@
 #include "tmdl/values/value.hpp"
 
 #include <fmt/format.h>
-#include <tmdlstd/tmdlstd.hpp>
+#include <mtstd.hpp>
 
 tmdl::blocks::Constant::Constant()
     : param_dtype(std::make_shared<Parameter>("dtype", "data type", ModelValue::make_default(DataType::DATA_TYPE))),
@@ -99,7 +99,7 @@ protected:
         std::string get_name_base() const override { return "const_block"; }
 
         std::string get_type_name() const override {
-            return fmt::format("tmdl::stdlib::const_block<{}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT));
+            return fmt::format("mt::stdlib::const_block<{}>", tmdl::codegen::get_datatype_name(tmdl::codegen::Language::CPP, DT));
         }
 
         std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction) const override { return {}; }
@@ -116,12 +116,12 @@ protected:
                 throw tmdl::ModelException("provided output pointer cannot be null");
             }
 
-            block = std::make_unique<tmdl::stdlib::const_block<type_t>>(value);
+            block = std::make_unique<mt::stdlib::const_block<type_t>>(value);
             update_outputs();
         }
 
         std::shared_ptr<tmdl::ModelValueBox<DT>> const_ptr;
-        std::unique_ptr<tmdl::stdlib::const_block<type_t>> block;
+        std::unique_ptr<mt::stdlib::const_block<type_t>> block;
 
     protected:
         void update_inputs() override {}

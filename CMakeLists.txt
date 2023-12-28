@@ -28,13 +28,12 @@ find_package(nlohmann_json CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 find_package(Catch2 CONFIG REQUIRED)
 
-set(TMDLSTD_USE_DEFAULT_MATH_FUNCS ON)
-set(TMDLSTD_USE_STRING_FUNCS ON)
+set(MTSTD_USE_STRING_FUNCS ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+add_subdirectory(lib/mtstdlib)
 add_subdirectory(lib/tmdl)
-add_subdirectory(lib/tmdlstd)
 
 set(PROJECT_SOURCES
     src/main.cpp
@@ -80,7 +79,7 @@ set_property(TARGET ModelTea PROPERTY CXX_STANDARD_REQUIRED ON)
 target_include_directories(ModelTea PRIVATE src/)
 
 target_link_libraries(ModelTea PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-target_link_libraries(ModelTea PRIVATE tmdl)
+target_link_libraries(ModelTea PRIVATE tmdl mtstdlib)
 
 target_link_libraries(ModelTea PRIVATE Qt::Widgets Qt::Charts)
 target_link_libraries(ModelTea PRIVATE nlohmann_json::nlohmann_json)

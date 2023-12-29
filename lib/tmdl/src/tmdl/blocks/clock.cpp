@@ -78,7 +78,8 @@ protected:
         void blk_step() override { block.step(); }
 
         void update_inputs() override {}
-        void update_outputs() override { output_value->value = block.s_out.val; }
+
+        void update_outputs() override { output_value->value = block.s_out.value; }
 
     private:
         std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>> output_value;

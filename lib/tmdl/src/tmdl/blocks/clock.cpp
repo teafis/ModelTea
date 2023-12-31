@@ -2,6 +2,7 @@
 
 #include "clock.hpp"
 #include "../model_exception.hpp"
+#include "mtstd_types.hpp"
 
 #include <memory>
 
@@ -83,7 +84,7 @@ protected:
 
     private:
         std::shared_ptr<tmdl::ModelValueBox<tmdl::DataType::DOUBLE>> output_value;
-        mt::stdlib::clock_block block;
+        mt::stdlib::clock_block<mt::stdlib::DataType::F64> block;
         const tmdl::BlockInterface::ModelInfo state;
     };
 };

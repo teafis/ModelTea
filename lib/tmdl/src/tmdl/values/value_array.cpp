@@ -96,16 +96,26 @@ std::unique_ptr<tmdl::ValueArray> tmdl::ValueArray::create_with_type(const size_
                                                                      const tmdl::DataType data_type) {
     switch (data_type) {
         using enum DataType;
-    case BOOLEAN:
-        return std::make_unique<ValueArrayBox<BOOLEAN>>(cols, rows, values);
-    case DOUBLE:
-        return std::make_unique<ValueArrayBox<DOUBLE>>(cols, rows, values);
-    case SINGLE:
-        return std::make_unique<ValueArrayBox<SINGLE>>(cols, rows, values);
-    case INT32:
-        return std::make_unique<ValueArrayBox<INT32>>(cols, rows, values);
-    case UINT32:
-        return std::make_unique<ValueArrayBox<UINT32>>(cols, rows, values);
+    case BOOL:
+        return std::make_unique<ValueArrayBox<BOOL>>(cols, rows, values);
+    case F64:
+        return std::make_unique<ValueArrayBox<F64>>(cols, rows, values);
+    case F32:
+        return std::make_unique<ValueArrayBox<F32>>(cols, rows, values);
+    case I8:
+        return std::make_unique<ValueArrayBox<I8>>(cols, rows, values);
+    case U8:
+        return std::make_unique<ValueArrayBox<U8>>(cols, rows, values);
+    case I16:
+        return std::make_unique<ValueArrayBox<I16>>(cols, rows, values);
+    case U16:
+        return std::make_unique<ValueArrayBox<U16>>(cols, rows, values);
+    case I32:
+        return std::make_unique<ValueArrayBox<I32>>(cols, rows, values);
+    case U32:
+        return std::make_unique<ValueArrayBox<U32>>(cols, rows, values);
+    case NONE:
+        return std::make_unique<ValueArrayBox<NONE>>(cols, rows, values);
     default:
         throw ModelException("cannot create a value array from an unknown data type");
     }

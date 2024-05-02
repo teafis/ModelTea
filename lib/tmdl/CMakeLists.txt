@@ -30,18 +30,7 @@ set(
     src/tmdl/values/value.hpp src/tmdl/values/value.cpp
     src/tmdl/values/value_array.hpp src/tmdl/values/value_array.cpp
     src/tmdl/variable_manager.hpp src/tmdl/variable_manager.cpp
-    src/tmdl/blocks/arithmetic.hpp src/tmdl/blocks/arithmetic.cpp
-    src/tmdl/blocks/clock.hpp src/tmdl/blocks/clock.cpp
-    src/tmdl/blocks/constant.hpp src/tmdl/blocks/constant.cpp
-    src/tmdl/blocks/delay.hpp src/tmdl/blocks/delay.cpp
-    src/tmdl/blocks/derivative.hpp src/tmdl/blocks/derivative.cpp
-    src/tmdl/blocks/integrator.hpp src/tmdl/blocks/integrator.cpp
     src/tmdl/blocks/io_ports.hpp src/tmdl/blocks/io_ports.cpp
-    src/tmdl/blocks/limiter.hpp src/tmdl/blocks/limiter.cpp
-    src/tmdl/blocks/relational.hpp src/tmdl/blocks/relational.cpp
-    src/tmdl/blocks/switch.hpp src/tmdl/blocks/switch.cpp
-    src/tmdl/blocks/trig.hpp src/tmdl/blocks/trig.cpp
-    src/tmdl/blocks/common.hpp src/tmdl/blocks/common.cpp
     src/tmdl/libraries/model_library.hpp src/tmdl/libraries/model_library.cpp
     src/tmdl/libraries/stdlib.hpp src/tmdl/libraries/stdlib.cpp
     src/tmdl/codegen/generator.hpp src/tmdl/codegen/generator.cpp

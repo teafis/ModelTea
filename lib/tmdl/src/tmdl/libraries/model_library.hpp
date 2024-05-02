@@ -3,6 +3,7 @@
 #ifndef TF_MODEL_MODEL_LIBRARY_HPP
 #define TF_MODEL_MODEL_LIBRARY_HPP
 
+#include <filesystem>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -13,6 +14,9 @@
 namespace tmdl {
 
 class ModelLibrary : public LibraryBase {
+protected:
+    using model_map_t = std::unordered_map<std::string, std::shared_ptr<Model>>;
+
 public:
     [[nodiscard]] const std::string get_library_name() const override;
 
@@ -20,13 +24,19 @@ public:
 
     [[nodiscard]] bool has_block(std::string_view name) const override;
 
-    [[nodiscard]] std::shared_ptr<BlockInterface> create_block(std::string_view name) const override;
+    [[nodiscard]] std::unique_ptr<BlockInterface> create_block(std::string_view name) const override;
 
     [[nodiscard]] std::shared_ptr<Model> get_model(std::string_view name) const;
 
     [[nodiscard]] std::shared_ptr<Model> create_model();
 
     [[nodiscard]] std::shared_ptr<tmdl::Model> add_model(std::shared_ptr<Model> model);
+
+    void save_model(const Model* model);
+
+    void save_model(const Model* model, const std::filesystem::path& path);
+
+    std::shared_ptr<Model> load_model(const std::filesystem::path& path);
 
     void close_model(const tmdl::Model* model);
 
@@ -35,7 +45,10 @@ public:
     [[nodiscard]] std::shared_ptr<Model> try_get_model(std::string_view name) const;
 
 protected:
-    [[nodiscard]] static bool is_valid_model(const std::shared_ptr<Model> mdl);
+    [[nodiscard]] model_map_t::iterator find_model(const Model* mdl);
+    [[nodiscard]] model_map_t::const_iterator find_model(const Model* mdl) const;
+
+    [[nodiscard]] static bool is_valid_model(const Model* mdl);
 
 private:
     inline static std::string library_name = "models";

@@ -9,6 +9,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "../model_exception.hpp"
@@ -32,13 +33,15 @@ struct ModelValue {
 
     virtual std::string to_string() const = 0;
 
+    virtual std::unique_ptr<mt::stdlib::Argument> to_argument() const = 0;
+
     static std::unique_ptr<ModelValue> make_default(const DataType dtype);
 
-    static std::unique_ptr<ModelValue> from_string(const std::string& s, const DataType dt);
+    static std::unique_ptr<ModelValue> from_string(std::string_view s, const DataType dt);
 
     static std::unique_ptr<ModelValue> convert_type(const ModelValue* val, const DataType dt);
 
-    template <DataType DT> static const typename data_type_t<DT>::type& get_inner_value(const ModelValue* value) {
+    template <DataType DT> static const typename data_type_t<DT>::type_t& get_inner_value(const ModelValue* value) {
         const auto* ptr = dynamic_cast<const ModelValueBox<DT>*>(value);
         if (ptr == nullptr) {
             throw ModelException("unable to convert data type parameters");
@@ -46,7 +49,7 @@ struct ModelValue {
         return ptr->value;
     }
 
-    template <DataType DT> static typename data_type_t<DT>::type& get_inner_value(ModelValue* value) {
+    template <DataType DT> static typename data_type_t<DT>::type_t& get_inner_value(ModelValue* value) {
         auto* ptr = dynamic_cast<ModelValueBox<DT>*>(value);
         if (ptr == nullptr) {
             throw ModelException("unable to convert data type parameters");
@@ -56,26 +59,20 @@ struct ModelValue {
 };
 
 template <DataType DT> struct ModelValueBox : public ModelValue {
-    using type_t = typename data_type_t<DT>::type;
+    using type_t = typename data_type_t<DT>::type_t;
 
     ModelValueBox() = default;
 
     explicit ModelValueBox(const type_t inval) : value(inval) {}
 
     DataType data_type() const override {
-        static_assert(DT != DataType::UNKNOWN);
+        static_assert(DT != DataType::NONE);
         return DT;
     }
 
-    std::string to_string() const override {
-        if constexpr (DT == DataType::DATA_TYPE) {
-            return data_type_to_string(value);
-        } else if constexpr (DT == DataType::IDENTIFIER) {
-            return fmt::format("\"{}\"", value.get());
-        } else {
-            return std::to_string(value);
-        }
-    }
+    std::string to_string() const override { return std::to_string(value); }
+
+    std::unique_ptr<mt::stdlib::Argument> to_argument() const override { return std::make_unique<mt::stdlib::ArgumentBox<DT>>(value); }
 
     void copy_from(const ModelValue* in) override {
         if (auto ptr = dynamic_cast<const ModelValueBox<DT>*>(in)) {
@@ -90,18 +87,20 @@ template <DataType DT> struct ModelValueBox : public ModelValue {
     type_t value{};
 };
 
-template <> struct ModelValueBox<DataType::UNKNOWN> : public ModelValue {
+template <> struct ModelValueBox<DataType::NONE> : public ModelValue {
     ModelValueBox() = default;
 
-    DataType data_type() const override { return DataType::UNKNOWN; }
+    DataType data_type() const override { return DataType::NONE; }
 
     std::string to_string() const override { return "??"; }
+
+    std::unique_ptr<mt::stdlib::Argument> to_argument() const override { return nullptr; }
 
     void copy_from(const ModelValue* in) override {
         throw ModelException(fmt::format("unable to copy from {} into an unknown data type", data_type_to_string(data_type())));
     }
 
-    std::unique_ptr<ModelValue> clone() const override { return std::make_unique<ModelValueBox<DataType::UNKNOWN>>(); }
+    std::unique_ptr<ModelValue> clone() const override { return std::make_unique<ModelValueBox<DataType::NONE>>(); }
 };
 
 }

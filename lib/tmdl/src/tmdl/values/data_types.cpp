@@ -9,13 +9,16 @@ class DataTypeMap {
 protected:
     DataTypeMap() {
         const std::vector<std::pair<tmdl::DataType, std::string>> type_vals{
-            {tmdl::DataType::BOOLEAN, "bool"},
-            {tmdl::DataType::DOUBLE, "f64"},
-            {tmdl::DataType::SINGLE, "f32"},
-            {tmdl::DataType::INT32, "i32"},
-            {tmdl::DataType::UINT32, "u32"},
-            {tmdl::DataType::DATA_TYPE, "data_type"},
-            {tmdl::DataType::IDENTIFIER, "identifier"},
+            {tmdl::DataType::BOOL, "bool"},
+            {tmdl::DataType::F64, "f64"},
+            {tmdl::DataType::F32, "f32"},
+            {tmdl::DataType::I8, "i8"},
+            {tmdl::DataType::U8, "u8"},
+            {tmdl::DataType::I16, "i16"},
+            {tmdl::DataType::U16, "u16"},
+            {tmdl::DataType::I32, "i32"},
+            {tmdl::DataType::U32, "u32"},
+            {tmdl::DataType::NONE, "none"},
         };
 
         for (const auto& [t, n] : type_vals) {
@@ -35,7 +38,7 @@ public:
         if (it != name_to_type.end()) {
             return it->second;
         } else {
-            return tmdl::DataType::UNKNOWN;
+            return tmdl::DataType::NONE;
         }
     }
 

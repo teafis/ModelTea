@@ -151,8 +151,10 @@ void ModelWindow::saveModel() {
     if (!get_model_id()->get_filename().has_value()) {
         saveModelAs();
     } else {
+        const auto mdl_library = tmdl::LibraryManager::get_instance().default_model_library();
+
         try {
-            get_model_id()->save_model();
+            mdl_library->save_model(get_model_id());
         } catch (const tmdl::ModelException& ex) {
             QMessageBox::warning(this, "error", ex.what());
             return;
@@ -171,9 +173,10 @@ void ModelWindow::saveModelAs() {
             pth.replace_extension(tmdl::Model::DEFAULT_MODEL_EXTENSION);
         }
 
+        const auto mdl_library = tmdl::LibraryManager::get_instance().default_model_library();
+
         try {
-            get_model_id()->set_filename(pth);
-            get_model_id()->save_model();
+            mdl_library->save_model(get_model_id(), pth);
         } catch (const tmdl::ModelException& ex) {
             QMessageBox::warning(this, "error", ex.what());
             return;
@@ -202,9 +205,10 @@ void ModelWindow::openFileDialog() {
 
 bool ModelWindow::openModelFile(QString openFilename) {
     std::shared_ptr<tmdl::Model> mdl = nullptr;
+    const auto mdl_library = tmdl::LibraryManager::get_instance().default_model_library();
 
     try {
-        mdl = tmdl::Model::load_model(openFilename.toStdString()); // TODO - Move to load_model through the block library
+        mdl = mdl_library->load_model(openFilename.toStdString());
     } catch (const tmdl::ModelException& ex) {
         QMessageBox::warning(this, "error", ex.what());
         return false;
@@ -451,10 +455,10 @@ void ModelWindow::addBlock(QString l, QString s) {
     }
 
     // Initialze the block
-    const auto tmp = tmdl::LibraryManager::get_instance().get_library(l.toStdString())->create_block(s.toStdString());
+    auto tmp = tmdl::LibraryManager::get_instance().get_library(l.toStdString())->create_block(s.toStdString());
 
     // Add the block
-    ui->block_graphics->addBlock(tmp);
+    ui->block_graphics->addBlock(std::move(tmp));
 }
 
 void ModelWindow::executorFlagSet() { updateWindowItems(); }

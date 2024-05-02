@@ -7,7 +7,7 @@
 
 #include <QMessageBox>
 
-ParameterNumericWidget::ParameterNumericWidget(std::shared_ptr<tmdl::Parameter> parameter, QWidget* parent)
+ParameterNumericWidget::ParameterNumericWidget(std::shared_ptr<tmdl::ParameterValue> parameter, QWidget* parent)
     : QWidget(parent), ui(new Ui::ParameterNumericWidget), parameter(parameter) {
     ui->setupUi(this);
 

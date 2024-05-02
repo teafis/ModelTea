@@ -5,30 +5,32 @@
 
 #include "exceptions/block_object_exception.h"
 
-ParameterDataTypeWidget::ParameterDataTypeWidget(std::shared_ptr<tmdl::Parameter> parameter, QWidget* parent)
+ParameterDataTypeWidget::ParameterDataTypeWidget(std::shared_ptr<tmdl::ParameterDataType> parameter, QWidget* parent)
     : QWidget(parent), ui(new Ui::ParameterDataTypeWidget), parameter(parameter) {
     ui->setupUi(this);
 
-    if (parameter->get_value()->data_type() != tmdl::DataType::DATA_TYPE) {
-        throw BlockObjectException("parameter must be a data type");
-    }
+    std::optional<int> selected_index{};
 
-    map_values = {{"Double", tmdl::DataType::DOUBLE},  {"Single", tmdl::DataType::SINGLE},   {"Int 32", tmdl::DataType::INT32},
-                  {"UInt 32", tmdl::DataType::UINT32}, {"Boolean", tmdl::DataType::BOOLEAN}, {"Unknown", tmdl::DataType::UNKNOWN}};
-
-    for (const auto& kv : map_values) {
-        ui->comboBox->addItem(kv.first.c_str());
-    }
-
-    std::string current_string;
-    for (const auto& kv : map_values) {
-        current_string = kv.first;
-        if (kv.second == get_value_data_type()) {
-            break;
+    for (const auto dt_meta : mt::stdlib::get_meta_types()) {
+        if (map_values.contains(dt_meta->get_name())) {
+            throw BlockObjectException(fmt::format("duplicate name provided for {}", dt_meta->get_name()));
         }
+
+        if (parameter->get_type() == dt_meta->get_data_type()){
+            selected_index = map_values.size();
+        }
+
+        ui->comboBox->addItem(dt_meta->get_name());
+        map_values.insert({dt_meta->get_name(), dt_meta->get_data_type()});
     }
 
-    ui->comboBox->setCurrentText(current_string.c_str());
+    ui->comboBox->addItem("none");
+
+    if (selected_index.has_value()) {
+        ui->comboBox->setCurrentIndex(*selected_index);
+    } else {
+        ui->comboBox->setCurrentIndex(map_values.size());
+    }
 
     connect(ui->comboBox, qOverload<int>(&QComboBox::currentIndexChanged), this, &ParameterDataTypeWidget::selectionChanged);
 }
@@ -37,18 +39,18 @@ ParameterDataTypeWidget::~ParameterDataTypeWidget() { delete ui; }
 
 void ParameterDataTypeWidget::selectionChanged(int) {
     const auto it = map_values.find(ui->comboBox->currentText().toStdString());
-    tmdl::DataType new_dtype = tmdl::DataType::UNKNOWN;
+    tmdl::DataType new_dtype = tmdl::DataType::NONE;
 
     if (it != map_values.end()) {
         new_dtype = it->second;
     }
 
-    if (new_dtype != parameter->get_value()->data_type()) {
+    if (new_dtype != parameter->get_type()) {
         get_value_data_type() = new_dtype;
         emit parameterUpdated();
     }
 }
 
 tmdl::DataType& ParameterDataTypeWidget::get_value_data_type() {
-    return tmdl::ModelValue::get_inner_value<tmdl::DataType::DATA_TYPE>(parameter->get_value());
+    return parameter->get_type();
 }

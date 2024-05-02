@@ -3,7 +3,7 @@
 #ifndef PARAMETER_DATATYPE_WIDGET_H
 #define PARAMETER_DATATYPE_WIDGET_H
 
-#include <QWidget>
+#include <QtWidgets/QWidget>
 
 #include <tmdl/values/parameter.hpp>
 
@@ -17,7 +17,7 @@ class ParameterDataTypeWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit ParameterDataTypeWidget(std::shared_ptr<tmdl::Parameter> parameter, QWidget* parent = nullptr);
+    explicit ParameterDataTypeWidget(std::shared_ptr<tmdl::ParameterDataType> parameter, QWidget* parent = nullptr);
     ~ParameterDataTypeWidget();
 
 protected slots:
@@ -31,7 +31,7 @@ private:
 
 private:
     Ui::ParameterDataTypeWidget* ui;
-    std::shared_ptr<tmdl::Parameter> parameter;
+    std::shared_ptr<tmdl::ParameterDataType> parameter;
 
     std::unordered_map<std::string, tmdl::DataType> map_values;
 };

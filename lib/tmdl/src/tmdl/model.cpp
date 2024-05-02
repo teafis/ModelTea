@@ -377,7 +377,7 @@ void Model::remove_block(const size_t id) {
         if (c->get_from_id() != id)
             continue;
 
-        get_block(c->get_to_id())->set_input_type(c->get_to_port(), DataType::UNKNOWN);
+        get_block(c->get_to_id())->set_input_type(c->get_to_port(), DataType::NONE);
     }
 
     // Remove references to the block ID
@@ -407,7 +407,7 @@ void Model::remove_connection(const size_t to_block, const size_t to_port) {
     const auto c = connections.get_connection_to(to_block, to_port);
 
     if (auto blk = get_block(c->get_to_id()); c->get_to_port() < blk->get_num_inputs()) {
-        blk->set_input_type(c->get_to_port(), DataType::UNKNOWN);
+        blk->set_input_type(c->get_to_port(), DataType::NONE);
     }
 
     connections.remove_connection(to_block, to_port);
@@ -832,8 +832,7 @@ void Model::set_filename(const std::filesystem::path& fn) {
         throw ModelException(fmt::format("error setting filename '{}' due to missing stem", fn.string()));
     }
 
-    const std::string name_temp = fn.stem();
-    name = Identifier(name_temp);
+    name = Identifier(std::string(fn.stem()));
     filename = fn;
 }
 
@@ -878,15 +877,33 @@ void tmdl::Model::save_model() const {
     }
 }
 
+enum class SaveParameterType {
+    ModelValue = 0,
+    DataType,
+};
+
 struct SaveParameter {
     SaveParameter() = default;
 
-    SaveParameter(std::string_view id, tmdl::DataType dtype, std::string_view value) : id{id}, dtype{dtype}, value{value} {
-        // Empty Constructor
+    SaveParameter(const tmdl::Parameter* prm) {
+        if (prm == nullptr) {
+            throw ModelException("provided parameter is null!");
+        }
+
+        id = prm->get_id();
+        value = prm->get_value_string();
+
+        if (const auto prm_mdl = dynamic_cast<const tmdl::ParameterValue*>(prm)) {
+            dtype = prm_mdl->get_value()->data_type();
+        } else if (const auto prm_dt = dynamic_cast<const tmdl::ParameterDataType*>(prm)) {
+            dtype = DataType::NONE;
+        } else {
+            throw ModelException("unknown save parameter type provided");
+        }
     }
 
     std::string id;
-    tmdl::DataType dtype{tmdl::DataType::UNKNOWN};
+    tmdl::DataType dtype{tmdl::DataType::NONE};
     std::string value;
 };
 
@@ -961,7 +978,7 @@ void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m) {
     for (const auto& [blk_id, blk] : m.blocks) {
         std::vector<SaveParameter> json_parameters;
         for (const auto& p : blk->get_parameters()) {
-            json_parameters.emplace_back(p->get_id(), p->get_value()->data_type(), p->get_value()->to_string());
+            json_parameters.emplace_back(p.get());
         }
 
         SaveBlock save_blk{
@@ -1028,8 +1045,12 @@ void tmdl::from_json(const nlohmann::json& j, tmdl::Model& m) {
             const auto it = std::ranges::find_if(blk_params, [&prm](const auto& p) { return p->get_id() == prm.id; });
             if (it == blk_params.end()) {
                 throw tmdl::ModelException("missing parameter id for provided block");
+            } else if (const auto prm_mdl = dynamic_cast<ParameterValue*>((*it).get())) {
+                prm_mdl->set_value(ModelValue::from_string(prm.value, prm.dtype));
+            } else if (const auto prm_dt = dynamic_cast<ParameterDataType*>((*it).get())) {
+                prm_dt->set_value_string(prm.value);
             } else {
-                (*it)->set_value(ModelValue::from_string(prm.value, prm.dtype));
+                throw ModelException("unknown parameter type to load into");
             }
         }
 

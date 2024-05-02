@@ -22,6 +22,7 @@ public:
 };
 
 class Model;
+class ModelLibrary;
 
 void to_json(nlohmann::json& j, const Model& m);
 void from_json(const nlohmann::json& j, Model& m);
@@ -29,6 +30,7 @@ void from_json(const nlohmann::json& j, Model& m);
 class Model {
 public:
     friend class ModelBlock;
+    friend class ModelLibrary;
 
     void add_block(const std::shared_ptr<BlockInterface> block);
 
@@ -96,15 +98,17 @@ public:
 
     bool contains_model_name(const std::string_view name) const;
 
+private:
     void set_filename(const std::filesystem::path& fn);
-
-    const std::optional<std::filesystem::path>& get_filename() const;
 
     void clear_filename();
 
     static std::shared_ptr<Model> load_model(const std::filesystem::path& path);
 
     void save_model() const;
+
+public:
+    const std::optional<std::filesystem::path>& get_filename() const;
 
 private:
     std::optional<Identifier> name;

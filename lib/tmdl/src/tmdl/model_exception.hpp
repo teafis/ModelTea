@@ -3,26 +3,21 @@
 #ifndef TF_MODEL_EXCEPTION_HPP
 #define TF_MODEL_EXCEPTION_HPP
 
-#include <string>
+#include <string_view>
+#include <stdexcept>
 
 namespace tmdl {
 
-class ModelException {
+class ModelException : public std::runtime_error {
 public:
-    explicit ModelException(const std::string& msg);
-    explicit ModelException(const char* msg);
-
-    const char* what() const noexcept;
+    explicit ModelException(std::string_view msg);
 
     virtual ~ModelException() = default;
-
-private:
-    std::string _msg;
 };
 
 class ExecutionException : public ModelException {
 public:
-    ExecutionException(const std::string& msg, const size_t id);
+    ExecutionException(std::string_view msg, const size_t id);
 
     size_t get_id() const;
 

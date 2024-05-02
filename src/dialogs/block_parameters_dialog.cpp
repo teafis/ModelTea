@@ -33,33 +33,32 @@ void BlockParameterDialog::reloadParameters() {
             continue;
         }
 
-        switch (prm->get_value()->data_type()) {
-        case tmdl::DataType::BOOLEAN: {
-            ParameterBooleanWidget* w = new ParameterBooleanWidget(prm, this);
-            ui->parameterItemLayout->addWidget(w);
-            connect(w, &ParameterBooleanWidget::parameterUpdated, this, &BlockParameterDialog::updateForParameters);
-            break;
-        }
-        case tmdl::DataType::SINGLE:
-        case tmdl::DataType::DOUBLE:
-        case tmdl::DataType::INT32:
-        case tmdl::DataType::UINT32: {
-            ParameterNumericWidget* w = new ParameterNumericWidget(prm, this);
-            ui->parameterItemLayout->addWidget(w);
-            connect(w, &ParameterNumericWidget::parameterUpdated, this, &BlockParameterDialog::updateForParameters);
-            break;
-        }
-        case tmdl::DataType::DATA_TYPE: {
-            ParameterDataTypeWidget* w = new ParameterDataTypeWidget(prm, this);
-            ui->parameterItemLayout->addWidget(w);
+        QWidget* widget = nullptr;
+
+        if (const auto prm_mdl = std::dynamic_pointer_cast<tmdl::ParameterValue>(prm)) {
+            const auto dt = prm_mdl->get_value()->data_type();
+            const auto dt_meta = mt::stdlib::get_meta_type(dt);
+
+            if (dt == tmdl::DataType::BOOL) {
+                ParameterBooleanWidget* w = new ParameterBooleanWidget(prm_mdl, this);
+                connect(w, &ParameterBooleanWidget::parameterUpdated, this, &BlockParameterDialog::updateForParameters);
+                widget = w;
+            } else if (dt_meta && dt_meta->get_is_numeric()) {
+                ParameterNumericWidget* w = new ParameterNumericWidget(prm_mdl, this);
+                connect(w, &ParameterNumericWidget::parameterUpdated, this, &BlockParameterDialog::updateForParameters);
+                widget = w;
+            }
+        } else if (const auto prm_dt = std::dynamic_pointer_cast<tmdl::ParameterDataType>(prm)) {
+            ParameterDataTypeWidget* w = new ParameterDataTypeWidget(prm_dt, this);
             connect(w, &ParameterDataTypeWidget::parameterUpdated, this, &BlockParameterDialog::updateForParameters);
-            break;
+            widget = w;
         }
-        default:
-            ParameterUnknownWidget* w = new ParameterUnknownWidget(prm, this);
-            ui->parameterItemLayout->addWidget(w);
-            break;
+
+        if (widget == nullptr) {
+            widget = new ParameterUnknownWidget(prm, this);
         }
+
+        ui->parameterItemLayout->addWidget(widget);
     }
 }
 

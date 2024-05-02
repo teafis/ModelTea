@@ -37,7 +37,7 @@ private:
     DataType get_output_type() const;
 
     DataType _port;
-    std::shared_ptr<Parameter> dataTypeParameter;
+    std::shared_ptr<ParameterDataType> dataTypeParameter;
 };
 
 class OutputPort : public BlockInterface {

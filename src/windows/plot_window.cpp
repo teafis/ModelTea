@@ -64,15 +64,23 @@ void PlotWindow::seriesListChanged() {
 }
 
 static std::optional<double> double_from_variable(std::shared_ptr<const tmdl::ModelValue> ptr) {
-    if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::DOUBLE>>(ptr)) {
+    if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::F64>>(ptr)) {
         return v->value;
-    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::SINGLE>>(ptr)) {
+    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::F32>>(ptr)) {
         return static_cast<double>(v->value);
-    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::INT32>>(ptr)) {
+    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::I32>>(ptr)) {
         return static_cast<double>(v->value);
-    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::UINT32>>(ptr)) {
+    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::U32>>(ptr)) {
         return static_cast<double>(v->value);
-    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::BOOLEAN>>(ptr)) {
+    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::I16>>(ptr)) {
+        return static_cast<double>(v->value);
+    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::U16>>(ptr)) {
+        return static_cast<double>(v->value);
+    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::I8>>(ptr)) {
+        return static_cast<double>(v->value);
+    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::U8>>(ptr)) {
+        return static_cast<double>(v->value);
+    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::BOOL>>(ptr)) {
         return (v->value) ? 1.0 : 0.0;
     } else {
         return std::nullopt;

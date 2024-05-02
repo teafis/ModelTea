@@ -29,7 +29,9 @@ public:
 
     virtual size_t cols() const = 0;
 
-    virtual size_t size() const = 0;
+    virtual size_t size() const {
+        return rows() * cols();
+    }
 
     virtual DataType data_type() const = 0;
 
@@ -46,7 +48,7 @@ public:
 
 template <DataType DT> class ValueArrayBox : public ValueArray {
 public:
-    using data_t = typename data_type_t<DT>::type;
+    using data_t = typename data_type_t<DT>::type_t;
 
     struct Index {
         size_t col;
@@ -65,8 +67,6 @@ public:
     size_t rows() const override { return m_rows; }
 
     size_t cols() const override { return m_cols; }
-
-    size_t size() const override { return m_rows * m_cols; }
 
     DataType data_type() const override { return DT; }
 
@@ -134,6 +134,43 @@ private:
     std::vector<data_t> m_data;
     size_t m_cols;
     size_t m_rows;
+};
+
+template <> class ValueArrayBox<DataType::NONE> : public ValueArray {
+public:
+    ValueArrayBox([[maybe_unused]] const size_t c, [[maybe_unused]] const size_t r, const std::vector<std::unique_ptr<const ModelValue>>& values = {}) {
+        if (values.size() > 0) {
+            throw ModelException("cannot set size of a NONE array");
+        }
+    }
+
+    void resize(const size_t c, const size_t r) override {
+        throw ModelException("cannot resize a none array");
+    }
+
+    void set_values(const std::vector<std::unique_ptr<const ModelValue>>& values) override {
+        throw ModelException("cannot set values to a none array");
+    }
+
+    std::vector<std::unique_ptr<ModelValue>> get_values() const override {
+        return {};
+    }
+
+    size_t rows() const override {
+        return 0;
+    }
+
+    size_t cols() const override {
+        return 0;
+    }
+
+    DataType data_type() const override {
+        return DataType::NONE;
+    }
+
+    std::string to_string() const override {
+        return "NONE";
+    }
 };
 
 }

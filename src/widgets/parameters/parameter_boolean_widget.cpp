@@ -5,11 +5,11 @@
 
 #include "exceptions/block_object_exception.h"
 
-ParameterBooleanWidget::ParameterBooleanWidget(std::shared_ptr<tmdl::Parameter> parameter, QWidget* parent)
+ParameterBooleanWidget::ParameterBooleanWidget(std::shared_ptr<tmdl::ParameterValue> parameter, QWidget* parent)
     : QWidget(parent), ui(new Ui::ParameterBooleanWidget), parameter(parameter) {
     ui->setupUi(this);
 
-    if (parameter->get_value()->data_type() != tmdl::DataType::BOOLEAN) {
+    if (parameter->get_value()->data_type() != tmdl::DataType::BOOL) {
         throw BlockObjectException("parameter must be a boolean type");
     }
 
@@ -28,4 +28,4 @@ void ParameterBooleanWidget::checkedStateChange(int state) {
     emit parameterUpdated();
 }
 
-bool& ParameterBooleanWidget::param_value() { return tmdl::ModelValue::get_inner_value<tmdl::DataType::BOOLEAN>(parameter->get_value()); }
+bool& ParameterBooleanWidget::param_value() { return tmdl::ModelValue::get_inner_value<tmdl::DataType::BOOL>(parameter->get_value()); }

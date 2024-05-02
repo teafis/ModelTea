@@ -52,10 +52,7 @@ public:
 
 /* ========== INPUT PORT ========== */
 
-InputPort::InputPort() {
-    dataTypeParameter = std::make_shared<Parameter>("data_type", "parameter data type",
-                                                    std::make_unique<ModelValueBox<DataType::DATA_TYPE>>(DataType::UNKNOWN));
-}
+InputPort::InputPort() { dataTypeParameter = std::make_shared<ParameterDataType>("data_type", "parameter data type", DataType::NONE); }
 
 std::string InputPort::get_name() const { return "input"; }
 
@@ -76,7 +73,7 @@ DataType InputPort::get_output_type(const size_t port) const {
 }
 
 std::unique_ptr<const BlockError> InputPort::has_error() const {
-    if (_port == DataType::UNKNOWN) {
+    if (_port == DataType::NONE) {
         return make_error("input port has unknown type");
     }
 
@@ -99,7 +96,7 @@ std::unique_ptr<CompiledBlockInterface> InputPort::get_compiled(const ModelInfo&
 void InputPort::set_input_value(const DataType type) { _port = type; }
 
 tmdl::DataType InputPort::get_output_type() const {
-    return ModelValue::get_inner_value<DataType::DATA_TYPE>(dataTypeParameter->get_value());
+    return dataTypeParameter->get_type();
 }
 
 /* ========== OUTPUT PORT ========== */
@@ -123,7 +120,7 @@ void OutputPort::set_input_type(const size_t port, const DataType type) {
 DataType OutputPort::get_output_type(const size_t /* port */) const { throw ModelException("cannot get input port value"); }
 
 std::unique_ptr<const BlockError> OutputPort::has_error() const {
-    if (_port == DataType::UNKNOWN) {
+    if (_port == DataType::NONE) {
         return make_error("output port has unknown type");
     }
 

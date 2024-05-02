@@ -15,7 +15,7 @@ class ParameterBooleanWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit ParameterBooleanWidget(std::shared_ptr<tmdl::Parameter> parameter, QWidget* parent = nullptr);
+    explicit ParameterBooleanWidget(std::shared_ptr<tmdl::ParameterValue> parameter, QWidget* parent = nullptr);
 
     ~ParameterBooleanWidget();
 
@@ -30,7 +30,7 @@ private:
 
 private:
     Ui::ParameterBooleanWidget* ui;
-    std::shared_ptr<tmdl::Parameter> parameter;
+    std::shared_ptr<tmdl::ParameterValue> parameter;
 };
 
 #endif // PARAMETER_BOOLEAN_WIDGET_H

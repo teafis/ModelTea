@@ -30,7 +30,7 @@ public:
     void set_data_type_string(const std::string& s, DataType dt) override;
 
 private:
-    std::shared_ptr<ModelValue> value{ModelValue::make_default(DataType::DOUBLE)};
+    std::shared_ptr<ModelValue> value{ModelValue::make_default(DataType::F64)};
 };
 
 class DataParameterArray : public DataParameter {
@@ -46,7 +46,7 @@ public:
     void set_size(const size_t c, const size_t r);
 
 private:
-    std::shared_ptr<ValueArray> array{ValueArray::create_value_array("[]", DataType::DOUBLE)};
+    std::shared_ptr<ValueArray> array{ValueArray::create_value_array("[]", DataType::F64)};
 };
 
 }

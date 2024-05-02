@@ -10,15 +10,23 @@ std::string tmdl::codegen::get_datatype_name(const Language code, const tmdl::Da
     if (code == Language::CPP) {
         switch (datatype) {
             using enum tmdl::DataType;
-        case BOOLEAN:
+        case BOOL:
             return "bool";
-        case INT32:
+        case I8:
+            return "int8_t";
+        case U8:
+            return "uint8_t";
+        case I16:
+            return "int16_t";
+        case U16:
+            return "uint16_t";
+        case I32:
             return "int32_t";
-        case UINT32:
+        case U32:
             return "uint32_t";
-        case SINGLE:
+        case F32:
             return "float";
-        case DOUBLE:
+        case F64:
             return "double";
         default:
             throw CodegenError("type not supported for C++ code");

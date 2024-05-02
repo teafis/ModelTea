@@ -22,12 +22,12 @@ bool tmdl::ModelBlock::update_block() {
     bool updated = model->update_block();
 
     if (input_types.size() != get_num_inputs()) {
-        input_types.resize(get_num_inputs(), DataType::UNKNOWN);
+        input_types.resize(get_num_inputs(), DataType::NONE);
         updated = true;
     }
 
     if (output_types.size() != get_num_outputs()) {
-        output_types.resize(get_num_outputs(), DataType::UNKNOWN);
+        output_types.resize(get_num_outputs(), DataType::NONE);
         updated = true;
     }
 
@@ -71,7 +71,7 @@ std::unique_ptr<const tmdl::BlockError> tmdl::ModelBlock::has_error() const {
 
 void tmdl::ModelBlock::set_input_type(const size_t port, const DataType type) {
     if (input_types.size() != get_num_inputs()) {
-        input_types.resize(get_num_inputs(), DataType::UNKNOWN);
+        input_types.resize(get_num_inputs(), DataType::NONE);
     }
 
     if (port < input_types.size()) {
@@ -86,7 +86,7 @@ tmdl::DataType tmdl::ModelBlock::get_output_type(const size_t port) const {
         if (port < output_types.size()) {
             return output_types[port];
         } else {
-            return DataType::UNKNOWN;
+            return DataType::NONE;
         }
     } else {
         throw ModelException("output port out of range");

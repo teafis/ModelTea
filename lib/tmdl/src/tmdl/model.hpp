@@ -76,7 +76,7 @@ protected:
     CompiledModelData compile_model() const;
 
 public:
-    std::shared_ptr<ModelExecutionInterface> get_execution_interface(const size_t block_id, const ConnectionManager& connections,
+    std::unique_ptr<ModelExecutionInterface> get_execution_interface(const size_t block_id, const ConnectionManager& connections,
                                                                      const VariableManager& manager,
                                                                      const BlockInterface::ModelInfo& state) const;
 

@@ -40,7 +40,7 @@ class CompiledBlockInterface {
 public:
     virtual ~CompiledBlockInterface() = default;
 
-    virtual std::shared_ptr<BlockExecutionInterface> get_execution_interface(const ConnectionManager& connections,
+    virtual std::unique_ptr<BlockExecutionInterface> get_execution_interface(const ConnectionManager& connections,
                                                                              const VariableManager& manager) const = 0;
 
     std::vector<std::unique_ptr<codegen::CodeComponent>> get_codegen_components() const;

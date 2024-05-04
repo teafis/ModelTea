@@ -74,11 +74,11 @@ public:
         }
     }
 
-    std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override {
+    std::optional<tmdl::codegen::InterfaceDefinition> get_input_type() const override {
         return tmdl::codegen::InterfaceDefinition("s_in", _input_names);
     }
 
-    std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override {
+    std::optional<tmdl::codegen::InterfaceDefinition> get_output_type() const override {
         return tmdl::codegen::InterfaceDefinition("s_out", _output_names);
     }
 
@@ -657,7 +657,7 @@ tmdl::Model::CompiledModelData Model::compile_model() const {
     return data;
 }
 
-std::shared_ptr<ModelExecutionInterface> Model::get_execution_interface(const size_t block_id, const ConnectionManager& outer_connections,
+std::unique_ptr<ModelExecutionInterface> Model::get_execution_interface(const size_t block_id, const ConnectionManager& outer_connections,
                                                                         const VariableManager& outer_variables,
                                                                         const BlockInterface::ModelInfo& state) const {
     // Get the execution order
@@ -711,7 +711,7 @@ std::shared_ptr<ModelExecutionInterface> Model::get_execution_interface(const si
     }
 
     // Create the executor
-    auto model_exec = std::make_shared<ModelExecutor>(variables, interface_order);
+    auto model_exec = std::make_unique<ModelExecutor>(variables, interface_order);
 
     // Return result
     return model_exec;

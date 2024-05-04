@@ -99,7 +99,7 @@ struct CompiledModelBlock : public tmdl::CompiledBlockInterface {
         // Empty Constructor
     }
 
-    std::shared_ptr<tmdl::BlockExecutionInterface> get_execution_interface(const tmdl::ConnectionManager& connections,
+    std::unique_ptr<tmdl::BlockExecutionInterface> get_execution_interface(const tmdl::ConnectionManager& connections,
                                                                            const tmdl::VariableManager& manager) const override {
         return _model->get_execution_interface(_id, connections, manager, _state);
     }

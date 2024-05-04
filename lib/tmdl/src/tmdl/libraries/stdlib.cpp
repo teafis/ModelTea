@@ -7,17 +7,12 @@
 #include "../blocks/io_ports.hpp"
 #include "../values/parameter.hpp"
 
-#include <mtstd.hpp>
-#include <mtstd_creation.hpp>
+#include "mtstdlib_creation.hpp"
 
 #include <ranges>
 
-template <typename T> std::unique_ptr<tmdl::BlockInterface> make_block() { return std::make_unique<T>(); }
-
-class StdlibBlock : public tmdl::BlockInterface {
-
-public:
-    StdlibBlock(const mt::stdlib::BlockInformation& info) : info{info}, friendly_name{} {
+struct StdlibBlockConstructor {
+    StdlibBlockConstructor(const mt::stdlib::BlockInformation& info) : info{info} {
         const auto init_dt = info.get_default_data_type();
 
         if (info.constructor == mt::stdlib::BlockInformation::ConstructorOptions::SIZE) {
@@ -28,48 +23,29 @@ public:
             param_value = std::make_shared<tmdl::ParameterValue>("value", "Value", tmdl::ModelValue::make_default(init_dt));
         }
 
-        update_block(init_dt);
+        // Create the dtype parameter if needed
+        if (const auto blk = create_block(init_dt, 0.0)) {
+            if (blk->get_input_num() == 0) {
+                param_dt = std::make_shared<tmdl::ParameterDataType>("dtype", "Data Type", blk->get_current_type());
+            }
+        }
     }
 
-    StdlibBlock(const mt::stdlib::BlockInformation& info, const std::string& friendly_name) : StdlibBlock(info) {
-        this->friendly_name = friendly_name;
-    }
+    mt::stdlib::BlockInformation info;
 
-    std::string get_name() const override { return friendly_name.value_or(info.sub_name.empty() ? info.base_name : info.sub_name); }
+    std::shared_ptr<tmdl::ParameterValue> param_size{};
+    std::shared_ptr<tmdl::ParameterValue> param_value{};
+    std::shared_ptr<tmdl::ParameterDataType> param_dt{};
 
-    std::string get_description() const override { return fmt::format("STDLIB BLOCK - {}", get_name()); }
-
-    std::vector<std::shared_ptr<tmdl::Parameter>> get_parameters() const override {
-        std::vector<std::shared_ptr<tmdl::Parameter>> params;
-
-        if (param_size) {
-            params.push_back(param_size);
-        }
-
-        if (param_dt) {
-            params.push_back(param_dt);
-        }
-
-        if (param_value) {
-            params.push_back(param_value);
-        }
-
-        return params;
-    }
-
-    mt::stdlib::DataType selected_type() const {
+    std::optional<mt::stdlib::DataType> selected_type() const {
         if (param_dt != nullptr) {
             return param_dt->get_type();
-        } else if (block != nullptr) {
-            return block->get_current_type();
         } else {
-            return info.get_default_data_type();
+            return {};
         }
     }
 
-    bool update_block() override { return update_block(selected_type()); }
-
-    bool update_block(tmdl::DataType new_dtype) {
+    std::unique_ptr<mt::stdlib::block_interface> create_block(mt::stdlib::DataType dtype, double dt) const {
         // Create the argument type
         std::unique_ptr<const mt::stdlib::Argument> arg = nullptr;
 
@@ -80,13 +56,204 @@ public:
             param_value->convert_type(param_dt->get_type());
             arg = param_value->get_value()->to_argument();
         } else if (info.constructor == mt::stdlib::BlockInformation::ConstructorOptions::TIMESTEP) {
-            arg = tmdl::ModelValue::make_default(new_dtype)->to_argument();
+            auto mv = tmdl::ModelValue::make_default(dtype);
+            if (const auto ptr = dynamic_cast<tmdl::ModelValueBox<tmdl::DataType::F64>*>(mv.get())) {
+                ptr->value = dt;
+            } else if (const auto ptr = dynamic_cast<tmdl::ModelValueBox<tmdl::DataType::F32>*>(mv.get())) {
+                ptr->value = static_cast<float>(dt);
+            } else {
+                throw tmdl::ModelException("unable to set timestep for type");
+            }
+
+            arg = mv->to_argument();
         }
 
         // Create the new block
         std::unique_ptr<mt::stdlib::block_interface> new_block = nullptr;
         try {
-            new_block = mt::stdlib::create_block(info, new_dtype, arg.get());
+            return mt::stdlib::create_block(info, dtype, arg.get());
+        } catch (const mt::stdlib::block_error& err) {
+            throw tmdl::ModelException(err);
+        }
+    }
+};
+
+class StdlibBlockExecutor final : public tmdl::BlockExecutionInterface {
+public:
+    StdlibBlockExecutor(std::unique_ptr<mt::stdlib::block_interface>&& block_in,
+                        std::vector<std::shared_ptr<const tmdl::ModelValue>>&& inputs_in,
+                        std::vector<std::shared_ptr<tmdl::ModelValue>>&& outputs_in)
+        : block{std::move(block_in)}, inputs(std::move(inputs_in)), outputs(std::move(outputs_in)) {
+        if (!block) {
+            throw tmdl::ModelException("block cannot be null");
+        } else if (inputs.size() != block->get_input_num()) {
+            throw tmdl::ModelException("block has incorrect number of inputs");
+        } else if (outputs.size() != block->get_output_num()) {
+            throw tmdl::ModelException("block has incorrect number of outputs");
+        }
+    }
+
+protected:
+    void update_inputs() override {
+        for (size_t i = 0; i < inputs.size(); ++i) {
+            block->set_input(i, inputs[i]->to_argument().get());
+        }
+    }
+
+    void update_outputs() override {
+        for (size_t i = 0; i < outputs.size(); ++i) {
+            auto arg = outputs[i]->to_argument();
+            block->get_output(i, arg.get());
+            outputs[i]->copy_from(arg.get());
+        }
+    }
+
+    void blk_reset() override { block->reset(); }
+
+    void blk_step() override { block->step(); }
+
+private:
+    std::unique_ptr<mt::stdlib::block_interface> block;
+    std::vector<std::shared_ptr<const tmdl::ModelValue>> inputs;
+    std::vector<std::shared_ptr<tmdl::ModelValue>> outputs;
+};
+
+class StdlibBlockComponent final : public tmdl::codegen::CodeComponent {
+public:
+    StdlibBlockComponent(std::unique_ptr<mt::stdlib::block_interface>&& block_in) : block{std::move(block_in)} {
+        if (!this->block) {
+            throw tmdl::ModelException("nullptr block provided");
+        }
+    }
+
+    bool is_virtual() const override { return false; }
+
+    std::optional<tmdl::codegen::InterfaceDefinition> get_input_type() const override {
+        if (block->get_input_num() > 0) {
+            std::vector<std::string> fields;
+            for (size_t i = 0; i < block->get_input_num(); ++i) {
+                fields.push_back(block->get_input_name(i));
+            }
+            return tmdl::codegen::InterfaceDefinition("s_in", fields);
+        } else {
+            return {};
+        }
+    }
+
+    std::optional<tmdl::codegen::InterfaceDefinition> get_output_type() const override {
+        if (block->get_output_num() > 0) {
+            std::vector<std::string> fields;
+            for (size_t i = 0; i < block->get_output_num(); ++i) {
+                fields.push_back(block->get_output_name(i));
+            }
+            return tmdl::codegen::InterfaceDefinition("s_out", fields);
+        } else {
+            return {};
+        }
+    }
+
+    std::string get_name_base() const override { return block->get_block_name(); }
+
+    std::string get_module_name() const override { return "mtstdlib.hpp"; }
+
+    std::string get_type_name() const override { return block->get_block_name(); }
+
+    std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override { return {}; }
+
+    std::vector<std::string> constructor_arguments() const override { return {}; }
+
+protected:
+    std::vector<std::string> write_cpp_code(tmdl::codegen::CodeSection section) const override { return {}; }
+
+private:
+    std::unique_ptr<mt::stdlib::block_interface> block;
+};
+
+class StdlibBlockCompiled final : public tmdl::CompiledBlockInterface {
+public:
+    StdlibBlockCompiled(std::function<std::unique_ptr<mt::stdlib::block_interface>()> make_new_interface, size_t current_id)
+        : make_new_interface(make_new_interface), current_id(current_id) {}
+
+    std::unique_ptr<tmdl::BlockExecutionInterface> get_execution_interface(const tmdl::ConnectionManager& connections,
+                                                                           const tmdl::VariableManager& manager) const override {
+        // Create the block to use for execution
+        auto block = make_new_interface();
+
+        // Obtain inputs and outputs
+        std::vector<std::shared_ptr<const tmdl::ModelValue>> inputs;
+        for (size_t i = 0; i < block->get_input_num(); ++i) {
+            inputs.push_back(manager.get_ptr(*connections.get_connection_to(current_id, i)));
+        }
+
+        std::vector<std::shared_ptr<tmdl::ModelValue>> outputs;
+        for (size_t i = 0; i < block->get_output_num(); ++i) {
+            outputs.push_back(manager.get_ptr(tmdl::VariableIdentifier{.block_id = current_id, .output_port_num = i}));
+        }
+
+        // Create the executor
+        return std::make_unique<StdlibBlockExecutor>(std::move(block), std::move(inputs), std::move(outputs));
+    }
+
+    std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_self() const override {
+        return std::make_unique<StdlibBlockComponent>(make_new_interface());
+    }
+
+private:
+    std::function<std::unique_ptr<mt::stdlib::block_interface>()> make_new_interface;
+    size_t current_id;
+};
+
+class StdlibBlock : public tmdl::BlockInterface {
+public:
+    StdlibBlock(const mt::stdlib::BlockInformation& info) : constructor{info} {
+        const auto init_dt = constructor.info.get_default_data_type();
+
+        update_block(init_dt);
+
+        if (!block) {
+            throw tmdl::ModelException(fmt::format("unable to generate block for {}", info.name));
+        }
+    }
+
+    std::string get_name() const override { return constructor.info.name; }
+
+    std::string get_description() const override { return fmt::format("STDLIB BLOCK - {}", get_name()); }
+
+    std::vector<std::shared_ptr<tmdl::Parameter>> get_parameters() const override {
+        std::vector<std::shared_ptr<tmdl::Parameter>> params;
+
+        if (constructor.param_size) {
+            params.push_back(constructor.param_size);
+        }
+
+        if (constructor.param_dt) {
+            params.push_back(constructor.param_dt);
+        }
+
+        if (constructor.param_value) {
+            params.push_back(constructor.param_value);
+        }
+
+        return params;
+    }
+
+    mt::stdlib::DataType selected_type() const {
+        if (constructor.param_dt != nullptr) {
+            return constructor.param_dt->get_type();
+        } else if (block != nullptr) {
+            return block->get_current_type();
+        } else {
+            return constructor.info.get_default_data_type();
+        }
+    }
+
+    bool update_block() override { return update_block(selected_type()); }
+
+    bool update_block(tmdl::DataType new_dtype) {
+        // Create the new block
+        std::unique_ptr<mt::stdlib::block_interface> new_block = nullptr;
+        try {
+            new_block = constructor.create_block(new_dtype, 0.0);
         } catch (const mt::stdlib::block_error& err) {
             return false;
         }
@@ -99,11 +266,6 @@ public:
                                        block->get_output_num() != block->get_output_num() ||
                                        block->get_current_type() != new_block->get_current_type() ||
                                        input_types.size() != new_block->get_input_num();
-
-        // Create the dtype parameter if needed
-        if (new_block->get_input_num() == 0 && !param_dt) {
-            param_dt = std::make_shared<tmdl::ParameterDataType>("dtype", "Data Type", new_block->get_current_type());
-        }
 
         // Resize the input types as needed
         input_types.resize(new_block->get_input_num(), mt::stdlib::DataType::NONE);
@@ -123,8 +285,8 @@ public:
     }
 
     std::unique_ptr<const tmdl::BlockError> has_error() const override {
-        if (param_dt != nullptr && param_dt->get_type() != block->get_current_type()) {
-            return make_error(fmt::format("unsupported type provided - {} != {}", get_meta_type_name(param_dt->get_type()),
+        if (constructor.param_dt != nullptr && constructor.param_dt->get_type() != block->get_current_type()) {
+            return make_error(fmt::format("unsupported type provided - {} != {}", get_meta_type_name(constructor.param_dt->get_type()),
                                           get_meta_type_name(block->get_current_type())));
         }
 
@@ -154,7 +316,7 @@ public:
     void set_input_type(const size_t port, const tmdl::DataType type) override {
         if (port < input_types.size()) {
             if (input_types[port] != type) {
-                if (param_dt == nullptr && block->get_input_type_settable(port) && info.type_supported(type) &&
+                if (constructor.param_dt == nullptr && block->get_input_type_settable(port) && constructor.info.type_supported(type) &&
                     block->get_current_type() != type) {
                     update_block(type);
                 }
@@ -169,28 +331,23 @@ public:
     tmdl::DataType get_output_type(const size_t port) const override { return block->get_output_type(port); }
 
     std::unique_ptr<tmdl::CompiledBlockInterface> get_compiled(const ModelInfo& s) const override {
-        throw tmdl::ModelException("not implemented");
+        const auto dt = s.get_dt();
+        const auto dtype = selected_type();
+        const auto c = constructor;
+        return std::make_unique<StdlibBlockCompiled>([c, dt, dtype]() { return c.create_block(dtype, dt); }, get_id());
     }
 
 private:
-    mt::stdlib::BlockInformation info;
+    const StdlibBlockConstructor constructor;
     std::unique_ptr<mt::stdlib::block_interface> block{nullptr};
-
-    std::shared_ptr<tmdl::ParameterValue> param_size{};
-    std::shared_ptr<tmdl::ParameterValue> param_value{};
-    std::shared_ptr<tmdl::ParameterDataType> param_dt{};
-
-    std::vector<std::shared_ptr<tmdl::Parameter>> parameters{};
-    std::optional<std::string> friendly_name;
-
     std::vector<mt::stdlib::DataType> input_types;
 };
 
 tmdl::blocks::StandardLibrary::StandardLibrary() {
-    block_map = {{"input", &make_block<InputPort>}, {"output", &make_block<OutputPort>}};
+    block_map = {{"input", []() { return std::make_unique<InputPort>(); }}, {"output", []() { return std::make_unique<OutputPort>(); }}};
 
     for (const auto& blk : mt::stdlib::get_available_blocks()) {
-        block_map[blk.sub_name.empty() ? blk.base_name : blk.sub_name] = [blk]() { return std::make_unique<StdlibBlock>(blk); };
+        block_map[blk.name] = [blk]() { return std::make_unique<StdlibBlock>(blk); };
     }
 }
 

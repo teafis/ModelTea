@@ -6,11 +6,15 @@
 #include <string_view>
 #include <stdexcept>
 
+#include "mtstdlib_except.hpp"
+
 namespace tmdl {
 
 class ModelException : public std::runtime_error {
 public:
     explicit ModelException(std::string_view msg);
+
+    explicit ModelException(const mt::stdlib::block_error& err);
 
     virtual ~ModelException() = default;
 };

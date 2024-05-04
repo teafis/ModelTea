@@ -29,6 +29,8 @@ struct ModelValue {
 
     virtual void copy_from(const ModelValue* value) = 0;
 
+    virtual void copy_from(const mt::stdlib::Argument* arg) = 0;
+
     virtual std::unique_ptr<ModelValue> clone() const = 0;
 
     virtual std::string to_string() const = 0;
@@ -74,6 +76,14 @@ template <DataType DT> struct ModelValueBox : public ModelValue {
 
     std::unique_ptr<mt::stdlib::Argument> to_argument() const override { return std::make_unique<mt::stdlib::ArgumentBox<DT>>(value); }
 
+    void copy_from(const mt::stdlib::Argument* arg) override {
+        if (auto ptr = dynamic_cast<const mt::stdlib::ArgumentBox<DT>*>(arg)) {
+            value = ptr->value;
+        } else {
+            throw ModelException("mismatch in data type - unable to copy value");
+        }
+    };
+
     void copy_from(const ModelValue* in) override {
         if (auto ptr = dynamic_cast<const ModelValueBox<DT>*>(in)) {
             value = ptr->value;
@@ -95,6 +105,12 @@ template <> struct ModelValueBox<DataType::NONE> : public ModelValue {
     std::string to_string() const override { return "??"; }
 
     std::unique_ptr<mt::stdlib::Argument> to_argument() const override { return nullptr; }
+
+    void copy_from(const mt::stdlib::Argument* arg) override {
+        if (arg->get_type() != DataType::NONE) {
+            throw ModelException("argument is not a none-type");
+        }
+    };
 
     void copy_from(const ModelValue* in) override {
         throw ModelException(fmt::format("unable to copy from {} into an unknown data type", data_type_to_string(data_type())));

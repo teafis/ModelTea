@@ -37,9 +37,9 @@ public:
 
     virtual bool is_virtual() const;
 
-    virtual std::optional<const InterfaceDefinition> get_input_type() const = 0;
+    virtual std::optional<InterfaceDefinition> get_input_type() const = 0;
 
-    virtual std::optional<const InterfaceDefinition> get_output_type() const = 0;
+    virtual std::optional<InterfaceDefinition> get_output_type() const = 0;
 
     std::vector<std::string> write_code(Language type, CodeSection section) const;
 

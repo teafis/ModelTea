@@ -17,11 +17,11 @@ public:
 
     std::string get_name_base() const override { return "io_port"; }
 
-    std::optional<const tmdl::codegen::InterfaceDefinition> get_input_type() const override {
+    std::optional<tmdl::codegen::InterfaceDefinition> get_input_type() const override {
         throw tmdl::codegen::CodegenError(fmt::format("unable to generate code for {}", get_name_base()));
     }
 
-    std::optional<const tmdl::codegen::InterfaceDefinition> get_output_type() const override {
+    std::optional<tmdl::codegen::InterfaceDefinition> get_output_type() const override {
         throw tmdl::codegen::CodegenError(fmt::format("unable to generate code for {}", get_name_base()));
     }
 
@@ -43,8 +43,8 @@ class CompiledPort : public tmdl::CompiledBlockInterface {
     };
 
 public:
-    std::shared_ptr<BlockExecutionInterface> get_execution_interface(const ConnectionManager&, const VariableManager&) const override {
-        return std::make_shared<PortExecutor>();
+    std::unique_ptr<BlockExecutionInterface> get_execution_interface(const ConnectionManager&, const VariableManager&) const override {
+        return std::make_unique<PortExecutor>();
     }
 
     std::unique_ptr<codegen::CodeComponent> get_codegen_self() const override { return std::make_unique<IoPortComponent>(); }

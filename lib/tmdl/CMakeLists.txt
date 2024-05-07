@@ -24,7 +24,7 @@ set(
     src/tmdl/model.hpp src/tmdl/model.cpp
     src/tmdl/model_block.hpp src/tmdl/model_block.cpp
     src/tmdl/model_exception.hpp src/tmdl/model_exception.cpp
-    src/tmdl/values/data_types.hpp src/tmdl/values/data_types.cpp
+    src/tmdl/values/data_types.hpp
     src/tmdl/values/identifiers.hpp src/tmdl/values/identifiers.cpp
     src/tmdl/values/parameter.hpp src/tmdl/values/parameter.cpp
     src/tmdl/values/value.hpp src/tmdl/values/value.cpp

@@ -24,6 +24,10 @@ std::string tmdl::codegen::get_datatype_name(const Language code, const tmdl::Da
             return "int32_t";
         case U32:
             return "uint32_t";
+        case I64:
+            return "int64_t";
+        case U64:
+            return "uint64_t";
         case F32:
             return "float";
         case F64:

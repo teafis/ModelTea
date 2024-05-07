@@ -16,6 +16,7 @@
 #include "../model_exception.hpp"
 
 #include "data_types.hpp"
+#include "mtstdlib_string.hpp"
 
 #include <fmt/format.h>
 
@@ -140,7 +141,7 @@ template <> struct ModelValueBox<DataType::NONE> : public ModelValue {
     };
 
     void copy_from(const ModelValue* in) override {
-        throw ModelException(fmt::format("unable to copy from {} into an unknown data type", data_type_to_string(data_type())));
+        throw ModelException(fmt::format("unable to copy from {} into an unknown data type", mt::stdlib::datatype_to_string(data_type())));
     }
 
     std::unique_ptr<ModelValue> clone() const override { return std::make_unique<ModelValueBox<DataType::NONE>>(); }

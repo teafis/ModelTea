@@ -114,6 +114,10 @@ std::unique_ptr<tmdl::ValueArray> tmdl::ValueArray::create_with_type(const size_
         return std::make_unique<ValueArrayBox<I32>>(cols, rows, values);
     case U32:
         return std::make_unique<ValueArrayBox<U32>>(cols, rows, values);
+    case I64:
+        return std::make_unique<ValueArrayBox<I64>>(cols, rows, values);
+    case U64:
+        return std::make_unique<ValueArrayBox<U64>>(cols, rows, values);
     case NONE:
         return std::make_unique<ValueArrayBox<NONE>>(cols, rows, values);
     default:

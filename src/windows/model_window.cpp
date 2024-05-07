@@ -29,7 +29,7 @@
 
 const QString ModelWindow::default_file_filter = QString("Model (*%1);; Any (*.*)").arg(tmdl::Model::DEFAULT_MODEL_EXTENSION.c_str());
 
-ModelWindow::ModelWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::ModelWindow), changeFlag(false) {
+ModelWindow::ModelWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::ModelWindow) {
     // Setup the main UI
     ui->setupUi(this);
     connect(ui->block_graphics, &BlockGraphicsView::modelChanged, this, &ModelWindow::setChangedFlag);
@@ -50,19 +50,20 @@ ModelWindow::~ModelWindow() {
     tmdl::LibraryManager::get_instance().default_model_library()->close_unused_models();
 }
 
-void ModelWindow::closeEvent(QCloseEvent* event) {
-    if (changeFlag) {
+bool ModelWindow::check_can_close_current_model() {
+    if (has_unsaved_changes()) {
         const QMessageBox::StandardButton reply =
             QMessageBox::question(this, "Quit?", "Model has unsaved changes - confirm exit?", QMessageBox::Yes | QMessageBox::No);
 
         if (reply == QMessageBox::No) {
-            event->ignore();
-            return;
+            return false;
         }
     }
 
-    clearExecutor();
+    return true;
+}
 
+void ModelWindow::closeEvent(QCloseEvent* event) {
     std::array<QWidget*, 3> windows = {window_diagnostics, window_library, window_plot};
 
     for (auto& w : windows) {
@@ -71,9 +72,12 @@ void ModelWindow::closeEvent(QCloseEvent* event) {
         }
     }
 
-    window_diagnostics = nullptr;
-    window_library = nullptr;
-    window_plot = nullptr;
+    if (!check_can_close_current_model()) {
+        event->ignore();
+        return;
+    }
+
+    clearExecutor();
 
     WindowManager::instance().clear_window(this);
     ui->block_graphics->set_model(nullptr);
@@ -131,16 +135,13 @@ void ModelWindow::updateWindowItems() {
 
     ui->block_graphics->setEnabled(!generatedAvailable);
 
-    QString windowTitle = QString("%1%2").arg(currentModelName()).arg(changeFlag ? "*" : "");
+    QString windowTitle = QString("%1%2").arg(currentModelName()).arg(has_unsaved_changes() ? "*" : "");
     setWindowTitle(windowTitle);
 
     setEnabled(!otherExecutorExists);
 }
 
-void ModelWindow::setChangedFlag() {
-    changeFlag = true;
-    updateWindowItems();
-}
+void ModelWindow::setChangedFlag() { updateWindowItems(); }
 
 void ModelWindow::newModel() {
     auto* window = new ModelWindow();
@@ -160,7 +161,6 @@ void ModelWindow::saveModel() {
             return;
         }
 
-        changeFlag = false;
         updateWindowItems();
     }
 }
@@ -182,7 +182,6 @@ void ModelWindow::saveModelAs() {
             return;
         }
 
-        changeFlag = false;
         updateWindowItems();
     }
 }
@@ -237,8 +236,6 @@ bool ModelWindow::openModel(std::shared_ptr<tmdl::Model> model) {
 
     changeModel(model);
     mdl_library->close_unused_models();
-
-    changeFlag = false;
     updateWindowItems();
 
     if (window_diagnostics != nullptr) {
@@ -285,8 +282,8 @@ void ModelWindow::saveCode() {
 
     try {
         const auto model = ui->block_graphics->get_model();
-        tmdl::codegen::CodeGenerator gen(
-            ui->block_graphics->get_block()->get_compiled(tmdl::BlockInterface::ModelInfo(model->get_preferred_dt())));
+        tmdl::codegen::CodeGenerator gen(std::make_unique<tmdl::ModelBlock>(ui->block_graphics->get_model(), "")
+                                             ->get_compiled(tmdl::BlockInterface::ModelInfo(model->get_preferred_dt())));
 
         std::filesystem::path gen_path(fn.toStdString());
         gen.write_in_folder(gen_path.parent_path());
@@ -302,13 +299,8 @@ void ModelWindow::exit_all() {
 }
 
 void ModelWindow::changeModel(std::shared_ptr<tmdl::Model> model) {
-    if (changeFlag) {
-        const QMessageBox::StandardButton reply =
-            QMessageBox::question(this, "Close?", "Model has unsaved changes - confirm close?", QMessageBox::Yes | QMessageBox::No);
-
-        if (reply == QMessageBox::No) {
-            return;
-        }
+    if (!check_can_close_current_model()) {
+        return;
     }
 
     // Close the model
@@ -316,7 +308,6 @@ void ModelWindow::changeModel(std::shared_ptr<tmdl::Model> model) {
 
     if (model == nullptr || model->get_name() != last_name) {
         // Clear the change flag and load
-        changeFlag = false;
         executor = nullptr;
 
         // Set the new model
@@ -348,7 +339,6 @@ void ModelWindow::showDiagnostics() {
 void ModelWindow::generateExecutor() {
     if (window_library != nullptr) {
         window_library->close();
-        window_library = nullptr;
     }
 
     ui->block_graphics->updateModel();
@@ -413,7 +403,6 @@ void ModelWindow::clearExecutor() {
 
     if (window_plot != nullptr) {
         window_plot->close();
-        window_plot = nullptr;
     }
 
     ExecutorManager::instance().reset();
@@ -424,7 +413,6 @@ void ModelWindow::showLibrary() {
         window_library = new BlockSelectorDialog(this);
 
         connect(window_library, &BlockSelectorDialog::blockSelected, this, &ModelWindow::addBlock);
-
         connect(window_library, &BlockSelectorDialog::destroyed, [this]() { window_library = nullptr; });
     }
 
@@ -486,5 +474,14 @@ QString ModelWindow::get_filename() const {
         return tmp_filename->c_str();
     } else {
         return "";
+    }
+}
+
+bool ModelWindow::has_unsaved_changes() const {
+    const auto mdl = ui->block_graphics->get_model();
+    if (mdl) {
+        return mdl->get_unsaved_changes();
+    } else {
+        return false;
     }
 }

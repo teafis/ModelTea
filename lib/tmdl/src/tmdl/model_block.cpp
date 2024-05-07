@@ -6,8 +6,8 @@
 
 #include "model_exception.hpp"
 
-tmdl::ModelBlock::ModelBlock(std::shared_ptr<Model> model) : model(model) {
-    // Empty Constructor
+tmdl::ModelBlock::ModelBlock(std::shared_ptr<Model> model, std::string_view library) : tmdl::BlockInterface(library), model(model) {
+    ModelBlock::update_block();
 }
 
 std::string tmdl::ModelBlock::get_name() const { return model->get_name(); }

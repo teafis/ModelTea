@@ -61,10 +61,10 @@ protected:
 
     void addConnectionItem(const std::shared_ptr<tmdl::Connection> connection, const BlockObject* from_block, const BlockObject* to_block);
 
+    void onModelChanged();
+
 public:
     std::shared_ptr<tmdl::Model> get_model() const;
-
-    std::shared_ptr<tmdl::ModelBlock> get_block() const;
 
     void set_model(std::shared_ptr<tmdl::Model> model);
 
@@ -73,7 +73,7 @@ public:
 protected:
     std::unique_ptr<MouseStateBase> mouseState;
     QGraphicsObject* selectedItem;
-    std::shared_ptr<tmdl::ModelBlock> model_block;
+    std::shared_ptr<tmdl::Model> modelInstance;
 };
 
 #endif // BLOCK_GRAPHICS_VIEW_H

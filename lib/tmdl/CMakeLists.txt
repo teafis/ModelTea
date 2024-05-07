@@ -45,7 +45,7 @@ add_library(
 )
 
 # Define the C++ Standard Required
-set_property(TARGET tmdl PROPERTY CXX_STANDARD 20)
+set_property(TARGET tmdl PROPERTY CXX_STANDARD 23)
 set_property(TARGET tmdl PROPERTY CXX_STANDARD_REQUIRED ON)
 
 # Link Libraries

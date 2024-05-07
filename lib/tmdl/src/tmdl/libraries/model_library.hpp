@@ -10,6 +10,7 @@
 
 #include "../library.hpp"
 #include "../model.hpp"
+#include "../model_block.hpp"
 
 namespace tmdl {
 
@@ -26,9 +27,11 @@ public:
 
     [[nodiscard]] std::unique_ptr<BlockInterface> create_block(std::string_view name) const override;
 
+    [[nodiscard]] std::unique_ptr<BlockInterface> create_block(tmdl::Model* model) const;
+
     [[nodiscard]] std::shared_ptr<Model> get_model(std::string_view name) const;
 
-    [[nodiscard]] std::shared_ptr<Model> create_model();
+    [[nodiscard]] std::shared_ptr<Model> create_new_model();
 
     [[nodiscard]] std::shared_ptr<tmdl::Model> add_model(std::shared_ptr<Model> model);
 

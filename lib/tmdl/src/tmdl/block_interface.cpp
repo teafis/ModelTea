@@ -2,6 +2,8 @@
 
 #include "block_interface.hpp"
 
+#include <fmt/format.h>
+
 tmdl::BlockError::BlockError(const size_t id, const std::string& message) : id{id}, message{message} {
     // Empty Constructor
 }
@@ -63,6 +65,8 @@ bool tmdl::BlockInterface::outputs_are_delayed() const { return false; }
 std::unique_ptr<const tmdl::BlockError> tmdl::BlockInterface::make_error(const std::string& msg) const {
     return std::make_unique<BlockError>(get_id(), msg);
 }
+
+std::string tmdl::BlockInterface::get_full_name() const { return fmt::format("{}::{}", get_library(), get_name()); }
 
 void tmdl::BlockExecutionInterface::reset() {
     update_inputs();

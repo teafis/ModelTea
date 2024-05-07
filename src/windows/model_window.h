@@ -91,6 +91,8 @@ private:
     tmdl::Model* get_model_id();
     const tmdl::Model* get_model_id() const;
     QString get_filename() const;
+    bool has_unsaved_changes() const;
+    bool check_can_close_current_model();
 
 private:
     Ui::ModelWindow* ui;
@@ -100,8 +102,6 @@ private:
     PlotWindow* window_plot = nullptr;
 
     std::shared_ptr<tmdl::ExecutionState> executor;
-
-    bool changeFlag;
 
     static const std::string default_extension;
     static const QString default_file_filter;

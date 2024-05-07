@@ -10,6 +10,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <vector>
 
 #include "../model_exception.hpp"
@@ -58,6 +59,32 @@ struct ModelValue {
         }
         return ptr->value;
     }
+
+    template <typename T> static std::unique_ptr<ModelValue> from_value(T val) {
+        using namespace mt::stdlib;
+
+        if constexpr (std::is_same_v<T, type_info<DataType::F64>::type_t>) {
+            return std::make_unique<ModelValueBox<DataType::F64>>(val);
+        } else if constexpr (std::is_same_v<T, type_info<DataType::F32>::type_t>) {
+            return std::make_unique<ModelValueBox<DataType::F32>>(val);
+        } else if constexpr (std::is_same_v<T, type_info<DataType::U8>::type_t>) {
+            return std::make_unique<ModelValueBox<DataType::U8>>(val);
+        } else if constexpr (std::is_same_v<T, type_info<DataType::U16>::type_t>) {
+            return std::make_unique<ModelValueBox<DataType::U16>>(val);
+        } else if constexpr (std::is_same_v<T, type_info<DataType::U32>::type_t>) {
+            return std::make_unique<ModelValueBox<DataType::U32>>(val);
+        } else if constexpr (std::is_same_v<T, type_info<DataType::I8>::type_t>) {
+            return std::make_unique<ModelValueBox<DataType::I8>>(val);
+        } else if constexpr (std::is_same_v<T, type_info<DataType::I16>::type_t>) {
+            return std::make_unique<ModelValueBox<DataType::I16>>(val);
+        } else if constexpr (std::is_same_v<T, type_info<DataType::I32>::type_t>) {
+            return std::make_unique<ModelValueBox<DataType::I32>>(val);
+        } else if constexpr (std::is_same_v<T, type_info<DataType::BOOL>::type_t>) {
+            return std::make_unique<ModelValueBox<DataType::BOOL>>(val);
+        } else {
+            return nullptr;
+        }
+    }
 };
 
 template <DataType DT> struct ModelValueBox : public ModelValue {
@@ -72,7 +99,7 @@ template <DataType DT> struct ModelValueBox : public ModelValue {
         return DT;
     }
 
-    std::string to_string() const override { return std::to_string(value); }
+    std::string to_string() const override { return fmt::format("{}", value); }
 
     std::unique_ptr<mt::stdlib::Argument> to_argument() const override { return std::make_unique<mt::stdlib::ArgumentBox<DT>>(value); }
 

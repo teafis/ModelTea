@@ -36,11 +36,14 @@ static const int CONNECTOR_Z_ORDER = -1;
 
 BlockGraphicsView::BlockGraphicsView(QWidget* parent) : QGraphicsView(parent), selectedItem(nullptr) {
     // Attempt to create a new model
-    model_block = std::make_shared<tmdl::ModelBlock>(tmdl::LibraryManager::get_instance().default_model_library()->create_model());
+    modelInstance = tmdl::LibraryManager::get_instance().default_model_library()->create_new_model();
 
     // Set the scene
     setScene(new QGraphicsScene(this));
     setAlignment(Qt::AlignTop | Qt::AlignLeft);
+
+    // Connect model changed
+    connect(this, &BlockGraphicsView::modelChanged, this, &BlockGraphicsView::onModelChanged);
 }
 
 void BlockGraphicsView::mousePressEvent(QMouseEvent* event) {
@@ -293,11 +296,11 @@ void BlockGraphicsView::removeSelectedBlock() {
 }
 
 void BlockGraphicsView::updateModel() {
-    if (!isEnabled() || !model_block) {
+    if (!isEnabled() || !modelInstance) {
         return;
     }
 
-    if (model_block->update_block()) {
+    if (modelInstance->update_block()) {
         emit modelChanged();
     }
 
@@ -370,15 +373,13 @@ void BlockGraphicsView::addConnectionItem(const std::shared_ptr<tmdl::Connection
     conn_obj->setZValue(static_cast<double>(CONNECTOR_Z_ORDER));
 }
 
-std::shared_ptr<tmdl::Model> BlockGraphicsView::get_model() const {
-    if (!model_block) {
-        return nullptr;
-    }
-
-    return model_block->get_model();
+void BlockGraphicsView::onModelChanged() {
+    modelInstance->set_unsaved_changes();
 }
 
-std::shared_ptr<tmdl::ModelBlock> BlockGraphicsView::get_block() const { return model_block; }
+std::shared_ptr<tmdl::Model> BlockGraphicsView::get_model() const {
+   return modelInstance;
+}
 
 void BlockGraphicsView::set_model(std::shared_ptr<tmdl::Model> mdl) {
     if (!isEnabled()) {
@@ -391,15 +392,14 @@ void BlockGraphicsView::set_model(std::shared_ptr<tmdl::Model> mdl) {
     // Reset the state
     mouseState = nullptr;
     selectedItem = nullptr;
-    model_block = nullptr;
+    //model_block = nullptr;
 
     if (!mdl) {
         return;
     }
 
     // Save the model
-    model_block = std::make_shared<tmdl::ModelBlock>(mdl);
-    model_block->set_id(0);
+    modelInstance = mdl;
 
     // Add new block objects
     for (const auto& blk : get_model()->get_blocks()) {

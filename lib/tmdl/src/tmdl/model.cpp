@@ -176,72 +176,9 @@ protected:
 
         for (const auto fcn : {tmdl::codegen::BlockFunction::RESET, tmdl::codegen::BlockFunction::STEP}) {
             lines.emplace_back("");
-            lines.push_back(fmt::format("    void {}()", *get_function_name(fcn)));
-            lines.emplace_back("    {");
-
-            for (const auto& bid : _model_data.execution_order) {
-                auto it = _blocks.find(bid);
-                if (it == _blocks.end()) {
-                    continue;
-                }
-
-                lines.push_back(fmt::format("        // Block {} - {}", bid, it->second.name));
-
-                // Copy Input Values
-                const auto input_def = get_input_type();
-                for (const auto& [port_num, destinations] : _model_data.links.input_port_links) {
-                    for (const auto& dest : destinations) {
-                        if (dest.block_id != bid) {
-                            continue;
-                        }
-
-                        const auto& blk = _blocks.at(dest.block_id);
-                        const auto comp = *blk.component->get_input_type();
-                        lines.push_back(fmt::format("        {}.{}.{} = {}.{};", blk.name, comp.get_name(), comp.get_field(dest.port_num),
-                                                    input_def->get_name(), input_def->get_field(port_num)));
-                    }
-                }
-
-                for (const auto& [src_index, vals] : _model_data.links.component_links) {
-                    const auto& src_blk = _blocks.at(src_index);
-                    const auto src_comp = *src_blk.component->get_output_type();
-
-                    for (const auto& [src_port, dest_links] : vals) {
-                        for (const auto& dest_i : dest_links) {
-                            if (dest_i.block_id != bid) {
-                                continue;
-                            }
-
-                            const auto& dst_blk = _blocks.at(dest_i.block_id);
-                            const auto dst_comp = *dst_blk.component->get_input_type();
-
-                            lines.push_back(fmt::format("        {}.{}.{} = {}.{}.{};", dst_blk.name, dst_comp.get_name(),
-                                                        dst_comp.get_field(dest_i.port_num), src_blk.name, src_comp.get_name(),
-                                                        src_comp.get_field(src_port)));
-                        }
-                    }
-                }
-
-                // Call the resulting function name if present
-                const auto& [varname, comp] = it->second;
-                const auto fcn_name = comp->get_function_name(fcn);
-                if (fcn_name) {
-                    lines.push_back(fmt::format("        {}.{}();", varname, *fcn_name));
-                }
+            for (const auto& l : get_model_function_calls(fcn)) {
+                lines.emplace_back(fmt::format("    {}", l));
             }
-
-            if (fcn == tmdl::codegen::BlockFunction::STEP || fcn == tmdl::codegen::BlockFunction::RESET) {
-                lines.emplace_back("        // Copy Output Values");
-                const auto output_def = get_output_type();
-                for (const auto& [port_num, src] : _model_data.links.output_port_links) {
-                    const auto& blk = _blocks.at(src.block_id);
-                    const auto comp = *blk.component->get_output_type();
-                    lines.push_back(fmt::format("        {}.{} = {}.{}.{};", output_def->get_name(), output_def->get_field(port_num),
-                                                blk.name, comp.get_name(), comp.get_field(src.port_num)));
-                }
-            }
-
-            lines.emplace_back("    }");
         }
 
         lines.emplace_back("");
@@ -274,6 +211,107 @@ protected:
 
         lines.emplace_back("");
         lines.push_back(fmt::format("#endif // {}", HDR_GUARD));
+
+        return lines;
+    }
+
+    std::vector<std::string> get_model_function_calls(const tmdl::codegen::BlockFunction fcn) const {
+        std::vector<std::string> fcn_lines;
+
+        for (const auto& bid : _model_data.execution_order) {
+            auto it = _blocks.find(bid);
+            if (it == _blocks.end()) {
+                continue;
+            }
+
+            std::vector<std::string> block_lines;
+
+            // Copy Input Values
+            const auto input_def = get_input_type();
+            for (const auto& [port_num, destinations] : _model_data.links.input_port_links) {
+                for (const auto& dest : destinations) {
+                    if (dest.block_id != bid) {
+                        continue;
+                    }
+
+                    const auto& blk = _blocks.at(dest.block_id);
+                    const auto comp = *blk.component->get_input_type();
+                    block_lines.push_back(fmt::format("{}.{}.{} = {}.{};", blk.name, comp.get_name(), comp.get_field(dest.port_num),
+                                                      input_def->get_name(), input_def->get_field(port_num)));
+                }
+            }
+
+            for (const auto& [src_index, vals] : _model_data.links.component_links) {
+                const auto& src_blk = _blocks.at(src_index);
+                const auto src_comp = *src_blk.component->get_output_type();
+
+                for (const auto& [src_port, dest_links] : vals) {
+                    for (const auto& dest_i : dest_links) {
+                        if (dest_i.block_id != bid) {
+                            continue;
+                        }
+
+                        const auto& dst_blk = _blocks.at(dest_i.block_id);
+                        const auto dst_comp = *dst_blk.component->get_input_type();
+
+                        block_lines.push_back(fmt::format("{}.{}.{} = {}.{}.{};", dst_blk.name, dst_comp.get_name(),
+                                                          dst_comp.get_field(dest_i.port_num), src_blk.name, src_comp.get_name(),
+                                                          src_comp.get_field(src_port)));
+                    }
+                }
+            }
+
+            // Call the resulting function name if present
+            const auto& [varname, comp] = it->second;
+            const auto fcn_name = comp->get_function_name(fcn);
+            if (fcn_name) {
+                block_lines.push_back(fmt::format("{}.{}();", varname, *fcn_name));
+            }
+
+            // Add the lines to the block if needed
+            if (!block_lines.empty()) {
+                if (!fcn_lines.empty()) {
+                    fcn_lines.emplace_back("");
+                }
+
+                fcn_lines.emplace_back(fmt::format("// Block {} - {}", bid, it->second.name));
+                for (const auto& bl : block_lines) {
+                    fcn_lines.emplace_back(fmt::format("{}", bl));
+                }
+            }
+        }
+
+        if (fcn == tmdl::codegen::BlockFunction::STEP || fcn == tmdl::codegen::BlockFunction::RESET) {
+            const auto output_def = get_output_type();
+            std::vector<std::string> output_lines;
+
+            for (const auto& [port_num, src] : _model_data.links.output_port_links) {
+                const auto& blk = _blocks.at(src.block_id);
+                const auto comp = *blk.component->get_output_type();
+                output_lines.push_back(fmt::format("{}.{} = {}.{}.{};", output_def->get_name(), output_def->get_field(port_num), blk.name,
+                                                   comp.get_name(), comp.get_field(src.port_num)));
+            }
+
+            if (!output_lines.empty()) {
+                if (!fcn_lines.empty()) {
+                    fcn_lines.emplace_back("");
+                }
+                fcn_lines.emplace_back("// Copy Output Values");
+                for (const auto& ol : output_lines) {
+                    fcn_lines.emplace_back(fmt::format("{}", ol));
+                }
+            }
+        }
+
+        std::vector<std::string> lines;
+        lines.push_back(fmt::format("void {}()", *get_function_name(fcn)));
+        lines.emplace_back("{");
+
+        for (const auto& l : fcn_lines) {
+            lines.emplace_back(fmt::format("    {}", l));
+        }
+
+        lines.emplace_back("}");
 
         return lines;
     }
@@ -331,7 +369,14 @@ private:
 
 /* ==================== MODEL ==================== */
 
-void Model::add_block(const std::shared_ptr<BlockInterface> block) { add_block(block, get_next_id()); }
+void Model::set_unsaved_changes() { has_unsaved_changed = true; }
+
+bool Model::get_unsaved_changes() const { return has_unsaved_changed; }
+
+void Model::add_block(const std::shared_ptr<BlockInterface> block) {
+    add_block(block, get_next_id());
+    has_unsaved_changed = true;
+}
 
 void Model::add_block(const std::shared_ptr<BlockInterface> block, const size_t id) {
     if (blocks.contains(id)) {
@@ -353,6 +398,7 @@ void Model::add_block(const std::shared_ptr<BlockInterface> block, const size_t 
 
     block->set_id(id);
     blocks.try_emplace(id, block);
+    has_unsaved_changed = true;
 }
 
 void Model::remove_block(const size_t id) {
@@ -382,6 +428,7 @@ void Model::remove_block(const size_t id) {
 
     // Remove references to the block ID
     connections.remove_block(id);
+    has_unsaved_changed = true;
 }
 
 void Model::add_connection(const std::shared_ptr<Connection> connection) {
@@ -401,6 +448,8 @@ void Model::add_connection(const std::shared_ptr<Connection> connection) {
         throw ModelException(fmt::format("from ({} < {}) / to ({} < {}) block and port number mismatch", connection->get_from_port(),
                                          from_block->get_num_outputs(), connection->get_to_port(), to_block->get_num_inputs()));
     }
+
+    has_unsaved_changed = true;
 }
 
 void Model::remove_connection(const size_t to_block, const size_t to_port) {
@@ -411,6 +460,8 @@ void Model::remove_connection(const size_t to_block, const size_t to_port) {
     }
 
     connections.remove_connection(to_block, to_port);
+
+    has_unsaved_changed = true;
 }
 
 std::string Model::get_name() const {
@@ -423,7 +474,12 @@ std::string Model::get_name() const {
 
 std::string Model::get_description() const { return description; }
 
-void Model::set_description(const std::string_view s) { description = s; }
+void Model::set_description(const std::string_view s) {
+    if (description != s) {
+        description = s;
+        has_unsaved_changed = true;
+    }
+}
 
 double Model::get_preferred_dt() const { return preferred_dt; }
 
@@ -432,7 +488,10 @@ void Model::set_preferred_dt(const double dt) {
         throw ModelException(fmt::format("A preferred dt of {} is too small for the current model", dt));
     }
 
-    preferred_dt = dt;
+    if (preferred_dt != dt) {
+        preferred_dt = dt;
+        has_unsaved_changed = true;
+    }
 }
 
 size_t Model::get_num_inputs() const { return input_ids.size(); }
@@ -875,6 +934,8 @@ void tmdl::Model::save_model() const {
     } else {
         throw ModelException("cannot save model without stored filename");
     }
+
+    has_unsaved_changed = false;
 }
 
 enum class SaveParameterType {
@@ -920,7 +981,7 @@ void from_json(const nlohmann::json& j, SaveParameter& p) {
 }
 
 struct SaveBlock {
-    size_t id;
+    uint64_t id;
     std::string name;
     std::vector<SaveParameter> parameters;
     int64_t x;
@@ -929,6 +990,7 @@ struct SaveBlock {
 };
 
 void to_json(nlohmann::json& j, const SaveBlock& b) {
+    static_assert(sizeof(uint64_t) >= sizeof(size_t), "uint64 must be >= size_t");
     j["id"] = b.id;
     j["name"] = b.name;
     j["parameters"] = b.parameters;
@@ -938,17 +1000,12 @@ void to_json(nlohmann::json& j, const SaveBlock& b) {
 }
 
 void from_json(const nlohmann::json& j, SaveBlock& b) {
-    j.at("id").get_to(b.id);
     j.at("name").get_to(b.name);
+    j.at("id").get_to(b.id);
     j.at("parameters").get_to(b.parameters);
     j.at("x").get_to(b.x);
     j.at("y").get_to(b.y);
-
-    if (auto it = j.find("inverted"); it != j.end()) {
-        it->get_to(b.inverted);
-    } else {
-        b.inverted = false;
-    }
+    j.at("inverted").get_to(b.inverted);
 }
 
 void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m) {
@@ -983,7 +1040,7 @@ void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m) {
 
         SaveBlock save_blk{
             .id = blk->get_id(),
-            .name = blk->get_name(),
+            .name = blk->get_full_name(),
             .parameters = json_parameters,
             .x = blk->get_loc().x - block_offset->x,
             .y = blk->get_loc().y - block_offset->y,
@@ -993,7 +1050,10 @@ void tmdl::to_json(nlohmann::json& j, const tmdl::Model& m) {
         json_blocks.try_emplace(save_blk.id, save_blk);
     }
 
-    j["blocks"] = json_blocks;
+    const auto v = json_blocks | std::views::values;
+    std::vector<SaveBlock> json_blocks_vec(v.begin(), v.end());
+
+    j["blocks"] = json_blocks_vec;
 }
 
 void tmdl::from_json(const nlohmann::json& j, tmdl::Model& m) {
@@ -1011,23 +1071,32 @@ void tmdl::from_json(const nlohmann::json& j, tmdl::Model& m) {
     j.at("input_ids").get_to(m.input_ids);
     from_json(j.at("connections"), m.connections);
 
-    const auto json_blocks = j.at("blocks").get<std::unordered_map<std::string, SaveBlock>>();
+    const auto json_blocks = j.at("blocks").get<std::vector<SaveBlock>>();
 
-    const auto& lib = tmdl::LibraryManager::get_instance();
-    const auto modellib = lib.default_model_library();
+    const auto& libmgr = tmdl::LibraryManager::get_instance();
 
-    for (const auto& [json_blk_id, json_blk] : json_blocks) {
-        auto blk = lib.try_create_block(json_blk.name);
+    for (const auto& json_blk : json_blocks) {
+        const auto it = json_blk.name.find("::");
+        if (it == std::string::npos) {
+            throw tmdl::ModelException(fmt::format("no library block name for name found in '{}'", json_blk.name));
+        }
 
-        if (blk == nullptr) {
+        const std::string lib_name = json_blk.name.substr(0, it);
+        const std::string block_name = json_blk.name.substr(it + 2);
+
+        const auto lib = libmgr.get_library(lib_name);
+        auto blk = lib->try_create_block(block_name);
+
+        const auto modellib = dynamic_cast<tmdl::ModelLibrary*>(lib);
+
+        if (blk == nullptr && modellib != nullptr) {
             auto test_path = m.get_filename();
             if (test_path.has_value()) {
                 auto pth = *test_path;
-                pth = pth.parent_path() / std::filesystem::path(json_blk.name).replace_extension(tmdl::Model::DEFAULT_MODEL_EXTENSION);
+                pth = pth.parent_path() / std::filesystem::path(block_name).replace_extension(tmdl::Model::DEFAULT_MODEL_EXTENSION);
 
-                const auto mdl = tmdl::Model::load_model(pth); // TODO - Move load model into the model library?
-                (void)modellib->add_model(mdl);
-                blk = lib.try_create_block(mdl->get_name());
+                const auto mdl = modellib->load_model(pth);
+                blk = modellib->create_block(mdl.get());
             }
         }
 
@@ -1054,8 +1123,10 @@ void tmdl::from_json(const nlohmann::json& j, tmdl::Model& m) {
             }
         }
 
-        m.blocks[blk->get_id()] = blk;
+        m.blocks[blk->get_id()] = std::move(blk);
     }
 
     m.update_block();
+
+    m.has_unsaved_changed = false;
 }

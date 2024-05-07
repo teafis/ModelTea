@@ -22,16 +22,18 @@ tmdl::LibraryManager::LibraryManager() {
     register_library("models", model_library);
 }
 
-void tmdl::LibraryManager::register_library(const std::string& name, std::shared_ptr<LibraryBase> library) {
-    if (const auto it = libraries.find(name); it != libraries.end()) {
+void tmdl::LibraryManager::register_library(std::string_view name, std::shared_ptr<LibraryBase> library) {
+    const auto sname = std::string(name);
+
+    if (const auto it = libraries.find(sname); it != libraries.end()) {
         throw ModelException("library name already exists in manager");
     }
 
-    libraries.try_emplace(name, library);
+    libraries.try_emplace(sname, library);
 }
 
-void tmdl::LibraryManager::deregister_library(const std::string& name) {
-    const auto it = libraries.find(name);
+void tmdl::LibraryManager::deregister_library(std::string_view name) {
+    const auto it = libraries.find(std::string(name));
     if (it == libraries.end()) {
         throw ModelException("library name does not exist in manager");
     }
@@ -39,12 +41,12 @@ void tmdl::LibraryManager::deregister_library(const std::string& name) {
     libraries.erase(it);
 }
 
-std::shared_ptr<const tmdl::LibraryBase> tmdl::LibraryManager::get_library(const std::string& name) const {
-    const auto it = libraries.find(name);
+tmdl::LibraryBase* tmdl::LibraryManager::get_library(std::string_view name) const {
+    const auto it = libraries.find(std::string(name));
     if (it == libraries.end()) {
         throw ModelException("library name does not exists in manager");
     } else {
-        return it->second;
+        return it->second.get();
     }
 }
 
@@ -57,24 +59,36 @@ std::vector<std::string> tmdl::LibraryManager::get_library_names() const {
     return names;
 }
 
-std::shared_ptr<tmdl::BlockInterface> tmdl::LibraryManager::create_block(const std::string& name) const {
+std::unique_ptr<tmdl::BlockInterface> tmdl::LibraryManager::create_block(std::string_view name) const {
     if (auto blk = try_create_block(name)) {
         return blk;
     } else {
         throw ModelException(fmt::format("no block with name `{}` found", name));
     }
 }
+std::unique_ptr<tmdl::BlockInterface> tmdl::LibraryManager::try_create_block(std::string_view name) const {
+    const std::string SCOPE_SYMBOL = "::";
 
-std::shared_ptr<tmdl::BlockInterface> tmdl::LibraryManager::try_create_block(const std::string& name) const {
-    for (const auto& lib : libraries | std::views::values) {
-        if (lib->has_block(name)) {
-            return lib->create_block(name);
+    const auto it = name.find(SCOPE_SYMBOL);
+    if (it != std::string::npos) {
+        const auto lib_name = name.substr(0, it);
+        const auto block_name = name.substr(it + SCOPE_SYMBOL.size());
+
+        const auto lib = get_library(lib_name);
+        if (lib) {
+            return lib->create_block(block_name);
+        }
+    } else {
+        for (const auto& lib : libraries | std::views::values) {
+            if (lib->has_block(name)) {
+                return lib->create_block(name);
+            }
         }
     }
 
     return nullptr;
 }
 
-bool tmdl::LibraryManager::has_block(const std::string& name) const { return try_create_block(name) != nullptr; }
+bool tmdl::LibraryManager::has_block(std::string_view name) const { return try_create_block(name) != nullptr; }
 
-std::shared_ptr<tmdl::ModelLibrary> tmdl::LibraryManager::default_model_library() const { return model_library; }
+tmdl::ModelLibrary* tmdl::LibraryManager::default_model_library() const { return model_library.get(); }

@@ -13,9 +13,9 @@
 
 namespace tmdl {
 
-class ModelBlock : public BlockInterface {
+class ModelBlock final : public BlockInterface {
 public:
-    explicit ModelBlock(std::shared_ptr<Model> model);
+    explicit ModelBlock(std::shared_ptr<Model> model, std::string_view library);
 
     std::string get_name() const override;
 

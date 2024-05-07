@@ -22,6 +22,8 @@ public:
     virtual bool has_block(std::string_view name) const = 0;
 
     virtual std::unique_ptr<BlockInterface> create_block(std::string_view name) const = 0;
+
+    virtual std::unique_ptr<BlockInterface> try_create_block(std::string_view name) const;
 };
 
 }

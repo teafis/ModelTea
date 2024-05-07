@@ -63,7 +63,11 @@ public:
         const double dt;
     };
 
+    BlockInterface(std::string_view lib) : library_name(lib) {}
+
     virtual ~BlockInterface() = default;
+
+    BlockInterface& operator=(const BlockInterface&) = delete;
 
     size_t get_id() const;
 
@@ -99,7 +103,9 @@ public:
 
     virtual std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo& s) const = 0;
 
-    BlockInterface& operator=(const BlockInterface&) = delete;
+    virtual std::string get_library() const { return library_name; }
+
+    virtual std::string get_full_name() const;
 
 protected:
     std::unique_ptr<const BlockError> make_error(const std::string& msg) const;
@@ -108,6 +114,7 @@ private:
     size_t _id{0};
     BlockLocation _loc{};
     bool _inverted{false};
+    const std::string library_name;
 };
 
 class BlockExecutionInterface {

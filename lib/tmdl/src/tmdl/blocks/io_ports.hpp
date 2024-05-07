@@ -7,9 +7,9 @@
 
 namespace tmdl {
 
-class InputPort : public BlockInterface {
+class InputPort final : public BlockInterface {
 public:
-    InputPort();
+    InputPort(std::string_view library);
 
     std::string get_name() const override;
 
@@ -40,8 +40,10 @@ private:
     std::shared_ptr<ParameterDataType> dataTypeParameter;
 };
 
-class OutputPort : public BlockInterface {
+class OutputPort final : public BlockInterface {
 public:
+    OutputPort(std::string_view library);
+
     std::string get_name() const override;
 
     std::string get_description() const override;

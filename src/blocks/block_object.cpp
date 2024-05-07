@@ -149,13 +149,16 @@ void BlockObject::drawIOPorts(QPainter* painter, const PortType type) {
     if (num_ports > 0) {
         // Define the lambda used to track X values
         const double rect_width = boundingRect().width();
+        const bool inverted = block->get_inverted();
 
-        const auto x_update_fn = [rect_width, type](const double x) {
+        const auto x_update_fn = [rect_width, type, inverted](const double x) {
+            const auto x_l = x;
+            const auto x_r = rect_width - x;
             switch (type) {
             case PortType::INPUT:
-                return x;
+                return inverted ? x_r : x_l;
             case PortType::OUTPUT:
-                return rect_width - x;
+                return inverted ? x_l : x_r;
             default:
                 throw BlockObjectException("unexpected port type provided");
             }

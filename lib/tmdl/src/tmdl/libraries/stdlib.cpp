@@ -120,8 +120,9 @@ private:
 
 class StdlibBlockComponent final : public tmdl::codegen::CodeComponent {
 public:
-    StdlibBlockComponent(std::unique_ptr<mt::stdlib::block_interface>&& block_in) : block{std::move(block_in)} {
-        if (!this->block) {
+    StdlibBlockComponent(std::unique_ptr<mt::stdlib::block_interface>&& block_in, std::shared_ptr<const tmdl::ModelValue> arg)
+        : block{std::move(block_in)}, arg{arg} {
+        if (!block) {
             throw tmdl::ModelException("nullptr block provided");
         }
     }
@@ -156,23 +157,31 @@ public:
 
     std::string get_module_name() const override { return "mtstdlib.hpp"; }
 
-    std::string get_type_name() const override { return block->get_block_name(); }
+    std::string get_type_name() const override { return block->get_type_name(); }
 
     std::optional<std::string> get_function_name(tmdl::codegen::BlockFunction ft) const override { return {}; }
 
-    std::vector<std::string> constructor_arguments() const override { return {}; }
+    std::vector<std::string> constructor_arguments() const override {
+        if (arg) {
+            return {arg->to_string()};
+        } else {
+            return {};
+        }
+    }
 
 protected:
     std::vector<std::string> write_cpp_code(tmdl::codegen::CodeSection section) const override { return {}; }
 
 private:
     std::unique_ptr<mt::stdlib::block_interface> block;
+    std::shared_ptr<const tmdl::ModelValue> arg;
 };
 
 class StdlibBlockCompiled final : public tmdl::CompiledBlockInterface {
 public:
-    StdlibBlockCompiled(std::function<std::unique_ptr<mt::stdlib::block_interface>()> make_new_interface, size_t current_id)
-        : make_new_interface(make_new_interface), current_id(current_id) {}
+    StdlibBlockCompiled(std::function<std::unique_ptr<mt::stdlib::block_interface>()> make_new_interface, size_t current_id,
+                        std::unique_ptr<const tmdl::ModelValue>&& arg)
+        : make_new_interface(make_new_interface), current_id(current_id), arg(std::move(arg)) {}
 
     std::unique_ptr<tmdl::BlockExecutionInterface> get_execution_interface(const tmdl::ConnectionManager& connections,
                                                                            const tmdl::VariableManager& manager) const override {
@@ -195,17 +204,18 @@ public:
     }
 
     std::unique_ptr<tmdl::codegen::CodeComponent> get_codegen_self() const override {
-        return std::make_unique<StdlibBlockComponent>(make_new_interface());
+        return std::make_unique<StdlibBlockComponent>(make_new_interface(), arg);
     }
 
 private:
     std::function<std::unique_ptr<mt::stdlib::block_interface>()> make_new_interface;
     size_t current_id;
+    std::shared_ptr<const tmdl::ModelValue> arg;
 };
 
-class StdlibBlock : public tmdl::BlockInterface {
+class StdlibBlock final : public tmdl::BlockInterface {
 public:
-    StdlibBlock(const mt::stdlib::BlockInformation& info) : constructor{info} {
+    StdlibBlock(const mt::stdlib::BlockInformation& info, std::string_view library) : tmdl::BlockInterface(library), constructor{info} {
         const auto init_dt = constructor.info.get_default_data_type();
 
         update_block(init_dt);
@@ -334,7 +344,28 @@ public:
         const auto dt = s.get_dt();
         const auto dtype = selected_type();
         const auto c = constructor;
-        return std::make_unique<StdlibBlockCompiled>([c, dt, dtype]() { return c.create_block(dtype, dt); }, get_id());
+
+        std::unique_ptr<tmdl::ModelValue> constructor_arg{};
+
+        if (constructor.info.constructor == mt::stdlib::BlockInformation::ConstructorOptions::DEFAULT) {
+            constructor_arg = nullptr;
+        } else if (constructor.info.constructor == mt::stdlib::BlockInformation::ConstructorOptions::TIMESTEP) {
+            if (dtype == mt::stdlib::DataType::F64) {
+                constructor_arg = tmdl::ModelValue::from_value(s.get_dt());
+            } else if (dtype == mt::stdlib::DataType::F32) {
+                constructor_arg = tmdl::ModelValue::from_value(static_cast<float>(s.get_dt()));
+            } else {
+                throw tmdl::ModelException("unsupported timestep data type provided");
+            }
+        } else if (constructor.info.constructor == mt::stdlib::BlockInformation::ConstructorOptions::SIZE) {
+            constructor_arg = nullptr;
+        } else if (constructor.info.constructor == mt::stdlib::BlockInformation::ConstructorOptions::VALUE) {
+            constructor_arg = constructor.param_value->get_value()->clone();
+        } else {
+            throw tmdl::ModelException("unknown code generation constructor option provided");
+        }
+
+        return std::make_unique<StdlibBlockCompiled>([c, dt, dtype]() { return c.create_block(dtype, dt); }, get_id(), std::move(constructor_arg));
     }
 
 private:
@@ -344,10 +375,11 @@ private:
 };
 
 tmdl::blocks::StandardLibrary::StandardLibrary() {
-    block_map = {{"input", []() { return std::make_unique<InputPort>(); }}, {"output", []() { return std::make_unique<OutputPort>(); }}};
+    block_map = {{"input", [this]() { return std::make_unique<InputPort>(get_library_name()); }},
+                 {"output", [this]() { return std::make_unique<OutputPort>(get_library_name()); }}};
 
     for (const auto& blk : mt::stdlib::get_available_blocks()) {
-        block_map[blk.name] = [blk]() { return std::make_unique<StdlibBlock>(blk); };
+        block_map[blk.name] = [this, blk]() { return std::make_unique<StdlibBlock>(blk, get_library_name()); };
     }
 }
 

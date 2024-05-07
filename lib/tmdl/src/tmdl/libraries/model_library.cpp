@@ -2,7 +2,6 @@
 
 #include "model_library.hpp"
 
-#include "../model_block.hpp"
 #include "../model_exception.hpp"
 
 #include "../values/identifiers.hpp"
@@ -27,9 +26,17 @@ std::vector<std::string> tmdl::ModelLibrary::get_block_names() const {
 bool tmdl::ModelLibrary::has_block(const std::string_view name) const { return try_get_model(name) != nullptr; }
 
 std::unique_ptr<tmdl::BlockInterface> tmdl::ModelLibrary::create_block(const std::string_view name) const {
-    auto m = std::make_unique<ModelBlock>(get_model(name));
-    m->update_block();
-    return m;
+    return std::make_unique<ModelBlock>(get_model(name), get_library_name());
+}
+
+std::unique_ptr<tmdl::BlockInterface> tmdl::ModelLibrary::create_block(tmdl::Model* model) const {
+    for (const auto it : models | std::views::values) {
+        if (it.get() == model) {
+            return std::make_unique<ModelBlock>(it, get_library_name());
+        }
+    }
+
+    throw tmdl::ModelException(fmt::format("unable to find model matching provided model input in library {}", get_library_name()));
 }
 
 std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::get_model(const std::string_view name) const {
@@ -44,7 +51,7 @@ std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::get_model(const std::string_vie
     return mdl;
 }
 
-std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::create_model() {
+std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::create_new_model() {
     const auto mdl = std::make_shared<tmdl::Model>();
     return add_model(mdl);
 }
@@ -89,8 +96,7 @@ void tmdl::ModelLibrary::save_model(const Model* model, const std::filesystem::p
     }
 }
 
-std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::load_model(const std::filesystem::path& path)
-{
+std::shared_ptr<tmdl::Model> tmdl::ModelLibrary::load_model(const std::filesystem::path& path) {
     if (!path.has_stem()) {
         throw ModelException(fmt::format("error setting filename '{}' due to missing stem", path.string()));
     }

@@ -32,6 +32,10 @@ public:
     friend class ModelBlock;
     friend class ModelLibrary;
 
+    void set_unsaved_changes();
+
+    bool get_unsaved_changes() const;
+
     void add_block(const std::shared_ptr<BlockInterface> block);
 
     void add_block(const std::shared_ptr<BlockInterface> block, const size_t id);
@@ -119,6 +123,7 @@ private:
     std::vector<size_t> output_ids;
     double preferred_dt{0.1};
     std::optional<std::filesystem::path> filename;
+    mutable bool has_unsaved_changed{ false };
 
 public:
     static const std::string DEFAULT_MODEL_EXTENSION;

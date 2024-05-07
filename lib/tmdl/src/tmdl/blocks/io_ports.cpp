@@ -52,7 +52,9 @@ public:
 
 /* ========== INPUT PORT ========== */
 
-InputPort::InputPort() { dataTypeParameter = std::make_shared<ParameterDataType>("data_type", "parameter data type", DataType::NONE); }
+InputPort::InputPort(std::string_view library) : tmdl::BlockInterface(library) {
+    dataTypeParameter = std::make_shared<ParameterDataType>("data_type", "parameter data type", DataType::NONE);
+}
 
 std::string InputPort::get_name() const { return "input"; }
 
@@ -95,11 +97,11 @@ std::unique_ptr<CompiledBlockInterface> InputPort::get_compiled(const ModelInfo&
 
 void InputPort::set_input_value(const DataType type) { _port = type; }
 
-tmdl::DataType InputPort::get_output_type() const {
-    return dataTypeParameter->get_type();
-}
+tmdl::DataType InputPort::get_output_type() const { return dataTypeParameter->get_type(); }
 
 /* ========== OUTPUT PORT ========== */
+
+OutputPort::OutputPort(std::string_view library) : tmdl::BlockInterface(library) {}
 
 std::string OutputPort::get_name() const { return "output"; }
 

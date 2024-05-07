@@ -10,8 +10,6 @@ BlockSelectorDialog::BlockSelectorDialog(QWidget* parent) : QDialog(parent), ui(
 
     connect(ui->listBlocks, &QListWidget::itemDoubleClicked, this, &BlockSelectorDialog::itemSelected);
 
-    setAttribute(Qt::WA_DeleteOnClose, true);
-
     updateLibrary();
 }
 

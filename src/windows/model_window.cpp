@@ -43,6 +43,8 @@ ModelWindow::ModelWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::Mode
 
     // Update the menu items
     updateWindowItems();
+
+    setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
 ModelWindow::~ModelWindow() {
@@ -328,7 +330,10 @@ void ModelWindow::showDiagnostics() {
     if (window_diagnostics == nullptr) {
         window_diagnostics = new ModelDiagnosticsDialog(ui->block_graphics->get_model());
 
-        connect(window_diagnostics, &ModelDiagnosticsDialog::destroyed, [this]() { window_diagnostics = nullptr; });
+        connect(window_diagnostics, &ModelDiagnosticsDialog::finished, [this]() {
+            window_diagnostics->deleteLater();
+            window_diagnostics = nullptr;
+        });
 
         connect(ui->block_graphics, &BlockGraphicsView::modelUpdated, window_diagnostics, &ModelDiagnosticsDialog::updateDiagnostics);
     }
@@ -413,7 +418,10 @@ void ModelWindow::showLibrary() {
         window_library = new BlockSelectorDialog(this);
 
         connect(window_library, &BlockSelectorDialog::blockSelected, this, &ModelWindow::addBlock);
-        connect(window_library, &BlockSelectorDialog::destroyed, [this]() { window_library = nullptr; });
+        connect(window_library, &BlockSelectorDialog::finished, [this]() {
+            window_library->deleteLater();
+            window_library = nullptr;
+        });
     }
 
     window_library->show();
@@ -421,9 +429,13 @@ void ModelWindow::showLibrary() {
 
 void ModelWindow::showModelParameters() {
     auto* window_parameters = new ModelParametersDialog(ui->block_graphics->get_model(), currentModelName(), this);
-    if (window_parameters->exec()) {
-        emit modelChanged();
-    }
+    connect(window_parameters, &ModelParametersDialog::finished, [this, window_parameters](const int result) {
+        if (result) {
+            emit modelChanged();
+        }
+        window_parameters->deleteLater();
+    });
+    window_parameters->open();
 }
 
 void ModelWindow::showPlot() {

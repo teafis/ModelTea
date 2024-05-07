@@ -15,8 +15,6 @@ ModelParametersDialog::ModelParametersDialog(std::shared_ptr<tmdl::Model> model,
     ui->nameLabel->setText(model_name);
     ui->descriptionTextEdit->document()->setPlainText(QString(model->get_description().c_str()));
     ui->dtLineEdit->setText(QString("%1").arg(model->get_preferred_dt()));
-
-    setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
 void ModelParametersDialog::accept() {

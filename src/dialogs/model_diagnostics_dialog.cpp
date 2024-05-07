@@ -13,8 +13,6 @@ ModelDiagnosticsDialog::ModelDiagnosticsDialog(const std::shared_ptr<const tmdl:
 
     ui->setupUi(this);
     updateDiagnostics();
-
-    setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
 void ModelDiagnosticsDialog::setModel(std::shared_ptr<const tmdl::Model> m) {

@@ -26,7 +26,8 @@ void ParameterNumericWidget::textChanged() {
         auto* msg = new QMessageBox(this);
         msg->setText(ex.what());
         msg->setWindowTitle("Parameter Error");
-        msg->exec();
+        connect(msg, &QMessageBox::finished, [msg]() { msg->deleteLater(); });
+        msg->open();
         return;
     }
 

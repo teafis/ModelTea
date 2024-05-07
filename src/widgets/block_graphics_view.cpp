@@ -196,10 +196,10 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event) {
 
         if (BlockObject* block = findBlockForMousePress(mappedPos); block != nullptr) {
             if (const auto mdl_block = std::dynamic_pointer_cast<const tmdl::ModelBlock>(block->get_block())) {
-                if (const auto wnd = WindowManager::instance().window_for_model(mdl_block->get_model().get())) {
-                    const_cast<ModelWindow*>(wnd)->show();
-                    const_cast<ModelWindow*>(wnd)->raise();
-                    const_cast<ModelWindow*>(wnd)->activateWindow();
+                if (ModelWindow* wnd = const_cast<ModelWindow*>(WindowManager::instance().window_for_model(mdl_block->get_model().get()))) {
+                    wnd->show();
+                    wnd->raise();
+                    wnd->activateWindow();
                 } else {
                     auto new_window = new ModelWindow();
                     auto load_mdl =
@@ -211,32 +211,43 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event) {
             } else {
                 BlockParameterDialog* dialog = new BlockParameterDialog(block, this);
 
-                dialog->exec();
-                updateModel();
+                connect(dialog, &BlockParameterDialog::finished, [dialog, this, block](const int result) {
+                    if (result) {
+                        updateModel();
 
-                const auto sceneItems = scene()->items();
+                        const auto sceneItems = scene()->items();
 
-                for (auto* ptr : std::as_const(sceneItems)) {
-                    const auto c = dynamic_cast<ConnectorBlockObject*>(ptr);
-                    if (c == nullptr)
-                        continue;
+                        for (auto* ptr : std::as_const(sceneItems)) {
+                            const auto c = dynamic_cast<ConnectorBlockObject*>(ptr);
+                            if (c == nullptr)
+                                continue;
 
-                    if (!c->isValidConnection()) {
-                        get_model()->remove_connection(c->get_to_block()->get_block()->get_id(), c->get_to_port());
-                        c->deleteLater();
+                            if (!c->isValidConnection()) {
+                                get_model()->remove_connection(c->get_to_block()->get_block()->get_id(), c->get_to_port());
+                                c->deleteLater();
+                            }
+                        }
+
+                        emit block->sceneLocationUpdated();
                     }
-                }
 
-                emit block->sceneLocationUpdated();
+                    updateModel();
+                    dialog->deleteLater();
+                });
 
-                updateModel();
+                dialog->open();
             }
         } else if (ConnectorBlockObject* conn = findConnectorForMousePress(mappedPos); conn != nullptr) {
             auto dialog = new ConnectionParametersDialog(conn, this);
-            if (dialog->exec()) {
-                conn->update();
-                emit modelChanged();
-            }
+            connect(
+                dialog, &ConnectionParametersDialog::finished, [dialog, this, conn](const int result) {
+                    if (result) {
+                        conn->update();
+                        emit modelChanged();
+                    }
+                    dialog->deleteLater();
+                });
+            dialog->open();
         }
     }
 }
@@ -373,13 +384,9 @@ void BlockGraphicsView::addConnectionItem(const std::shared_ptr<tmdl::Connection
     conn_obj->setZValue(static_cast<double>(CONNECTOR_Z_ORDER));
 }
 
-void BlockGraphicsView::onModelChanged() {
-    modelInstance->set_unsaved_changes();
-}
+void BlockGraphicsView::onModelChanged() { modelInstance->set_unsaved_changes(); }
 
-std::shared_ptr<tmdl::Model> BlockGraphicsView::get_model() const {
-   return modelInstance;
-}
+std::shared_ptr<tmdl::Model> BlockGraphicsView::get_model() const { return modelInstance; }
 
 void BlockGraphicsView::set_model(std::shared_ptr<tmdl::Model> mdl) {
     if (!isEnabled()) {
@@ -392,7 +399,7 @@ void BlockGraphicsView::set_model(std::shared_ptr<tmdl::Model> mdl) {
     // Reset the state
     mouseState = nullptr;
     selectedItem = nullptr;
-    //model_block = nullptr;
+    // model_block = nullptr;
 
     if (!mdl) {
         return;

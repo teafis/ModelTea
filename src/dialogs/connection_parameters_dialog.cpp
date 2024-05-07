@@ -9,8 +9,6 @@ ConnectionParametersDialog::ConnectionParametersDialog(ConnectorBlockObject* con
     : QDialog(parent), ui(new Ui::ConnectionParametersDialog), connector(conn) {
     ui->setupUi(this);
     ui->lineEditConnectionName->setText(connector->get_name());
-
-    setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
 void ConnectionParametersDialog::accept() {

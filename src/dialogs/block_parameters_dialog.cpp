@@ -15,8 +15,6 @@ BlockParameterDialog::BlockParameterDialog(BlockObject* block, QWidget* parent)
     ui->lblBlockTitle->setText(block->get_block()->get_name().c_str());
 
     reloadParameters();
-
-    setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
 void BlockParameterDialog::reloadParameters() {

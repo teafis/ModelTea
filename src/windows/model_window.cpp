@@ -262,7 +262,9 @@ void ModelWindow::closeModel() {
     auto mdl_library = tmdl::LibraryManager::get_instance().default_model_library();
 
     try {
-        mdl_library->close_model(model_id);
+        if (!name.empty()) {
+            mdl_library->close_model(model_id);
+        }
     } catch (const tmdl::ModelException& ex) {
         QMessageBox::warning(this, "error", ex.what());
 

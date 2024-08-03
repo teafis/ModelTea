@@ -4,7 +4,7 @@
 
 #include <fstream>
 
-#include "blocks/io_ports.hpp"
+//#include "blocks/io_ports.hpp"
 #include "model_exception.hpp"
 
 #include "model_block.hpp"
@@ -17,6 +17,8 @@
 #include "values/identifiers.hpp"
 
 #include <fmt/format.h>
+
+import tmdl;
 
 using namespace tmdl;
 

@@ -1,13 +1,22 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "io_ports.hpp"
+module;
+
+#include "../block_interface.hpp"
 
 #include <fmt/format.h>
 
 #include "../model_exception.hpp"
 #include "tmdl/block_interface.hpp"
 
-using namespace tmdl;
+#include <cstdlib>
+#include <cstddef>
+#include <memory>
+#include <vector>
+
+export module tmdl:io_ports;
+
+namespace tmdl {
 
 /* ========== COMPILED STRUCTURE ========== */
 
@@ -48,6 +57,67 @@ public:
     }
 
     std::unique_ptr<codegen::CodeComponent> get_codegen_self() const override { return std::make_unique<IoPortComponent>(); }
+};
+
+export class InputPort final : public BlockInterface {
+public:
+    InputPort(std::string_view library);
+
+    std::string get_name() const override;
+
+    std::string get_description() const override;
+
+    size_t get_num_inputs() const override;
+
+    size_t get_num_outputs() const override;
+
+    void set_input_type(const size_t port, const DataType type) override;
+
+    DataType get_output_type(const size_t port) const override;
+
+    std::unique_ptr<const BlockError> has_error() const override;
+
+    std::vector<std::shared_ptr<Parameter>> get_parameters() const override;
+
+    bool update_block() override;
+
+    std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
+
+    void set_input_value(const DataType type);
+
+private:
+    DataType get_output_type() const;
+
+    DataType _port;
+    std::shared_ptr<ParameterDataType> dataTypeParameter;
+};
+
+export class OutputPort final : public BlockInterface {
+public:
+    OutputPort(std::string_view library);
+
+    std::string get_name() const override;
+
+    std::string get_description() const override;
+
+    size_t get_num_inputs() const override;
+
+    size_t get_num_outputs() const override;
+
+    void set_input_type(const size_t port, const DataType type) override;
+
+    DataType get_output_type(const size_t port) const override;
+
+    std::unique_ptr<const BlockError> has_error() const override;
+
+    bool update_block() override;
+
+    std::unique_ptr<CompiledBlockInterface> get_compiled(const ModelInfo&) const override;
+
+    DataType get_output_value() const;
+
+private:
+    DataType _port;
 };
 
 /* ========== INPUT PORT ========== */
@@ -134,3 +204,5 @@ bool OutputPort::update_block() { return false; }
 std::unique_ptr<CompiledBlockInterface> OutputPort::get_compiled(const ModelInfo&) const { return std::make_unique<CompiledPort>(); }
 
 DataType OutputPort::get_output_value() const { return _port; }
+
+}

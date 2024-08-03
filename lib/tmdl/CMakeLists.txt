@@ -1,8 +1,10 @@
 ﻿# SPDX-License-Identifier: GPL-3.0-only
 
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.28)
 
 set(VCPKG_FEATURE_FLAGS "versions")
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD 20)
 
 # Define the project information
 project(
@@ -30,7 +32,7 @@ set(
     src/tmdl/values/value.hpp src/tmdl/values/value.cpp
     src/tmdl/values/value_array.hpp src/tmdl/values/value_array.cpp
     src/tmdl/variable_manager.hpp src/tmdl/variable_manager.cpp
-    src/tmdl/blocks/io_ports.hpp src/tmdl/blocks/io_ports.cpp
+    #src/tmdl/blocks/io_ports.hpp src/tmdl/blocks/io_ports.cpp
     src/tmdl/libraries/model_library.hpp src/tmdl/libraries/model_library.cpp
     src/tmdl/libraries/stdlib.hpp src/tmdl/libraries/stdlib.cpp
     src/tmdl/codegen/generator.hpp src/tmdl/codegen/generator.cpp
@@ -41,7 +43,18 @@ set(
 # Define the library
 add_library(
     tmdl
+
+)
+
+target_sources(tmdl
+    PUBLIC
     ${TEAFIS_MODEL_SOURCES}
+)
+
+target_sources(tmdl
+  PUBLIC
+    FILE_SET CXX_MODULES FILES
+      src/tmdl/blocks/io_ports.cpp
 )
 
 # Define the C++ Standard Required

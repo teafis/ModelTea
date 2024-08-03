@@ -4,13 +4,15 @@
 
 #include "../model_exception.hpp"
 
-#include "../blocks/io_ports.hpp"
+//#include "../blocks/io_ports.hpp"
 #include "../values/parameter.hpp"
 
 #include "mtstdlib_creation.hpp"
 #include "mtstdlib_string.hpp"
 
 #include <ranges>
+
+import tmdl;
 
 struct StdlibBlockConstructor {
     StdlibBlockConstructor(const mt::stdlib::BlockInformation& info) : info{info} {

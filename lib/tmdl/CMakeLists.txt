@@ -48,13 +48,29 @@ add_library(
 
 target_sources(tmdl
     PUBLIC
-    ${TEAFIS_MODEL_SOURCES}
+    ${TEAFIS_MODEL_SOURCES}qt
 )
 
 target_sources(tmdl
   PUBLIC
     FILE_SET CXX_MODULES FILES
-      src/tmdl/blocks/io_ports.cpp
+        src/tmdl/tmdl.cpp
+        src/tmdl/blocks/io_ports.cpp
+        src/tmdl/codegen/codegen.cpp
+        src/tmdl/codegen/component.cpp
+        src/tmdl/codegen/generator.cpp
+        src/tmdl/dictionary/data_dictionary.cpp
+        src/tmdl/dictionary/data_parameter.cpp
+        src/tmdl/dictionary/dictionary/cpp
+        src/tmdl/libraries/libraries.cpp
+        src/tmdl/libraries/model_library.cpp
+        src/tmdl/libraries/stdlib.cpp
+        src/tmdl/values/data_type.cpp
+        src/tmdl/values/identifier.cpp
+        src/tmdl/values/parameter.cpp
+        src/tmdl/values/value.cpp
+        src/tmdl/values/value_array.cpp
+        src/tmdl/values/values.cpp
 )
 
 # Define the C++ Standard Required

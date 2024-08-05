@@ -1,6 +1,59 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "data_parameter.hpp"
+module;
+
+#include <memory>
+
+#include "../values/value.hpp"
+#include "../values/value_array.hpp"
+
+export module tmdl.dictionary:data_parameter;
+
+import tmdl.values.value;
+import tmdl.values.value_array;
+
+namespace tmdl {
+
+export class DataParameter {
+public:
+    virtual ~DataParameter() = default;
+    virtual void set_from_string(const std::string& s) = 0;
+    virtual void set_data_type(DataType dt) = 0;
+    virtual void set_data_type_string(const std::string& s, DataType dt) = 0;
+    virtual DataType data_type() const = 0;
+};
+
+export class DataParameterValue : public DataParameter {
+public:
+    DataParameterValue() = default;
+
+    void set_from_string(const std::string& s) override;
+
+    void set_data_type(const DataType dt) override;
+
+    void set_data_type_string(const std::string& s, DataType dt) override;
+
+private:
+    std::shared_ptr<ModelValue> value{ModelValue::make_default(DataType::F64)};
+};
+
+export class DataParameterArray : public DataParameter {
+public:
+    DataParameterArray() = default;
+
+    void set_from_string(const std::string& s) override;
+
+    void set_data_type(const DataType dt) override;
+
+    void set_data_type_string(const std::string& s, DataType dt) override;
+
+    void set_size(const size_t c, const size_t r);
+
+private:
+    std::shared_ptr<ValueArray> array{ValueArray::create_value_array("[]", DataType::F64)};
+};
+
+}
 
 void tmdl::DataParameterValue::set_from_string(const std::string& s) {
     const auto v = std::unique_ptr<ModelValue>(ModelValue::from_string(s, value->data_type()));

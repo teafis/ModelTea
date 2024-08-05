@@ -1,4 +1,38 @@
-#include "codegen.hpp"
+module;
+
+export module tmdl.codegen;
+
+namespace tmdl::codegen {
+
+export enum class Language {
+    CPP = 0,
+};
+
+export enum class CodeSection {
+    DEFINITION = 0,
+    DECLARATION,
+};
+
+export enum class BlockFunction {
+    RESET = 0,
+    STEP,
+};
+
+export class CodegenError {
+public:
+    explicit CodegenError(std::string_view msg);
+
+    virtual ~CodegenError() = default;
+
+    virtual const char* what() const noexcept;
+
+protected:
+    const std::string _msg;
+};
+
+export std::string get_datatype_name(Language code, tmdl::DataType datatype);
+
+}
 
 tmdl::codegen::CodegenError::CodegenError(const std::string_view msg) : _msg(msg) {
     // Empty Constructor

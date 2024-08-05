@@ -1,10 +1,40 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "identifiers.hpp"
+module;
 
-#include "../model_exception.hpp"
-
+#include <string>
 #include <fmt/format.h>
+
+export module tmdl.values:identifier;
+
+namespace tmdl {
+
+export class Identifier {
+public:
+    Identifier(const Identifier&) = default;
+
+    explicit Identifier(std::string_view s);
+
+    Identifier(Identifier&& other) = default;
+
+    ~Identifier() = default;
+
+    Identifier& operator=(const Identifier&) = default;
+
+    bool operator==(const Identifier&) const = default;
+
+    const std::string& get() const;
+
+    void set(std::string_view s);
+
+private:
+    std::string _value;
+
+public:
+    static bool is_valid_identifier(std::string_view s);
+};
+
+}
 
 tmdl::Identifier::Identifier(const std::string_view s) { set(s); }
 

@@ -14,7 +14,7 @@ module;
 #include <memory>
 #include <vector>
 
-export module tmdl:io_ports;
+export module tmdl:blocks_io_ports;
 
 namespace tmdl {
 

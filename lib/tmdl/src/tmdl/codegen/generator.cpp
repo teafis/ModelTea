@@ -1,8 +1,32 @@
+module;
+
 #include "generator.hpp"
 
-#include <fstream>
+#include <filesystem>
+#include <string>
+#include <unordered_map>
+
+#include "../block_interface.hpp"
 
 #include <fmt/format.h>
+
+export module tmdl.codegen:generator;
+
+namespace tmdl::codegen {
+
+export class CodeGenerator {
+public:
+    explicit CodeGenerator(std::unique_ptr<CompiledBlockInterface>&& comp);
+
+    Language get_language() const;
+
+    void write_in_folder(const std::filesystem::path& path) const;
+
+private:
+    std::unique_ptr<CompiledBlockInterface> compiled;
+};
+
+}
 
 tmdl::codegen::CodeGenerator::CodeGenerator(std::unique_ptr<CompiledBlockInterface>&& comp) : compiled(std::move(comp)) {
     // Empty Constructor

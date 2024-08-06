@@ -2,6 +2,7 @@
 
 module;
 
+#include <stdexcept>
 #include <string>
 #include <fmt/format.h>
 
@@ -42,7 +43,7 @@ const std::string& tmdl::Identifier::get() const { return _value; }
 
 void tmdl::Identifier::set(const std::string_view s) {
     if (!is_valid_identifier(s)) {
-        throw ModelException(fmt::format("'{}' is not a valid identifier", s));
+        throw std::runtime_error(fmt::format("'{}' is not a valid identifier", s)); // TODO ModelException
     }
 
     _value = s;

@@ -9,7 +9,6 @@ module;
 
 #include <fmt/format.h>
 
-
 export module tmdl:io_ports;
 
 import :block_interface;

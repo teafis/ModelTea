@@ -2,7 +2,13 @@
 
 module;
 
+#include <stdexcept>
+#include <string>
+#include <string_view>
+
 export module tmdl:codegen;
+
+import tmdl.values;
 
 namespace tmdl::codegen {
 
@@ -20,29 +26,19 @@ export enum class BlockFunction {
     STEP,
 };
 
-export class CodegenError {
+export class CodegenError : public std::runtime_error {
 public:
-    explicit CodegenError(std::string_view msg);
+    explicit CodegenError(std::string_view msg) : _msg {}
 
     virtual ~CodegenError() = default;
 
-    virtual const char* what() const noexcept;
+    virtual const char* what() const noexcept { return _msg.c_str(); }
 
 protected:
     const std::string _msg;
 };
 
-export std::string get_datatype_name(Language code, tmdl::DataType datatype);
-
-}
-
-tmdl::codegen::CodegenError::CodegenError(const std::string_view msg) : _msg(msg) {
-    // Empty Constructor
-}
-
-const char* tmdl::codegen::CodegenError::what() const noexcept { return _msg.c_str(); }
-
-std::string tmdl::codegen::get_datatype_name(const Language code, const tmdl::DataType datatype) {
+export std::string tmdl::codegen::get_datatype_name(const Language code, const tmdl::DataType datatype) {
     if (code == Language::CPP) {
         switch (datatype) {
             using enum tmdl::DataType;
@@ -74,4 +70,6 @@ std::string tmdl::codegen::get_datatype_name(const Language code, const tmdl::Da
     } else {
         throw CodegenError("unknown code type provided");
     }
+}
+
 }

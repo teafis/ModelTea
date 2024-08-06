@@ -11,6 +11,8 @@ module;
 
 export module tmdl:codegen_component;
 
+import :codegen;
+
 namespace tmdl::codegen {
 
 export class InterfaceDefinition {

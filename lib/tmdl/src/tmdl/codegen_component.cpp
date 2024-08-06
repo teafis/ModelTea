@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 module;
 
 #include <filesystem>
@@ -7,7 +9,7 @@ module;
 
 #include <fmt/format.h>
 
-export module tmdl.codegen:component;
+export module tmdl:codegen_component;
 
 namespace tmdl::codegen {
 

@@ -7,7 +7,9 @@ module;
 #include <unordered_map>
 #include <memory>
 
-export module tmdl.libraries:stdlib;
+export module tmdl:library_stdlib;
+
+import :library;
 
 namespace tmdl::blocks {
 

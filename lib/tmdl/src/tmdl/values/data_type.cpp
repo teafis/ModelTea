@@ -10,7 +10,7 @@ namespace tmdl {
 
 export using DataType = mt::stdlib::DataType;
 
-template <DataType DT>
-export using data_type_t = mt::stdlib::type_info<DT>;
+export template <DataType DT>
+using data_type_t = mt::stdlib::type_info<DT>;
 
 }

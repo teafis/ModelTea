@@ -1,6 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 module;
 
-export module tmdl.codegen;
+export module tmdl:codegen;
 
 namespace tmdl::codegen {
 

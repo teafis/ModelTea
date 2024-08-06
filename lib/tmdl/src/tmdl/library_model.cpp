@@ -7,11 +7,11 @@ module;
 #include <unordered_map>
 #include <vector>
 
-#include "../library.hpp"
-#include "../model.hpp"
-#include "../model_block.hpp"
+export module tmdl:library_model;
 
-export module tmdl.libraries:model_library;
+import :library;
+import :model;
+import :model_block;
 
 namespace tmdl {
 

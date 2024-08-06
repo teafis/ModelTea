@@ -1,10 +1,54 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "variable_manager.hpp"
+module;
 
-#include "model_exception.hpp"
+#include <unordered_map>
 
-#include <fmt/format.h>
+export module tmdl:variable_manager;
+
+import tmdl.values;
+import :connection;
+
+namespace tmdl {
+
+struct VariableIdentifier {
+    size_t block_id;
+    size_t output_port_num;
+
+    bool operator==(const VariableIdentifier& other) const = default;
+
+    std::string to_string() const;
+};
+
+}
+
+namespace std {
+
+template <> struct hash<tmdl::VariableIdentifier> {
+    size_t operator()(const tmdl::VariableIdentifier& x) const { return x.block_id ^ x.output_port_num; }
+};
+
+}
+
+namespace tmdl {
+
+class VariableManager {
+public:
+    void add_variable(const VariableIdentifier id, const std::shared_ptr<ModelValue> value);
+
+    std::shared_ptr<ModelValue> get_ptr(const VariableIdentifier& id) const;
+
+    std::shared_ptr<ModelValue> get_ptr(const Connection& c) const;
+
+    bool has_variable(const VariableIdentifier& id) const;
+
+    bool has_variable(const Connection& c) const;
+
+private:
+    std::unordered_map<VariableIdentifier, std::shared_ptr<ModelValue>> variables;
+};
+
+}
 
 std::string tmdl::VariableIdentifier::to_string() const { return fmt::format("{}:{}", block_id, output_port_num); }
 

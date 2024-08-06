@@ -4,10 +4,7 @@ module;
 
 #include <memory>
 
-#include "../values/value.hpp"
-#include "../values/value_array.hpp"
-
-export module tmdl.dictionary:data_parameter;
+export module tmdl:data_parameter;
 
 import tmdl.values.value;
 import tmdl.values.value_array;

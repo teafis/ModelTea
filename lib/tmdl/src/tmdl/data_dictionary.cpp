@@ -6,7 +6,7 @@ module;
 #include <optional>
 #include <unordered_map>
 
-export module tmdl.dictionary:data_dictionary;
+export module tmdl:data_dictionary;
 
 import :data_parameter;
 

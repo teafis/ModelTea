@@ -2,15 +2,15 @@
 
 module;
 
-#include "data_types.hpp"
-#include "value.hpp"
-
 #include <cstdint>
 #include <sstream>
 #include <string>
 #include <unordered_map>
 
 export module tmdl.values:parameter;
+
+import :data_types;
+import :value;
 
 namespace tmdl {
 

@@ -1,14 +1,49 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "library_manager.hpp"
+module;
 
-#include "libraries/stdlib.hpp"
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include <vector>
 
-#include "model_exception.hpp"
+export module tmdl:library_manager;
 
-#include <algorithm>
+import :library;
+import :library_model;
 
-#include <fmt/format.h>
+namespace tmdl {
+
+class LibraryManager {
+public:
+    static LibraryManager& get_instance(); // TODO - Remove Singleton
+
+protected:
+    LibraryManager();
+
+public:
+    void register_library(std::string_view name, std::shared_ptr<LibraryBase> library);
+
+    void deregister_library(std::string_view name);
+
+    LibraryBase* get_library(std::string_view name) const;
+
+    std::vector<std::string> get_library_names() const;
+
+    std::unique_ptr<BlockInterface> create_block(std::string_view name) const;
+
+    std::unique_ptr<BlockInterface> try_create_block(std::string_view name) const;
+
+    bool has_block(std::string_view name) const;
+
+    ModelLibrary* default_model_library() const;
+
+private:
+    std::unordered_map<std::string, std::shared_ptr<LibraryBase>> libraries;
+    std::shared_ptr<ModelLibrary> model_library;
+};
+
+}
 
 tmdl::LibraryManager& tmdl::LibraryManager::get_instance() {
     static LibraryManager instance;

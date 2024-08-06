@@ -1,16 +1,16 @@
-module;
+// SPDX-License-Identifier: GPL-3.0-only
 
-#include "generator.hpp"
+module;
 
 #include <filesystem>
 #include <string>
 #include <unordered_map>
 
-#include "../block_interface.hpp"
-
 #include <fmt/format.h>
 
-export module tmdl.codegen:generator;
+export module tmdl:codegen_generator;
+
+import :block_interface;
 
 namespace tmdl::codegen {
 

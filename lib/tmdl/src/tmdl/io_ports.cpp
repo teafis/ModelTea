@@ -2,19 +2,18 @@
 
 module;
 
-#include "../block_interface.hpp"
-
-#include <fmt/format.h>
-
-#include "../model_exception.hpp"
-#include "tmdl/block_interface.hpp"
-
 #include <cstdlib>
 #include <cstddef>
 #include <memory>
 #include <vector>
 
-export module tmdl:blocks_io_ports;
+#include <fmt/format.h>
+
+
+export module tmdl:io_ports;
+
+import :block_interface;
+import :model_exception;
 
 namespace tmdl {
 

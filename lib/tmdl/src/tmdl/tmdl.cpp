@@ -4,7 +4,7 @@ module;
 
 export module tmdl;
 
-export import :blocks_io_ports;
+export import :io_ports;
 export import :codegen;
 export import :codegen_component;
 export import :codegen_generator;

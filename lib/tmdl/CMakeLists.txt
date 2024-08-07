@@ -28,12 +28,11 @@ target_sources(tmdl
         src/tmdl/data_dictionary.cpp
         src/tmdl/data_parameter.cpp
 
-        src/tmdl/values/mod.cpp
-        src/tmdl/values/data_type.cpp
-        src/tmdl/values/identifier.cpp
-        src/tmdl/values/parameter.cpp
-        src/tmdl/values/value.cpp
-        src/tmdl/values/value_array.cpp
+        src/tmdl/data_type.cpp
+        src/tmdl/identifier.cpp
+        src/tmdl/parameter.cpp
+        src/tmdl/value.cpp
+        src/tmdl/value_array.cpp
 
         src/tmdl/block_interface.cpp
         src/tmdl/connection.cpp

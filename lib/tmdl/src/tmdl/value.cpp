@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <stdexcept>
 module;
 
 #include <cstdint>
@@ -12,14 +11,16 @@ module;
 #include <string_view>
 #include <type_traits>
 #include <vector>
+#include <stdexcept>
 
 #include "mtstdlib_string.hpp"
 
 #include <fmt/format.h>
 
-export module tmdl.values:value;
+export module tmdl:value;
 
 import :data_type;
+import :model_exception;
 
 namespace tmdl {
 
@@ -49,7 +50,7 @@ export struct ModelValue {
     template <DataType DT> static const typename data_type_t<DT>::type_t& get_inner_value(const ModelValue* value) {
         const auto* ptr = dynamic_cast<const ModelValueBox<DT>*>(value);
         if (ptr == nullptr) {
-            throw std::runtime_error("unable to convert data type parameters"); // TODO ModelException
+            throw ModelException("unable to convert data type parameters");
         }
         return ptr->value;
     }
@@ -57,7 +58,7 @@ export struct ModelValue {
     template <DataType DT> static typename data_type_t<DT>::type_t& get_inner_value(ModelValue* value) {
         auto* ptr = dynamic_cast<ModelValueBox<DT>*>(value);
         if (ptr == nullptr) {
-            throw std::runtime_error("unable to convert data type parameters"); // TODO ModelException
+            throw ModelException("unable to convert data type parameters");
         }
         return ptr->value;
     }
@@ -109,7 +110,7 @@ export template <DataType DT> struct ModelValueBox : public ModelValue {
         if (auto ptr = dynamic_cast<const mt::stdlib::ArgumentBox<DT>*>(arg)) {
             value = ptr->value;
         } else {
-            throw std::runtime_error("mismatch in data type - unable to copy value"); // TODO ModelException
+            throw ModelException("mismatch in data type - unable to copy value");
         }
     };
 
@@ -117,7 +118,7 @@ export template <DataType DT> struct ModelValueBox : public ModelValue {
         if (auto ptr = dynamic_cast<const ModelValueBox<DT>*>(in)) {
             value = ptr->value;
         } else {
-            throw std::runtime_error("mismatch in data type - unable to copy value"); // TODO ModelException
+            throw ModelException("mismatch in data type - unable to copy value");
         }
     }
 
@@ -137,12 +138,12 @@ export template <> struct ModelValueBox<DataType::NONE> : public ModelValue {
 
     void copy_from(const mt::stdlib::Argument* arg) override {
         if (arg->get_type() != DataType::NONE) {
-            throw std:std::runtime_error("argument is not a none-type"); // TODO ModelException
+            throw tmdl::ModelException("argument is not a none-type");
         }
     };
 
     void copy_from(const ModelValue* in) override {
-        throw std::runtime_error(fmt::format("unable to copy from {} into an unknown data type", mt::stdlib::datatype_to_string(data_type()))); // TODO ModelException
+        throw ModelException(fmt::format("unable to copy from {} into an unknown data type", mt::stdlib::datatype_to_string(data_type())));
     }
 
     std::unique_ptr<ModelValue> clone() const override { return std::make_unique<ModelValueBox<DataType::NONE>>(); }
@@ -182,8 +183,10 @@ std::unique_ptr<tmdl::ModelValue> tmdl::ModelValue::make_default(const DataType 
     case NONE:
         return make_default_static<NONE>();
     default:
-        throw std::runtime_error(fmt::format("unable to construct value for type {}", mt::stdlib::datatype_to_string(dtype))); // TODO ModelException
+        throw tmdl::ModelException(fmt::format("unable to construct value for type {}", mt::stdlib::datatype_to_string(dtype)));
     }
+
+    return nullptr;
 }
 
 std::unique_ptr<tmdl::ModelValue> tmdl::ModelValue::from_string(std::string_view s, const DataType dt) {
@@ -216,13 +219,15 @@ std::unique_ptr<tmdl::ModelValue> tmdl::ModelValue::from_string(std::string_view
         case NONE:
             return make_default_static<NONE>();
         default:
-            throw std::runtime_error("unknown parse parameter type provided"); // TODO ModelException
+            throw ModelException("unknown parse parameter type provided");
         }
     } catch (const std::invalid_argument&) {
-        throw std::runtime_error("error parsing parameter - invalid argument"); // TODO ModelException
+        throw tmdl::ModelException("error parsing parameter - invalid argument");
     } catch (const std::out_of_range&) {
-        throw std::runtime_error("error parsing parameter - out of range"); // TODO ModelException
+        throw tmdl::ModelException("error parsing parameter - out of range");
     }
+
+    return nullptr;
 }
 
 template <tmdl::DataType DT>
@@ -256,13 +261,15 @@ static std::unique_ptr<tmdl::ModelValue> convert_numeric_type_helper(const tmdl:
     case F64:
         return std::make_unique<tmdl::ModelValueBox<F64>>(ptr->value);
     default:
-        throw std::runtime_error("unsupported data type provided"); // TODO ModelException
+        throw tmdl::ModelException("unsupported data type provided");
     }
+
+    return nullptr;
 }
 
 std::unique_ptr<tmdl::ModelValue> tmdl::ModelValue::convert_type(const ModelValue* val, const DataType dt) {
     if (val == nullptr)
-        throw std::runtime_error("unexpected nullptr"); // TODO ModelException
+        throw ModelException("unexpected nullptr");
 
     using enum DataType;
 
@@ -291,6 +298,8 @@ std::unique_ptr<tmdl::ModelValue> tmdl::ModelValue::convert_type(const ModelValu
     } else if (auto ptr_f64 = dynamic_cast<const ModelValueBox<F64>*>(val)) {
         return convert_numeric_type_helper<F64>(ptr_f64, dt);
     } else {
-        throw std::runtime_error("unsupported input value type"); // TODO ModelException
+        throw tmdl::ModelException("unsupported input value type");
     }
+
+    return nullptr;
 }

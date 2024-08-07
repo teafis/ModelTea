@@ -8,7 +8,7 @@ module;
 #include <string>
 #include <vector>
 
-export module tmdl.values:value_array;
+export module tmdl:value_array;
 
 import :value;
 

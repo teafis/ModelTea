@@ -6,8 +6,9 @@ module;
 
 export module tmdl:variable_manager;
 
-import tmdl.values;
 import :connection;
+import :model_exception;
+import :values;
 
 namespace tmdl {
 

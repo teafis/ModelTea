@@ -10,8 +10,7 @@ module;
 
 export module tmdl:block_interface;
 
-import tmdl.values;
-
+import :values;
 import :codegen_component;
 import :variable_manager;
 

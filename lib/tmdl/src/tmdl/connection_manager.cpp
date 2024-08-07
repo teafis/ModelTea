@@ -10,6 +10,7 @@ module;
 export module tmdl:connection_manager;
 
 import :connection;
+import :model_exception;
 
 namespace tmdl {
 

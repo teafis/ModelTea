@@ -8,7 +8,7 @@ module;
 
 export module tmdl:codegen;
 
-import tmdl.values;
+import :value;
 
 namespace tmdl::codegen {
 

@@ -6,7 +6,7 @@ module;
 #include <string>
 #include <fmt/format.h>
 
-export module tmdl.values:identifier;
+export module tmdl:identifier;
 
 namespace tmdl {
 

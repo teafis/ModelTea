@@ -7,7 +7,7 @@ module;
 #include <string>
 #include <unordered_map>
 
-export module tmdl.values:parameter;
+export module tmdl:parameter;
 
 import :data_types;
 import :value;

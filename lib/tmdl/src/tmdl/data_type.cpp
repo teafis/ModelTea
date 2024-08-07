@@ -4,7 +4,7 @@ module;
 
 #include "mtstdlib_types.hpp"
 
-export module tmdl.values:data_type;
+export module tmdl:data_type;
 
 namespace tmdl {
 

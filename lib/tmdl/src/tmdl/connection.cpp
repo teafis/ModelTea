@@ -9,7 +9,7 @@ module;
 
 export module tmdl:connection;
 
-import tmdl.values:identifier;
+import :identifier;
 
 namespace tmdl {
 

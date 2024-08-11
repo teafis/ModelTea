@@ -17,30 +17,30 @@ add_library(tmdl)
 target_sources(tmdl
   PUBLIC
     FILE_SET CXX_MODULES FILES
-        src/tmdl/block_interface.cpp
-        src/tmdl/codegen.cpp
-        src/tmdl/codegen_component.cpp
-        src/tmdl/codegen_generator.cpp
-        src/tmdl/connection.cpp
-        src/tmdl/connection_manager.cpp
-        src/tmdl/data_dictionary.cpp
-        src/tmdl/data_parameter.cpp
-        src/tmdl/data_type.cpp
-        src/tmdl/execution_state.cpp
-        src/tmdl/identifier.cpp
-        src/tmdl/io_ports.cpp
-        src/tmdl/library.cpp
-        src/tmdl/library_manager.cpp
-        src/tmdl/library_model.cpp
-        src/tmdl/library_stdlib.cpp
-        src/tmdl/model.cpp
-        src/tmdl/model_block.cpp
-        src/tmdl/model_exception.cpp
-        src/tmdl/parameter.cpp
-        src/tmdl/tmdl.cpp
-        src/tmdl/value.cpp
-        src/tmdl/value_array.cpp
-        src/tmdl/variable_manager.cpp
+        src/block_interface.cpp
+        src/codegen.cpp
+        src/codegen_component.cpp
+        src/codegen_generator.cpp
+        src/connection.cpp
+        src/connection_manager.cpp
+        src/data_dictionary.cpp
+        src/data_parameter.cpp
+        src/data_type.cpp
+        src/execution_state.cpp
+        src/identifier.cpp
+        src/io_ports.cpp
+        src/library.cpp
+        src/library_manager.cpp
+        src/library_model.cpp
+        src/library_stdlib.cpp
+        src/model.cpp
+        src/model_block.cpp
+        src/model_exception.cpp
+        src/parameter.cpp
+        src/tmdl.cpp
+        src/value.cpp
+        src/value_array.cpp
+        src/variable_manager.cpp
 )
 
 # Define the C++ Standard Required

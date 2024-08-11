@@ -8,7 +8,7 @@ export module tmdl:variable_manager;
 
 import :connection;
 import :model_exception;
-import :values;
+import :value;
 
 namespace tmdl {
 

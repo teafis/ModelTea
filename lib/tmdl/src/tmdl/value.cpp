@@ -2,25 +2,28 @@
 
 module;
 
-#include <cstdint>
-
-#include <functional>
 #include <memory>
-#include <optional>
 #include <string>
 #include <string_view>
-#include <type_traits>
-#include <vector>
 #include <stdexcept>
-
-#include "mtstdlib_string.hpp"
+#include <type_traits>
 
 #include <fmt/format.h>
+
+#include "mtstdlib_types.hpp"
 
 export module tmdl:value;
 
 import :data_type;
 import :model_exception;
+
+constexpr mt::stdlib::DataType dt_conversion(tmdl::DataType dt) {
+    return static_cast<mt::stdlib::DataType>(dt);
+}
+
+constexpr tmdl::DataType dt_conversion(mt::stdlib::DataType dt) {
+    return static_cast<tmdl::DataType>(dt);
+}
 
 namespace tmdl {
 
@@ -66,23 +69,23 @@ export struct ModelValue {
     template <typename T> static std::unique_ptr<ModelValue> from_value(T val) {
         using namespace mt::stdlib;
 
-        if constexpr (std::is_same_v<T, type_info<DataType::F64>::type_t>) {
+        if constexpr (std::is_same_v<T, type_info<dt_conversion(DataType::F64)>::type_t>) {
             return std::make_unique<ModelValueBox<DataType::F64>>(val);
-        } else if constexpr (std::is_same_v<T, type_info<DataType::F32>::type_t>) {
+        } else if constexpr (std::is_same_v<T, type_info<dt_conversion(DataType::F32)>::type_t>) {
             return std::make_unique<ModelValueBox<DataType::F32>>(val);
-        } else if constexpr (std::is_same_v<T, type_info<DataType::U8>::type_t>) {
+        } else if constexpr (std::is_same_v<T, type_info<dt_conversion(DataType::U8)>::type_t>) {
             return std::make_unique<ModelValueBox<DataType::U8>>(val);
-        } else if constexpr (std::is_same_v<T, type_info<DataType::U16>::type_t>) {
+        } else if constexpr (std::is_same_v<T, type_info<dt_conversion(DataType::U16)>::type_t>) {
             return std::make_unique<ModelValueBox<DataType::U16>>(val);
-        } else if constexpr (std::is_same_v<T, type_info<DataType::U32>::type_t>) {
+        } else if constexpr (std::is_same_v<T, type_info<dt_conversion(DataType::U32)>::type_t>) {
             return std::make_unique<ModelValueBox<DataType::U32>>(val);
-        } else if constexpr (std::is_same_v<T, type_info<DataType::I8>::type_t>) {
+        } else if constexpr (std::is_same_v<T, type_info<dt_conversion(DataType::I8)>::type_t>) {
             return std::make_unique<ModelValueBox<DataType::I8>>(val);
-        } else if constexpr (std::is_same_v<T, type_info<DataType::I16>::type_t>) {
+        } else if constexpr (std::is_same_v<T, type_info<dt_conversion(DataType::I16)>::type_t>) {
             return std::make_unique<ModelValueBox<DataType::I16>>(val);
-        } else if constexpr (std::is_same_v<T, type_info<DataType::I32>::type_t>) {
+        } else if constexpr (std::is_same_v<T, type_info<dt_conversion(DataType::I32)>::type_t>) {
             return std::make_unique<ModelValueBox<DataType::I32>>(val);
-        } else if constexpr (std::is_same_v<T, type_info<DataType::BOOL>::type_t>) {
+        } else if constexpr (std::is_same_v<T, type_info<dt_conversion(DataType::BOOL)>::type_t>) {
             return std::make_unique<ModelValueBox<DataType::BOOL>>(val);
         } else {
             return nullptr;
@@ -91,6 +94,10 @@ export struct ModelValue {
 };
 
 export template <DataType DT> struct ModelValueBox : public ModelValue {
+private:
+    static constexpr mt::stdlib::DataType MDT = dt_conversion(DT);
+
+public:
     using type_t = typename data_type_t<DT>::type_t;
 
     ModelValueBox() = default;
@@ -104,10 +111,10 @@ export template <DataType DT> struct ModelValueBox : public ModelValue {
 
     std::string to_string() const override { return fmt::format("{}", value); }
 
-    std::unique_ptr<mt::stdlib::Argument> to_argument() const override { return std::make_unique<mt::stdlib::ArgumentBox<DT>>(value); }
+    std::unique_ptr<mt::stdlib::Argument> to_argument() const override { return std::make_unique<mt::stdlib::ArgumentBox<MDT>>(value); }
 
     void copy_from(const mt::stdlib::Argument* arg) override {
-        if (auto ptr = dynamic_cast<const mt::stdlib::ArgumentBox<DT>*>(arg)) {
+        if (auto ptr = dynamic_cast<const mt::stdlib::ArgumentBox<MDT>*>(arg)) {
             value = ptr->value;
         } else {
             throw ModelException("mismatch in data type - unable to copy value");
@@ -137,13 +144,13 @@ export template <> struct ModelValueBox<DataType::NONE> : public ModelValue {
     std::unique_ptr<mt::stdlib::Argument> to_argument() const override { return nullptr; }
 
     void copy_from(const mt::stdlib::Argument* arg) override {
-        if (arg->get_type() != DataType::NONE) {
+        if (dt_conversion(arg->get_type()) != DataType::NONE) {
             throw tmdl::ModelException("argument is not a none-type");
         }
     };
 
     void copy_from(const ModelValue* in) override {
-        throw ModelException(fmt::format("unable to copy from {} into an unknown data type", mt::stdlib::datatype_to_string(data_type())));
+        throw ModelException(fmt::format("unable to copy from {} into an unknown data type", datatype_to_string(data_type())));
     }
 
     std::unique_ptr<ModelValue> clone() const override { return std::make_unique<ModelValueBox<DataType::NONE>>(); }
@@ -183,7 +190,7 @@ std::unique_ptr<tmdl::ModelValue> tmdl::ModelValue::make_default(const DataType 
     case NONE:
         return make_default_static<NONE>();
     default:
-        throw tmdl::ModelException(fmt::format("unable to construct value for type {}", mt::stdlib::datatype_to_string(dtype)));
+        throw tmdl::ModelException(fmt::format("unable to construct value for type {}", datatype_to_string(dtype)));
     }
 
     return nullptr;

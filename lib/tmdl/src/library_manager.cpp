@@ -2,13 +2,12 @@
 
 #include "library_manager.hpp"
 
-#include "libraries/stdlib.hpp"
-
-#include "model_exception.hpp"
-
 #include <algorithm>
 
 #include <fmt/format.h>
+
+#include "library_stdlib.hpp"
+#include "model_exception.hpp"
 
 tmdl::LibraryManager& tmdl::LibraryManager::get_instance() {
     static LibraryManager instance;

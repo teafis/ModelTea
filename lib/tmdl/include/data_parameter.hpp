@@ -5,8 +5,8 @@
 
 #include <memory>
 
-#include "../values/value.hpp"
-#include "../values/value_array.hpp"
+#include "value.hpp"
+#include "value_array.hpp"
 
 namespace tmdl {
 

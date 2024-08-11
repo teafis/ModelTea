@@ -3,7 +3,7 @@
 #include "block_selector_dialog.h"
 #include "ui_block_selector_dialog.h"
 
-#include <tmdl/library_manager.hpp>
+#include <library_manager.hpp>
 
 BlockSelectorDialog::BlockSelectorDialog(QWidget* parent) : QDialog(parent), ui(new Ui::BlockSelectorDialog) {
     ui->setupUi(this);

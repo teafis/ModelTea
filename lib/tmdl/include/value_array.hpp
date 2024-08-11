@@ -4,12 +4,11 @@
 #define TF_MODEL_VALUE_ARRAY_HPP
 
 #include <memory>
-#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
 
-#include "../model_exception.hpp"
+#include "model_exception.hpp"
 
 #include "value.hpp"
 

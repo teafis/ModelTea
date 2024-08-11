@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "stdlib.hpp"
+#include "library_stdlib.hpp"
 
-#include "../model_exception.hpp"
+#include "model_exception.hpp"
 
-#include "../blocks/io_ports.hpp"
-#include "../values/parameter.hpp"
+#include "block_io_ports.hpp"
+#include "parameter.hpp"
 
 #include "mtstdlib_creation.hpp"
 #include "mtstdlib_string.hpp"

@@ -4,7 +4,7 @@
 #define TF_MODEL_VARIABLE_MANAGER_HPP
 
 #include "connection.hpp"
-#include "values/value.hpp"
+#include "value.hpp"
 
 #include <unordered_map>
 

@@ -9,7 +9,7 @@
 #include <memory>
 #include <optional>
 
-#include <tmdl/block_interface.hpp>
+#include <block_interface.hpp>
 
 class BlockObject : public QGraphicsObject {
     Q_OBJECT

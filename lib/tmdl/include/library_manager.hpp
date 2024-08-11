@@ -5,12 +5,10 @@
 
 #include <string>
 #include <string_view>
-#include <unordered_map>
 #include <vector>
 
 #include "library.hpp"
-
-#include "libraries/model_library.hpp"
+#include "library_model.hpp"
 
 namespace tmdl {
 

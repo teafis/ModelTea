@@ -1,4 +1,6 @@
-#include "generator.hpp"
+// SPDX-License-Identifier: GPL-3.0-only
+
+#include "codegen_generator.hpp"
 
 #include <fstream>
 

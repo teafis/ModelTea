@@ -9,7 +9,7 @@
 #include "block_object.h"
 #include "connector_object.h"
 
-#include <tmdl/model.hpp>
+#include <model.hpp>
 
 class ConnectorBlockObject : public ConnectorObject {
     Q_OBJECT

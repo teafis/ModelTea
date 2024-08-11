@@ -3,8 +3,8 @@
 #include "model_parameters_dialog.h"
 #include "ui_model_parameters_dialog.h"
 
-#include <tmdl/library_manager.hpp>
-#include <tmdl/model_exception.hpp>
+#include <library_manager.hpp>
+#include <model_exception.hpp>
 
 #include <QMessageBox>
 

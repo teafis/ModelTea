@@ -5,7 +5,7 @@
 
 #include <optional>
 
-#include <tmdl/values/value.hpp>
+#include <value.hpp>
 
 PlotWindow::PlotWindow(std::shared_ptr<tmdl::ExecutionState> execution, QWidget* parent)
     : QMainWindow(parent), ui(new Ui::PlotWindow), execution_state(execution) {

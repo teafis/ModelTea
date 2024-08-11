@@ -5,7 +5,7 @@
 
 #include <string>
 
-#include "../values/data_types.hpp"
+#include "data_type.hpp"
 
 namespace tmdl::codegen {
 

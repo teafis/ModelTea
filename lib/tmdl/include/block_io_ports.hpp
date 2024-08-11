@@ -3,7 +3,7 @@
 #ifndef TF_MODEL_BLOCKS_IO_PORTS_HPP
 #define TF_MODEL_BLOCKS_IO_PORTS_HPP
 
-#include "../block_interface.hpp"
+#include "block_interface.hpp"
 
 namespace tmdl {
 

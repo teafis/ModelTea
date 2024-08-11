@@ -7,7 +7,7 @@
 
 #include <memory>
 
-#include <tmdl/model.hpp>
+#include <model.hpp>
 
 namespace Ui {
 class ModelDiagnosticsDialog;

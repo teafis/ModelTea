@@ -12,8 +12,8 @@
 
 #include "windows/plot_window.h"
 
-#include <tmdl/block_interface.hpp>
-#include <tmdl/execution_state.hpp>
+#include <block_interface.hpp>
+#include <execution_state.hpp>
 
 namespace Ui {
 class ModelWindow;

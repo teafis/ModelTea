@@ -5,7 +5,7 @@
 
 #include <QWidget>
 
-#include <tmdl/values/parameter.hpp>
+#include <parameter.hpp>
 
 namespace Ui {
 class ParameterUnknownWidget;

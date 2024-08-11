@@ -7,7 +7,7 @@
 
 #include <optional>
 
-#include <tmdl/model.hpp>
+#include <model.hpp>
 
 class ExecutorManager : public QObject {
     Q_OBJECT

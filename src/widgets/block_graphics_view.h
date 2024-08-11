@@ -15,8 +15,8 @@
 #include <QGraphicsObject>
 #include <QPoint>
 
-#include <tmdl/model.hpp>
-#include <tmdl/model_block.hpp>
+#include <model.hpp>
+#include <model_block.hpp>
 
 class BlockGraphicsView : public QGraphicsView {
     Q_OBJECT

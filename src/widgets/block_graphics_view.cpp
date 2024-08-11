@@ -14,8 +14,8 @@
 
 #include <QMouseEvent>
 
-#include <tmdl/library_manager.hpp>
-#include <tmdl/model_exception.hpp>
+#include <library_manager.hpp>
+#include <model_exception.hpp>
 
 #include "blocks/connector_object.h"
 

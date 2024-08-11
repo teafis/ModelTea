@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "model_library.hpp"
+#include "library_model.hpp"
 
-#include "../model_exception.hpp"
-
-#include "../values/identifiers.hpp"
+#include "model_exception.hpp"
+#include "identifier.hpp"
 
 #include <fmt/format.h>
 

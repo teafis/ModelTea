@@ -5,7 +5,7 @@
 
 #include <QDialog>
 
-#include <tmdl/model.hpp>
+#include <model.hpp>
 
 namespace Ui {
 class ModelParametersDialog;

@@ -3,13 +3,10 @@
 #ifndef TF_MODEL_PARAMETER_HPP
 #define TF_MODEL_PARAMETER_HPP
 
-#include "data_types.hpp"
+#include "data_type.hpp"
 #include "value.hpp"
 
-#include <cstdint>
-#include <sstream>
 #include <string>
-#include <unordered_map>
 
 namespace tmdl {
 

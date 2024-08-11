@@ -3,7 +3,7 @@
 #ifndef TF_MODEL_STDLIB_HPP
 #define TF_MODEL_STDLIB_HPP
 
-#include "../library.hpp"
+#include "library.hpp"
 
 #include <functional>
 #include <string>

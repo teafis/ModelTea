@@ -1,4 +1,6 @@
-#include "component.hpp"
+// SPDX-License-Identifier: GPL-3.0-only
+
+#include "codegen_component.hpp"
 
 #include <fmt/format.h>
 

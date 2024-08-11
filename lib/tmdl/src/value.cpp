@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include "value.hpp"
-#include "../model_exception.hpp"
+
+#include "model_exception.hpp"
 
 #include "mtstdlib_string.hpp"
-
-#include <utility>
 
 template <tmdl::DataType DT> static std::unique_ptr<tmdl::ModelValue> make_default_static() {
     return std::make_unique<tmdl::ModelValueBox<DT>>();

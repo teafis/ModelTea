@@ -5,7 +5,7 @@
 
 #include <QtWidgets/QWidget>
 
-#include <tmdl/values/parameter.hpp>
+#include <parameter.hpp>
 
 #include <unordered_map>
 

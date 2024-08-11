@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 #include "codegen.hpp"
 
 tmdl::codegen::CodegenError::CodegenError(const std::string_view msg) : _msg(msg) {

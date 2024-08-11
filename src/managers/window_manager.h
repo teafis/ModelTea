@@ -8,7 +8,7 @@
 #include <string>
 #include <unordered_map>
 
-#include <tmdl/model.hpp>
+#include <model.hpp>
 
 class ModelWindow;
 

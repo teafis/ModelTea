@@ -8,7 +8,7 @@
 
 #include <QVariant>
 
-#include <tmdl/variable_manager.hpp>
+#include <variable_manager.hpp>
 
 struct ItemSelector {
     std::shared_ptr<const tmdl::ModelValue> var;

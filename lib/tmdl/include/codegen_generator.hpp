@@ -4,10 +4,8 @@
 #define TF_MODEL_CODEGEN_GENERATOR_HPP
 
 #include <filesystem>
-#include <string>
-#include <unordered_map>
 
-#include "../block_interface.hpp"
+#include "block_interface.hpp"
 
 namespace tmdl::codegen {
 

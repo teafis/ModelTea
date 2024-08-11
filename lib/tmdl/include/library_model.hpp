@@ -8,9 +8,9 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../library.hpp"
-#include "../model.hpp"
-#include "../model_block.hpp"
+#include "library.hpp"
+#include "model.hpp"
+#include "model_block.hpp"
 
 namespace tmdl {
 

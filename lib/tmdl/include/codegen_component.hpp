@@ -3,7 +3,6 @@
 #ifndef TF_MODEL_CODEGEN_COMPONENT_HPP
 #define TF_MODEL_CODEGEN_COMPONENT_HPP
 
-#include <filesystem>
 #include <optional>
 #include <string>
 #include <vector>

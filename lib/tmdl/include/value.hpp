@@ -3,19 +3,14 @@
 #ifndef TF_MODEL_VALUE_HPP
 #define TF_MODEL_VALUE_HPP
 
-#include <cstdint>
-
-#include <functional>
 #include <memory>
-#include <optional>
 #include <string>
 #include <string_view>
 #include <type_traits>
-#include <vector>
 
-#include "../model_exception.hpp"
+#include "model_exception.hpp"
 
-#include "data_types.hpp"
+#include "data_type.hpp"
 #include "mtstdlib_string.hpp"
 
 #include <fmt/format.h>

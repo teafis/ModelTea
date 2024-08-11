@@ -14,11 +14,11 @@
 
 #include "dialogs/model_parameters_dialog.h"
 
-#include <tmdl/library_manager.hpp>
-#include <tmdl/model_block.hpp>
-#include <tmdl/model_exception.hpp>
+#include <library_manager.hpp>
+#include <model_block.hpp>
+#include <model_exception.hpp>
 
-#include <tmdl/codegen/generator.hpp>
+#include <codegen_generator.hpp>
 
 #include <fmt/format.h>
 

@@ -1,7 +1,7 @@
 #include "connection_parameters_dialog.h"
 #include "ui_connection_parameters_dialog.h"
 
-#include <tmdl/values/identifiers.hpp>
+#include <identifier.hpp>
 
 #include <QMessageBox>
 

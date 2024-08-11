@@ -4,17 +4,17 @@
 
 #include <fstream>
 
-#include "blocks/io_ports.hpp"
+#include "block_io_ports.hpp"
 #include "model_exception.hpp"
 
 #include "model_block.hpp"
 
-#include "codegen/codegen.hpp"
-#include "codegen/component.hpp"
+#include "codegen.hpp"
+#include "codegen_component.hpp"
 
 #include "library_manager.hpp"
 
-#include "values/identifiers.hpp"
+#include "identifier.hpp"
 
 #include <fmt/format.h>
 

@@ -13,29 +13,29 @@ project(
 
 set(
     TEAFIS_MODEL_SOURCES
-    src/tmdl/block_interface.hpp src/tmdl/block_interface.cpp
-    src/tmdl/connection.hpp src/tmdl/connection.cpp
-    src/tmdl/connection_manager.hpp src/tmdl/connection_manager.cpp
-    src/tmdl/dictionary/data_dictionary.hpp src/tmdl/dictionary/data_dictionary.cpp
-    src/tmdl/dictionary/data_parameter.hpp src/tmdl/dictionary/data_parameter.cpp
-    src/tmdl/execution_state.hpp src/tmdl/execution_state.cpp
-    src/tmdl/library.hpp src/tmdl/library.cpp
-    src/tmdl/library_manager.hpp src/tmdl/library_manager.cpp
-    src/tmdl/model.hpp src/tmdl/model.cpp
-    src/tmdl/model_block.hpp src/tmdl/model_block.cpp
-    src/tmdl/model_exception.hpp src/tmdl/model_exception.cpp
-    src/tmdl/values/data_types.hpp
-    src/tmdl/values/identifiers.hpp src/tmdl/values/identifiers.cpp
-    src/tmdl/values/parameter.hpp src/tmdl/values/parameter.cpp
-    src/tmdl/values/value.hpp src/tmdl/values/value.cpp
-    src/tmdl/values/value_array.hpp src/tmdl/values/value_array.cpp
-    src/tmdl/variable_manager.hpp src/tmdl/variable_manager.cpp
-    src/tmdl/blocks/io_ports.hpp src/tmdl/blocks/io_ports.cpp
-    src/tmdl/libraries/model_library.hpp src/tmdl/libraries/model_library.cpp
-    src/tmdl/libraries/stdlib.hpp src/tmdl/libraries/stdlib.cpp
-    src/tmdl/codegen/generator.hpp src/tmdl/codegen/generator.cpp
-    src/tmdl/codegen/component.hpp src/tmdl/codegen/component.cpp
-    src/tmdl/codegen/codegen.hpp src/tmdl/codegen/codegen.cpp
+    include/block_interface.hpp src/block_interface.cpp
+    include/connection.hpp src/connection.cpp
+    include/connection_manager.hpp src/connection_manager.cpp
+    include/data_dictionary.hpp src/data_dictionary.cpp
+    include/data_parameter.hpp src/data_parameter.cpp
+    include/execution_state.hpp src/execution_state.cpp
+    include/library.hpp src/library.cpp
+    include/library_manager.hpp src/library_manager.cpp
+    include/model.hpp src/model.cpp
+    include/model_block.hpp src/model_block.cpp
+    include/model_exception.hpp src/model_exception.cpp
+    include/data_type.hpp
+    include/identifier.hpp src/identifier.cpp
+    include/parameter.hpp src/parameter.cpp
+    include/value.hpp src/value.cpp
+    include/value_array.hpp src/value_array.cpp
+    include/variable_manager.hpp src/variable_manager.cpp
+    include/block_io_ports.hpp src/block_io_ports.cpp
+    include/library_model.hpp src/library_model.cpp
+    include/library_stdlib.hpp src/library_stdlib.cpp
+    include/codegen.hpp src/codegen.cpp
+    include/codegen_generator.hpp src/codegen_generator.cpp
+    include/codegen_component.hpp src/codegen_component.cpp
 )
 
 # Define the library
@@ -43,6 +43,9 @@ add_library(
     tmdl
     ${TEAFIS_MODEL_SOURCES}
 )
+
+# Include Directories
+target_include_directories(tmdl PUBLIC include)
 
 # Define the C++ Standard Required
 set_property(TARGET tmdl PROPERTY CXX_STANDARD 23)
@@ -53,6 +56,3 @@ target_link_libraries(tmdl PUBLIC nlohmann_json::nlohmann_json)
 target_link_libraries(tmdl PUBLIC fmt::fmt)
 
 target_link_libraries(tmdl PRIVATE mtstdlib)
-
-# Include Directories
-target_include_directories(tmdl PUBLIC src)

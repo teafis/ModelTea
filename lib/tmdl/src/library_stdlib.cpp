@@ -8,7 +8,6 @@
 #include "parameter.hpp"
 
 #include "mtstdlib_creation.hpp"
-#include "mtstdlib_string.hpp"
 
 #include <ranges>
 
@@ -25,8 +24,6 @@ struct StdlibBlockConstructor {
         }
 
         // Create the dtype parameter if needed
-        bool needs_dt = false;
-
         if (!info.uses_input_as_type || info.required_type_count > 1) {
             param_dt = std::make_shared<tmdl::ParameterDataType>("dtype", "Data Type", init_dt);
         }
@@ -267,9 +264,6 @@ public:
         } catch (const mt::stdlib::block_error& err) {
             return false;
         }
-
-        const auto ext_dt = (block) ? block->get_current_type() : mt::stdlib::DataType::NONE;
-        const auto new_dt = new_block->get_current_type();
 
         // Return whether any interface parameters have changed
         const bool interface_changed = block == nullptr || block->get_input_num() != new_block->get_input_num() ||

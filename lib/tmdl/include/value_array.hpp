@@ -60,7 +60,7 @@ public:
             throw ModelException("2D array cannot have value with size 0");
         }
 
-        set_values(values);
+        ValueArrayBox::set_values(values);
     }
 
     size_t rows() const override { return m_rows; }

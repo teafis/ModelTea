@@ -22,7 +22,7 @@ class PlotWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit PlotWindow(std::shared_ptr<tmdl::ExecutionState> execution, QWidget* parent = nullptr);
+    explicit PlotWindow(std::shared_ptr<mtea::ExecutionState> execution, QWidget* parent = nullptr);
     ~PlotWindow();
 
     virtual void keyPressEvent(QKeyEvent* event) override;
@@ -37,7 +37,7 @@ private:
     Ui::PlotWindow* ui;
     QVector<QLineSeries*> series;
 
-    std::shared_ptr<tmdl::ExecutionState> execution_state;
+    std::shared_ptr<mtea::ExecutionState> execution_state;
 
     PlotVariableSelectionModel* list_model;
 

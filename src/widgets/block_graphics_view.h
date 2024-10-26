@@ -59,21 +59,21 @@ protected:
 
     bool blockBodyContainsMouse(const QPointF& pos, const BlockObject* block);
 
-    void addConnectionItem(const std::shared_ptr<tmdl::Connection> connection, const BlockObject* from_block, const BlockObject* to_block);
+    void addConnectionItem(const std::shared_ptr<mtea::Connection> connection, const BlockObject* from_block, const BlockObject* to_block);
 
     void onModelChanged();
 
 public:
-    std::shared_ptr<tmdl::Model> get_model() const;
+    std::shared_ptr<mtea::Model> get_model() const;
 
-    void set_model(std::shared_ptr<tmdl::Model> model);
+    void set_model(std::shared_ptr<mtea::Model> model);
 
-    void addBlock(std::shared_ptr<tmdl::BlockInterface> blk);
+    void addBlock(std::shared_ptr<mtea::BlockInterface> blk);
 
 protected:
     std::unique_ptr<MouseStateBase> mouseState;
     QGraphicsObject* selectedItem;
-    std::shared_ptr<tmdl::Model> modelInstance;
+    std::shared_ptr<mtea::Model> modelInstance;
 };
 
 #endif // BLOCK_GRAPHICS_VIEW_H

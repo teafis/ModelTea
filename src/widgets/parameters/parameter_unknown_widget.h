@@ -15,7 +15,7 @@ class ParameterUnknownWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit ParameterUnknownWidget(std::shared_ptr<tmdl::Parameter> parameter, QWidget* parent = nullptr);
+    explicit ParameterUnknownWidget(std::shared_ptr<mtea::Parameter> parameter, QWidget* parent = nullptr);
 
     ~ParameterUnknownWidget();
 

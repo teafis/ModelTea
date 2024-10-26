@@ -1,6 +1,3 @@
-[submodule "vcpkg"]
-	path = vcpkg
-	url = ../../Microsoft/vcpkg.git
 [submodule "lib/tmdlstd"]
-	path = lib/mtstdlib
+	path = lib/mtea
 	url = ../ModelTea-stdlib.git

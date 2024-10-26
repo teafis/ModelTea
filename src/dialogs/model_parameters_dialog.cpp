@@ -3,12 +3,12 @@
 #include "model_parameters_dialog.h"
 #include "ui_model_parameters_dialog.h"
 
-#include <library_manager.hpp>
+#include <model_manager.hpp>
 #include <model_exception.hpp>
 
 #include <QMessageBox>
 
-ModelParametersDialog::ModelParametersDialog(std::shared_ptr<tmdl::Model> model, const QString& model_name, QWidget* parent)
+ModelParametersDialog::ModelParametersDialog(std::shared_ptr<mtea::Model> model, const QString& model_name, QWidget* parent)
     : QDialog(parent), ui(new Ui::ModelParametersDialog), model(model) {
     ui->setupUi(this);
 
@@ -18,7 +18,7 @@ ModelParametersDialog::ModelParametersDialog(std::shared_ptr<tmdl::Model> model,
 }
 
 void ModelParametersDialog::accept() {
-    const auto& model_lib = tmdl::LibraryManager::get_instance().default_model_library();
+    const auto& model_lib = mtea::ModelManager::get_instance().default_model_library();
 
     bool success = false;
     const double dtVal = ui->dtLineEdit->text().toDouble(&success);
@@ -34,7 +34,7 @@ void ModelParametersDialog::accept() {
     try {
         model->set_description(ui->descriptionTextEdit->document()->toPlainText().toStdString());
         model->set_preferred_dt(dtVal);
-    } catch (const tmdl::ModelException& ex) {
+    } catch (const mtea::ModelException& ex) {
         model->set_description(orig_desc);
         model->set_preferred_dt(orig_dt);
 

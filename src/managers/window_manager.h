@@ -22,18 +22,18 @@ private:
     explicit WindowManager(QObject* parent = nullptr);
 
 public:
-    void register_window(const ModelWindow* window, const tmdl::Model* model);
+    void register_window(const ModelWindow* window, const mtea::Model* model);
 
     void clear_window(const ModelWindow* window);
 
-    bool model_is_open(const tmdl::Model* model) const;
+    bool model_is_open(const mtea::Model* model) const;
 
-    const ModelWindow* window_for_model(const tmdl::Model* model) const;
+    const ModelWindow* window_for_model(const mtea::Model* model) const;
 
     std::vector<const ModelWindow*> all_windows();
 
 private:
-    std::unordered_map<const ModelWindow*, const tmdl::Model*> window_id_values;
+    std::unordered_map<const ModelWindow*, const mtea::Model*> window_id_values;
 };
 
 #endif // WINDOWMANAGER_H

@@ -7,7 +7,7 @@
 
 #include <QMessageBox>
 
-ParameterNumericWidget::ParameterNumericWidget(std::shared_ptr<tmdl::ParameterValue> parameter, QWidget* parent)
+ParameterNumericWidget::ParameterNumericWidget(std::shared_ptr<mtea::ParameterValue> parameter, QWidget* parent)
     : QWidget(parent), ui(new Ui::ParameterNumericWidget), parameter(parameter) {
     ui->setupUi(this);
 
@@ -19,10 +19,10 @@ ParameterNumericWidget::ParameterNumericWidget(std::shared_ptr<tmdl::ParameterVa
 
 void ParameterNumericWidget::textChanged() {
     try {
-        auto value = tmdl::ModelValue::from_string(ui->textEntry->text().toStdString(), parameter->get_value()->data_type());
+        auto value = mtea::ModelValue::from_string(ui->textEntry->text().toStdString(), parameter->get_value()->data_type());
 
         parameter->set_value(std::move(value));
-    } catch (const tmdl::ModelException& ex) {
+    } catch (const mtea::ModelException& ex) {
         auto* msg = new QMessageBox(this);
         msg->setText(ex.what());
         msg->setWindowTitle("Parameter Error");

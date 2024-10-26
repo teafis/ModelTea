@@ -17,7 +17,7 @@ class ParameterDataTypeWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit ParameterDataTypeWidget(std::shared_ptr<tmdl::ParameterDataType> parameter, QWidget* parent = nullptr);
+    explicit ParameterDataTypeWidget(std::shared_ptr<mtea::ParameterDataType> parameter, QWidget* parent = nullptr);
     ~ParameterDataTypeWidget();
 
 protected slots:
@@ -27,13 +27,13 @@ signals:
     void parameterUpdated();
 
 private:
-    tmdl::DataType& get_value_data_type();
+    mtea::DataType& get_value_data_type();
 
 private:
     Ui::ParameterDataTypeWidget* ui;
-    std::shared_ptr<tmdl::ParameterDataType> parameter;
+    std::shared_ptr<mtea::ParameterDataType> parameter;
 
-    std::unordered_map<std::string, tmdl::DataType> map_values;
+    std::unordered_map<std::string, mtea::DataType> map_values;
 };
 
 #endif // PARAMETER_DATATYPE_WIDGET_H

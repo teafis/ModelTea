@@ -14,7 +14,7 @@
 
 #include "dialogs/model_parameters_dialog.h"
 
-#include <library_manager.hpp>
+#include <model_manager.hpp>
 #include <model_block.hpp>
 #include <model_exception.hpp>
 
@@ -27,7 +27,7 @@
 
 #include "exceptions/model_exception.h"
 
-const QString ModelWindow::default_file_filter = QString("Model (*%1);; Any (*.*)").arg(tmdl::Model::DEFAULT_MODEL_EXTENSION.c_str());
+const QString ModelWindow::default_file_filter = QString("Model (*%1);; Any (*.*)").arg(mtea::Model::DEFAULT_MODEL_EXTENSION.c_str());
 
 ModelWindow::ModelWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::ModelWindow) {
     // Setup the main UI
@@ -49,7 +49,7 @@ ModelWindow::ModelWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::Mode
 
 ModelWindow::~ModelWindow() {
     delete ui;
-    tmdl::LibraryManager::get_instance().default_model_library()->close_unused_models();
+    mtea::ModelManager::get_instance().default_model_library()->close_unused_models();
 }
 
 bool ModelWindow::check_can_close_current_model() {
@@ -154,11 +154,11 @@ void ModelWindow::saveModel() {
     if (!get_model_id()->get_filename().has_value()) {
         saveModelAs();
     } else {
-        const auto mdl_library = tmdl::LibraryManager::get_instance().default_model_library();
+        const auto mdl_library = mtea::ModelManager::get_instance().default_model_library();
 
         try {
             mdl_library->save_model(get_model_id());
-        } catch (const tmdl::ModelException& ex) {
+        } catch (const mtea::ModelException& ex) {
             QMessageBox::warning(this, "error", ex.what());
             return;
         }
@@ -172,14 +172,14 @@ void ModelWindow::saveModelAs() {
     if (!saveName.isEmpty()) {
         std::filesystem::path pth(saveName.toStdString());
         if (!pth.has_extension()) {
-            pth.replace_extension(tmdl::Model::DEFAULT_MODEL_EXTENSION);
+            pth.replace_extension(mtea::Model::DEFAULT_MODEL_EXTENSION);
         }
 
-        const auto mdl_library = tmdl::LibraryManager::get_instance().default_model_library();
+        const auto mdl_library = mtea::ModelManager::get_instance().default_model_library();
 
         try {
             mdl_library->save_model(get_model_id(), pth);
-        } catch (const tmdl::ModelException& ex) {
+        } catch (const mtea::ModelException& ex) {
             QMessageBox::warning(this, "error", ex.what());
             return;
         }
@@ -205,12 +205,12 @@ void ModelWindow::openFileDialog() {
 }
 
 bool ModelWindow::openModelFile(QString openFilename) {
-    std::shared_ptr<tmdl::Model> mdl = nullptr;
-    const auto mdl_library = tmdl::LibraryManager::get_instance().default_model_library();
+    std::shared_ptr<mtea::Model> mdl = nullptr;
+    const auto mdl_library = mtea::ModelManager::get_instance().default_model_library();
 
     try {
         mdl = mdl_library->load_model(openFilename.toStdString());
-    } catch (const tmdl::ModelException& ex) {
+    } catch (const mtea::ModelException& ex) {
         QMessageBox::warning(this, "error", ex.what());
         return false;
     }
@@ -222,8 +222,8 @@ bool ModelWindow::openModelFile(QString openFilename) {
     return true;
 }
 
-bool ModelWindow::openModel(std::shared_ptr<tmdl::Model> model) {
-    const auto mdl_library = tmdl::LibraryManager::get_instance().default_model_library();
+bool ModelWindow::openModel(std::shared_ptr<mtea::Model> model) {
+    const auto mdl_library = mtea::ModelManager::get_instance().default_model_library();
 
     if (auto mdl_new = mdl_library->try_get_model(model->get_name())) {
         model = mdl_new;
@@ -254,18 +254,18 @@ bool ModelWindow::openModel(std::shared_ptr<tmdl::Model> model) {
 void ModelWindow::closeModel() {
     const auto model = ui->block_graphics->get_model();
     const auto name = model->get_name();
-    const auto weak_val = std::weak_ptr<tmdl::Model>(model);
+    const auto weak_val = std::weak_ptr<mtea::Model>(model);
     const auto model_id = model.get();
 
     changeModel(nullptr);
 
-    auto mdl_library = tmdl::LibraryManager::get_instance().default_model_library();
+    auto mdl_library = mtea::ModelManager::get_instance().default_model_library();
 
     try {
         if (!name.empty()) {
             mdl_library->close_model(model_id);
         }
-    } catch (const tmdl::ModelException& ex) {
+    } catch (const mtea::ModelException& ex) {
         QMessageBox::warning(this, "error", ex.what());
 
         auto model_ptr = weak_val.lock();
@@ -286,12 +286,12 @@ void ModelWindow::saveCode() {
 
     try {
         const auto model = ui->block_graphics->get_model();
-        tmdl::codegen::CodeGenerator gen(std::make_unique<tmdl::ModelBlock>(ui->block_graphics->get_model(), "")
-                                             ->get_compiled(tmdl::BlockInterface::ModelInfo(model->get_preferred_dt())));
+        mtea::codegen::CodeGenerator gen(std::make_unique<mtea::ModelBlock>(ui->block_graphics->get_model(), "")
+                                             ->get_compiled(mtea::BlockInterface::ModelInfo(model->get_preferred_dt())));
 
         std::filesystem::path gen_path(fn.toStdString());
         gen.write_in_folder(gen_path.parent_path());
-    } catch (const tmdl::codegen::CodegenError& err) {
+    } catch (const mtea::codegen::CodegenError& err) {
         QMessageBox::warning(this, "Error", err.what());
     }
 }
@@ -302,7 +302,7 @@ void ModelWindow::exit_all() {
     }
 }
 
-void ModelWindow::changeModel(std::shared_ptr<tmdl::Model> model) {
+void ModelWindow::changeModel(std::shared_ptr<mtea::Model> model) {
     if (!check_can_close_current_model()) {
         return;
     }
@@ -316,7 +316,7 @@ void ModelWindow::changeModel(std::shared_ptr<tmdl::Model> model) {
 
         // Set the new model
         if (model == nullptr) {
-            model = std::make_shared<tmdl::Model>();
+            model = std::make_shared<mtea::Model>();
         } else if (WindowManager::instance().model_is_open(model.get())) {
             throw ModelException("model already open");
         }
@@ -352,11 +352,11 @@ void ModelWindow::generateExecutor() {
     const auto model = ui->block_graphics->get_model();
 
     try {
-        executor = std::make_shared<tmdl::ExecutionState>(tmdl::ExecutionState::from_model(model, model->get_preferred_dt()));
+        executor = std::make_shared<mtea::ExecutionState>(mtea::ExecutionState::from_model(model, model->get_preferred_dt()));
         executor->init();
 
         for (size_t i = 0; i < model->get_num_outputs(); ++i) {
-            const auto outer_id = tmdl::VariableIdentifier{.block_id = 0, .output_port_num = i};
+            const auto outer_id = mtea::VariableIdentifier{.block_id = 0, .output_port_num = i};
 
             const std::string varname = fmt::format("*Output {} ({})", i, model->get_output_ids()[i]);
             executor->add_name_to_variable(varname, outer_id);
@@ -375,7 +375,7 @@ void ModelWindow::generateExecutor() {
         ExecutorManager::instance().setWindowExecutor(get_model_id());
 
         updateWindowItems();
-    } catch (const tmdl::ModelException& ex) {
+    } catch (const mtea::ModelException& ex) {
         QMessageBox::warning(this, "Parameter Error", ex.what());
         executor = nullptr;
         return;
@@ -457,7 +457,7 @@ void ModelWindow::addBlock(QString l, QString s) {
     }
 
     // Initialze the block
-    auto tmp = tmdl::LibraryManager::get_instance().get_library(l.toStdString())->create_block(s.toStdString());
+    auto tmp = mtea::ModelManager::get_instance().get_library(l.toStdString())->create_block(s.toStdString());
 
     // Add the block
     ui->block_graphics->addBlock(std::move(tmp));
@@ -473,9 +473,9 @@ QString ModelWindow::currentModelName() const {
     return QString(model_name.c_str());
 }
 
-tmdl::Model* ModelWindow::get_model_id() { return ui->block_graphics->get_model().get(); }
+mtea::Model* ModelWindow::get_model_id() { return ui->block_graphics->get_model().get(); }
 
-const tmdl::Model* ModelWindow::get_model_id() const { return ui->block_graphics->get_model().get(); }
+const mtea::Model* ModelWindow::get_model_id() const { return ui->block_graphics->get_model().get(); }
 
 QString ModelWindow::get_filename() const {
     if (get_model_id() == nullptr) {

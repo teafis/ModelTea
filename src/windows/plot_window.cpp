@@ -7,7 +7,7 @@
 
 #include <value.hpp>
 
-PlotWindow::PlotWindow(std::shared_ptr<tmdl::ExecutionState> execution, QWidget* parent)
+PlotWindow::PlotWindow(std::shared_ptr<mtea::ExecutionState> execution, QWidget* parent)
     : QMainWindow(parent), ui(new Ui::PlotWindow), execution_state(execution) {
     ui->setupUi(this);
 
@@ -63,24 +63,24 @@ void PlotWindow::seriesListChanged() {
     }
 }
 
-static std::optional<double> double_from_variable(std::shared_ptr<const tmdl::ModelValue> ptr) {
-    if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::F64>>(ptr)) {
+static std::optional<double> double_from_variable(std::shared_ptr<const mtea::ModelValue> ptr) {
+    if (auto v = std::dynamic_pointer_cast<const mtea::ModelValueBox<mtea::DataType::F64>>(ptr)) {
         return v->value;
-    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::F32>>(ptr)) {
+    } else if (auto v = std::dynamic_pointer_cast<const mtea::ModelValueBox<mtea::DataType::F32>>(ptr)) {
         return static_cast<double>(v->value);
-    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::I32>>(ptr)) {
+    } else if (auto v = std::dynamic_pointer_cast<const mtea::ModelValueBox<mtea::DataType::I32>>(ptr)) {
         return static_cast<double>(v->value);
-    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::U32>>(ptr)) {
+    } else if (auto v = std::dynamic_pointer_cast<const mtea::ModelValueBox<mtea::DataType::U32>>(ptr)) {
         return static_cast<double>(v->value);
-    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::I16>>(ptr)) {
+    } else if (auto v = std::dynamic_pointer_cast<const mtea::ModelValueBox<mtea::DataType::I16>>(ptr)) {
         return static_cast<double>(v->value);
-    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::U16>>(ptr)) {
+    } else if (auto v = std::dynamic_pointer_cast<const mtea::ModelValueBox<mtea::DataType::U16>>(ptr)) {
         return static_cast<double>(v->value);
-    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::I8>>(ptr)) {
+    } else if (auto v = std::dynamic_pointer_cast<const mtea::ModelValueBox<mtea::DataType::I8>>(ptr)) {
         return static_cast<double>(v->value);
-    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::U8>>(ptr)) {
+    } else if (auto v = std::dynamic_pointer_cast<const mtea::ModelValueBox<mtea::DataType::U8>>(ptr)) {
         return static_cast<double>(v->value);
-    } else if (auto v = std::dynamic_pointer_cast<const tmdl::ModelValueBox<tmdl::DataType::BOOL>>(ptr)) {
+    } else if (auto v = std::dynamic_pointer_cast<const mtea::ModelValueBox<mtea::DataType::BOOL>>(ptr)) {
         return (v->value) ? 1.0 : 0.0;
     } else {
         return std::nullopt;

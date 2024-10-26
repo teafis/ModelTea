@@ -16,7 +16,7 @@ void ConnectionParametersDialog::accept() {
     try {
         connector->set_name(n.c_str());
         QDialog::accept();
-    } catch (const tmdl::ModelException& err) {
+    } catch (const mtea::ModelException& err) {
         QMessageBox::warning(this, "error", err.what());
     }
 }

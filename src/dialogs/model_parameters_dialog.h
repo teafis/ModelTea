@@ -15,14 +15,14 @@ class ModelParametersDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit ModelParametersDialog(std::shared_ptr<tmdl::Model> model, const QString& model_name, QWidget* parent = nullptr);
+    explicit ModelParametersDialog(std::shared_ptr<mtea::Model> model, const QString& model_name, QWidget* parent = nullptr);
     ~ModelParametersDialog();
 
     virtual void accept() override;
 
 private:
     Ui::ModelParametersDialog* ui;
-    std::shared_ptr<tmdl::Model> model;
+    std::shared_ptr<mtea::Model> model;
 };
 
 #endif // MODEL_PARAMETERS_DIALOG_H

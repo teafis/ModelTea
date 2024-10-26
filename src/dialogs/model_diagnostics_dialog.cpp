@@ -5,7 +5,7 @@
 
 #include "exceptions/model_exception.h"
 
-ModelDiagnosticsDialog::ModelDiagnosticsDialog(const std::shared_ptr<const tmdl::Model> model, QWidget* parent)
+ModelDiagnosticsDialog::ModelDiagnosticsDialog(const std::shared_ptr<const mtea::Model> model, QWidget* parent)
     : QDialog(parent), ui(new Ui::ModelDiagnosticsDialog), model(model) {
     if (model == nullptr) {
         throw ModelException("model cannot be null");
@@ -15,7 +15,7 @@ ModelDiagnosticsDialog::ModelDiagnosticsDialog(const std::shared_ptr<const tmdl:
     updateDiagnostics();
 }
 
-void ModelDiagnosticsDialog::setModel(std::shared_ptr<const tmdl::Model> m) {
+void ModelDiagnosticsDialog::setModel(std::shared_ptr<const mtea::Model> m) {
     if (m == nullptr) {
         throw ModelException("model cannot be null");
     } else {

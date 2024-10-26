@@ -5,13 +5,13 @@
 
 #include "exceptions/block_object_exception.h"
 
-ParameterDataTypeWidget::ParameterDataTypeWidget(std::shared_ptr<tmdl::ParameterDataType> parameter, QWidget* parent)
+ParameterDataTypeWidget::ParameterDataTypeWidget(std::shared_ptr<mtea::ParameterDataType> parameter, QWidget* parent)
     : QWidget(parent), ui(new Ui::ParameterDataTypeWidget), parameter(parameter) {
     ui->setupUi(this);
 
     std::optional<int> selected_index{};
 
-    for (const auto dt_meta : mt::stdlib::get_meta_types()) {
+    for (const auto dt_meta : mtea::get_meta_types()) {
         if (map_values.contains(dt_meta->get_name())) {
             throw BlockObjectException(fmt::format("duplicate name provided for {}", dt_meta->get_name()));
         }
@@ -39,7 +39,7 @@ ParameterDataTypeWidget::~ParameterDataTypeWidget() { delete ui; }
 
 void ParameterDataTypeWidget::selectionChanged(int) {
     const auto it = map_values.find(ui->comboBox->currentText().toStdString());
-    tmdl::DataType new_dtype = tmdl::DataType::NONE;
+    mtea::DataType new_dtype = mtea::DataType::NONE;
 
     if (it != map_values.end()) {
         new_dtype = it->second;
@@ -51,6 +51,6 @@ void ParameterDataTypeWidget::selectionChanged(int) {
     }
 }
 
-tmdl::DataType& ParameterDataTypeWidget::get_value_data_type() {
+mtea::DataType& ParameterDataTypeWidget::get_value_data_type() {
     return parameter->get_type();
 }

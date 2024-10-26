@@ -20,7 +20,7 @@ static const double BASE_SIZE = 50;
 static const double HEIGHT_PER_IO = 50;
 static const double IO_RADIUS = 5;
 
-BlockObject::BlockObject(const std::shared_ptr<tmdl::BlockInterface> block) : block(block) {
+BlockObject::BlockObject(const std::shared_ptr<mtea::BlockInterface> block) : block(block) {
     // Set the provided parent to help with destruction
     setFlag(QGraphicsItem::ItemIsSelectable, true);
 
@@ -33,7 +33,7 @@ BlockObject::BlockObject(const std::shared_ptr<tmdl::BlockInterface> block) : bl
 }
 
 void BlockObject::locUpdated() {
-    block->set_loc(tmdl::BlockLocation(x(), y()));
+    block->set_loc(mtea::BlockLocation(x(), y()));
 
     emit sceneLocationUpdated();
 }
@@ -206,7 +206,7 @@ void BlockObject::updateBlock() {
         ;
 }
 
-std::shared_ptr<const tmdl::BlockInterface> BlockObject::get_block() const { return block; }
+std::shared_ptr<const mtea::BlockInterface> BlockObject::get_block() const { return block; }
 
 void BlockObject::setInverted(const bool value) {
     block->set_inverted(value);

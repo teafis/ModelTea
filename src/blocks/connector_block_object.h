@@ -15,7 +15,7 @@ class ConnectorBlockObject : public ConnectorObject {
     Q_OBJECT
 
 public:
-    ConnectorBlockObject(std::shared_ptr<tmdl::Connection> connection, const BlockObject* from_block, const BlockObject* to_block);
+    ConnectorBlockObject(std::shared_ptr<mtea::Connection> connection, const BlockObject* from_block, const BlockObject* to_block);
 
     bool isValidConnection() const;
 
@@ -44,7 +44,7 @@ protected:
     virtual QVector<QPointF> getLinePoints() const override;
 
 protected:
-    const std::shared_ptr<tmdl::Connection> connection;
+    const std::shared_ptr<mtea::Connection> connection;
 
     const BlockObject* from_block;
     const BlockObject* to_block;

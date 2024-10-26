@@ -13,9 +13,9 @@ ExecutorManager::ExecutorManager(QObject* parent) : QObject{parent}, _executor_m
     // Empty Constructor
 }
 
-std::optional<const tmdl::Model*> ExecutorManager::windowExecutor() const { return _executor_model; }
+std::optional<const mtea::Model*> ExecutorManager::windowExecutor() const { return _executor_model; }
 
-void ExecutorManager::setWindowExecutor(const tmdl::Model* model) {
+void ExecutorManager::setWindowExecutor(const mtea::Model* model) {
     if (_executor_model.has_value()) {
         throw ModelException("model cannot be null");
     }

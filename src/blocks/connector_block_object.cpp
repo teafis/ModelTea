@@ -10,7 +10,7 @@
 
 #include "exceptions/block_object_exception.h"
 
-ConnectorBlockObject::ConnectorBlockObject(std::shared_ptr<tmdl::Connection> connection, const BlockObject* from_block,
+ConnectorBlockObject::ConnectorBlockObject(std::shared_ptr<mtea::Connection> connection, const BlockObject* from_block,
                                            const BlockObject* to_block)
     : ConnectorObject(), connection(connection), from_block(from_block), to_block(to_block) {
     // Check Inputs

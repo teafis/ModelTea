@@ -3,7 +3,7 @@
 #include "block_selector_dialog.h"
 #include "ui_block_selector_dialog.h"
 
-#include <library_manager.hpp>
+#include <model_manager.hpp>
 
 BlockSelectorDialog::BlockSelectorDialog(QWidget* parent) : QDialog(parent), ui(new Ui::BlockSelectorDialog) {
     ui->setupUi(this);
@@ -18,7 +18,7 @@ BlockSelectorDialog::~BlockSelectorDialog() { delete ui; }
 void BlockSelectorDialog::librarySelectionUpdated() {
     ui->listBlocks->clear();
 
-    const tmdl::LibraryManager& manager = tmdl::LibraryManager::get_instance();
+    const mtea::ModelManager& manager = mtea::ModelManager::get_instance();
 
     const auto& items = ui->listLibraries->selectedItems();
     for (const auto* itm : std::as_const(items)) {
@@ -44,7 +44,7 @@ void BlockSelectorDialog::itemSelected(QListWidgetItem* item) {
 }
 
 void BlockSelectorDialog::updateLibrary() {
-    const tmdl::LibraryManager& manager = tmdl::LibraryManager::get_instance();
+    const mtea::ModelManager& manager = mtea::ModelManager::get_instance();
     ui->listLibraries->clear();
     for (const auto& n : manager.get_library_names()) {
         QListWidgetItem* item = new QListWidgetItem(QString(n.c_str()), ui->listLibraries);

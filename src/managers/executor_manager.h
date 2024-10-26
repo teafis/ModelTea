@@ -19,9 +19,9 @@ private:
     explicit ExecutorManager(QObject* parent = nullptr);
 
 public:
-    std::optional<const tmdl::Model*> windowExecutor() const;
+    std::optional<const mtea::Model*> windowExecutor() const;
 
-    void setWindowExecutor(const tmdl::Model* model);
+    void setWindowExecutor(const mtea::Model* model);
 
     void reset();
 
@@ -29,7 +29,7 @@ signals:
     void executorFlagChanged();
 
 private:
-    std::optional<const tmdl::Model*> _executor_model;
+    std::optional<const mtea::Model*> _executor_model;
 };
 
 #endif // EXECUTORMANAGER_H

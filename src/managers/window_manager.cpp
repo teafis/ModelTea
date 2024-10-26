@@ -14,7 +14,7 @@ WindowManager::WindowManager(QObject* parent) : QObject{parent} {
     // Empty Constructor
 }
 
-void WindowManager::register_window(const ModelWindow* window, const tmdl::Model* model) {
+void WindowManager::register_window(const ModelWindow* window, const mtea::Model* model) {
     if (model_is_open(model)) {
         throw ModelException("model already open");
     } else if (window == nullptr || model == nullptr) {
@@ -31,7 +31,7 @@ void WindowManager::clear_window(const ModelWindow* window) {
     }
 }
 
-bool WindowManager::model_is_open(const tmdl::Model* model) const {
+bool WindowManager::model_is_open(const mtea::Model* model) const {
     for (const auto it : window_id_values) {
         if (it.second == model) {
             return true;
@@ -41,7 +41,7 @@ bool WindowManager::model_is_open(const tmdl::Model* model) const {
     return false;
 }
 
-const ModelWindow* WindowManager::window_for_model(const tmdl::Model* model) const {
+const ModelWindow* WindowManager::window_for_model(const mtea::Model* model) const {
     for (const auto& it : window_id_values) {
         if (it.second == model) {
             return it.first;

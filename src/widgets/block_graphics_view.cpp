@@ -14,7 +14,7 @@
 
 #include <QMouseEvent>
 
-#include <library_manager.hpp>
+#include <model_manager.hpp>
 #include <model_exception.hpp>
 
 #include "blocks/connector_object.h"
@@ -36,7 +36,7 @@ static const int CONNECTOR_Z_ORDER = -1;
 
 BlockGraphicsView::BlockGraphicsView(QWidget* parent) : QGraphicsView(parent), selectedItem(nullptr) {
     // Attempt to create a new model
-    modelInstance = tmdl::LibraryManager::get_instance().default_model_library()->create_new_model();
+    modelInstance = mtea::ModelManager::get_instance().default_model_library()->create_new_model();
 
     // Set the scene
     setScene(new QGraphicsScene(this));
@@ -155,13 +155,13 @@ void BlockGraphicsView::mouseReleaseEvent(QMouseEvent* event) {
         }
 
         if (portDragState->is_complete()) {
-            const auto conn = std::make_shared<tmdl::Connection>(
+            const auto conn = std::make_shared<mtea::Connection>(
                 portDragState->get_output().block->get_block()->get_id(), portDragState->get_output().port_count,
                 portDragState->get_input().block->get_block()->get_id(), portDragState->get_input().port_count);
 
             try {
                 get_model()->add_connection(conn);
-            } catch (const tmdl::ModelException& ex) {
+            } catch (const mtea::ModelException& ex) {
                 QMessageBox::warning(this, "error", ex.what());
                 mouseState = nullptr;
                 return;
@@ -195,7 +195,7 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event) {
         ;
 
         if (BlockObject* block = findBlockForMousePress(mappedPos); block != nullptr) {
-            if (const auto mdl_block = std::dynamic_pointer_cast<const tmdl::ModelBlock>(block->get_block())) {
+            if (const auto mdl_block = std::dynamic_pointer_cast<const mtea::ModelBlock>(block->get_block())) {
                 if (ModelWindow* wnd = const_cast<ModelWindow*>(WindowManager::instance().window_for_model(mdl_block->get_model().get()))) {
                     wnd->show();
                     wnd->raise();
@@ -203,7 +203,7 @@ void BlockGraphicsView::mouseDoubleClickEvent(QMouseEvent* event) {
                 } else {
                     auto new_window = new ModelWindow();
                     auto load_mdl =
-                        tmdl::LibraryManager::get_instance().default_model_library()->get_model(mdl_block->get_model()->get_name());
+                        mtea::ModelManager::get_instance().default_model_library()->get_model(mdl_block->get_model()->get_name());
                     new_window->openModel(load_mdl);
 
                     new_window->show();
@@ -367,7 +367,7 @@ bool BlockGraphicsView::blockBodyContainsMouse(const QPointF& pos, const BlockOb
     return block->blockRectContainsPoint(pos);
 }
 
-void BlockGraphicsView::addConnectionItem(const std::shared_ptr<tmdl::Connection> connection, const BlockObject* from_block,
+void BlockGraphicsView::addConnectionItem(const std::shared_ptr<mtea::Connection> connection, const BlockObject* from_block,
                                           const BlockObject* to_block) {
     // Construct the connector object
     ConnectorBlockObject* conn_obj = new ConnectorBlockObject(connection, from_block, to_block);
@@ -386,9 +386,9 @@ void BlockGraphicsView::addConnectionItem(const std::shared_ptr<tmdl::Connection
 
 void BlockGraphicsView::onModelChanged() { modelInstance->set_unsaved_changes(); }
 
-std::shared_ptr<tmdl::Model> BlockGraphicsView::get_model() const { return modelInstance; }
+std::shared_ptr<mtea::Model> BlockGraphicsView::get_model() const { return modelInstance; }
 
-void BlockGraphicsView::set_model(std::shared_ptr<tmdl::Model> mdl) {
+void BlockGraphicsView::set_model(std::shared_ptr<mtea::Model> mdl) {
     if (!isEnabled()) {
         throw ModelException("cannot change model while disabled");
     }
@@ -455,7 +455,7 @@ void BlockGraphicsView::set_model(std::shared_ptr<tmdl::Model> mdl) {
     updateModel();
 }
 
-void BlockGraphicsView::addBlock(std::shared_ptr<tmdl::BlockInterface> blk) {
+void BlockGraphicsView::addBlock(std::shared_ptr<mtea::BlockInterface> blk) {
     if (!isEnabled()) {
         return;
     }
@@ -463,7 +463,7 @@ void BlockGraphicsView::addBlock(std::shared_ptr<tmdl::BlockInterface> blk) {
     // Add the block to the model
     try {
         get_model()->add_block(blk);
-    } catch (const tmdl::ModelException& ex) {
+    } catch (const mtea::ModelException& ex) {
         QMessageBox::warning(this, "error", ex.what());
         return;
     }

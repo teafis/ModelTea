@@ -8,7 +8,7 @@ set(VCPKG_BOOTSTRAP_OPTIONS "-disableMetrics")
 
 set(
     CMAKE_TOOLCHAIN_FILE
-    "vcpkg/scripts/buildsystems/vcpkg.cmake"
+    "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
     CACHE STRING "vcpkg toolchain file")
 set(QT_CREATOR_SKIP_VCPKG_SETUP ON)
 
@@ -30,8 +30,8 @@ find_package(Catch2 CONFIG REQUIRED)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_subdirectory(lib/mtstdlib)
-add_subdirectory(lib/tmdl)
+add_subdirectory(lib/mtea)
+add_subdirectory(lib/mtea-dyn)
 
 set(PROJECT_SOURCES
     src/main.cpp
@@ -77,7 +77,7 @@ set_property(TARGET ModelTea PROPERTY CXX_STANDARD_REQUIRED ON)
 target_include_directories(ModelTea PRIVATE src/)
 
 target_link_libraries(ModelTea PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-target_link_libraries(ModelTea PRIVATE tmdl mtstdlib)
+target_link_libraries(ModelTea PRIVATE mtea-dyn mtea)
 
 target_link_libraries(ModelTea PRIVATE Qt::Widgets Qt::Charts)
 target_link_libraries(ModelTea PRIVATE nlohmann_json::nlohmann_json)

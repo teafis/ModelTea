@@ -11,7 +11,7 @@
 #include <variable_manager.hpp>
 
 struct ItemSelector {
-    std::shared_ptr<const tmdl::ModelValue> var;
+    std::shared_ptr<const mtea::ModelValue> var;
     QString name;
     QLineSeries* series;
 };

@@ -32,7 +32,7 @@ public:
     };
 
 public:
-    BlockObject(const std::shared_ptr<tmdl::BlockInterface> block);
+    BlockObject(const std::shared_ptr<mtea::BlockInterface> block);
 
     virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr);
 
@@ -42,7 +42,7 @@ public:
 
     void updateBlock();
 
-    std::shared_ptr<const tmdl::BlockInterface> get_block() const;
+    std::shared_ptr<const mtea::BlockInterface> get_block() const;
 
     void setInverted(bool value);
 
@@ -80,7 +80,7 @@ protected:
     QRectF blockRect() const;
 
 protected:
-    std::shared_ptr<tmdl::BlockInterface> block;
+    std::shared_ptr<mtea::BlockInterface> block;
 };
 
 #endif // BLOCKOBJECT_H

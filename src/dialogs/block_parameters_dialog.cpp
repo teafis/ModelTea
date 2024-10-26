@@ -33,11 +33,11 @@ void BlockParameterDialog::reloadParameters() {
 
         QWidget* widget = nullptr;
 
-        if (const auto prm_mdl = std::dynamic_pointer_cast<tmdl::ParameterValue>(prm)) {
+        if (const auto prm_mdl = std::dynamic_pointer_cast<mtea::ParameterValue>(prm)) {
             const auto dt = prm_mdl->get_value()->data_type();
-            const auto dt_meta = mt::stdlib::get_meta_type(dt);
+            const auto dt_meta = mtea::get_meta_type(dt);
 
-            if (dt == tmdl::DataType::BOOL) {
+            if (dt == mtea::DataType::BOOL) {
                 ParameterBooleanWidget* w = new ParameterBooleanWidget(prm_mdl, this);
                 connect(w, &ParameterBooleanWidget::parameterUpdated, this, &BlockParameterDialog::updateForParameters);
                 widget = w;
@@ -46,7 +46,7 @@ void BlockParameterDialog::reloadParameters() {
                 connect(w, &ParameterNumericWidget::parameterUpdated, this, &BlockParameterDialog::updateForParameters);
                 widget = w;
             }
-        } else if (const auto prm_dt = std::dynamic_pointer_cast<tmdl::ParameterDataType>(prm)) {
+        } else if (const auto prm_dt = std::dynamic_pointer_cast<mtea::ParameterDataType>(prm)) {
             ParameterDataTypeWidget* w = new ParameterDataTypeWidget(prm_dt, this);
             connect(w, &ParameterDataTypeWidget::parameterUpdated, this, &BlockParameterDialog::updateForParameters);
             widget = w;

@@ -46,7 +46,7 @@ public slots:
 
     bool openModelFile(QString openFilename);
 
-    bool openModel(std::shared_ptr<tmdl::Model> model);
+    bool openModel(std::shared_ptr<mtea::Model> model);
 
     void closeModel();
 
@@ -55,7 +55,7 @@ public slots:
     void exit_all();
 
 protected:
-    void changeModel(std::shared_ptr<tmdl::Model> model);
+    void changeModel(std::shared_ptr<mtea::Model> model);
 
 public slots:
     void showDiagnostics();
@@ -88,8 +88,8 @@ signals:
     void modelChanged();
 
 private:
-    tmdl::Model* get_model_id();
-    const tmdl::Model* get_model_id() const;
+    mtea::Model* get_model_id();
+    const mtea::Model* get_model_id() const;
     QString get_filename() const;
     bool has_unsaved_changes() const;
     bool check_can_close_current_model();
@@ -101,7 +101,7 @@ private:
     BlockSelectorDialog* window_library = nullptr;
     PlotWindow* window_plot = nullptr;
 
-    std::shared_ptr<tmdl::ExecutionState> executor;
+    std::shared_ptr<mtea::ExecutionState> executor;
 
     static const std::string default_extension;
     static const QString default_file_filter;

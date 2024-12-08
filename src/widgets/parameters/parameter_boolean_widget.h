@@ -20,7 +20,7 @@ public:
     ~ParameterBooleanWidget();
 
 protected slots:
-    void checkedStateChange(int);
+    void checkedStateChange(Qt::CheckState);
 
 signals:
     void parameterUpdated();

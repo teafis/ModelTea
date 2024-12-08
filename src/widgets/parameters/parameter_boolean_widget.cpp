@@ -16,12 +16,12 @@ ParameterBooleanWidget::ParameterBooleanWidget(std::shared_ptr<mtea::ParameterVa
     ui->lblName->setText(parameter->get_name().c_str());
     ui->chkSelection->setChecked(param_value());
 
-    connect(ui->chkSelection, &QCheckBox::stateChanged, this, &ParameterBooleanWidget::checkedStateChange);
+    connect(ui->chkSelection, &QCheckBox::checkStateChanged, this, &ParameterBooleanWidget::checkedStateChange);
 }
 
 ParameterBooleanWidget::~ParameterBooleanWidget() { delete ui; }
 
-void ParameterBooleanWidget::checkedStateChange(int state) {
+void ParameterBooleanWidget::checkedStateChange(Qt::CheckState state) {
     param_value() = state == Qt::CheckState::Checked;
     ui->chkSelection->setChecked(param_value());
 

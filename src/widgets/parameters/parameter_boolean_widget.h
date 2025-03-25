@@ -14,13 +14,19 @@ class ParameterBooleanWidget;
 class ParameterBooleanWidget : public QWidget {
     Q_OBJECT
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    using check_state_t = Qt::CheckState;
+#else
+    using check_state_t = int;
+#endif
+
 public:
     explicit ParameterBooleanWidget(std::shared_ptr<mtea::ParameterValue> parameter, QWidget* parent = nullptr);
 
     ~ParameterBooleanWidget();
 
 protected slots:
-    void checkedStateChange(Qt::CheckState);
+    void checkedStateChange(check_state_t);
 
 signals:
     void parameterUpdated();

@@ -4,12 +4,6 @@ cmake_minimum_required(VERSION 3.18)
 
 enable_testing()
 
-set(
-    CMAKE_TOOLCHAIN_FILE
-    "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
-    CACHE STRING "vcpkg toolchain file")
-set(QT_CREATOR_SKIP_VCPKG_SETUP ON)
-
 set(VCPKG_FEATURE_FLAGS "versions")
 
 project(ModelTea VERSION 0.1 LANGUAGES CXX)

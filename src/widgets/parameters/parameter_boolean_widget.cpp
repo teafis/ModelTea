@@ -16,15 +16,18 @@ ParameterBooleanWidget::ParameterBooleanWidget(std::shared_ptr<mtea::ParameterVa
     ui->lblName->setText(parameter->get_name().c_str());
     ui->chkSelection->setChecked(param_value());
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
     connect(ui->chkSelection, &QCheckBox::checkStateChanged, this, &ParameterBooleanWidget::checkedStateChange);
+#else
+    connect(ui->chkSelection, &QCheckBox::stateChanged, this, &ParameterBooleanWidget::checkedStateChange);
+#endif
 }
 
 ParameterBooleanWidget::~ParameterBooleanWidget() { delete ui; }
 
-void ParameterBooleanWidget::checkedStateChange(Qt::CheckState state) {
+void ParameterBooleanWidget::checkedStateChange(check_state_t state) {
     param_value() = state == Qt::CheckState::Checked;
     ui->chkSelection->setChecked(param_value());
-
     emit parameterUpdated();
 }
 
